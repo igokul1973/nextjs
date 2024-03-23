@@ -1,0 +1,437 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRoleEnum {
+  superuser
+  admin
+  writer
+  reader
+
+  @@map("userRoleEnum")
+}
+
+enum EntitiesEnum {
+  individual
+  organization
+
+  @@map("Entities")
+}
+
+enum AccountRelationEnum {
+  provider
+  customer
+}
+
+enum InvoiceStatusEnum {
+  pending
+  paid
+  cancelled
+
+  @@map("invoiceStatus")
+}
+
+enum EmailTypeEnum {
+  main
+  invoicing
+  secondary
+}
+
+enum PhoneTypeEnum {
+  mobile
+  home
+  invoicing
+  other
+}
+
+model account {
+  id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  users        user[]
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  individual   individual[]
+  organization organization[]
+
+  @@map("accounts")
+}
+
+model user {
+  id        String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name      String       @db.VarChar(255)
+  email     String       @unique
+  phone     String       @unique
+  password  String
+  role      UserRoleEnum
+  accountId String       @map("account_id") @db.Uuid
+  account   account      @relation(fields: [accountId], references: [id])
+  profile   profile?
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  updatedBy String?      @map("updated_by") @db.Uuid
+
+  @@map("users")
+}
+
+model profile {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  firstName  String   @map("first_name") @db.VarChar(255)
+  lastName   String   @map("last_name") @db.VarChar(255)
+  middleName String?  @map("middle_name") @db.VarChar(255)
+  userId     String   @unique @map("user_id") @db.Uuid
+  user       user     @relation(fields: [userId], references: [id])
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy  String   @map("created_by") @db.Uuid
+  updatedBy  String   @map("updated_by") @db.Uuid
+
+  @@map("profiles")
+}
+
+model address {
+  id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  addressLine1 String         @map("address_line_1") @db.VarChar(255)
+  addressLine3 String         @map("address_line_2") @db.VarChar(255)
+  addressLine2 String         @map("address_line_3") @db.VarChar(255)
+  locality     String         @db.VarChar(255) // city, village, outpost
+  region       String         @db.VarChar(255) // oblast, region, US state
+  postcode     String         @db.VarChar(255) // index, zip code, postal code
+  countryId    String         @map("country_id") @db.Uuid // Sweden, USA
+  country      country        @relation(fields: [countryId], references: [id]) // Sweden, USA
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy    String         @map("created_by") @db.Uuid
+  updatedBy    String         @map("updated_by") @db.Uuid
+  individual   individual[]
+  organization organization[]
+
+  @@map("addresses")
+}
+
+model organizationPhone {
+  id             String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  type           PhoneTypeEnum
+  countryCode    String        @map("country_code") @db.VarChar(255) // 1, 7
+  number         String        @db.VarChar(255) // 7125553234
+  organizationId String        @map("organization_id") @db.Uuid
+  organization   organization  @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy      String        @map("created_by") @db.Uuid
+  updatedBy      String        @map("updated_by") @db.Uuid
+
+  @@map("organization_phones")
+}
+
+model individualPhone {
+  id           String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  type         PhoneTypeEnum
+  countryCode  String        @map("country_code") @db.VarChar(255) // 1, 7
+  number       String        @db.VarChar(255) // 7125553234
+  individualId String        @map("individual_id") @db.Uuid
+  individual   individual    @relation(fields: [individualId], references: [id])
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy    String        @map("created_by") @db.Uuid
+  updatedBy    String        @map("updated_by") @db.Uuid
+
+  @@map("individual_phones")
+}
+
+model organizationEmail {
+  id             String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  type           EmailTypeEnum
+  organizationId String        @map("organization_id") @db.Uuid
+  organization   organization  @relation(fields: [organizationId], references: [id])
+  email          String        @db.VarChar(255)
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy      String        @map("created_by") @db.Uuid
+  updatedBy      String        @map("updated_by") @db.Uuid
+
+  @@map("organization_emails")
+}
+
+model individualEmail {
+  id           String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  type         EmailTypeEnum
+  individualId String        @map("individual_id") @db.Uuid
+  individual   individual    @relation(fields: [individualId], references: [id])
+  email        String        @db.VarChar(255)
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy    String        @map("created_by") @db.Uuid
+  updatedBy    String        @map("updated_by") @db.Uuid
+
+  @@map("individual_emails")
+}
+
+model country {
+  id      String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name    String    @db.VarChar(255)
+  address address[]
+
+  @@map("countries")
+}
+
+model localIdentifierName {
+  id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name         String         @db.VarChar(255)
+  country      String         @db.VarChar(255)
+  type         EntitiesEnum
+  individual   individual[]
+  organization organization[]
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy    String         @map("created_by") @db.Uuid
+  updatedBy    String         @map("updated_by") @db.Uuid
+
+  @@map("local_identifier_names")
+}
+
+// Individuals (both clients and service providers)
+model individual {
+  id                    String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  firstName             String              @db.VarChar(255)
+  lastName              String              @db.VarChar(255)
+  middleName            String?             @db.VarChar(255)
+  dob                   DateTime?           @db.Date
+  localIdentifierNameId String              @map("local_identifier_name") @db.Uuid
+  localIdentifierNames  localIdentifierName @relation(fields: [localIdentifierNameId], references: [id])
+  localIdentifierValue  String              @map("local_identifier_value")
+  description           String?             @db.Text
+  addressId             String              @map("address_id") @db.Uuid
+  address               address             @relation(fields: [addressId], references: [id])
+  localIdentifierId     String              @db.Uuid
+  accountId             String              @map("account_id") @db.Uuid
+  account               account             @relation(fields: [accountId], references: [id])
+  accountRelation       AccountRelationEnum
+  customerId            String?             @unique @map("customer_id") @db.Uuid
+  customer              customer?           @relation(fields: [customerId], references: [id])
+  individualEmail       individualEmail[]
+  individualPhone       individualPhone[]
+  createdAt             DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy             String              @map("created_by") @db.Uuid
+  updatedBy             String              @map("updated_by") @db.Uuid
+
+  @@map("individuals")
+}
+
+model individualAttribute {
+  id                              String                            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                            String                            @db.VarChar(255)
+  // individualId String   @map("individual_id") @db.Uuid
+  // individual   individual  @relation(fields: [individualId], references: [id])
+  individualAttributeStringValue  individualAttributeStringValue[]
+  individualAttributeNumericValue individualAttributeNumericValue[]
+  createdAt                       DateTime                          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                       DateTime                          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy                       String                            @map("created_by") @db.Uuid
+  updatedBy                       String                            @map("updated_by") @db.Uuid
+
+  @@map("individual_attributes")
+}
+
+model individualAttributeStringValue {
+  id           String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  attributeId  String               @map("attribute_id") @db.Uuid
+  individualId String               @map("individual_id") @db.Uuid
+  value        String
+  attribute    individualAttribute? @relation(fields: [attributeId], references: [id])
+  createdAt    DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy    String               @map("created_by") @db.Uuid
+  updatedBy    String               @map("updated_by") @db.Uuid
+
+  @@map("individual_attribute_string_values")
+}
+
+model individualAttributeNumericValue {
+  id           String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  attributeId  String              @map("attribute_id") @db.Uuid
+  individualId String              @map("individual_id") @db.Uuid
+  value        Int
+  attribute    individualAttribute @relation(fields: [individualId], references: [id])
+  createdAt    DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy    String              @map("created_by") @db.Uuid
+  updatedBy    String              @map("updated_by") @db.Uuid
+
+  @@map("individual_attribute_numeric_values")
+}
+
+// Organizations (both clients and service providers)
+model organization {
+  id                     String                  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                   String                  @db.VarChar(255)
+  description            String                  @db.Text
+  typeId                 String                  @unique @map("type_id") @db.Uuid
+  types                  organizationType        @relation(fields: [typeId], references: [id])
+  isPrivate              Boolean?                @map("is_private") @db.Boolean // as opposed to government
+  isCharity              Boolean?                @map("is_charity") @db.Boolean // 
+  localIdentifier        localIdentifierName?    @relation(fields: [localIdentifierId], references: [id])
+  localIdentifierId      String?                 @db.Uuid
+  localIdentifierValue   String                  @map("local_identifier_value")
+  organizationAttributes organizationAttribute[]
+  addressId              String                  @map("address_id") @db.Uuid
+  address                address                 @relation(fields: [addressId], references: [id])
+  accountId              String                  @map("account_id") @db.Uuid
+  account                account                 @relation(fields: [accountId], references: [id])
+  accountRelation        AccountRelationEnum
+  customerId             String?                 @unique @map("customer_id") @db.Uuid
+  customer               customer?               @relation(fields: [customerId], references: [id])
+  organizationEmail      organizationEmail[]
+  organizationPhone      organizationPhone[]
+  createdAt              DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt              DateTime                @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy              String                  @map("created_by") @db.Uuid
+  updatedBy              String                  @map("updated_by") @db.Uuid
+
+  @@map("organizations")
+}
+
+model organizationType {
+  id           String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  type         String        @db.VarChar(255) // AB, Handelsbolag, LLC, Corporation
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  organization organization?
+
+  @@map("organization_types")
+}
+
+model organizationAttribute {
+  id                                String                              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                              String                              @db.VarChar(255)
+  // organizationId String   @map("organization_id") @db.Uuid
+  // organization   organization  @relation(fields: [organizationId], references: [id])
+  organizationAttributeStringValue  organizationAttributeStringValue[]
+  organizationAttributeNumericValue organizationAttributeNumericValue[]
+  organization                      organization?                       @relation(fields: [organizationId], references: [id])
+  organizationId                    String?                             @db.Uuid
+  createdAt                         DateTime                            @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                         DateTime                            @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy                         String                              @map("created_by") @db.Uuid
+  updatedBy                         String                              @map("updated_by") @db.Uuid
+
+  @@map("organization_attributes")
+}
+
+model organizationAttributeStringValue {
+  id                    String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  attributeId           String                @map("attribute_id") @db.Uuid
+  organizationId        String                @map("organization_id") @db.Uuid
+  value                 Int
+  organizationAttribute organizationAttribute @relation(fields: [organizationId], references: [id])
+  createdAt             DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime              @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy             String                @map("created_by") @db.Uuid
+  updatedBy             String                @map("updated_by") @db.Uuid
+
+  @@map("organization_attribute_string_values")
+}
+
+model organizationAttributeNumericValue {
+  id                    String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  attributeId           String                @map("attribute_id") @db.Uuid
+  organizationId        String                @map("organization_id") @db.Uuid
+  value                 Int
+  organizationAttribute organizationAttribute @relation(fields: [organizationId], references: [id])
+  createdAt             DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime              @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy             String                @map("created_by") @db.Uuid
+  updatedBy             String                @map("updated_by") @db.Uuid
+
+  @@map("organization_attribute_numeric_values")
+}
+
+model inventoryType {
+  id        String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  type      String      @unique @db.VarChar(255) // service, product
+  inventory inventory[]
+  createdAt DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy String      @map("created_by") @db.Uuid
+  updatedBy String      @map("updated_by") @db.Uuid
+
+  @@map("inventory_type")
+}
+
+model inventory {
+  id               String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name             String        @db.VarChar(255) // hair-cut, installation, screw-driver, pipe
+  description      String?       @db.Text
+  typeId           String        @map("type_id") @db.Uuid
+  type             inventoryType @relation(fields: [typeId], references: [id]) // service, product
+  externalCode     String?       @map("external_code") @db.VarChar(255) // e.g. code from store invoice or receipt
+  internalCode     String?       @map("internal_code") @db.VarChar(255) // e.g. code inside accounting software
+  manufacturerCode String?       @map("manufacturer_code") @db.VarChar(255) // e.g. code from store invoice or receipt
+  price            Int
+  createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy        String        @map("created_by") @db.Uuid
+  updatedBy        String        @map("updated_by") @db.Uuid
+  invoiceItem      invoiceItem[]
+}
+
+model customer {
+  id           String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  invoices     invoice[]
+  organization organization?
+  individual   individual?
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("customers")
+}
+
+model invoice {
+  id                    String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  number                String // whatever number assigned to invoice for internal purposes
+  date                  DateTime          @db.Timestamptz(3)
+  customerId            String            @map("customer_id") @db.Uuid
+  customer              customer          @relation(fields: [customerId], references: [id])
+  status                InvoiceStatusEnum
+  invoiceItems          invoiceItem[] // inventory items
+  purchaseOrderNumber   String?           @map("purchase_order_number") // number related to PO
+  additionalInformation String            @db.Text // arbitrary information provided to customer
+  payBy                 DateTime          @map("pay_by") @db.Timestamptz(3)
+  paidOn                DateTime?         @map("pay_on") @db.Timestamptz(3)
+  billingInfo           String            @db.Text // How to pay
+  terms                 String            @db.Text // Any additional terms and conditions
+  tax                   Int? // tax percentage (can be state sales tax in USA or VAT in Europe)
+  notes                 String?           @db.Text // internal notes
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy             String            @map("created_by") @db.Uuid
+  updatedBy             String            @map("updated_by") @db.Uuid
+
+  @@map("invoices")
+}
+
+model invoiceItem {
+  id          String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name        String     @map("name") @db.Text
+  price       Int
+  quantity    Int
+  invoiceId   String     @map("invoice_id") @db.Uuid
+  invoice     invoice    @relation(fields: [invoiceId], references: [id])
+  inventory   inventory? @relation(fields: [inventoryId], references: [id])
+  inventoryId String?    @db.Uuid
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy   String     @map("created_by") @db.Uuid
+  updatedBy   String     @map("updated_by") @db.Uuid
+
+  @@map("invoice_items")
+}
+
+// model revenue {
+//   month   String @unique @db.VarChar(4)
+//   revenue Int
+// }

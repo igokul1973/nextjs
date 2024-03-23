@@ -1,0 +1,19 @@
+{
+    "transpileOnly": true,
+    "compilerOptions": {
+        "lib": ["dom", "dom.iterable", "esnext"],
+        "skipLibCheck": true,
+        "strict": true,
+        "target": "es6",
+        "noEmit": true,
+        "allowImportingTsExtensions": true,
+        "module": "esnext",
+        "moduleResolution": "Bundler",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
+        "esModuleInterop": true
+    },
+    "include": ["**/*.ts", "../app/lib/placeholder-data.ts"],
+    "exclude": ["node_modules"],
+    "esm": true // <--- this is the most important part
+}
