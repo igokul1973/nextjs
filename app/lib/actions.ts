@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import prisma from './prisma';
+import { deleteInvoiceById } from './data/invoices';
 
 const FormSchema = z.object({
     id: z.string(),
@@ -78,7 +79,7 @@ export async function updateInvoice(id: string, formData: FormData) {
 
     // Creating invoice in DB
     try {
-        await prisma.invoices.update({
+        await prisma.invoice.update({
             where: {
                 id
             },
@@ -100,11 +101,7 @@ export async function deleteInvoice(id: string): Promise<{ message: string }> {
 
     // Creating invoice in DB
     try {
-        await prisma.invoice.delete({
-            where: {
-                id
-            }
-        });
+        await deleteInvoiceById(id);
         const successMessage = 'Successfully deleted invoice.';
         console.log(successMessage);
 

@@ -1,10 +1,53 @@
 import prisma from '@/app/lib/prisma';
 import { InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore } from 'next/cache';
+import { LatestInvoice } from '../../definitions';
 import { flattenCustomer } from '../../utils';
 import { TFetchInvoicePayload, fetchInvoiceSelect } from './types';
 
 const ITEMS_PER_PAGE = 6;
+
+export async function fetchLatestInvoices(): Promise<LatestInvoice[]> {
+    try {
+        noStore();
+
+        // const invoices = await prisma.invoice.findMany({
+        //     relationLoadStrategy: 'join',
+        //     select: {
+        //         id: true,
+        //         amount: true,
+        //         customer: {
+        //             select: {
+        //                 name: true,
+        //                 image_url: true,
+        //                 email: true
+        //             }
+        //         }
+        //     },
+        //     orderBy: {
+        //         date: 'desc'
+        //     },
+        //     take: 5
+        // });
+
+        // const latestInvoices = invoices.map(
+        //     ({ id, amount, customer: { name, image_url, email } }) => ({
+        //         id,
+        //         amount: formatCurrency(amount),
+        //         name,
+        //         image_url,
+        //         email
+        //     })
+        // );
+
+        // return latestInvoices;
+
+        return [];
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw new Error('Failed to fetch the latest invoices.');
+    }
+}
 
 export async function fetchInvoiceById(
     id: string
@@ -277,4 +320,12 @@ export async function fetchFilteredInvoicesCount(query: string) {
         console.error('Database Error:', error);
         throw new Error('Failed to fetch total number of invoices.');
     }
+}
+
+export async function deleteInvoiceById(id: string) {
+    return prisma.invoice.delete({
+        where: {
+            id
+        }
+    });
 }

@@ -1,9 +1,59 @@
 // This file contains placeholder data that you'll be replacing with real data in the Data Fetching chapter:
 // https://nextjs.org/learn/dashboard-app/fetching-data
 
-import { UserRoleEnum } from '@prisma/client';
+import {
+    AccountRelationEnum,
+    EmailTypeEnum,
+    EntitiesEnum,
+    PhoneTypeEnum,
+    UserRoleEnum
+} from '@prisma/client';
 
-const countries = [{ name: 'Russia' }, { name: 'Sweden' }, { name: 'USA' }];
+const countries = [
+    {
+        name: 'USA',
+        localIdentifierNames: [
+            {
+                name: 'Employer Identification Number',
+                abbreviation: 'EIN',
+                type: EntitiesEnum.organization
+            },
+            {
+                name: 'Social Security Number',
+                abbreviation: 'SSN',
+                type: EntitiesEnum.individual
+            }
+        ]
+    },
+    {
+        name: 'Sweden',
+        localIdentifierNames: [
+            {
+                name: 'Organisationsnummer',
+                type: EntitiesEnum.organization
+            },
+            {
+                name: 'Personnummer',
+                type: EntitiesEnum.individual
+            }
+        ]
+    },
+    {
+        name: 'Russia',
+        localIdentifierNames: [
+            {
+                name: 'Основной государственный регистрационный номер',
+                abbreviation: 'ОГРН',
+                type: EntitiesEnum.organization
+            },
+            {
+                name: 'Идентификационный номер налогоплательщика',
+                abbreviation: 'ИНН',
+                type: EntitiesEnum.individual
+            }
+        ]
+    }
+];
 
 const organizationTypes = [
     { type: 'Corporation' },
@@ -12,32 +62,22 @@ const organizationTypes = [
     { type: 'LLC' }
 ];
 
-const inventoryTypes = [{ type: 'product' }, { type: 'service' }];
+const inventoryTypes = [{ type: 'product' }, { type: 'service' }, { type: 'miscellaneous' }];
 
 const users = [
     {
-        name: 'igor',
-        email: 'igor@igor.com',
-        phone: '+15127601955',
-        password: '123456',
-        role: UserRoleEnum.superuser
-    },
-    {
-        name: 'admin1',
         email: 'admin1@admin1.com',
         phone: '+17127601933',
         password: '123456',
         role: UserRoleEnum.admin
     },
     {
-        name: 'admin2',
         email: 'admin2@admin2.com',
         phone: '+12127601966',
         password: '123456',
         role: UserRoleEnum.admin
     },
     {
-        name: 'user1',
         email: 'user1@user1.com',
         phone: '+13128601919',
         password: '123456',
@@ -46,11 +86,6 @@ const users = [
 ];
 
 const profiles = [
-    {
-        firstName: 'Steven',
-        lastName: 'Ku',
-        middleName: 'Balezny'
-    },
     {
         firstName: 'Norma',
         lastName: 'Dobbs'
@@ -66,161 +101,485 @@ const profiles = [
     }
 ];
 
-const customers = [
+const providerIndividual = {
+    firstName: 'Tony',
+    lastName: 'Blair',
+    dob: '1975-08-22',
+    description: 'Description of Tony Blair, the service provider',
+    localIdentifierValue: '3033-86-51',
+    address: {
+        addressLine1: '83 Nagano str.',
+        locality: 'Nashville',
+        region: 'TN',
+        postcode: '93029-8332',
+        country: 'USA'
+    },
+    accountRelation: AccountRelationEnum.provider,
+    emails: [{ email: 'tony@blair.us', type: EmailTypeEnum.main }],
+    phones: [{ countryCode: '1', number: '9392001921', type: PhoneTypeEnum.mobile }]
+};
+
+const customerIndividuals = [
     {
-        id: '3958dc91-712f-4377-85e9-fec4b6a64987',
-        name: 'Delba de Oliveira',
-        email: 'delba@oliveira.com',
-        image_url: '/customers/delba-de-oliveira.png'
+        firstName: 'Delba',
+        lastName: 'de Oliveira',
+        dob: '2000-12-12',
+        description: 'Description of the customer Delba de Oliveira',
+        localIdentifierValue: '3234-23-33',
+        address: {
+            addressLine1: '93 Mowsel Street',
+            addressLine2: 'apt. 20',
+            locality: 'Portland',
+            region: 'OR',
+            postcode: '98093-4332',
+            country: 'USA'
+        },
+        accountRelation: AccountRelationEnum.customer,
+        emails: [
+            { email: 'delba@oliveira.se', type: EmailTypeEnum.main },
+            { email: 'delba@work.com', type: EmailTypeEnum.work }
+        ],
+        phones: [
+            { countryCode: '1', number: '8373282731', type: PhoneTypeEnum.work },
+            { countryCode: '1', number: '9893627263', type: PhoneTypeEnum.home }
+        ]
     },
     {
-        id: '3958dc9e-742f-4377-85e9-fec4b6a64398',
-        name: 'Lee Robinson',
-        email: 'lee@robinson.com',
-        image_url: '/customers/lee-robinson.png'
+        firstName: 'Lee',
+        lastName: 'Robinson',
+        middleName: 'Horace',
+        dob: '1976-12-12',
+        description: 'Description of the customer Lee Horace Robinson',
+        localIdentifierValue: '7483-73-82',
+        address: {
+            addressLine1: '131 New Boulevard',
+            addressLine2: 'apt. 1',
+            locality: 'Seattle',
+            region: 'WA',
+            postcode: '92023',
+            country: 'USA'
+        },
+        accountRelation: AccountRelationEnum.customer,
+        emails: [{ email: 'leerobh@gmail.com', type: EmailTypeEnum.main }],
+        phones: [
+            { countryCode: '1', number: '3839292921', type: PhoneTypeEnum.work },
+            { countryCode: '1', number: '8386572928', type: PhoneTypeEnum.mobile }
+        ]
     },
     {
-        id: '3958dc9f-737f-4377-85e9-fec4b6a64ba3',
-        name: 'Hector Simpson',
-        email: 'hector@simpson.com',
-        image_url: '/customers/hector-simpson.png'
+        firstName: 'Hector',
+        lastName: 'Smith',
+        dob: '1988-11-02',
+        description: 'Description of the customer Hector Smith',
+        localIdentifierValue: '0983-22-33',
+        address: {
+            addressLine1: '131 Palisadess',
+            addressLine2: 'apt. 200',
+            locality: 'Seattle',
+            region: 'WA',
+            postcode: '92025',
+            country: 'USA'
+        },
+        accountRelation: AccountRelationEnum.customer,
+        emails: [{ email: 'hectorsmith11@gmail.com', type: EmailTypeEnum.main }],
+        phones: [
+            { countryCode: '1', number: '9392029300', type: PhoneTypeEnum.work },
+            { countryCode: '1', number: '7476662827', type: PhoneTypeEnum.mobile }
+        ]
     },
     {
-        id: '50ca3e18-62cd-11ee-8c99-0242ac120002',
-        name: 'Steven Tey',
-        email: 'steven@tey.com',
-        image_url: '/customers/steven-tey.png'
-    },
-    {
-        id: '3958dc9f-787f-4377-85e9-fec4b6a64dc5',
-        name: 'Steph Dietz',
-        email: 'steph@dietz.com',
-        image_url: '/customers/steph-dietz.png'
-    },
-    {
-        id: '76d65c26-f784-44a2-ac19-586678f7c2f2',
-        name: 'Michael Novotny',
-        email: 'michael@novotny.com',
-        image_url: '/customers/michael-novotny.png'
-    },
-    {
-        id: 'd6e15727-9fe1-4961-8c5b-ea44a9bd81aa',
-        name: 'Evil Rabbit',
-        email: 'evil@rabbit.com',
-        image_url: '/customers/evil-rabbit.png'
-    },
-    {
-        id: '126eed9c-c90c-4ef6-a4a8-fcf7408d3c66',
-        name: 'Emil Kowalski',
-        email: 'emil@kowalski.com',
-        image_url: '/customers/emil-kowalski.png'
-    },
-    {
-        id: 'CC27C14A-0ACF-4F4A-A6C9-D45682C144B9',
-        name: 'Amy Burns',
-        email: 'amy@burns.com',
-        image_url: '/customers/amy-burns.png'
-    },
-    {
-        id: '13D07535-C59E-4157-A011-F8D2EF4E0CBB',
-        name: 'Balazs Orban',
-        email: 'balazs@orban.com',
-        image_url: '/customers/balazs-orban.png'
+        firstName: 'Mara',
+        lastName: 'Karsson',
+        dob: '1944-01-09',
+        description: 'Description of the customer Mara Karsson',
+        localIdentifierValue: '098398-2998',
+        address: {
+            addressLine1: 'Bagartoprsringen 39',
+            addressLine2: 'lgh. 88',
+            locality: 'Stockholm',
+            region: 'Stockholm Lan',
+            postcode: '939900',
+            country: 'Sweden'
+        },
+        accountRelation: AccountRelationEnum.customer,
+        emails: [{ email: 'mara@gmail.com', type: EmailTypeEnum.other }],
+        phones: [{ countryCode: '1', number: '7476662827', type: PhoneTypeEnum.mobile }]
     }
 ];
 
-const invoices = [
+const providerOrganization = {
+    name: 'SBR Nord Grupp, HB',
+    description: 'Some Microsoft Co. description here. lorem ipsum',
+    type: 'LLC',
+    isPrivate: true,
+    isCharity: false,
+    localIdentifierValue: '9302194-3288',
+    address: {
+        addressLine1: 'Torvaldsongatu 33',
+        addressLine2: '3 vaning',
+        locality: 'Ekero',
+        postcode: '930293',
+        country: 'Sweden'
+    },
+    accountRelation: AccountRelationEnum.provider,
+    emails: [{ email: 'main@sbrnordgrupp.se', type: EmailTypeEnum.main }],
+    phones: [{ countryCode: '46', number: '9392039921', type: PhoneTypeEnum.work }]
+};
+
+const customerOrganizations = [
     {
-        customer_id: customers[0].id,
-        amount: 15795,
-        status: 'pending',
-        date: '2022-12-06'
+        name: 'Microsoft',
+        description: 'Some Microsoft Co. description here. lorem ipsum',
+        type: 'LLC',
+        isPrivate: true,
+        isCharity: false,
+        localIdentifierValue: '3234-23-53',
+        address: {
+            addressLine1: '3234 Main Street',
+            addressLine2: 'Suite 20',
+            locality: 'New York',
+            region: 'NY',
+            postcode: '10023-4332',
+            country: 'USA'
+        },
+        accountRelation: AccountRelationEnum.customer,
+        emails: [
+            { email: 'main@microsoft.com', type: EmailTypeEnum.main },
+            { email: 'invoicing@microsoft.com', type: EmailTypeEnum.invoicing }
+        ],
+        phones: [
+            { countryCode: '1', number: '3423238593', type: PhoneTypeEnum.work },
+            { countryCode: '22', number: '3428388784', type: PhoneTypeEnum.invoicing }
+        ]
     },
     {
-        customer_id: customers[1].id,
-        amount: 20348,
-        status: 'pending',
-        date: '2022-11-14'
+        name: 'Oracle',
+        description: 'Some Oracle org description here. lorem ipsum and more stuff',
+        type: 'corporation',
+        isPrivate: true,
+        isCharity: true,
+        localIdentifierValue: '1293-28-93',
+        address: {
+            addressLine1: '823 Willow Road',
+            addressLine2: 'Suite 300',
+            locality: 'Boston',
+            region: 'MA',
+            postcode: '73882',
+            country: 'USA'
+        },
+        accountRelation: AccountRelationEnum.customer,
+        emails: [
+            { email: 'main@oracle.com', type: EmailTypeEnum.main },
+            { email: 'work@oracle.com', type: EmailTypeEnum.work }
+        ],
+        phones: [
+            { countryCode: '1', number: '7579998583', type: PhoneTypeEnum.work },
+            { countryCode: '1', number: '8384932811', type: PhoneTypeEnum.invoicing }
+        ]
     },
     {
-        customer_id: customers[4].id,
-        amount: 3040,
-        status: 'paid',
-        date: '2022-10-29'
+        name: 'Legman Brothers',
+        description: `Some Legman Brothers org description here. lorem ipsum and more stuff. Here I am describing a whole lot of the company's stuff`,
+        type: 'LLC',
+        isPrivate: false,
+        isCharity: false,
+        localIdentifierValue: '8332-08-20',
+        address: {
+            addressLine1: '1 Tullamore Road',
+            addressLine2: '3rd floor',
+            addressLine3: 'Ste 2001',
+            locality: 'Round Rock',
+            region: 'TX',
+            postcode: '78928',
+            country: 'USA'
+        },
+        accountRelation: AccountRelationEnum.customer,
+        emails: [{ email: 'other@oracle.com', type: EmailTypeEnum.other }],
+        phones: [{ countryCode: '1', number: '1234379990', type: PhoneTypeEnum.invoicing }]
     },
     {
-        customer_id: customers[3].id,
-        amount: 44800,
-        status: 'paid',
-        date: '2023-09-10'
+        name: 'ABC Handlesbolag',
+        description: `Some ABC Handelsbolag org description here. lorem ipsum and more stuff. Here I am describing a whole lot of the company's stuff`,
+        type: 'Handelsbolag',
+        isPrivate: false,
+        isCharity: false,
+        localIdentifierValue: '8332-0970-08-20',
+        address: {
+            addressLine1: '1 Tullamore ringen',
+            addressLine2: '3rd vaning',
+            addressLine3: 'Ste 2001',
+            locality: 'Kopenhaveg',
+            region: 'Stockholm lan',
+            postcode: '789280',
+            country: 'Sweden'
+        },
+        accountRelation: AccountRelationEnum.customer,
+        emails: [{ email: 'other@abc.com', type: EmailTypeEnum.other }],
+        phones: [{ countryCode: '46', number: '9002932990', type: PhoneTypeEnum.mobile }]
     },
     {
-        customer_id: customers[5].id,
-        amount: 34577,
-        status: 'pending',
-        date: '2023-08-05'
+        name: 'ABC Actiebolag',
+        description: `Some ABC Actiebolag org description here. lorem ipsum and more stuff. Here I am describing a whole lot of the company's stuff`,
+        type: 'AB',
+        isPrivate: true,
+        isCharity: false,
+        localIdentifierValue: '9392-9382-08-13',
+        address: {
+            addressLine1: '1 Ulvesta Vagen',
+            addressLine2: '3rd vaning',
+            locality: 'Balsta',
+            postcode: '940989',
+            country: 'Sweden'
+        },
+        accountRelation: AccountRelationEnum.customer,
+        emails: [{ email: 'other@abcactie.com', type: EmailTypeEnum.other }],
+        phones: [{ countryCode: '46', number: '9302223490', type: PhoneTypeEnum.mobile }]
     },
     {
-        customer_id: customers[7].id,
-        amount: 54246,
-        status: 'pending',
-        date: '2023-07-16'
-    },
-    {
-        customer_id: customers[6].id,
-        amount: 666,
-        status: 'pending',
-        date: '2023-06-27'
-    },
-    {
-        customer_id: customers[3].id,
-        amount: 32545,
-        status: 'paid',
-        date: '2023-06-09'
-    },
-    {
-        customer_id: customers[4].id,
-        amount: 1250,
-        status: 'paid',
-        date: '2023-06-17'
-    },
-    {
-        customer_id: customers[5].id,
-        amount: 8546,
-        status: 'paid',
-        date: '2023-06-07'
-    },
-    {
-        customer_id: customers[1].id,
-        amount: 500,
-        status: 'paid',
-        date: '2023-08-19'
-    },
-    {
-        customer_id: customers[5].id,
-        amount: 8945,
-        status: 'paid',
-        date: '2023-06-03'
-    },
-    {
-        customer_id: customers[2].id,
-        amount: 8945,
-        status: 'paid',
-        date: '2023-06-18'
-    },
-    {
-        customer_id: customers[0].id,
-        amount: 8945,
-        status: 'paid',
-        date: '2023-10-04'
-    },
-    {
-        customer_id: customers[2].id,
-        amount: 1000,
-        status: 'paid',
-        date: '2022-06-05'
+        name: 'Coolorobado AB',
+        description: `Some Coolorobado AB org description here. lorem ipsum and more stuff. Here I am describing a whole lot of the company's stuff`,
+        type: 'AB',
+        isPrivate: true,
+        isCharity: false,
+        localIdentifierValue: '8985-3737-89-55',
+        address: {
+            addressLine1: '12 Morengen vagen',
+            locality: 'Nyneshamn',
+            postcode: '930290',
+            country: 'Sweden'
+        },
+        accountRelation: AccountRelationEnum.customer,
+        emails: [{ email: 'other@Coolorobado.com', type: EmailTypeEnum.main }],
+        phones: [{ countryCode: '46', number: '4334129333', type: PhoneTypeEnum.work }]
     }
 ];
+
+const inventory = [
+    {
+        name: 'Product 1',
+        description: 'Something 1 description',
+        type: 'product',
+        price: 1000,
+        externalCode: 'RXF1TTS-D',
+        internalCode: 'LPMRF32-X',
+        manufacturerCode: 'TTS-LLMPD',
+        manufacturerPrice: 800
+    },
+    {
+        name: 'Product 2',
+        description: 'Product 2 description',
+        type: 'product',
+        price: 800,
+        externalCode: 'RXF1TTS-D',
+        internalCode: 'LPMRF32-X',
+        manufacturerCode: 'TTS-LLMPD',
+        manufacturerPrice: 700
+    },
+    {
+        name: 'Product 3',
+        description: 'Product 3 description',
+        type: 'product',
+        price: 5000,
+        externalCode: 'RXF1TTS-D',
+        internalCode: 'LPMRF32-X',
+        manufacturerCode: 'TTS-LLMPD',
+        manufacturerPrice: 4000
+    },
+    {
+        name: 'Product 4',
+        description: 'Product 4 description',
+        type: 'product',
+        price: 800,
+        externalCode: 'RXF1TTS-D',
+        internalCode: 'LPMRF32-X',
+        manufacturerCode: 'TTS-LLMPD',
+        manufacturerPrice: 700
+    },
+    {
+        name: 'Product 5',
+        description: 'Product 5 description',
+        type: 'product',
+        price: 8000,
+        externalCode: 'RXF1TTS-D',
+        internalCode: 'LPMRF32-X',
+        manufacturerCode: 'TTS-LLMPD',
+        manufacturerPrice: 7000
+    },
+    {
+        name: 'Product 6',
+        description:
+            'Product 6 description and this one is a pretty long one just in case I want to check how it will lay out',
+        type: 'product',
+        price: 1000,
+        externalCode: 'RXF1TTS-D',
+        internalCode: 'LPMRF32-X',
+        manufacturerCode: 'TTS-LLMPD',
+        manufacturerPrice: 500
+    },
+    {
+        name: 'Service 1',
+        description:
+            'Service 1 description and this one is a pretty long one just in case I want to check how it will lay out',
+        type: 'service',
+        price: 10000,
+        externalCode: 'KKF1TTS-D1',
+        internalCode: 'DDMRF32-1'
+    },
+    {
+        name: 'Service 2',
+        description:
+            'Service 2 description and this one is a pretty long one just in case I want to check how it will lay out',
+        type: 'service',
+        price: 20000,
+        externalCode: 'KKF1TTS-D2',
+        internalCode: 'DDMRF32-2'
+    },
+    {
+        name: 'Service 3',
+        description:
+            'Service 3 description and this one is a pretty long one just in case I want to check how it will lay out',
+        type: 'service',
+        price: 30000,
+        externalCode: 'KKF1TTS-D3',
+        internalCode: 'DDMRF32-3'
+    },
+    {
+        name: 'Service 4',
+        description:
+            'Service 4 description and this one is a pretty long one just in case I want to check how it will lay out',
+        type: 'service',
+        price: 40000,
+        externalCode: 'KKF1TTS-D4',
+        internalCode: 'DDMRF32-4'
+    },
+    {
+        name: 'Service 5',
+        description: 'Service 5 description and this one is - mummification',
+        type: 'service',
+        price: 50000,
+        externalCode: 'KKF1TTS-D5',
+        internalCode: 'DDMRF32-5'
+    },
+    {
+        name: 'Service 6',
+        description: 'Service 6 description pretty short now',
+        type: 'service',
+        price: 60000,
+        externalCode: 'KKF1TTS-D6',
+        internalCode: 'DDMRF32-6'
+    },
+    {
+        name: 'Some miscellaneous stuff',
+        description:
+            'Some miscellaneous description pretty short now, but it still does what it has to',
+        type: 'miscellaneous',
+        price: 22700,
+        externalCode: 'KKF1TTS-DM',
+        internalCode: 'DDMRF32-M'
+    },
+    {
+        name: 'Another miscellaneous stuff',
+        description:
+            'Some other badly needed and very long miscellaneous description pretty short now, but it still does what it has to. There is more description here than anywhere else in the world. Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur exercitationem, unde maiores, asperiores, dolores inventore expedita sit dicta error fugiat necessitatibus commodi vero voluptate. Ut quo odit sapiente reprehenderit odio a distinctio, magnam saepe dicta quas quos laborum consequuntur repellendus enim, optio unde corrupti numquam ipsa culpa aut nostrum minima. Exercitationem nostrum, perspiciatis veritatis deleniti cum voluptate qui quod eligendi eius eum aspernatur! Animi excepturi quaerat repudiandae ex at labore, consequuntur in eum! Repellat dolores delectus sint aut suscipit ad mollitia explicabo optio. Nobis beatae laudantium modi, cum pariatur sint doloribus, incidunt eveniet natus ea reiciendis quam dignissimos sapiente architecto.',
+        type: 'miscellaneous',
+        price: 7470,
+        externalCode: 'KKF1TTS-DM2',
+        internalCode: 'DDMRF32-M2'
+    }
+];
+
+// const invoices = [
+//     {
+//         customer_id: customers[0].id,
+//         amount: 15795,
+//         status: 'pending',
+//         date: '2022-12-06'
+//     },
+//     {
+//         customer_id: customers[1].id,
+//         amount: 20348,
+//         status: 'pending',
+//         date: '2022-11-14'
+//     },
+//     {
+//         customer_id: customers[4].id,
+//         amount: 3040,
+//         status: 'paid',
+//         date: '2022-10-29'
+//     },
+//     {
+//         customer_id: customers[3].id,
+//         amount: 44800,
+//         status: 'paid',
+//         date: '2023-09-10'
+//     },
+//     {
+//         customer_id: customers[5].id,
+//         amount: 34577,
+//         status: 'pending',
+//         date: '2023-08-05'
+//     },
+//     {
+//         customer_id: customers[7].id,
+//         amount: 54246,
+//         status: 'pending',
+//         date: '2023-07-16'
+//     },
+//     {
+//         customer_id: customers[6].id,
+//         amount: 666,
+//         status: 'pending',
+//         date: '2023-06-27'
+//     },
+//     {
+//         customer_id: customers[3].id,
+//         amount: 32545,
+//         status: 'paid',
+//         date: '2023-06-09'
+//     },
+//     {
+//         customer_id: customers[4].id,
+//         amount: 1250,
+//         status: 'paid',
+//         date: '2023-06-17'
+//     },
+//     {
+//         customer_id: customers[5].id,
+//         amount: 8546,
+//         status: 'paid',
+//         date: '2023-06-07'
+//     },
+//     {
+//         customer_id: customers[1].id,
+//         amount: 500,
+//         status: 'paid',
+//         date: '2023-08-19'
+//     },
+//     {
+//         customer_id: customers[5].id,
+//         amount: 8945,
+//         status: 'paid',
+//         date: '2023-06-03'
+//     },
+//     {
+//         customer_id: customers[2].id,
+//         amount: 8945,
+//         status: 'paid',
+//         date: '2023-06-18'
+//     },
+//     {
+//         customer_id: customers[0].id,
+//         amount: 8945,
+//         status: 'paid',
+//         date: '2023-10-04'
+//     },
+//     {
+//         customer_id: customers[2].id,
+//         amount: 1000,
+//         status: 'paid',
+//         date: '2022-06-05'
+//     }
+// ];
 
 const revenue = [
     { month: 'Jan', revenue: 2000 },
@@ -300,12 +659,15 @@ const products = [
 
 export {
     countries,
+    customerOrganizations,
     inventoryTypes,
-    invoices,
+    // invoices,
     organizationTypes,
     productTypes,
     products,
     profiles,
+    providerIndividual,
+    providerOrganization,
     revenue,
     users
 };

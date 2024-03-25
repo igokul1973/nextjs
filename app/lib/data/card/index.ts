@@ -1,50 +1,7 @@
+import prisma from '@/app/lib/prisma';
+import { formatCurrency } from '@/app/lib/utils';
 import { InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore } from 'next/cache';
-import { LatestInvoice } from './definitions';
-import prisma from './prisma';
-import { formatCurrency } from './utils';
-
-export async function fetchLatestInvoices(): Promise<LatestInvoice[]> {
-    try {
-        noStore();
-
-        // const invoices = await prisma.invoice.findMany({
-        //     relationLoadStrategy: 'join',
-        //     select: {
-        //         id: true,
-        //         amount: true,
-        //         customer: {
-        //             select: {
-        //                 name: true,
-        //                 image_url: true,
-        //                 email: true
-        //             }
-        //         }
-        //     },
-        //     orderBy: {
-        //         date: 'desc'
-        //     },
-        //     take: 5
-        // });
-
-        // const latestInvoices = invoices.map(
-        //     ({ id, amount, customer: { name, image_url, email } }) => ({
-        //         id,
-        //         amount: formatCurrency(amount),
-        //         name,
-        //         image_url,
-        //         email
-        //     })
-        // );
-
-        // return latestInvoices;
-
-        return [];
-    } catch (error) {
-        console.error('Database Error:', error);
-        throw new Error('Failed to fetch the latest invoices.');
-    }
-}
 
 export async function fetchCardData() {
     noStore();
@@ -117,16 +74,5 @@ export async function fetchCardData() {
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Failed to fetch card data.');
-    }
-}
-
-export async function getUser(email: string) {
-    noStore();
-    try {
-        const user = await sql`SELECT * FROM users WHERE email=${email}`;
-        return user.rows[0] as User;
-    } catch (error) {
-        console.error('Failed to fetch user:', error);
-        throw new Error('Failed to fetch user.');
     }
 }

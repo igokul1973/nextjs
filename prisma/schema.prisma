@@ -30,6 +30,7 @@ enum AccountRelationEnum {
 }
 
 enum InvoiceStatusEnum {
+  draft
   pending
   paid
   cancelled
@@ -39,19 +40,23 @@ enum InvoiceStatusEnum {
 
 enum EmailTypeEnum {
   main
+  work
   invoicing
   secondary
+  other
 }
 
 enum PhoneTypeEnum {
   mobile
   home
+  work
   invoicing
   other
 }
 
 model account {
   id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  isActive     Boolean        @default(true)
   users        user[]
   createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -63,10 +68,10 @@ model account {
 
 model user {
   id        String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name      String       @db.VarChar(255)
   email     String       @unique
   phone     String       @unique
   password  String
+  isActive  Boolean      @default(true)
   role      UserRoleEnum
   accountId String       @map("account_id") @db.Uuid
   account   account      @relation(fields: [accountId], references: [id])
@@ -84,7 +89,7 @@ model profile {
   lastName   String   @map("last_name") @db.VarChar(255)
   middleName String?  @map("middle_name") @db.VarChar(255)
   userId     String   @unique @map("user_id") @db.Uuid
-  user       user     @relation(fields: [userId], references: [id])
+  user       user     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
   createdBy  String   @map("created_by") @db.Uuid
@@ -96,10 +101,10 @@ model profile {
 model address {
   id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   addressLine1 String         @map("address_line_1") @db.VarChar(255)
-  addressLine3 String         @map("address_line_2") @db.VarChar(255)
-  addressLine2 String         @map("address_line_3") @db.VarChar(255)
+  addressLine2 String?        @map("address_line_3") @db.VarChar(255)
+  addressLine3 String?        @map("address_line_2") @db.VarChar(255)
   locality     String         @db.VarChar(255) // city, village, outpost
-  region       String         @db.VarChar(255) // oblast, region, US state
+  region       String?        @db.VarChar(255) // oblast, region, US state
   postcode     String         @db.VarChar(255) // index, zip code, postal code
   countryId    String         @map("country_id") @db.Uuid // Sweden, USA
   country      country        @relation(fields: [countryId], references: [id]) // Sweden, USA
@@ -119,7 +124,7 @@ model organizationPhone {
   countryCode    String        @map("country_code") @db.VarChar(255) // 1, 7
   number         String        @db.VarChar(255) // 7125553234
   organizationId String        @map("organization_id") @db.Uuid
-  organization   organization  @relation(fields: [organizationId], references: [id])
+  organization   organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
   createdBy      String        @map("created_by") @db.Uuid
@@ -134,7 +139,7 @@ model individualPhone {
   countryCode  String        @map("country_code") @db.VarChar(255) // 1, 7
   number       String        @db.VarChar(255) // 7125553234
   individualId String        @map("individual_id") @db.Uuid
-  individual   individual    @relation(fields: [individualId], references: [id])
+  individual   individual    @relation(fields: [individualId], references: [id], onDelete: Cascade)
   createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
   createdBy    String        @map("created_by") @db.Uuid
@@ -147,7 +152,7 @@ model organizationEmail {
   id             String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   type           EmailTypeEnum
   organizationId String        @map("organization_id") @db.Uuid
-  organization   organization  @relation(fields: [organizationId], references: [id])
+  organization   organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   email          String        @db.VarChar(255)
   createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -161,7 +166,7 @@ model individualEmail {
   id           String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   type         EmailTypeEnum
   individualId String        @map("individual_id") @db.Uuid
-  individual   individual    @relation(fields: [individualId], references: [id])
+  individual   individual    @relation(fields: [individualId], references: [id], onDelete: Cascade)
   email        String        @db.VarChar(255)
   createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -172,9 +177,10 @@ model individualEmail {
 }
 
 model country {
-  id      String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name    String    @db.VarChar(255)
-  address address[]
+  id                  String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                String                @db.VarChar(255)
+  address             address[]
+  localIdentifierName localIdentifierName[]
 
   @@map("countries")
 }
@@ -182,7 +188,9 @@ model country {
 model localIdentifierName {
   id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name         String         @db.VarChar(255)
-  country      String         @db.VarChar(255)
+  abbreviation String?        @db.VarChar(12)
+  countryId    String         @map("country_id") @db.Uuid
+  country      country        @relation(fields: [countryId], references: [id], onDelete: Restrict)
   type         EntitiesEnum
   individual   individual[]
   organization organization[]
@@ -191,107 +199,65 @@ model localIdentifierName {
   createdBy    String         @map("created_by") @db.Uuid
   updatedBy    String         @map("updated_by") @db.Uuid
 
+  @@unique([name, countryId], name: "unique_identifier_per_country")
   @@map("local_identifier_names")
 }
 
 // Individuals (both clients and service providers)
 model individual {
-  id                    String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  firstName             String              @db.VarChar(255)
-  lastName              String              @db.VarChar(255)
-  middleName            String?             @db.VarChar(255)
-  dob                   DateTime?           @db.Date
-  localIdentifierNameId String              @map("local_identifier_name") @db.Uuid
-  localIdentifierNames  localIdentifierName @relation(fields: [localIdentifierNameId], references: [id])
-  localIdentifierValue  String              @map("local_identifier_value")
-  description           String?             @db.Text
-  addressId             String              @map("address_id") @db.Uuid
-  address               address             @relation(fields: [addressId], references: [id])
-  localIdentifierId     String              @db.Uuid
-  accountId             String              @map("account_id") @db.Uuid
-  account               account             @relation(fields: [accountId], references: [id])
+  id                    String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  firstName             String               @db.VarChar(255)
+  lastName              String               @db.VarChar(255)
+  middleName            String?              @db.VarChar(255)
+  localIdentifierNameId String?              @map("local_identifier_name_id") @db.Uuid
+  localIdentifierName   localIdentifierName? @relation(fields: [localIdentifierNameId], references: [id], onDelete: Restrict)
+  localIdentifierValue  String?              @map("local_identifier_value")
+  dob                   DateTime?            @db.Date
+  description           String?              @db.Text
+  attributes            Json?                @db.JsonB
+  addressId             String               @map("address_id") @db.Uuid
+  address               address              @relation(fields: [addressId], references: [id])
+  accountId             String               @map("account_id") @db.Uuid
+  account               account              @relation(fields: [accountId], references: [id], onDelete: Cascade)
   accountRelation       AccountRelationEnum
-  customerId            String?             @unique @map("customer_id") @db.Uuid
-  customer              customer?           @relation(fields: [customerId], references: [id])
+  customerId            String?              @unique @map("customer_id") @db.Uuid
+  customer              customer?            @relation(fields: [customerId], references: [id], onDelete: Cascade)
   individualEmail       individualEmail[]
   individualPhone       individualPhone[]
-  createdAt             DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt             DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy             String              @map("created_by") @db.Uuid
-  updatedBy             String              @map("updated_by") @db.Uuid
+  createdAt             DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy             String               @map("created_by") @db.Uuid
+  updatedBy             String               @map("updated_by") @db.Uuid
 
   @@map("individuals")
 }
 
-model individualAttribute {
-  id                              String                            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name                            String                            @db.VarChar(255)
-  // individualId String   @map("individual_id") @db.Uuid
-  // individual   individual  @relation(fields: [individualId], references: [id])
-  individualAttributeStringValue  individualAttributeStringValue[]
-  individualAttributeNumericValue individualAttributeNumericValue[]
-  createdAt                       DateTime                          @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt                       DateTime                          @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy                       String                            @map("created_by") @db.Uuid
-  updatedBy                       String                            @map("updated_by") @db.Uuid
-
-  @@map("individual_attributes")
-}
-
-model individualAttributeStringValue {
-  id           String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  attributeId  String               @map("attribute_id") @db.Uuid
-  individualId String               @map("individual_id") @db.Uuid
-  value        String
-  attribute    individualAttribute? @relation(fields: [attributeId], references: [id])
-  createdAt    DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy    String               @map("created_by") @db.Uuid
-  updatedBy    String               @map("updated_by") @db.Uuid
-
-  @@map("individual_attribute_string_values")
-}
-
-model individualAttributeNumericValue {
-  id           String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  attributeId  String              @map("attribute_id") @db.Uuid
-  individualId String              @map("individual_id") @db.Uuid
-  value        Int
-  attribute    individualAttribute @relation(fields: [individualId], references: [id])
-  createdAt    DateTime            @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime            @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy    String              @map("created_by") @db.Uuid
-  updatedBy    String              @map("updated_by") @db.Uuid
-
-  @@map("individual_attribute_numeric_values")
-}
-
 // Organizations (both clients and service providers)
 model organization {
-  id                     String                  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name                   String                  @db.VarChar(255)
-  description            String                  @db.Text
-  typeId                 String                  @unique @map("type_id") @db.Uuid
-  types                  organizationType        @relation(fields: [typeId], references: [id])
-  isPrivate              Boolean?                @map("is_private") @db.Boolean // as opposed to government
-  isCharity              Boolean?                @map("is_charity") @db.Boolean // 
-  localIdentifier        localIdentifierName?    @relation(fields: [localIdentifierId], references: [id])
-  localIdentifierId      String?                 @db.Uuid
-  localIdentifierValue   String                  @map("local_identifier_value")
-  organizationAttributes organizationAttribute[]
-  addressId              String                  @map("address_id") @db.Uuid
-  address                address                 @relation(fields: [addressId], references: [id])
-  accountId              String                  @map("account_id") @db.Uuid
-  account                account                 @relation(fields: [accountId], references: [id])
-  accountRelation        AccountRelationEnum
-  customerId             String?                 @unique @map("customer_id") @db.Uuid
-  customer               customer?               @relation(fields: [customerId], references: [id])
-  organizationEmail      organizationEmail[]
-  organizationPhone      organizationPhone[]
-  createdAt              DateTime                @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt              DateTime                @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy              String                  @map("created_by") @db.Uuid
-  updatedBy              String                  @map("updated_by") @db.Uuid
+  id                    String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                  String               @db.VarChar(255)
+  description           String               @db.Text
+  typeId                String               @unique @map("type_id") @db.Uuid
+  types                 organizationType     @relation(fields: [typeId], references: [id])
+  isPrivate             Boolean?             @map("is_private") @db.Boolean // as opposed to government
+  isCharity             Boolean?             @map("is_charity") @db.Boolean // 
+  localIdentifierNameId String?              @map("local_identifier_name_id") @db.Uuid
+  localIdentifierName   localIdentifierName? @relation(fields: [localIdentifierNameId], references: [id], onDelete: Restrict)
+  localIdentifierValue  String?              @map("local_identifier_value")
+  attributes            Json?                @db.JsonB
+  addressId             String               @map("address_id") @db.Uuid
+  address               address              @relation(fields: [addressId], references: [id])
+  accountId             String               @map("account_id") @db.Uuid
+  account               account              @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountRelation       AccountRelationEnum  @map("account_relation")
+  customerId            String?              @unique @map("customer_id") @db.Uuid
+  customer              customer?            @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  organizationEmail     organizationEmail[]
+  organizationPhone     organizationPhone[]
+  createdAt             DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy             String               @map("created_by") @db.Uuid
+  updatedBy             String               @map("updated_by") @db.Uuid
 
   @@map("organizations")
 }
@@ -306,54 +272,9 @@ model organizationType {
   @@map("organization_types")
 }
 
-model organizationAttribute {
-  id                                String                              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name                              String                              @db.VarChar(255)
-  // organizationId String   @map("organization_id") @db.Uuid
-  // organization   organization  @relation(fields: [organizationId], references: [id])
-  organizationAttributeStringValue  organizationAttributeStringValue[]
-  organizationAttributeNumericValue organizationAttributeNumericValue[]
-  organization                      organization?                       @relation(fields: [organizationId], references: [id])
-  organizationId                    String?                             @db.Uuid
-  createdAt                         DateTime                            @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt                         DateTime                            @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy                         String                              @map("created_by") @db.Uuid
-  updatedBy                         String                              @map("updated_by") @db.Uuid
-
-  @@map("organization_attributes")
-}
-
-model organizationAttributeStringValue {
-  id                    String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  attributeId           String                @map("attribute_id") @db.Uuid
-  organizationId        String                @map("organization_id") @db.Uuid
-  value                 Int
-  organizationAttribute organizationAttribute @relation(fields: [organizationId], references: [id])
-  createdAt             DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt             DateTime              @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy             String                @map("created_by") @db.Uuid
-  updatedBy             String                @map("updated_by") @db.Uuid
-
-  @@map("organization_attribute_string_values")
-}
-
-model organizationAttributeNumericValue {
-  id                    String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  attributeId           String                @map("attribute_id") @db.Uuid
-  organizationId        String                @map("organization_id") @db.Uuid
-  value                 Int
-  organizationAttribute organizationAttribute @relation(fields: [organizationId], references: [id])
-  createdAt             DateTime              @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt             DateTime              @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy             String                @map("created_by") @db.Uuid
-  updatedBy             String                @map("updated_by") @db.Uuid
-
-  @@map("organization_attribute_numeric_values")
-}
-
 model inventoryType {
   id        String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  type      String      @unique @db.VarChar(255) // service, product
+  type      String      @unique @db.VarChar(255) // service, product, miscellaneous
   inventory inventory[]
   createdAt DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt DateTime    @updatedAt @map("updated_at") @db.Timestamptz(3)
@@ -364,24 +285,26 @@ model inventoryType {
 }
 
 model inventory {
-  id               String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name             String        @db.VarChar(255) // hair-cut, installation, screw-driver, pipe
-  description      String?       @db.Text
-  typeId           String        @map("type_id") @db.Uuid
-  type             inventoryType @relation(fields: [typeId], references: [id]) // service, product
-  externalCode     String?       @map("external_code") @db.VarChar(255) // e.g. code from store invoice or receipt
-  internalCode     String?       @map("internal_code") @db.VarChar(255) // e.g. code inside accounting software
-  manufacturerCode String?       @map("manufacturer_code") @db.VarChar(255) // e.g. code from store invoice or receipt
-  price            Int
-  createdAt        DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt        DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy        String        @map("created_by") @db.Uuid
-  updatedBy        String        @map("updated_by") @db.Uuid
-  invoiceItem      invoiceItem[]
+  id                String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name              String        @db.VarChar(255) // hair-cut, installation, screw-driver, pipe
+  description       String?       @db.Text
+  typeId            String        @map("type_id") @db.Uuid
+  type              inventoryType @relation(fields: [typeId], references: [id]) // service, product
+  price             Int
+  externalCode      String?       @map("external_code") @db.VarChar(255) // e.g. code from store invoice or receipt
+  internalCode      String?       @map("internal_code") @db.VarChar(255) // e.g. code inside accounting software
+  manufacturerCode  String?       @map("manufacturer_code") @db.VarChar(255) // e.g. code from store invoice or receipt
+  manufacturerPrice Int?
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy         String        @map("created_by") @db.Uuid
+  updatedBy         String        @map("updated_by") @db.Uuid
+  invoiceItem       invoiceItem[]
 }
 
 model customer {
   id           String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  isActive     Boolean       @default(true) @map("is_active")
   invoices     invoice[]
   organization organization?
   individual   individual?
@@ -390,39 +313,79 @@ model customer {
   @@map("customers")
 }
 
+// One has to create logic where the invoice and its items cannot change
+// as soon as it received status 'paid'.
 model invoice {
-  id                    String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  number                String // whatever number assigned to invoice for internal purposes
-  date                  DateTime          @db.Timestamptz(3)
-  customerId            String            @map("customer_id") @db.Uuid
-  customer              customer          @relation(fields: [customerId], references: [id])
-  status                InvoiceStatusEnum
-  invoiceItems          invoiceItem[] // inventory items
-  purchaseOrderNumber   String?           @map("purchase_order_number") // number related to PO
-  additionalInformation String            @db.Text // arbitrary information provided to customer
-  payBy                 DateTime          @map("pay_by") @db.Timestamptz(3)
-  paidOn                DateTime?         @map("pay_on") @db.Timestamptz(3)
-  billingInfo           String            @db.Text // How to pay
-  terms                 String            @db.Text // Any additional terms and conditions
-  tax                   Int? // tax percentage (can be state sales tax in USA or VAT in Europe)
-  notes                 String?           @db.Text // internal notes
-  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt             DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy             String            @map("created_by") @db.Uuid
-  updatedBy             String            @map("updated_by") @db.Uuid
+  id                         String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  // Number assigned to invoice for internal purposes
+  number                     String
+  date                       DateTime          @db.Timestamptz(3)
+  // Fixed fields at the moment of invoice creation/update
+  // as customer or provider data may change over time.
+  customerName               String            @map("customer_name") @db.VarChar(255)
+  customerAddressLine_1      String            @map("customer_address_line_1") @db.VarChar(255)
+  customerAddressLine_2      String            @map("customer_address_line_2") @db.VarChar(255)
+  customerAddressLine_3      String?           @map("customer_address_line_3") @db.VarChar(255)
+  customerPhone              String            @map("customer_phone") @db.VarChar(255)
+  customerEmail              String            @map("customer_email") @db.VarChar(255)
+  providerPhone              String            @map("provider_phone") @db.VarChar(255)
+  providerEmail              String            @map("provider_email") @db.VarChar(255)
+  // Original customer id
+  customerId                 String            @map("customer_id") @db.Uuid
+  customer                   customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  status                     InvoiceStatusEnum
+  // Inventory items with fixed name, price and other info
+  invoiceItems               invoiceItem[]
+  // Number related to PO, if any existed.
+  // For example, all/some invoice items were purchased from a certain
+  // store/manufacturer which fulfilled the PO number.
+  // Usually used for internal purposes.
+  purchaseOrderNumber        String?           @map("purchase_order_number") @db.VarChar(255)
+  // Numbers related to Invoices issued by store/manufacturer, if any existed.
+  // For example, all/some invoice items were purchased from a certain
+  // store/manufacturer which provided the invoice
+  // Usually used for internal purposes
+  manufacturerInvoiceNumbers String?           @map("manufacturer_invoice_number") @db.VarChar(255)
+  // Irbitrary information provided to customer
+  additionalInformation      String?           @map("additional_information") @db.Text
+  payBy                      DateTime          @map("pay_by") @db.Timestamptz(3)
+  paidOn                     DateTime?         @map("paid_on") @db.Timestamptz(3)
+  // How to pay
+  billingInfo                String            @map("billing_info") @db.Text
+  // Any additional terms and conditions
+  terms                      String?           @db.Text
+  // Iax percentage (can be state sales tax in USA or VAT in Europe)
+  tax                        Int?
+  // Iiscount percentage on whole invoice
+  discount                   Int?
+  // Internal notes
+  notes                      String?           @db.Text
+  createdAt                  DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                  DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy                  String            @map("created_by") @db.Uuid
+  updatedBy                  String            @map("updated_by") @db.Uuid
 
   @@map("invoices")
 }
 
 model invoiceItem {
   id          String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  // Field from Inventory.name, may not match with inventory item
+  // with inventoryID in this table as the inventory name/price may change
   name        String     @map("name") @db.Text
+  // Price is also from Inventory table, but may not match
+  // with inventory item with inventoryId on record, as inventory prices
+  // have a tendency to change over the time.
   price       Int
   quantity    Int
   invoiceId   String     @map("invoice_id") @db.Uuid
-  invoice     invoice    @relation(fields: [invoiceId], references: [id])
+  invoice     invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  // Used strictly for archiving/analytics purposes.
+  // The inventory data may change, so this field
+  // only shows the original inventory item ID
+  // and cannot be relied upon.
+  inventoryId String?    @map("inventory_id") @db.Uuid
   inventory   inventory? @relation(fields: [inventoryId], references: [id])
-  inventoryId String?    @db.Uuid
   createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
   createdBy   String     @map("created_by") @db.Uuid
