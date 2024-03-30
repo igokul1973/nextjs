@@ -8,7 +8,7 @@ export const fetchCustomersSelect = {
             firstName: true,
             lastName: true,
             middleName: true,
-            individualEmail: {
+            emails: {
                 select: {
                     email: true
                 }
@@ -19,7 +19,7 @@ export const fetchCustomersSelect = {
         select: {
             id: true,
             name: true,
-            organizationEmail: {
+            emails: {
                 select: {
                     email: true
                 }
@@ -31,9 +31,3 @@ export const fetchCustomersSelect = {
 export type TFetchCustomersPayload = Prisma.customerGetPayload<{
     select: typeof fetchCustomersSelect;
 }>;
-
-export interface ICustomer {
-    id: string;
-    name: string;
-    email: string;
-}

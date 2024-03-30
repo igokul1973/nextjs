@@ -2,101 +2,101 @@
 // It describes the shape of the data, and what data type each property should accept.
 // For simplicity of teaching, we're manually defining these types.
 
-import { InvoiceStatusEnum, UserRoleEnum } from '@prisma/client';
+import type {
+    account as TAccount,
+    address as TAddress,
+    country as TCountry,
+    customer as TCustomer,
+    individual as TIndividual,
+    individualEmail as TIndividualEmail,
+    individualPhone as TIndividualPhone,
+    inventory as TInventory,
+    organization as TOrganization,
+    organizationEmail as TOrganizationEmail,
+    organizationPhone as TOrganizationPhone,
+    profile as TProfile,
+    user as TUser
+} from '@prisma/client';
 
-// However, these types are generated automatically if you're using an ORM such as Prisma.
-export interface IUser {
-    id: string;
-    email: string;
-    phone: string;
-    password: string;
-    role: UserRoleEnum;
-}
-export interface IProfile {
-    id: string;
-    firstName: string;
-    lastName: string;
+export {
+    TAccount,
+    TAddress,
+    TCountry,
+    TCustomer,
+    TIndividual,
+    TIndividualEmail,
+    TIndividualPhone,
+    TInventory,
+    TOrganization,
+    TOrganizationEmail,
+    TOrganizationPhone,
+    TProfile,
+    TUser
+};
+
+export type TOrganizationWithRelations = TOrganization & {
+    address: TAddress & {
+        country: TCountry;
+    };
+    customer: TCustomer | null;
+    phones: TOrganizationPhone[];
+    emails: TOrganizationEmail[];
+};
+
+export type TIndividualWithRelations = TIndividual & {
+    address: TAddress & {
+        country: TCountry;
+    };
+    customer: TCustomer | null;
+    phones: TIndividualPhone[];
+    emails: TIndividualEmail[];
+};
+
+export type TUserWithRelations = TUser & {
+    account: TAccount & {
+        organizations: TOrganizationWithRelations[];
+        individuals: TIndividualWithRelations[];
+        inventory: TInventory[];
+    };
+};
+
+export type TEntityPropsDiff = {
+    // Organization-related properties
+    name?: string;
+    typeId?: string;
+    isPrivate?: boolean;
+    isCharity?: boolean;
+    // Individual-related properties
+    firstName?: string;
+    lastName?: string;
     middleName?: string;
-    userId: IUser['id'];
-    createdBy: IUser['id'];
-    updatedBy: IUser['id'];
-}
-
-export type Customer = {
-    id: string;
-    name: string;
-    email: string;
-    image_url: string;
+    dob?: string;
 };
 
-export type Invoice = {
-    id: string;
-    customer_id: string;
-    amount: number;
-    date: string;
-    // In TypeScript, this is called a string union type.
-    // It means that the "status" property can only be one of the two strings: 'pending' or 'paid'.
-    status: InvoiceStatusEnum;
+export type TEntity = (TOrganizationWithRelations | TIndividualWithRelations) & TEntityPropsDiff;
+
+export type TEntities = {
+    individual?: TIndividualWithRelations;
+    organization?: TOrganizationWithRelations;
 };
 
-export type Revenue = {
-    month: string;
-    revenue: number;
+export type TEntityWithNonNullableCustomer = (
+    | TIndWithNonNullableCustomer
+    | TOrgWithNonNullableCustomer
+) &
+    TEntityPropsDiff;
+
+export type TIndWithNonNullableCustomer = Omit<TIndividualWithRelations, 'customer'> & {
+    customer: TCustomer;
 };
 
-export type LatestInvoice = {
-    id: string;
-    name: string;
-    image_url: string;
-    email: string;
-    amount: string;
+export type TOrgWithNonNullableCustomer = Omit<TOrganizationWithRelations, 'customer'> & {
+    customer: TCustomer;
 };
 
-// The database returns a number for amount, but we later format it to a string with the formatCurrency function
-export type LatestInvoiceRaw = Omit<LatestInvoice, 'amount'> & {
-    amount: number;
-};
-
-export type InvoicesTable = {
-    id: string;
-    customer_id: string;
-    name: string;
-    email: string;
-    image_url: string;
-    date: string;
-    amount: number;
-    status: 'pending' | 'paid';
-};
-
-export type CustomersTableType = {
-    id: string;
-    name: string;
-    email: string;
-    image_url: string;
-    total_invoices: number;
-    total_pending: number;
-    total_paid: number;
-};
-
-export type FormattedCustomersTable = {
-    id: string;
-    name: string;
-    email: string;
-    totalInvoices: number;
-    totalPending: string;
-    totalPaid: string;
-};
-
-export type CustomerField = {
-    id: string;
-    name: string;
-};
-
-export type InvoiceForm = {
-    id: string;
-    customer_id: string;
-    amount: number;
-    status: 'pending' | 'paid';
+export type TEntitiesWithNonNullableCustomer = {
+    indCustomers: TIndWithNonNullableCustomer[];
+    orgCustomers: TOrgWithNonNullableCustomer[];
 };
 
 export interface ISearchParams {

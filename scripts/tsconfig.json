@@ -1,7 +1,11 @@
 {
     "transpileOnly": true,
     "compilerOptions": {
-        "lib": ["dom", "dom.iterable", "esnext"],
+        "lib": [
+            "dom",
+            "dom.iterable",
+            "esnext"
+        ],
         "skipLibCheck": true,
         "strict": true,
         "target": "es6",
@@ -13,7 +17,15 @@
         "isolatedModules": true,
         "esModuleInterop": true
     },
-    "include": ["**/*.ts", "../app/lib/placeholder-data.ts"],
-    "exclude": ["node_modules"],
+    "include": [
+        "../app/lib/utils.ts",
+        "**/*.ts",
+        "../app/lib/placeholder-data.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        ".next/*.*",
+        ".vscode/*/*"
+    ],
     "esm": true // <--- this is the most important part
 }

@@ -55,13 +55,14 @@ enum PhoneTypeEnum {
 }
 
 model account {
-  id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  isActive     Boolean        @default(true)
-  users        user[]
-  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
-  individual   individual[]
-  organization organization[]
+  id            String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  isActive      Boolean        @default(true)
+  users         user[]
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  individuals   individual[]
+  organizations organization[]
+  inventory     inventory[]
 
   @@map("accounts")
 }
@@ -99,21 +100,21 @@ model profile {
 }
 
 model address {
-  id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  addressLine1 String         @map("address_line_1") @db.VarChar(255)
-  addressLine2 String?        @map("address_line_3") @db.VarChar(255)
-  addressLine3 String?        @map("address_line_2") @db.VarChar(255)
-  locality     String         @db.VarChar(255) // city, village, outpost
-  region       String?        @db.VarChar(255) // oblast, region, US state
-  postcode     String         @db.VarChar(255) // index, zip code, postal code
-  countryId    String         @map("country_id") @db.Uuid // Sweden, USA
-  country      country        @relation(fields: [countryId], references: [id]) // Sweden, USA
-  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy    String         @map("created_by") @db.Uuid
-  updatedBy    String         @map("updated_by") @db.Uuid
-  individual   individual[]
-  organization organization[]
+  id            String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  addressLine1  String         @map("address_line_1") @db.VarChar(255)
+  addressLine2  String?        @map("address_line_3") @db.VarChar(255)
+  addressLine3  String?        @map("address_line_2") @db.VarChar(255)
+  locality      String         @db.VarChar(255) // city, village, outpost
+  region        String?        @db.VarChar(255) // oblast, region, US state
+  postcode      String         @db.VarChar(255) // index, zip code, postal code
+  countryId     String         @map("country_id") @db.Uuid // Sweden, USA
+  country       country        @relation(fields: [countryId], references: [id]) // Sweden, USA
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy     String         @map("created_by") @db.Uuid
+  updatedBy     String         @map("updated_by") @db.Uuid
+  individuals   individual[]
+  organizations organization[]
 
   @@map("addresses")
 }
@@ -177,27 +178,27 @@ model individualEmail {
 }
 
 model country {
-  id                  String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name                String                @db.VarChar(255)
-  address             address[]
-  localIdentifierName localIdentifierName[]
+  id                   String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                 String                @db.VarChar(255)
+  addresses            address[]
+  localIdentifierNames localIdentifierName[]
 
   @@map("countries")
 }
 
 model localIdentifierName {
-  id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name         String         @db.VarChar(255)
-  abbreviation String?        @db.VarChar(12)
-  countryId    String         @map("country_id") @db.Uuid
-  country      country        @relation(fields: [countryId], references: [id], onDelete: Restrict)
-  type         EntitiesEnum
-  individual   individual[]
-  organization organization[]
-  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy    String         @map("created_by") @db.Uuid
-  updatedBy    String         @map("updated_by") @db.Uuid
+  id            String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name          String         @db.VarChar(255)
+  abbreviation  String?        @db.VarChar(12)
+  countryId     String         @map("country_id") @db.Uuid
+  country       country        @relation(fields: [countryId], references: [id], onDelete: Restrict)
+  type          EntitiesEnum
+  individuals   individual[]
+  organizations organization[]
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy     String         @map("created_by") @db.Uuid
+  updatedBy     String         @map("updated_by") @db.Uuid
 
   @@unique([name, countryId], name: "unique_identifier_per_country")
   @@map("local_identifier_names")
@@ -206,9 +207,9 @@ model localIdentifierName {
 // Individuals (both clients and service providers)
 model individual {
   id                    String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  firstName             String               @db.VarChar(255)
-  lastName              String               @db.VarChar(255)
-  middleName            String?              @db.VarChar(255)
+  firstName             String               @map("first_name") @db.VarChar(255)
+  lastName              String               @map("last_name") @db.VarChar(255)
+  middleName            String?              @map("middle_name") @db.VarChar(255)
   localIdentifierNameId String?              @map("local_identifier_name_id") @db.Uuid
   localIdentifierName   localIdentifierName? @relation(fields: [localIdentifierNameId], references: [id], onDelete: Restrict)
   localIdentifierValue  String?              @map("local_identifier_value")
@@ -219,11 +220,11 @@ model individual {
   address               address              @relation(fields: [addressId], references: [id])
   accountId             String               @map("account_id") @db.Uuid
   account               account              @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountRelation       AccountRelationEnum
+  accountRelation       AccountRelationEnum  @map("account_relation")
   customerId            String?              @unique @map("customer_id") @db.Uuid
   customer              customer?            @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  individualEmail       individualEmail[]
-  individualPhone       individualPhone[]
+  emails                individualEmail[]
+  phones                individualPhone[]
   createdAt             DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt             DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
   createdBy             String               @map("created_by") @db.Uuid
@@ -237,7 +238,7 @@ model organization {
   id                    String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name                  String               @db.VarChar(255)
   description           String               @db.Text
-  typeId                String               @unique @map("type_id") @db.Uuid
+  typeId                String               @map("type_id") @db.Uuid
   types                 organizationType     @relation(fields: [typeId], references: [id])
   isPrivate             Boolean?             @map("is_private") @db.Boolean // as opposed to government
   isCharity             Boolean?             @map("is_charity") @db.Boolean // 
@@ -252,8 +253,8 @@ model organization {
   accountRelation       AccountRelationEnum  @map("account_relation")
   customerId            String?              @unique @map("customer_id") @db.Uuid
   customer              customer?            @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  organizationEmail     organizationEmail[]
-  organizationPhone     organizationPhone[]
+  emails                organizationEmail[]
+  phones                organizationPhone[]
   createdAt             DateTime             @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt             DateTime             @updatedAt @map("updated_at") @db.Timestamptz(3)
   createdBy             String               @map("created_by") @db.Uuid
@@ -263,11 +264,11 @@ model organization {
 }
 
 model organizationType {
-  id           String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  type         String        @db.VarChar(255) // AB, Handelsbolag, LLC, Corporation
-  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
-  organization organization?
+  id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  type         String         @db.VarChar(255) // AB, Handelsbolag, LLC, Corporation
+  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  organization organization[]
 
   @@map("organization_types")
 }
@@ -284,12 +285,15 @@ model inventoryType {
   @@map("inventory_type")
 }
 
+// The inventory belongs to an account (many to one)
 model inventory {
   id                String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name              String        @db.VarChar(255) // hair-cut, installation, screw-driver, pipe
   description       String?       @db.Text
   typeId            String        @map("type_id") @db.Uuid
   type              inventoryType @relation(fields: [typeId], references: [id]) // service, product
+  accountId         String        @map("account_id") @db.Uuid
+  account           account       @relation(fields: [accountId], references: [id])
   price             Int
   externalCode      String?       @map("external_code") @db.VarChar(255) // e.g. code from store invoice or receipt
   internalCode      String?       @map("internal_code") @db.VarChar(255) // e.g. code inside accounting software
@@ -299,7 +303,7 @@ model inventory {
   updatedAt         DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
   createdBy         String        @map("created_by") @db.Uuid
   updatedBy         String        @map("updated_by") @db.Uuid
-  invoiceItem       invoiceItem[]
+  invoiceItems      invoiceItem[]
 }
 
 model customer {
@@ -324,13 +328,17 @@ model invoice {
   // as customer or provider data may change over time.
   customerName               String            @map("customer_name") @db.VarChar(255)
   customerAddressLine_1      String            @map("customer_address_line_1") @db.VarChar(255)
-  customerAddressLine_2      String            @map("customer_address_line_2") @db.VarChar(255)
+  customerAddressLine_2      String?           @map("customer_address_line_2") @db.VarChar(255)
   customerAddressLine_3      String?           @map("customer_address_line_3") @db.VarChar(255)
+  customerLocality           String            @map("customer_locality") @db.VarChar(255)
+  customerRegion             String?           @map("customer_region") @db.VarChar(255)
+  customerPostalCode         String            @map("customer_postal_code") @db.VarChar(255)
+  customerCountry            String            @map("customer_country") @db.VarChar(255)
   customerPhone              String            @map("customer_phone") @db.VarChar(255)
   customerEmail              String            @map("customer_email") @db.VarChar(255)
   providerPhone              String            @map("provider_phone") @db.VarChar(255)
   providerEmail              String            @map("provider_email") @db.VarChar(255)
-  // Original customer id
+  // Customer id
   customerId                 String            @map("customer_id") @db.Uuid
   customer                   customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
   status                     InvoiceStatusEnum
@@ -354,9 +362,9 @@ model invoice {
   billingInfo                String            @map("billing_info") @db.Text
   // Any additional terms and conditions
   terms                      String?           @db.Text
-  // Iax percentage (can be state sales tax in USA or VAT in Europe)
+  // Tax percentage (can be state sales tax in USA or VAT in Europe)
   tax                        Int?
-  // Iiscount percentage on whole invoice
+  // Discount percentage on whole invoice
   discount                   Int?
   // Internal notes
   notes                      String?           @db.Text

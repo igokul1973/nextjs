@@ -1,18 +1,23 @@
-import dotenv from 'dotenv';
-// import {
-//     customers,
-//     invoices,
-//     productTypes,
-//     products,
-//     revenue,
-//     users
-// } from "../app/lib/placeholder-data.ts";
-import { EntitiesEnum, UserRoleEnum } from '@prisma/client';
+import { AccountRelationEnum, EntitiesEnum, UserRoleEnum } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import { IProfile, IUser } from '../app/lib/definitions';
+import { exec } from 'child_process';
+import dotenv from 'dotenv';
+import { readFile, readdirSync, writeFile } from 'fs';
+import path from 'path';
+import {
+    TEntities,
+    TEntity,
+    TEntityWithNonNullableCustomer,
+    TProfile,
+    TUserWithRelations
+} from '../app/lib/definitions';
 import {
     countries,
+    customerIndividuals,
+    customerOrganizations,
+    inventory,
     inventoryTypes,
+    invoices,
     organizationTypes,
     profiles,
     providerIndividual,
@@ -20,20 +25,15 @@ import {
     users
 } from '../app/lib/placeholder-data.ts';
 import prisma from '../app/lib/prisma.ts';
+import {
+    getEntityFirstEmailString,
+    getEntityFirstPhoneString,
+    getEntityName,
+    getUserCustomersPerEntity,
+    getUserProvider
+} from '../app/lib/utils.ts';
 
 dotenv.config();
-
-async function deleteAllTables() {
-    return prisma.$queryRaw`
-      do $$ declare
-          r record;
-      begin
-          for r in (select tablename from pg_tables where schemaname = 'public') loop
-              execute 'drop table if exists ' || quote_ident(r.tablename) || ' cascade';
-          end loop;
-      end $$;
-      `;
-}
 
 async function getSupervisor() {
     const supervisor = await prisma.user.findFirst({
@@ -48,6 +48,41 @@ async function getSupervisor() {
 
 async function getAdmins() {
     const admins = await prisma.user.findMany({
+        include: {
+            account: {
+                include: {
+                    organizations: {
+                        include: {
+                            address: {
+                                include: {
+                                    country: true
+                                }
+                            },
+                            customer: true,
+                            phones: true,
+                            emails: true
+                        }
+                    },
+                    individuals: {
+                        include: {
+                            address: {
+                                include: {
+                                    country: true
+                                }
+                            },
+                            customer: true,
+                            phones: true,
+                            emails: true
+                        }
+                    },
+                    inventory: {
+                        include: {
+                            type: true
+                        }
+                    }
+                }
+            }
+        },
         where: {
             role: UserRoleEnum.admin
         }
@@ -55,6 +90,55 @@ async function getAdmins() {
 
     if (!admins.length) {
         throw Error('The admin users are not found. Please seed the admin users first.');
+    }
+
+    return admins;
+}
+
+async function getWriters() {
+    const admins = await prisma.user.findMany({
+        include: {
+            account: {
+                include: {
+                    organizations: {
+                        include: {
+                            address: {
+                                include: {
+                                    country: true
+                                }
+                            },
+                            customer: true,
+                            phones: true,
+                            emails: true
+                        }
+                    },
+                    individuals: {
+                        include: {
+                            address: {
+                                include: {
+                                    country: true
+                                }
+                            },
+                            customer: true,
+                            phones: true,
+                            emails: true
+                        }
+                    },
+                    inventory: {
+                        include: {
+                            type: true
+                        }
+                    }
+                }
+            }
+        },
+        where: {
+            role: UserRoleEnum.writer
+        }
+    });
+
+    if (!admins.length) {
+        throw Error('The writer users are not found. Please seed the admin users first.');
     }
 
     return admins;
@@ -96,19 +180,23 @@ async function getlocalIdentifiers() {
     const localIdentifiers = await prisma.localIdentifierName.findMany();
 
     if (!localIdentifiers.length) {
-        throw Error('The localIdentifiers are not found. Please seed them first.');
+        throw Error('The local identifiers are not found. Please seed them first.');
     }
     return localIdentifiers;
+}
+
+async function getInventoryTypes() {
+    const inventoryTypes = await prisma.inventoryType.findMany();
+
+    if (!inventoryTypes.length) {
+        throw Error('The inventory types are not found. Please seed them first.');
+    }
+    return inventoryTypes;
 }
 
 async function createUUIDExtension() {
     console.log('Creating UUID Extension...');
     return prisma.$queryRaw`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-}
-
-async function removeUUIDExtension() {
-    console.log('Removing UUID Extension...');
-    return prisma.$queryRaw`DROP EXTENSION IF EXISTS "uuid-ossp"`;
 }
 
 async function seedSuperuser() {
@@ -118,7 +206,7 @@ async function seedSuperuser() {
         phone: process.env.SUPERUSER_PHONE || '',
         password: process.env.SUPERUSER_PASSWORD || '',
         role: UserRoleEnum.superuser
-    } satisfies Omit<IUser, 'id'>;
+    };
 
     if (Object.values(superuser).some((v) => !v)) {
         throw Error(
@@ -129,7 +217,7 @@ async function seedSuperuser() {
     const superuserProfile = {
         firstName: process.env.SUPERUSER_PROFILE_FIRST_NAME || 'Steven',
         lastName: process.env.SUPERUSER_PROFILE_LAST_NAME || 'Ku'
-    } satisfies Pick<IProfile, 'firstName' | 'lastName'>;
+    } satisfies Pick<TProfile, 'firstName' | 'lastName'>;
 
     const hashedPassword = await bcrypt.hash(superuser.password, 10);
 
@@ -180,8 +268,8 @@ async function seedUsers() {
     const sanitizedUsers = await Promise.all(
         users.map(async (user, i) => {
             const hashedPassword = await bcrypt.hash(user.password, 10);
-            const index = i <= 1 ? i : 1;
-            // First user connects to first account, 2 other users
+            const index = i === 0 ? i : 1;
+            // First user connects to first account, 4 other users
             // to the second (multiuser account set-up)
             return { ...user, password: hashedPassword, accountId: accounts[index].id };
         })
@@ -193,7 +281,9 @@ async function seedUsers() {
 
 async function seedProfiles() {
     console.log('Seeding profiles...');
-    const users = await getNotSuperuserUsers();
+    const users = (await getNotSuperuserUsers()).sort((u1) => {
+        return u1.phone.startsWith('+1') ? -1 : u1.phone.startsWith('+46') ? 1 : 0;
+    });
     const data = profiles.map((p, i) => {
         const user = users[i];
         return { ...p, userId: user.id, createdBy: user.id, updatedBy: user.id };
@@ -213,7 +303,7 @@ async function seedCountries() {
         return prisma.country.create({
             data: {
                 name: c.name,
-                localIdentifierName: {
+                localIdentifierNames: {
                     create: sanitizedLocalIdentifierNames
                 }
             }
@@ -241,41 +331,42 @@ async function seedInventoryTypes() {
     return prisma.inventoryType.createMany({ data: sanitizedInventoryTypes });
 }
 
-async function seedAccountOrgsOrIndividuals() {
-    console.log('Seeding accounts with their respective organizations and individuals...');
-
-    const {
-        type,
-        address: providerOrgAddress,
-        emails: providerOrgEmails,
-        phones: providerOrgPhones,
-        ...providerOrg
-    } = providerOrganization;
-
-    const { country: orgCountryName, ...sanitizedOrgProviderAddress } = providerOrgAddress;
-
-    const {
-        address: individualProviderAddress,
-        emails: individualProviderEmails,
-        phones: individualProviderPhones,
-        dob,
-        ...providerInd
-    } = providerIndividual;
-
-    const { country: individualCountryName, ...sanitizedIndividualProviderAddress } =
-        individualProviderAddress;
+async function seedAccountOrgsOrIndividualProviders() {
+    console.log(
+        'Seeding accounts with their respective organizations and individuals as providers...'
+    );
 
     const admins = await getAdmins();
 
-    const orgAdmin = admins.find((a) => a.email.includes('admin1'));
+    const individualAdmin = admins.find((a) => a.email.includes('admin1'));
+    if (!individualAdmin) {
+        throw Error('The individual admin is not found, something went wrong..');
+    }
+
+    const orgAdmin = admins.find((a) => a.email.includes('admin2'));
     if (!orgAdmin) {
         throw Error('The org admin is not found, something went wrong..');
     }
 
-    const individualAdmin = admins.find((a) => a.email.includes('admin2'));
-    if (!individualAdmin) {
-        throw Error('The individual admin is not found, something went wrong..');
-    }
+    const {
+        type,
+        address: orgAddressRawData,
+        emails: orgEmailsRawData,
+        phones: orgPhonesRawData,
+        ...orgProviderData
+    } = providerOrganization;
+
+    const { country: orgCountryName, ...orgProviderAdress } = orgAddressRawData;
+
+    const {
+        address: indAddressRawData,
+        emails: indEmailsRawData,
+        phones: indPhonesRawData,
+        dob,
+        ...indProviderData
+    } = providerIndividual;
+
+    const { country: indCountryName, ...indProviderAddress } = indAddressRawData;
 
     const orgTypes = await getOrganizationTypes();
     const orgType = orgTypes.find((ot) => ot.type.includes(type));
@@ -296,7 +387,7 @@ async function seedAccountOrgsOrIndividuals() {
     }
 
     const individualCountry = countries.find((c) =>
-        c.name.toLowerCase().includes(individualCountryName.toLowerCase())
+        c.name.toLowerCase().includes(indCountryName.toLowerCase())
     );
 
     if (!individualCountry) {
@@ -326,317 +417,675 @@ async function seedAccountOrgsOrIndividuals() {
         );
     }
 
+    const sanitizedOrgProviderAddress = {
+        ...orgProviderAdress,
+        createdBy: orgAdmin.id,
+        updatedBy: orgAdmin.id,
+        country: {
+            connect: {
+                id: orgCountry.id
+            }
+        }
+    };
+
     const createdOrgProviderAddress = await prisma.address.create({
         select: {
             id: true
         },
-        data: {
-            ...sanitizedOrgProviderAddress,
-            createdBy: orgAdmin.id,
-            updatedBy: orgAdmin.id,
-            country: {
-                connect: {
-                    id: orgCountry.id
-                }
-            }
-        }
+        data: sanitizedOrgProviderAddress
     });
 
-    const createdIndividualProviderAddress = await prisma.address.create({
-        select: {
-            id: true
-        },
-        data: {
-            ...sanitizedIndividualProviderAddress,
-            createdBy: individualAdmin.id,
-            updatedBy: individualAdmin.id,
-            country: {
-                connect: {
-                    id: individualCountry.id
-                }
-            }
-        }
+    const sanitizedOrgPhones = orgPhonesRawData.map((pop) => {
+        return {
+            ...pop,
+            createdBy: orgAdmin.id,
+            updatedBy: orgAdmin.id
+        };
+    });
+
+    const sanitizedOrgEmails = orgEmailsRawData.map((poe) => {
+        return {
+            ...poe,
+            createdBy: orgAdmin.id,
+            updatedBy: orgAdmin.id
+        };
     });
 
     const sanitizedProviderOrganization = {
-        ...providerOrg,
+        ...orgProviderData,
         accountId: orgAdmin?.accountId,
         typeId: orgType.id,
         localIdentifierNameId: orgLocalIdentifier.id,
         createdBy: orgAdmin.id,
         updatedBy: orgAdmin.id,
-        addressId: createdOrgProviderAddress.id
+        addressId: createdOrgProviderAddress.id,
+        phones: {
+            createMany: {
+                data: sanitizedOrgPhones
+            }
+        },
+        emails: {
+            createMany: {
+                data: sanitizedOrgEmails
+            }
+        }
     };
 
-    const sanitizedProviderIndividual = {
-        ...providerInd,
-        accountId: individualAdmin?.accountId,
-        localIdentifierNameId: indLocalIdentifier.id,
-        createdBy: individualAdmin.id,
-        updatedBy: individualAdmin.id,
-        addressId: createdIndividualProviderAddress.id,
-        dob: new Date(dob)
-    };
-
-    const createdProviderOrg = await prisma.organization.create({
+    const createOrgPromise = prisma.organization.create({
         relationLoadStrategy: 'join',
         data: sanitizedProviderOrganization
     });
 
-    const sanitizedOrgEmails = providerOrgEmails.map((ipe) => {
+    const sanitizedIndProviderAddress = {
+        ...indProviderAddress,
+        createdBy: individualAdmin.id,
+        updatedBy: individualAdmin.id,
+        country: {
+            connect: {
+                id: individualCountry.id
+            }
+        }
+    };
+
+    const createdIndProviderAddress = await prisma.address.create({
+        select: {
+            id: true
+        },
+        data: sanitizedIndProviderAddress
+    });
+
+    const sanitizedIndividualEmails = indEmailsRawData.map((ipe) => {
         return {
             ...ipe,
-            organizationId: createdProviderOrg.id,
-            createdBy: orgAdmin.id,
-            updatedBy: orgAdmin.id
+            createdBy: individualAdmin.id,
+            updatedBy: individualAdmin.id
         };
     });
 
-    await prisma.organizationEmail.createMany({
-        data: sanitizedOrgEmails
-    });
-
-    const sanitizedOrgPhones = providerOrgPhones.map((pop) => {
+    const sanitizedIndividualPhones = indPhonesRawData.map((ipe) => {
         return {
-            ...pop,
-            organizationId: createdProviderOrg.id,
-            createdBy: orgAdmin.id,
-            updatedBy: orgAdmin.id
+            ...ipe,
+            createdBy: individualAdmin.id,
+            updatedBy: individualAdmin.id
         };
     });
 
-    await prisma.organizationPhone.createMany({
-        data: sanitizedOrgPhones
-    });
+    const sanitizedProviderIndividual = {
+        ...indProviderData,
+        accountId: individualAdmin?.accountId,
+        localIdentifierNameId: indLocalIdentifier.id,
+        createdBy: individualAdmin.id,
+        updatedBy: individualAdmin.id,
+        addressId: createdIndProviderAddress.id,
+        dob: new Date(dob),
+        phones: {
+            createMany: {
+                data: sanitizedIndividualPhones
+            }
+        },
+        emails: {
+            createMany: {
+                data: sanitizedIndividualEmails
+            }
+        }
+    };
 
-    const createdProviderInd = await prisma.individual.create({
+    const createIndPromise = prisma.individual.create({
         relationLoadStrategy: 'join',
         data: sanitizedProviderIndividual
     });
 
-    const sanitizedIndividualEmails = individualProviderEmails.map((ipe) => {
-        return {
-            ...ipe,
-            individualId: createdProviderInd.id,
-            createdBy: individualAdmin.id,
-            updatedBy: individualAdmin.id
-        };
-    });
-
-    await prisma.individualEmail.createMany({
-        data: sanitizedIndividualEmails
-    });
-
-    const sanitizedIndividualPhones = individualProviderPhones.map((ipe) => {
-        return {
-            ...ipe,
-            individualId: createdProviderInd.id,
-            createdBy: individualAdmin.id,
-            updatedBy: individualAdmin.id
-        };
-    });
-
-    await prisma.individualPhone.createMany({
-        data: sanitizedIndividualPhones
-    });
+    return Promise.all([createOrgPromise, createIndPromise]);
 }
 
 async function seedCustomers() {
     console.log('Seeding customers with their respective organizations and individuals...');
-    const admins = getAdmins();
-    return prisma.customer.create({
-        data: [...Array(5)].map(() => ({
-            organization: {
-                create: [{ name: 'bla' }]
+
+    const admins = await getAdmins();
+    const localIdentifiers = await getlocalIdentifiers();
+    const customerCreatePromises = admins.map((admin) => {
+        // Finding the admin user's provider org or individual data
+        const adminAccountProviderOrg = admin.account.organizations.find(
+            (o) => (o.accountRelation = AccountRelationEnum.provider)
+        );
+        const adminAccountProviderIndividual = admin.account.individuals.find(
+            (o) => (o.accountRelation = AccountRelationEnum.provider)
+        );
+
+        const adminCountry =
+            (adminAccountProviderOrg && adminAccountProviderOrg.address.country) ||
+            (adminAccountProviderIndividual && adminAccountProviderIndividual.address.country);
+
+        if (!adminCountry) {
+            throw Error(
+                'The admin user does not have provider org or individual connected to its account. Please seed that data first.'
+            );
+        }
+
+        // Finding customer orgs from seeding data who belong to the same country as the admins' account.
+        const customerOrgs = customerOrganizations.filter(
+            (o) => o.address.country.toLowerCase() === adminCountry.name.toLowerCase()
+        );
+
+        // There must be at least some..
+        if (!customerOrgs.length) {
+            throw Error(
+                `There are no customer organizations with countries that match the admin's country. Please fix your data.`
+            );
+        }
+        // Finding customer individuals from seeding data who belong to the same country as the admins' account.
+        const customerInds = customerIndividuals.filter(
+            (o) => o.address.country.toLowerCase() === adminCountry.name.toLowerCase()
+        );
+        // There must be at least some..
+        if (!customerInds.length) {
+            throw Error(
+                `There are no customer individuals with countries that match the admin' country. Please fix your data.`
+            );
+        }
+
+        // Now, let's try creating organization customers for the current admin
+        const customerOrgCreatePromises = customerOrgs.map(async (customerOrgData) => {
+            const {
+                type,
+                address: orgAddress,
+                emails: orgEmails,
+                phones: orgPhones,
+                ...customerOrg
+            } = customerOrgData;
+
+            const { country, ...sanitizedOrgAddress } = orgAddress;
+
+            const createdOrgAddress = await prisma.address.create({
+                select: {
+                    id: true
+                },
+                data: {
+                    ...sanitizedOrgAddress,
+                    createdBy: admin.id,
+                    updatedBy: admin.id,
+                    country: {
+                        connect: {
+                            id: adminCountry.id
+                        }
+                    }
+                }
+            });
+
+            const orgLocalIdentifier = localIdentifiers.find(
+                (li) => li.countryId === adminCountry.id && li.type === EntitiesEnum.organization
+            );
+
+            if (!orgLocalIdentifier) {
+                throw Error(
+                    'The org local identifier is not found, something went wrong.. Try to correct your data.'
+                );
             }
-        }))
+
+            const orgTypes = await getOrganizationTypes();
+            const orgType = orgTypes.find((ot) => ot.type.includes(type));
+
+            if (!orgType) {
+                throw Error(
+                    'The org type is not found, something went wrong.. Try to correct your data.'
+                );
+            }
+
+            const sanitizedOrgEmails = orgEmails.map((oe) => {
+                return {
+                    ...oe,
+                    createdBy: admin.id,
+                    updatedBy: admin.id
+                };
+            });
+
+            const sanitizedOrgPhones = orgPhones.map((op) => {
+                return {
+                    ...op,
+                    createdBy: admin.id,
+                    updatedBy: admin.id
+                };
+            });
+
+            const sanitizedCustomerOrganization = {
+                ...customerOrg,
+                accountId: admin.accountId,
+                typeId: orgType.id,
+                localIdentifierNameId: orgLocalIdentifier.id,
+                createdBy: admin.id,
+                updatedBy: admin.id,
+                addressId: createdOrgAddress.id,
+                emails: {
+                    createMany: {
+                        data: sanitizedOrgEmails
+                    }
+                },
+                phones: {
+                    createMany: {
+                        data: sanitizedOrgPhones
+                    }
+                }
+            };
+
+            return prisma.customer.create({
+                data: {
+                    organization: {
+                        create: sanitizedCustomerOrganization
+                    }
+                }
+            });
+        });
+
+        // Now, let's try creating individual customers for the current admin
+        const customerIndCreatePromises = customerInds.map(async (customerIndividualData) => {
+            const indLocalIdentifier = localIdentifiers.find(
+                (li) => li.countryId === adminCountry.id && li.type === EntitiesEnum.individual
+            );
+
+            if (!indLocalIdentifier) {
+                throw Error(
+                    'The individual local identifier is not found, something went wrong.. Try to correct your data.'
+                );
+            }
+
+            const {
+                address: indAddress,
+                emails: indEmails,
+                phones: indPhones,
+                dob,
+                ...customerIndividual
+            } = customerIndividualData;
+
+            const { country, ...sanitizedIndividualAddress } = indAddress;
+
+            const createdIndividualAddress = await prisma.address.create({
+                select: {
+                    id: true
+                },
+                data: {
+                    ...sanitizedIndividualAddress,
+                    createdBy: admin.id,
+                    updatedBy: admin.id,
+                    country: {
+                        connect: {
+                            id: adminCountry.id
+                        }
+                    }
+                }
+            });
+
+            const sanitizedIndividualEmails = indEmails.map((ie) => {
+                return {
+                    ...ie,
+                    createdBy: admin.id,
+                    updatedBy: admin.id
+                };
+            });
+
+            const sanitizedIndividualPhones = indPhones.map((ip) => {
+                return {
+                    ...ip,
+                    createdBy: admin.id,
+                    updatedBy: admin.id
+                };
+            });
+
+            const sanitizedCustomerIndividual = {
+                ...customerIndividual,
+                accountId: admin?.accountId,
+                localIdentifierNameId: indLocalIdentifier.id,
+                createdBy: admin.id,
+                updatedBy: admin.id,
+                addressId: createdIndividualAddress.id,
+                dob: new Date(dob),
+                emails: {
+                    createMany: {
+                        data: sanitizedIndividualEmails
+                    }
+                },
+                phones: {
+                    createMany: {
+                        data: sanitizedIndividualPhones
+                    }
+                }
+            };
+
+            return prisma.customer.create({
+                data: {
+                    individual: {
+                        create: sanitizedCustomerIndividual
+                    }
+                }
+            });
+        });
+        return customerOrgCreatePromises.concat(customerIndCreatePromises);
     });
+
+    return Promise.all(customerCreatePromises.flat());
 }
 
-// async function seedInvoices() {
-//     return new Promise(async (resolve) => {
-//       const createTableQuery = `
-//         CREATE TABLE IF NOT EXISTS invoices (
-//           id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-//           customer_id UUID NOT NULL,
-//           amount INT NOT NULL,
-//           status VARCHAR(255) NOT NULL,
-//           date DATE NOT NULL
-//         );
-//       `;
+async function seedInventory() {
+    const admins = await getAdmins();
+    const inventoryTypes = await getInventoryTypes();
 
-//       const addInvoicesQueries = invoices.map((invoice) => {
-//         return `
-//             INSERT INTO invoices (customer_id, amount, status, date)
-//             VALUES ('${invoice.customer_id}', ${invoice.amount}, '${invoice.status}', '${invoice.date}')
-//             ON CONFLICT (id) DO NOTHING;
-//           `;
-//       });
+    const createInventoryPromises = admins.map((admin) => {
+        const sanitizedInventory = inventory.map((inventoryItem) => {
+            const { type, ...inventoryItemWithoutType } = inventoryItem;
+            const inventoryType = inventoryTypes.find((it) => it.type === type);
+            if (!inventoryType) {
+                throw Error('The inventory type is not found. Please correct your seed data...');
+            }
+            return {
+                ...inventoryItemWithoutType,
+                typeId: inventoryType?.id,
+                accountId: admin.accountId,
+                createdBy: admin.id,
+                updatedBy: admin.id
+            };
+        });
+        return prisma.inventory.createMany({
+            data: sanitizedInventory
+        });
+    });
 
-//       // Queries
-//       const res = await query(client, createTableQuery);
-//       console.log(`Created table 'invoices': ${res}`);
-//       console.log('Will be adding invoices now...');
-//       const promises = addInvoicesQueries.map((q) => {
-//         return query(client, q, `Added invoice to table 'invoices'`);
-//       });
-//       await Promise.all(promises);
-//       console.log(`Seeded ${addInvoicesQueries.length} invoices`);
-//       resolve();
-//     });
-// }
+    return Promise.all(createInventoryPromises);
+}
 
-// async function seedRevenue() {
-//   return new Promise(async (resolve, reject) => {
-//     const createTableQuery = `
-//       CREATE TABLE IF NOT EXISTS revenue (
-//         month VARCHAR(4) NOT NULL UNIQUE,
-//         revenue INT NOT NULL
-//       );
-//     `;
+async function seedInvoices() {
+    const admins = await getAdmins();
+    const writers = await getWriters();
+    const inventoryTypes = await getInventoryTypes();
+    const serviceTypeId = inventoryTypes.find((it) => it.type === 'miscellaneous')?.id;
+    if (!serviceTypeId) {
+        throw Error(`The 'service' inventory type is not found. Please correct your seed data...`);
+    }
+    const miscellaneousTypeId = inventoryTypes.find((it) => it.type === 'miscellaneous')?.id;
+    if (!miscellaneousTypeId) {
+        throw Error(
+            `The 'miscellaneous' inventory type is not found. Please correct your seed data...`
+        );
+    }
 
-//     const addRevenuesQueries = revenue.map((rev) => {
-//       return `
-//         INSERT INTO revenue (month, revenue)
-//         VALUES ('${rev.month}', ${rev.revenue})
-//         ON CONFLICT (month) DO NOTHING;
-//         `;
-//     });
+    const createCustomerInvoiceData = (
+        user: TUserWithRelations,
+        provider: TEntities,
+        customers: TEntityWithNonNullableCustomer[]
+    ) => {
+        const concreteProvider = provider.individual ?? provider.organization;
+        if (!concreteProvider) {
+            throw Error('The provider is not found. Please seed one first.');
+        }
+        const inventory = user.account.inventory;
+        if (!inventory.length) {
+            throw Error('The account does not have inventory. Please seed one first.');
+        }
 
-//     // Queries
-//     const res = await query(client, createTableQuery);
-//     console.log(`Created table 'revenues': ${res}`);
-//     console.log('Will be adding revenues now...');
-//     const promises = addRevenuesQueries.map((q) => {
-//       return query(client, q, `Added revenue to table 'revenues'`);
-//     });
-//     await Promise.all(promises);
-//     console.log(`Seeded ${addRevenuesQueries.length} revenues`);
-//     resolve();
-//   });
-// }
+        let invoiceNumber = 1;
 
-// async function seedProductTypes() {
-//   return new Promise(async (resolve) => {
-//     const createTableQuery = `
-//       CREATE TABLE IF NOT EXISTS product_types (
-//         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-//         type VARCHAR(255) NOT NULL UNIQUE
-//       );
-//     `;
+        return customers
+            .map((customer) => {
+                const name = getEntityName(customer);
+                if (!name) {
+                    throw Error('The customer does not have a name. Please seed one first.');
+                }
+                const address = customer.address;
+                const customerPhone = getEntityFirstPhoneString(customer);
+                const customerEmail = getEntityFirstEmailString(customer);
+                const providerPhone = getEntityFirstPhoneString(concreteProvider as TEntity);
+                const providerEmail = getEntityFirstEmailString(concreteProvider as TEntity);
 
-//     const addProductTypesQueries = productTypes.map((pt) => {
-//       return `
-//         INSERT INTO product_types (id, type)
-//         VALUES ('${pt.id}', '${pt.type}')
-//         ON CONFLICT (id) DO NOTHING;
-//         `;
-//     });
+                return invoices.map((invoice) => {
+                    const invoiceItems = inventory.map((inventoryItem) => {
+                        return {
+                            name: inventoryItem.name,
+                            price: inventoryItem.price,
+                            // If service or miscellaneous, quantity is 1, otherwise random number between 1 and 3
+                            quantity:
+                                inventoryItem.typeId === serviceTypeId ||
+                                inventoryItem.typeId === miscellaneousTypeId
+                                    ? 1
+                                    : Math.floor(Math.random() * 3) + 1,
+                            inventoryId: inventoryItem.id,
+                            createdBy: user.id,
+                            updatedBy: user.id
+                        };
+                    });
 
-//     // Queries
-//     const res = await query(client, createTableQuery);
-//     console.log(`Created table 'product_types': ${res}`);
-//     console.log('Will be adding product types now...');
-//     const promises = addProductTypesQueries.map((q) => {
-//       return query(client, q, `Added product types to table 'product_types'`);
-//     });
-//     await Promise.all(promises);
-//     console.log(`Seeded ${addProductTypesQueries.length} product_types`);
-//     resolve();
-//   });
-// }
+                    const date = new Date(invoice.date);
 
-// async function seedProducts() {
-//   return new Promise(async (resolve, reject) => {
-//     const createTableQuery = `
-//       CREATE TABLE IF NOT EXISTS products (
-//         id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-//         name VARCHAR(255) NOT NULL,
-//         description TEXT,
-//         type_id UUID NOT NULL,
-//         code VARCHAR(255),
-//         price INT NOT NULL
-//       );
-//     `;
+                    return {
+                        ...invoice,
+                        date,
+                        payBy: new Date(invoice.payBy),
+                        paidOn: invoice.paidOn && new Date(invoice.paidOn),
+                        number: String(invoiceNumber++),
+                        customerName: name,
+                        customerAddressLine_1: address.addressLine1,
+                        customerAddressLine_2: address.addressLine2,
+                        customerAddressLine_3: address.addressLine3,
+                        customerLocality: address.locality,
+                        customerRegion: address.region,
+                        customerPostalCode: address.postcode,
+                        customerCountry: address.country.name,
+                        customerPhone,
+                        customerEmail,
+                        providerPhone,
+                        providerEmail,
+                        createdAt: date,
+                        createdBy: user.id,
+                        updatedBy: user.id,
+                        invoiceItems: {
+                            createMany: {
+                                data: invoiceItems
+                            }
+                        },
+                        customer: {
+                            connect: {
+                                id: customer.customer.id
+                            }
+                        }
+                    };
+                });
+            })
+            .flat();
+    };
 
-//     const addProductsQueries = products.map((p) => {
-//       return `
-//         INSERT INTO products (name, description, type_id, code, price)
-//         VALUES ('${p.name}', '${p.description || null}', '${p.typeId}', '${p.code}', ${p.price})
-//         ON CONFLICT (id) DO NOTHING;
-//         `;
-//     });
+    const adminCreateInvoicePromises = admins
+        .map((admin) => {
+            const { indCustomers, orgCustomers } = getUserCustomersPerEntity(admin);
+            const customers = [
+                ...indCustomers,
+                ...orgCustomers
+            ] as TEntityWithNonNullableCustomer[];
+            const provider = getUserProvider(admin);
+            const sanitizedInvoices = createCustomerInvoiceData(admin, provider, customers);
 
-//     // Queries
-//     const res = await query(client, createTableQuery);
-//     console.log(`Created table 'products': ${res}`);
-//     console.log('Will be adding products now...');
-//     const promises = addProductsQueries.map((q) => {
-//       return query(client, q, `Added products to table 'product_types'`);
-//     });
-//     await Promise.all(promises);
-//     console.log(`Seeded ${addProductsQueries.length} products`);
-//     resolve();
-//   });
-// }
+            return sanitizedInvoices.map((invoice) => {
+                console.log(invoice);
+                return prisma.invoice.create({
+                    data: invoice,
+                    select: {
+                        id: true
+                    }
+                });
+            });
+        })
+        .flat();
 
-async function main() {
-    // const host = process.env.POSTGRES_HOST;
-    // const database = process.env.POSTGRES_DATABASE;
-    // const user = process.env.POSTGRES_USER;
-    // const password = process.env.POSTGRES_PASSWORD;
-    // const port = process.env.POSTGRES_PORT;
+    await Promise.all(adminCreateInvoicePromises);
 
-    // await deleteAllTables();
-    // console.log('All tables are successfully removed');
-    // await removeUUIDExtension();
-    // console.log('UUID extension is successfully removed.');
+    const writer = writers[0];
+    if (!writer) {
+        throw Error(`The writer is not found. Please correct your seed data...`);
+    }
 
-    // await createUUIDExtension();
-    // console.log("UUID extension is successfully installed.");
+    // Assign some invoices (those after the beginning of 2024) to writers
+    const updateInvoicesPromises = writers.map((writer) => {
+        const { indCustomers, orgCustomers } = getUserCustomersPerEntity(writer);
+        const writersCustomerIds = [...indCustomers, ...orgCustomers].map((customer) => {
+            return customer.customer.id;
+        });
 
-    // await seedOrganizationTypes();
-    // console.log('--------------------------------');
-    // console.log('Seeded organization types');
-    // console.log('--------------------------------\n');
-    // await seedSuperuser();
-    // console.log('--------------------------------');
-    // console.log('Seeded superuser');
-    // console.log('--------------------------------\n');
-    // await seedAccounts();
-    // console.log('--------------------------------');
-    // console.log('Seeded accounts');
-    // console.log('--------------------------------\n');
-    // await seedUsers();
-    // console.log('--------------------------------');
-    // console.log('Seeded users');
-    // console.log('--------------------------------\n');
-    // await seedProfiles();
-    // console.log('--------------------------------');
-    // console.log('Seeded profiles');
-    // console.log('--------------------------------\n');
-    // await seedCountries();
-    // console.log('--------------------------------');
-    // console.log('Seeded countries');
-    // console.log('--------------------------------\n');
-    // await seedInventoryTypes();
-    // console.log('--------------------------------');
-    // console.log('Seeded inventory types');
-    // console.log('--------------------------------\n');
-    // await seedAccountOrgsOrIndividuals();
-    // console.log('--------------------------------');
-    // console.log('Seeded account orgs and individuals');
-    // console.log('--------------------------------\n');
+        return prisma.invoice.updateMany({
+            where: {
+                AND: [
+                    {
+                        customerId: {
+                            in: writersCustomerIds
+                        }
+                    },
+                    {
+                        date: {
+                            gte: new Date('2024-01-01')
+                        }
+                    }
+                ]
+            },
+            data: {
+                createdBy: writer.id,
+                updatedBy: writer.id
+            }
+        });
+    });
 
+    return Promise.all(updateInvoicesPromises);
+}
+
+async function seedDatabase() {
+    console.log('Starting to seed the DB...');
+    await seedOrganizationTypes();
+    console.log('--------------------------------');
+    console.log('Seeded organization types');
+    console.log('--------------------------------\n');
+    await seedSuperuser();
+    console.log('--------------------------------');
+    console.log('Seeded superuser');
+    console.log('--------------------------------\n');
+    await seedAccounts();
+    console.log('--------------------------------');
+    console.log('Seeded accounts');
+    console.log('--------------------------------\n');
+    await seedUsers();
+    console.log('--------------------------------');
+    console.log('Seeded users');
+    console.log('--------------------------------\n');
+    await seedProfiles();
+    console.log('--------------------------------');
+    console.log('Seeded profiles');
+    console.log('--------------------------------\n');
+    await seedCountries();
+    console.log('--------------------------------');
+    console.log('Seeded countries');
+    console.log('--------------------------------\n');
+    await seedInventoryTypes();
+    console.log('--------------------------------');
+    console.log('Seeded inventory types');
+    console.log('--------------------------------\n');
+    await seedAccountOrgsOrIndividualProviders();
+    console.log('--------------------------------');
+    console.log('Seeded account orgs and individuals');
+    console.log('--------------------------------\n');
     await seedCustomers();
     console.log('--------------------------------');
     console.log('Seeded customers and their orgs and individuals');
     console.log('--------------------------------\n');
+    await seedInventory();
+    console.log('--------------------------------');
+    console.log('Seeded inventory');
+    console.log('--------------------------------\n');
+    await seedInvoices();
+    console.log('--------------------------------');
+    console.log('Seeded invoices');
+    console.log('--------------------------------\n');
+}
 
-    //   await seedInvoices(pool);
-    //   await seedRevenue(pool);
-    //   await seedProductTypes(pool);
-    //   await seedProducts(pool);
+async function addExtensionToInitialMigrationFile() {
+    const rootPath = path.resolve('./');
+    const migrationsDir = 'prisma/migrations';
+    const absMigrationsDirPath = path.join(rootPath, migrationsDir);
+    return new Promise((resolve, reject) => {
+        try {
+            const files = readdirSync(absMigrationsDirPath);
+            const nameRe = /.*_initial$/i;
+            // Finding directory with initial migration
+            const initialMigrationDirName = files.find((f) => {
+                return f.match(nameRe);
+            });
+            if (!initialMigrationDirName) {
+                throw Error('No initial migration found');
+            }
+            const migrationFileAbsPath = path.join(
+                absMigrationsDirPath,
+                initialMigrationDirName,
+                'migration.sql'
+            );
+            console.log(migrationFileAbsPath);
+            readFile(migrationFileAbsPath, 'utf8', (err, data) => {
+                if (err) {
+                    reject(err);
+                }
+                const uuidExtension = 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";';
+                writeFile(migrationFileAbsPath, `${uuidExtension}\n\n${data}`, 'utf8', (err) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    const successMessage = 'Successfully added extension to initial migration';
+                    console.log(successMessage);
+                    resolve(successMessage);
+                });
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+async function runMigrateCommand() {
+    return new Promise((resolve, reject) => {
+        try {
+            exec(`npx prisma migrate dev`, (err, stdout) => {
+                if (err) {
+                    reject(err);
+                }
+                stdout && console.log(stdout);
+
+                const successMessage = 'Successfully created migration file';
+                console.log(successMessage);
+                resolve(successMessage);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+async function runGeneratePrismaClientCommand() {
+    return new Promise((resolve, reject) => {
+        try {
+            exec(`npx prisma generate`, (err, stdout) => {
+                if (err) {
+                    reject(err);
+                }
+                stdout && console.log(stdout);
+
+                const successMessage = 'Successfully generated Prisma Client.';
+                console.log(successMessage);
+                resolve(successMessage);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+async function main() {
+    await addExtensionToInitialMigrationFile();
+    await runMigrateCommand();
+    console.log('Successfully prepared migrations!\n');
+    await seedDatabase();
+    await runGeneratePrismaClientCommand();
+    console.log('\nFinished seeding the database!\n');
+
     await prisma.$disconnect();
 }
 

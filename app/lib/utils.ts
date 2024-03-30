@@ -1,5 +1,16 @@
+import { AccountRelationEnum } from '@prisma/client';
 import { TFetchCustomersPayload } from './data/customers/types';
-import { Revenue } from './definitions';
+import {
+    TEntities,
+    TEntitiesWithNonNullableCustomer,
+    TEntity,
+    TIndWithNonNullableCustomer,
+    TIndividual,
+    TIndividualWithRelations,
+    TOrgWithNonNullableCustomer,
+    TOrganizationWithRelations,
+    TUserWithRelations
+} from './definitions';
 
 export const formatCurrency = (amount: number) => {
     return (amount / 100).toLocaleString('en-US', {
@@ -17,20 +28,6 @@ export const formatDateToLocal = (dateStr: string, locale: string = 'en-US') => 
     };
     const formatter = new Intl.DateTimeFormat(locale, options);
     return formatter.format(date);
-};
-
-export const generateYAxis = (revenue: Revenue[]) => {
-    // Calculate what labels we need to display on the y-axis
-    // based on highest record and in 1000s
-    const yAxisLabels = [];
-    const highestRecord = Math.max(...revenue.map((month) => month.revenue));
-    const topLabel = Math.ceil(highestRecord / 1000) * 1000;
-
-    for (let i = topLabel; i >= 0; i -= 1000) {
-        yAxisLabels.push(`$${i / 1000}K`);
-    }
-
-    return { yAxisLabels, topLabel };
 };
 
 export const generatePagination = (currentPage: number, totalPages: number) => {
@@ -70,6 +67,10 @@ export function useDebounce<T>(f: (...args: T[]) => unknown, ms: number = 500) {
     };
 }
 
+export function getIndividualFullNameString(individual: TIndividual | TIndividualWithRelations) {
+    return `${individual.firstName}${individual.middleName ? ' ' + individual.middleName : ''} ${individual.lastName}`;
+}
+
 export function flattenCustomer(rawCustomer: TFetchCustomersPayload) {
     const rawIndividual = { ...rawCustomer.individual };
     const rawOrganization = { ...rawCustomer.organization };
@@ -78,8 +79,8 @@ export function flattenCustomer(rawCustomer: TFetchCustomersPayload) {
             id: rawCustomer.id,
             name: `${rawIndividual.firstName}${rawIndividual.middleName ? ' ' + rawIndividual.middleName : ''} ${rawIndividual.lastName}`,
             email:
-                rawIndividual.individualEmail && rawIndividual.individualEmail.length
-                    ? rawIndividual.individualEmail[0].email
+                rawIndividual.emails && rawIndividual.emails.length
+                    ? rawIndividual.emails[0].email
                     : 'no email provided'
         };
     }
@@ -87,8 +88,71 @@ export function flattenCustomer(rawCustomer: TFetchCustomersPayload) {
         id: rawCustomer.id,
         name: rawOrganization.name ?? '',
         email:
-            rawOrganization.organizationEmail && rawOrganization.organizationEmail.length
-                ? rawOrganization.organizationEmail[0].email
+            rawOrganization.emails && rawOrganization.emails.length
+                ? rawOrganization.emails[0].email
                 : 'no email provided'
     };
 }
+
+export function getUserProvider(user: TUserWithRelations): TEntities {
+    const individualProvider = user.account.individuals?.find(
+        (ind) => ind.accountRelation === AccountRelationEnum.provider
+    );
+    if (individualProvider) {
+        return { individual: individualProvider };
+    }
+    const organizationProvider = user.account.organizations?.find(
+        (org) => org.accountRelation === AccountRelationEnum.provider
+    );
+    // TODO: Questionable return of error. What should it return?
+    if (!organizationProvider) {
+        throw Error('User account provider is not found.');
+    }
+    return { organization: organizationProvider };
+}
+
+const isIndHasCustomer = (o: TIndividualWithRelations): o is TIndWithNonNullableCustomer => {
+    return !!o.customer;
+};
+
+const isOrgHasCustomer = (o: TOrganizationWithRelations): o is TOrgWithNonNullableCustomer => {
+    return !!o.customer;
+};
+
+export function getUserCustomersPerEntity(
+    user: TUserWithRelations
+): TEntitiesWithNonNullableCustomer {
+    const indCustomers = user.account.individuals.filter(isIndHasCustomer);
+    const orgCustomers = user.account.organizations.filter(isOrgHasCustomer);
+
+    return { indCustomers, orgCustomers };
+}
+
+export const getEntityName = (entity: TEntity) => {
+    let name = entity.name;
+    if (!name && entity.firstName && entity.lastName) {
+        const individual = entity as TIndividual;
+        name = getIndividualFullNameString(individual);
+    }
+    return name;
+};
+
+export const getEntityFirstEmailString = (entity: TEntity) => {
+    const email = entity?.emails[0].email;
+    if (!email) {
+        throw Error('The provider does not have associated email. Please seed one first.');
+    }
+    return email;
+};
+
+export const getEntityFirstPhoneString = (entity: TEntity) => {
+    const countryCode = entity?.phones[0].countryCode;
+    if (!countryCode) {
+        throw Error('The provider does not have associated country code. Please seed one first.');
+    }
+    const phoneNumber = entity?.phones[0].number;
+    if (!phoneNumber) {
+        throw Error('The provider does not have associated phone number. Please seed one first.');
+    }
+    return `+${countryCode}-${phoneNumber}`;
+};

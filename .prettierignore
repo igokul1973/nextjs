@@ -1,2 +1,4 @@
 **/.yarn/*
 .history/*
+.next/*
+.node_modules/*

@@ -5,6 +5,7 @@ import {
     AccountRelationEnum,
     EmailTypeEnum,
     EntitiesEnum,
+    InvoiceStatusEnum,
     PhoneTypeEnum,
     UserRoleEnum
 } from '@prisma/client';
@@ -66,20 +67,32 @@ const inventoryTypes = [{ type: 'product' }, { type: 'service' }, { type: 'misce
 
 const users = [
     {
-        email: 'admin1@admin1.com',
+        email: 'admin1@admin.com',
         phone: '+17127601933',
         password: '123456',
         role: UserRoleEnum.admin
     },
     {
-        email: 'admin2@admin2.com',
-        phone: '+12127601966',
+        email: 'admin2@admin.com',
+        phone: '+460857601966',
         password: '123456',
         role: UserRoleEnum.admin
     },
     {
-        email: 'user1@user1.com',
-        phone: '+13128601919',
+        email: 'writer1@writer.com',
+        phone: '+463338601919',
+        password: '123456',
+        role: UserRoleEnum.writer
+    },
+    {
+        email: 'reader1@user.com',
+        phone: '+468128901329',
+        password: '123456',
+        role: UserRoleEnum.reader
+    },
+    {
+        email: 'reader2@user.com',
+        phone: '+463128601919',
         password: '123456',
         role: UserRoleEnum.reader
     }
@@ -87,17 +100,25 @@ const users = [
 
 const profiles = [
     {
-        firstName: 'Norma',
-        lastName: 'Dobbs'
-    },
-    {
-        firstName: 'Milly',
-        lastName: 'Snouts',
+        firstName: 'Tony',
+        lastName: 'Blair',
         middleName: 'Karin'
     },
     {
-        firstName: 'Lenny',
-        lastName: 'Kravits'
+        firstName: 'Tania',
+        lastName: 'Karlsonson'
+    },
+    {
+        firstName: 'Peppa',
+        lastName: 'Rigolson'
+    },
+    {
+        firstName: 'Mia',
+        lastName: 'Torvaldson'
+    },
+    {
+        firstName: 'Rimma',
+        lastName: 'Urkule'
     }
 ];
 
@@ -209,7 +230,7 @@ const customerIndividuals = [
 
 const providerOrganization = {
     name: 'SBR Nord Grupp, HB',
-    description: 'Some Microsoft Co. description here. lorem ipsum',
+    description: 'Some SBR Nord Grupp HB description here. lorem ipsum',
     type: 'LLC',
     isPrivate: true,
     isCharity: false,
@@ -255,7 +276,7 @@ const customerOrganizations = [
     {
         name: 'Oracle',
         description: 'Some Oracle org description here. lorem ipsum and more stuff',
-        type: 'corporation',
+        type: 'Corporation',
         isPrivate: true,
         isCharity: true,
         localIdentifierValue: '1293-28-93',
@@ -349,7 +370,7 @@ const customerOrganizations = [
             country: 'Sweden'
         },
         accountRelation: AccountRelationEnum.customer,
-        emails: [{ email: 'other@Coolorobado.com', type: EmailTypeEnum.main }],
+        emails: [{ email: 'main@Coolorobado.com', type: EmailTypeEnum.main }],
         phones: [{ countryCode: '46', number: '4334129333', type: PhoneTypeEnum.work }]
     }
 ];
@@ -488,186 +509,106 @@ const inventory = [
     }
 ];
 
-// const invoices = [
-//     {
-//         customer_id: customers[0].id,
-//         amount: 15795,
-//         status: 'pending',
-//         date: '2022-12-06'
-//     },
-//     {
-//         customer_id: customers[1].id,
-//         amount: 20348,
-//         status: 'pending',
-//         date: '2022-11-14'
-//     },
-//     {
-//         customer_id: customers[4].id,
-//         amount: 3040,
-//         status: 'paid',
-//         date: '2022-10-29'
-//     },
-//     {
-//         customer_id: customers[3].id,
-//         amount: 44800,
-//         status: 'paid',
-//         date: '2023-09-10'
-//     },
-//     {
-//         customer_id: customers[5].id,
-//         amount: 34577,
-//         status: 'pending',
-//         date: '2023-08-05'
-//     },
-//     {
-//         customer_id: customers[7].id,
-//         amount: 54246,
-//         status: 'pending',
-//         date: '2023-07-16'
-//     },
-//     {
-//         customer_id: customers[6].id,
-//         amount: 666,
-//         status: 'pending',
-//         date: '2023-06-27'
-//     },
-//     {
-//         customer_id: customers[3].id,
-//         amount: 32545,
-//         status: 'paid',
-//         date: '2023-06-09'
-//     },
-//     {
-//         customer_id: customers[4].id,
-//         amount: 1250,
-//         status: 'paid',
-//         date: '2023-06-17'
-//     },
-//     {
-//         customer_id: customers[5].id,
-//         amount: 8546,
-//         status: 'paid',
-//         date: '2023-06-07'
-//     },
-//     {
-//         customer_id: customers[1].id,
-//         amount: 500,
-//         status: 'paid',
-//         date: '2023-08-19'
-//     },
-//     {
-//         customer_id: customers[5].id,
-//         amount: 8945,
-//         status: 'paid',
-//         date: '2023-06-03'
-//     },
-//     {
-//         customer_id: customers[2].id,
-//         amount: 8945,
-//         status: 'paid',
-//         date: '2023-06-18'
-//     },
-//     {
-//         customer_id: customers[0].id,
-//         amount: 8945,
-//         status: 'paid',
-//         date: '2023-10-04'
-//     },
-//     {
-//         customer_id: customers[2].id,
-//         amount: 1000,
-//         status: 'paid',
-//         date: '2022-06-05'
-//     }
+const invoices = [
+    {
+        date: '2022-12-06',
+        status: InvoiceStatusEnum.paid,
+        purchaseOrderNumber: 'PO9982734',
+        additionalInformation: 'Some additional information',
+        payBy: '2022-12-30',
+        paidOn: '2022-12-29',
+        billingInfo: 'This is a billing info',
+        tax: 20
+    },
+    {
+        date: '2023-02-16',
+        status: InvoiceStatusEnum.paid,
+        purchaseOrderNumber: 'PO289374',
+        additionalInformation: 'Some additional information',
+        manufacturerInvoiceNumbers: 'KK648929834-12',
+        payBy: '2023-03-12',
+        paidOn: '2023-03-08',
+        billingInfo: 'This is a billing info',
+        tax: 20
+    },
+    {
+        date: '2023-03-26',
+        status: InvoiceStatusEnum.paid,
+        purchaseOrderNumber: 'PO392384',
+        additionalInformation: 'Some additional information',
+        payBy: '2023-04-15',
+        paidOn: '2023-04-19',
+        billingInfo: 'This is a billing info',
+        notes: 'This company is sometimes overdue with its invoice payments',
+        tax: 10,
+        discount: 5
+    },
+    {
+        date: '2023-05-11',
+        status: InvoiceStatusEnum.pending,
+        purchaseOrderNumber: 'PO322384',
+        payBy: '2023-06-11',
+        billingInfo: 'This is a billing info',
+        tax: 20
+    },
+    {
+        date: '2023-05-11',
+        status: InvoiceStatusEnum.pending,
+        purchaseOrderNumber: 'PO322384',
+        payBy: '2023-06-11',
+        billingInfo: 'This is a billing info',
+        tax: 10,
+        discount: 5
+    },
+    {
+        date: '2024-03-18',
+        status: InvoiceStatusEnum.draft,
+        purchaseOrderNumber: 'PO392384',
+        additionalInformation: 'Some additional information',
+        manufacturerInvoiceNumbers: 'TT683K9834',
+        payBy: '2024-04-15',
+        billingInfo: 'This is a billing info',
+        notes: 'Gotta check out if anything is wrong before moving status to pending',
+        tax: 10,
+        discount: 5
+    },
+    {
+        date: '2024-04-01',
+        status: InvoiceStatusEnum.draft,
+        purchaseOrderNumber: 'PO392384',
+        additionalInformation: 'Some additional information',
+        manufacturerInvoiceNumbers: 'TT683K9834',
+        payBy: '2024-04-19',
+        billingInfo: 'This is a billing info for my company',
+        tax: 10
+    }
+];
+
+// const revenue = [
+//     { month: 'Jan', revenue: 2000 },
+//     { month: 'Feb', revenue: 1800 },
+//     { month: 'Mar', revenue: 2200 },
+//     { month: 'Apr', revenue: 2500 },
+//     { month: 'May', revenue: 2300 },
+//     { month: 'Jun', revenue: 3200 },
+//     { month: 'Jul', revenue: 3500 },
+//     { month: 'Aug', revenue: 3700 },
+//     { month: 'Sep', revenue: 2500 },
+//     { month: 'Oct', revenue: 2800 },
+//     { month: 'Nov', revenue: 3000 },
+//     { month: 'Dec', revenue: 4800 }
 // ];
-
-const revenue = [
-    { month: 'Jan', revenue: 2000 },
-    { month: 'Feb', revenue: 1800 },
-    { month: 'Mar', revenue: 2200 },
-    { month: 'Apr', revenue: 2500 },
-    { month: 'May', revenue: 2300 },
-    { month: 'Jun', revenue: 3200 },
-    { month: 'Jul', revenue: 3500 },
-    { month: 'Aug', revenue: 3700 },
-    { month: 'Sep', revenue: 2500 },
-    { month: 'Oct', revenue: 2800 },
-    { month: 'Nov', revenue: 3000 },
-    { month: 'Dec', revenue: 4800 }
-];
-
-const productTypes = [
-    {
-        id: '3838da91-714f-4377-85e9-fec4b6a52989',
-        type: 'service'
-    },
-    {
-        id: '5458ac91-732f-4321-75e9-fecbb3a64187',
-        type: 'goods'
-    }
-];
-
-const products = [
-    {
-        name: 'Installation of pipes',
-        description: 'Drawing of pipes to different locations',
-        typeId: '3838da91-714f-4377-85e9-fec4b6a52989',
-        code: '',
-        price: 39023
-    },
-    {
-        name: 'Installation of kitchen basin',
-        description: 'Installation of kitchen basin with all sorts of screws',
-        typeId: '3838da91-714f-4377-85e9-fec4b6a52989',
-        code: '',
-        price: 39302
-    },
-    {
-        name: 'Kitchen basin',
-        description: 'Stainless steel kitchen basin with outlet for swills',
-        typeId: '5458ac91-732f-4321-75e9-fecbb3a64187',
-        code: 'KB1502RTR',
-        price: 93903
-    },
-    {
-        name: 'Pipe 12 inch',
-        typeId: '5458ac91-732f-4321-75e9-fecbb3a64187',
-        code: 'PP1202RTP',
-        price: 3922
-    },
-    {
-        name: 'Pipe 24 inch',
-        typeId: '5458ac91-732f-4321-75e9-fecbb3a64187',
-        code: 'PP2412RTP',
-        price: 4323
-    },
-    {
-        name: 'Pipe 36 inch',
-        typeId: '5458ac91-732f-4321-75e9-fecbb3a64187',
-        code: 'PP3627RTP',
-        price: 6549
-    },
-    {
-        name: 'Looking glass',
-        description:
-            'A beautiful and framed piece of oval glass where humans and animals can watch themselves',
-        typeId: '5458ac91-732f-4321-75e9-fecbb3a64187',
-        code: 'LG3672GGP',
-        price: 17440
-    }
-];
 
 export {
     countries,
+    customerIndividuals,
     customerOrganizations,
+    inventory,
     inventoryTypes,
-    // invoices,
+    invoices,
     organizationTypes,
-    productTypes,
-    products,
     profiles,
     providerIndividual,
     providerOrganization,
-    revenue,
     users
 };
