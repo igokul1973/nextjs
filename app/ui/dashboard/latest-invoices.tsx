@@ -1,6 +1,6 @@
 import { fetchLatestInvoices } from '@/app/lib/data/invoices';
 import { lusitana } from '@/app/ui/fonts';
-import { ArrowPathIcon } from '@heroicons/react/24/outline';
+import CallMadeOutlined from '@mui/icons-material/CallMadeOutlined';
 import clsx from 'clsx';
 import Image from 'next/image';
 
@@ -18,7 +18,7 @@ export default async function LatestInvoices() {
                             <div
                                 key={invoice.id}
                                 className={clsx('flex flex-row items-center justify-between py-4', {
-                                    'border-t': i !== 0,
+                                    'border-t': i !== 0
                                 })}
                             >
                                 <div className='flex items-center'>
@@ -48,8 +48,8 @@ export default async function LatestInvoices() {
                     })}
                 </div>
                 <div className='flex items-center pb-2 pt-6'>
-                    <ArrowPathIcon className='h-5 w-5 text-gray-500' />
-                    <h3 className='ml-2 text-sm text-gray-500 '>Updated just now</h3>
+                    <CallMadeOutlined />
+                    <h3>Updated just now</h3>
                 </div>
             </div>
         </div>

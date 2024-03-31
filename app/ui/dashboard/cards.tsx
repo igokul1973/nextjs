@@ -1,12 +1,15 @@
 import { fetchCardData } from '@/app/lib/data/card';
 import { lusitana } from '@/app/ui/fonts';
-import { BanknotesIcon, ClockIcon, InboxIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import LocalAtmOutlined from '@mui/icons-material/LocalAtmOutlined';
+import PeopleOutlined from '@mui/icons-material/PeopleOutlined';
+import WatchLaterOutlined from '@mui/icons-material/WatchLaterOutlined';
+import InboxOutlined from '@mui/icons-material/InboxOutlined';
 
 const iconMap = {
-    collected: BanknotesIcon,
-    customers: UserGroupIcon,
-    pending: ClockIcon,
-    invoices: InboxIcon
+    collected: LocalAtmOutlined,
+    customers: PeopleOutlined,
+    pending: WatchLaterOutlined,
+    invoices: InboxOutlined
 };
 
 export default async function CardWrapper() {

@@ -1,4 +1,5 @@
-import { CheckIcon, ClockIcon } from '@heroicons/react/24/outline';
+import AccessTimeOutlined from '@mui/icons-material/AccessTimeOutlined';
+import CheckOutlined from '@mui/icons-material/CheckOutlined';
 import clsx from 'clsx';
 
 export default function InvoiceStatus({ status }: { status: string }) {
@@ -6,19 +7,19 @@ export default function InvoiceStatus({ status }: { status: string }) {
         <span
             className={clsx('inline-flex items-center rounded-full px-2 py-1 text-xs', {
                 'bg-gray-100 text-gray-500': status === 'pending',
-                'bg-green-500 text-white': status === 'paid',
+                'bg-green-500 text-white': status === 'paid'
             })}
         >
             {status === 'pending' ? (
                 <>
                     Pending
-                    <ClockIcon className='ml-1 w-4 text-gray-500' />
+                    <AccessTimeOutlined className='ml-1 w-4 text-gray-500' />
                 </>
             ) : null}
             {status === 'paid' ? (
                 <>
                     Paid
-                    <CheckIcon className='ml-1 w-4 text-white' />
+                    <CheckOutlined className='ml-1 w-4 text-white' />
                 </>
             ) : null}
         </span>

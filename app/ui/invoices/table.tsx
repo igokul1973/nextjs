@@ -96,8 +96,10 @@ export default async function InvoicesTable({
                                     </td>
                                     <td className='whitespace-nowrap py-3 pl-6 pr-3'>
                                         <div className='flex justify-end gap-3'>
-                                            <UpdateButton id={invoice.id} />
-                                            <DeleteButton id={invoice.id} />
+                                            <UpdateButton
+                                                href={`/dashboard/invoices/${invoice.id}/edit`}
+                                            />
+                                            <DeleteButton id={invoice.id} fn={deleteInvoice} />
                                         </div>
                                     </td>
                                 </tr>

@@ -1,0 +1,14 @@
+.logo-wrapper {
+  background-color: blue;
+  display: flex;
+  flex-direction: row;
+  color: white;
+}
+.logo-wrapper .icon {
+  height: 4ch;
+  width: 4ch;
+}
+.logo-wrapper .text {
+  font-size: 44px;
+}
+/*# sourceMappingURL=acme-logo.module.css.map */

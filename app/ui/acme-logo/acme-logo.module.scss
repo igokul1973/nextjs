@@ -1,0 +1,16 @@
+.logo-wrapper {
+    background-color: blue;
+    display: flex;
+    flex-direction: row;
+    place-items: center;
+    color: white;
+
+    .icon {
+        height: 4ch;
+        width: 4ch;
+    }
+
+    .text {
+        font-size: 44px;
+    }
+}
