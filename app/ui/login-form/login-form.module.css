@@ -2,6 +2,20 @@
   width: 450px;
   margin: 10rem auto 0;
   display: grid;
-  place-items: center;
+  row-gap: 1rem;
+}
+.form .fields {
+  display: grid;
+  row-gap: 2rem;
+}
+.form .full-width {
+  width: 100%;
+}
+.form .invalid {
+  color: red;
+  display: flex;
+  align-items: center;
+  -moz-column-gap: 0.5rem;
+       column-gap: 0.5rem;
 }
 /*# sourceMappingURL=login-form.module.css.map */

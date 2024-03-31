@@ -1,7 +1,8 @@
 .logo-wrapper {
   background-color: blue;
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  align-items: center;
   color: white;
 }
 .logo-wrapper .icon {
