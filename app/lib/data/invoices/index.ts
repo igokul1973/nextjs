@@ -1,7 +1,6 @@
 import prisma from '@/app/lib/prisma';
 import { InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore } from 'next/cache';
-import { LatestInvoice } from '../../definitions';
 import { flattenCustomer } from '../../utils';
 import { TFetchInvoicePayload, fetchInvoiceSelect } from './types';
 
@@ -101,7 +100,7 @@ export async function fetchFilteredInvoices(query: string, currentPage: number) 
                             select: {
                                 id: true,
                                 name: true,
-                                organizationEmail: {
+                                emails: {
                                     select: {
                                         email: true
                                     }
@@ -114,7 +113,7 @@ export async function fetchFilteredInvoices(query: string, currentPage: number) 
                                 firstName: true,
                                 lastName: true,
                                 middleName: true,
-                                individualEmail: {
+                                emails: {
                                     select: {
                                         email: true
                                     }
@@ -143,7 +142,7 @@ export async function fetchFilteredInvoices(query: string, currentPage: number) 
                                 }
                             },
                             {
-                                organizationEmail: {
+                                emails: {
                                     some: {
                                         email: {
                                             contains: query,
@@ -175,7 +174,7 @@ export async function fetchFilteredInvoices(query: string, currentPage: number) 
                                 }
                             },
                             {
-                                individualEmail: {
+                                emails: {
                                     some: {
                                         email: {
                                             contains: query,
@@ -251,7 +250,7 @@ export async function fetchFilteredInvoicesCount(query: string) {
                                         }
                                     },
                                     {
-                                        organizationEmail: {
+                                        emails: {
                                             some: {
                                                 email: {
                                                     contains: query,
@@ -283,7 +282,7 @@ export async function fetchFilteredInvoicesCount(query: string) {
                                         }
                                     },
                                     {
-                                        individualEmail: {
+                                        emails: {
                                             some: {
                                                 email: {
                                                     contains: query,

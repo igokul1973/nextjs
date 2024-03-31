@@ -1,0 +1,29 @@
+.card {
+    border-radius: 5px;
+    background-color: gray;
+    box-shadow: 2px 2px 2px 2px black;
+    padding: 1rem;
+
+    .heading {
+        display: flex;
+        padding: 12px;
+    }
+
+    .icon {
+        height: 1rem;
+        widht: 1rem;
+        color: gray;
+    }
+
+    .header {
+        margin-left: 2rem;
+    }
+
+    .content {
+        text-overflow: ellipsis;
+        border-radius: 5px;
+        background-color: white;
+        padding: 0.5rem 0.25rem;
+        text-align: center;
+    }
+}

@@ -1,0 +1,22 @@
+.card-wrapper {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(2, 1fr);
+
+    @media screen and (min-width: 768px) {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.latest-invoices {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    @media screen and (min-width: 768px) {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    @media screen and (min-width: 1024px) {
+        grid-template-columns: repeat(8, 1fr);
+    }
+}

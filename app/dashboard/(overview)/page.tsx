@@ -1,9 +1,9 @@
 import { CardsSkeleton, LatestInvoicesSkeleton } from '@/app/ui/skeletons';
 import { revalidatePath } from 'next/cache';
 import { Suspense } from 'react';
-import CardWrapper from '../../ui/dashboard/cards';
+import CardWrapper from '../../ui/dashboard/card-wrapper/CardWrapper';
 import LatestInvoices from '../../ui/dashboard/latest-invoices';
-import { lusitana } from '../../ui/fonts';
+import styles from './page.module.css';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -13,13 +13,13 @@ revalidatePath('/dashboard');
 export default async function Page() {
     return (
         <main>
-            <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>Dashboard</h1>
-            <div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-4'>
+            <h1>Dashboard</h1>
+            <div className={styles.card}>
                 <Suspense fallback={<CardsSkeleton />}>
                     <CardWrapper />
                 </Suspense>
             </div>
-            <div className='mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8'>
+            <div className={styles['latest-invoices']}>
                 {/* <Suspense fallback={<RevenueChartSkeleton />}>
                     <RevenueChart />
                 </Suspense> */}

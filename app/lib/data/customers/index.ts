@@ -2,11 +2,11 @@ import prisma from '@/app/lib/prisma';
 import { flattenCustomer, formatCurrency } from '@/app/lib/utils';
 import { InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore } from 'next/cache';
-import { ICustomer, fetchCustomersSelect } from './types';
+import { fetchCustomersSelect } from './types';
 
 const ITEMS_PER_PAGE = 6;
 
-export async function fetchCustomers(): Promise<ICustomer[]> {
+export async function fetchCustomers() {
     noStore();
     try {
         const customers = await prisma.customer.findMany({
@@ -77,7 +77,7 @@ export async function fetchFilteredCustomers(query: string, currentPage: number)
                     select: {
                         id: true,
                         name: true,
-                        organizationEmail: {
+                        emails: {
                             select: {
                                 email: true
                             }
@@ -90,7 +90,7 @@ export async function fetchFilteredCustomers(query: string, currentPage: number)
                         firstName: true,
                         lastName: true,
                         middleName: true,
-                        individualEmail: {
+                        emails: {
                             select: {
                                 email: true
                             }
@@ -125,7 +125,7 @@ export async function fetchFilteredCustomers(query: string, currentPage: number)
                                     }
                                 },
                                 {
-                                    organizationEmail: {
+                                    emails: {
                                         some: {
                                             email: {
                                                 contains: query,
@@ -159,7 +159,7 @@ export async function fetchFilteredCustomers(query: string, currentPage: number)
                                     }
                                 },
                                 {
-                                    individualEmail: {
+                                    emails: {
                                         some: {
                                             email: {
                                                 contains: query,
@@ -238,7 +238,7 @@ export async function fetchFilteredCustomersCount(query: string) {
                                     }
                                 },
                                 {
-                                    organizationEmail: {
+                                    emails: {
                                         some: {
                                             email: {
                                                 contains: query,
@@ -272,7 +272,7 @@ export async function fetchFilteredCustomersCount(query: string) {
                                     }
                                 },
                                 {
-                                    individualEmail: {
+                                    emails: {
                                         some: {
                                             email: {
                                                 contains: query,
