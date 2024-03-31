@@ -1,0 +1,2 @@
+.card{border-radius:5px;background-color:#d3d3d3;box-shadow:2px 2px 4px 1px rgba(128,128,128,.6);padding:1rem}.card .heading{display:flex;gap:.25rem;justify-content:center;align-items:center;padding:12px;color:#656464}.card .heading .icon{height:3rem;widht:3rem;color:gray}.card .content{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;border-radius:5px;background-color:#fff;padding:.5rem .25rem;text-align:center}
+/*# sourceMappingURL=Card.module.min.css.map */

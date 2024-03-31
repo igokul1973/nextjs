@@ -1,26 +1,28 @@
 .card {
     border-radius: 5px;
-    background-color: gray;
-    box-shadow: 2px 2px 2px 2px black;
+    background-color: lightgray;
+    box-shadow: 2px 2px 4px 1px rgba(128, 128, 128, 0.6);
     padding: 1rem;
 
     .heading {
         display: flex;
+        gap: 0.25rem;
+        justify-content: center;
+        align-items: center;
         padding: 12px;
-    }
+        color: rgb(101, 100, 100);
 
-    .icon {
-        height: 1rem;
-        widht: 1rem;
-        color: gray;
-    }
-
-    .header {
-        margin-left: 2rem;
+        .icon {
+            height: 3rem;
+            widht: 3rem;
+            color: gray;
+        }
     }
 
     .content {
+        overflow: hidden;
         text-overflow: ellipsis;
+        white-space: nowrap;
         border-radius: 5px;
         background-color: white;
         padding: 0.5rem 0.25rem;

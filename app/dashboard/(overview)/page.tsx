@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { Suspense } from 'react';
 import CardWrapper from '../../ui/dashboard/card-wrapper/CardWrapper';
 import LatestInvoices from '../../ui/dashboard/latest-invoices';
-import styles from './page.module.css';
+import styles from './page.module.scss';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -14,7 +14,7 @@ export default async function Page() {
     return (
         <main>
             <h1>Dashboard</h1>
-            <div className={styles.card}>
+            <div className={styles['cards-wrapper']}>
                 <Suspense fallback={<CardsSkeleton />}>
                     <CardWrapper />
                 </Suspense>

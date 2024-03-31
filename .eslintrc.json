@@ -1,11 +1,23 @@
 {
-    "extends": "next/core-web-vitals",
-    "no-restricted-imports": [
-        "error",
-        {
-            "patterns": [
-                "@mui/*/*/*"
-            ]
-        }
+    "extends": [
+        "next/core-web-vitals",
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
+    ],
+    "rules": {
+        "no-restricted-imports": [
+            "error",
+            {
+                "patterns": [
+                    "@mui/*/*/*"
+                ]
+            }
+        ]
+    },
+    "ignorePatterns": [
+        ".next/*",
+        ".vscode/*",
+        ".history/*",
+        "node_modules/*"
     ]
 }
