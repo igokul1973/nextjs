@@ -1,8 +1,10 @@
-import { CardsSkeleton, LatestInvoicesSkeleton } from '@/app/ui/skeletons';
+import { CardsSkeleton, LatestInvoicesSkeleton } from '@/app/components/skeletons';
+import { Typography } from '@mui/material';
+import Box from '@mui/material/Box';
 import { revalidatePath } from 'next/cache';
 import { Suspense } from 'react';
-import CardWrapper from '../../ui/dashboard/card-wrapper/CardWrapper';
-import LatestInvoices from '../../ui/dashboard/latest-invoices';
+import CardWrapper from '../../components/dashboard/card-wrapper/CardWrapper';
+import LatestInvoices from '../../components/dashboard/latest-invoices';
 import styles from './page.module.scss';
 
 export const dynamic = 'force-dynamic';
@@ -12,8 +14,8 @@ revalidatePath('/dashboard');
 
 export default async function Page() {
     return (
-        <main>
-            <h1>Dashboard</h1>
+        <Box>
+            <Typography variant='h1'>Dashboard</Typography>
             <div className={styles['cards-wrapper']}>
                 <Suspense fallback={<CardsSkeleton />}>
                     <CardWrapper />
@@ -27,6 +29,6 @@ export default async function Page() {
                     <LatestInvoices />
                 </Suspense>
             </div>
-        </main>
+        </Box>
     );
 }

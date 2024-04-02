@@ -1,10 +1,13 @@
-import { roboto } from '@/app/ui/fonts';
-import '@/app/ui/global.scss';
+import ThemeRegistry from '@/app/components/theme-registry/ThemeRegistry';
+import '@/app/styles/global.scss';
+import React from 'react';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang='en'>
-            <body className={`${roboto.className} antialiased`}>{children}</body>
+            <ThemeRegistry>
+                <body>{children}</body>
+            </ThemeRegistry>
         </html>
     );
 }

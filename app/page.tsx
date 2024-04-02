@@ -1,11 +1,12 @@
-import AcmeLogo from '@/app/ui/acme-logo/acme-logo';
+import AcmeLogo from '@/app/components/acme-logo/acme-logo';
 import ArrowRight from '@mui/icons-material/ArrowRight';
+import Box from '@mui/material/Box';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Page() {
     return (
-        <main>
+        <Box component='main'>
             <div>
                 <AcmeLogo />
             </div>
@@ -47,6 +48,6 @@ export default function Page() {
                 perspiciatis veritatis deleniti cum voluptate qui quod eligendi eius eum aspernatur!
                 Animi excepturi quaerat repudiandae ex at labore, consequuntur in eum! Repellat
             </div>
-        </main>
+        </Box>
     );
 }

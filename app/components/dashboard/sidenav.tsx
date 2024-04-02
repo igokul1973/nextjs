@@ -1,5 +1,5 @@
-import AcmeLogo from '@/app/ui/acme-logo/acme-logo';
-import NavLinks from '@/app/ui/dashboard/nav-links';
+import AcmeLogo from '@/app/components/acme-logo/acme-logo';
+import NavLinks from '@/app/components/dashboard/nav-links';
 import { signOut } from '@/auth';
 import PowerSettingsNewOutlined from '@mui/icons-material/PowerSettingsNewOutlined';
 import Link from 'next/link';

@@ -1,17 +1,23 @@
 'use client';
 
 import AlternateEmailOutlined from '@mui/icons-material/AlternateEmailOutlined';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined';
-import { InputAdornment } from '@mui/material';
+import { InputAdornment, Typography, useTheme } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useFormState } from 'react-dom';
 import { authenticate } from '../../lib/actions';
+import ColorModeContext from '../theme-registry/ColorModeContext';
 import { LoginButton } from './login-button';
 import styles from './login-form.module.scss';
 
 export default function LoginForm() {
     const [errorMessage, formAction] = useFormState(authenticate, undefined);
+    const theme = useTheme();
+    const { toggleColorMode } = useContext(ColorModeContext);
 
     useEffect(() => {
         const f = async () => {
@@ -24,7 +30,11 @@ export default function LoginForm() {
 
     return (
         <form action={formAction} className={styles.form}>
-            <h1>Please log in to continue</h1>
+            <Typography variant='h4'>Please log in to continue</Typography>
+
+            <IconButton sx={{ ml: 1 }} onClick={toggleColorMode} color='inherit'>
+                {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+            </IconButton>
             <div className={styles.fields}>
                 <TextField
                     label='Email'

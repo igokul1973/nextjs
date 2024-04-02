@@ -1,5 +1,5 @@
 import { fetchLatestInvoices } from '@/app/lib/data/invoices';
-import { lusitana } from '@/app/ui/fonts';
+import { lusitana } from '@/app/styles/fonts';
 import CallMadeOutlined from '@mui/icons-material/CallMadeOutlined';
 import clsx from 'clsx';
 import Image from 'next/image';

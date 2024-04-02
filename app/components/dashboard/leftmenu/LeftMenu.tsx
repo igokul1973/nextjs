@@ -1,5 +1,8 @@
 'use client';
 
+import ColorModeContext from '@/app/components/theme-registry/ColorModeContext';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Home from '@mui/icons-material/Home';
@@ -18,11 +21,12 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import Link from 'next/link';
-import * as React from 'react';
+import { useContext, useState } from 'react';
 import { AppBar } from './AppBar';
 import { Drawer } from './Drawer';
 import { DrawerHeader } from './DrawerHeader';
 
+2;
 const links = [
     { name: 'Home', href: '/dashboard', icon: Home },
     {
@@ -41,7 +45,8 @@ const DynamicIcon = ({ name }: { name: string }) => {
 
 export default function LeftMenu() {
     const theme = useTheme();
-    const [open, setOpen] = React.useState(false);
+    const { toggleColorMode } = useContext(ColorModeContext);
+    const [open, setOpen] = useState(false);
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -54,7 +59,7 @@ export default function LeftMenu() {
     return (
         <Box sx={{ display: 'flex' }}>
             <AppBar position='fixed' open={open}>
-                <Toolbar>
+                <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <IconButton
                         color='inherit'
                         aria-label='open drawer'
@@ -70,20 +75,26 @@ export default function LeftMenu() {
                     <Typography variant='h6' noWrap component='div'>
                         InvoiceMe.biz
                     </Typography>
+                    <IconButton sx={{ ml: 1 }} onClick={toggleColorMode} color='inherit'>
+                        {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+                    </IconButton>
                 </Toolbar>
             </AppBar>
-            <Drawer variant='permanent' open={open}>
-                <DrawerHeader>
-                    <IconButton onClick={handleDrawerClose}>
-                        {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-                    </IconButton>
-                </DrawerHeader>
-                <Divider />
-                <List>
-                    {links.map((link, index) => (
-                        <Link key={index} href={link.href}>
+            <aside>
+                <Drawer variant='permanent' component={'aside'} open={open}>
+                    <DrawerHeader>
+                        <IconButton onClick={handleDrawerClose}>
+                            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+                        </IconButton>
+                    </DrawerHeader>
+                    <Divider />
+                    <List component='nav'>
+                        {links.map((link, index) => (
                             <ListItem key={link.name} disablePadding sx={{ display: 'block' }}>
                                 <ListItemButton
+                                    LinkComponent={Link}
+                                    key={index}
+                                    href={link.href}
                                     sx={{
                                         minHeight: 48,
                                         justifyContent: open ? 'initial' : 'center',
@@ -105,10 +116,10 @@ export default function LeftMenu() {
                                     />
                                 </ListItemButton>
                             </ListItem>
-                        </Link>
-                    ))}
-                </List>
-            </Drawer>
+                        ))}
+                    </List>
+                </Drawer>
+            </aside>
         </Box>
     );
 }

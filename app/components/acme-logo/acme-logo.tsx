@@ -1,4 +1,4 @@
-import { lusitana } from '@/app/ui/fonts';
+import { lusitana } from '@/app/styles/fonts';
 import PublicOutlined from '@mui/icons-material/PublicOutlined';
 import styles from './acme-logo.module.scss';
 

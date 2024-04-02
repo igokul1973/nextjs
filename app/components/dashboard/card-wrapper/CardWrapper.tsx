@@ -1,5 +1,5 @@
+import Card from '@/app/components/dashboard/card/Card';
 import { fetchCardData } from '@/app/lib/data/card';
-import Card from '@/app/ui/dashboard/card/Card';
 
 export default async function CardWrapper() {
     const { numberOfCustomers, numberOfInvoices, totalPaidInvoices, totalPendingInvoices } =

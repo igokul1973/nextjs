@@ -4,6 +4,9 @@
         "plugin:@typescript-eslint/recommended",
         "prettier"
     ],
+    "plugins": [
+        "@emotion"
+    ],
     "rules": {
         "no-restricted-imports": [
             "error",
@@ -12,7 +15,10 @@
                     "@mui/*/*/*"
                 ]
             }
-        ]
+        ],
+        "@emotion/no-vanilla": "error",
+        "@emotion/import-from-emotion": "error",
+        "@emotion/styled-import": "error"
     },
     "ignorePatterns": [
         ".next/*",

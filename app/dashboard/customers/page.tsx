@@ -1,11 +1,12 @@
+import CustomersTable from '@/app/components/customers/table';
+import { CreateButton } from '@/app/components/invoices/buttons';
+import Pagination from '@/app/components/invoices/pagination';
+import Search from '@/app/components/search';
+import { InvoicesTableSkeleton } from '@/app/components/skeletons';
 import { fetchFilteredCustomers, fetchFilteredCustomersCount } from '@/app/lib/data/customers';
 import { ISearchParams } from '@/app/lib/definitions';
-import CustomersTable from '@/app/ui/customers/table';
-import { lusitana } from '@/app/ui/fonts';
-import { CreateButton } from '@/app/ui/invoices/buttons';
-import Pagination from '@/app/ui/invoices/pagination';
-import Search from '@/app/ui/search';
-import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import { Suspense } from 'react';
 
 interface IProps {
@@ -19,10 +20,8 @@ export default async function Page({ searchParams }: IProps) {
     const customers = await fetchFilteredCustomers(query, currentPage);
 
     return (
-        <div className='w-full'>
-            <div className='flex w-full items-center justify-between'>
-                <h1 className={`${lusitana.className} text-2xl`}>Customers</h1>
-            </div>
+        <Box component='main'>
+            <Typography variant='h1'>Customers</Typography>
             <div className='mt-4 flex items-center justify-between gap-2 md:mt-8'>
                 <Search placeholder='Search customers...' />
                 <CreateButton href='/dashboard/customers/create' name='Create customer' />
@@ -33,6 +32,6 @@ export default async function Page({ searchParams }: IProps) {
             <div className='mt-5 flex w-full justify-center'>
                 <Pagination totalPages={totalPages} />
             </div>
-        </div>
+        </Box>
     );
 }

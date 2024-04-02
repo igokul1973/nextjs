@@ -1,7 +1,7 @@
+import Breadcrumbs from '@/app/components/invoices/breadcrumbs';
+import Form from '@/app/components/invoices/edit-form';
 import { fetchCustomers } from '@/app/lib/data/customers';
 import { fetchInvoiceById } from '@/app/lib/data/invoices';
-import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
-import Form from '@/app/ui/invoices/edit-form';
 import { notFound } from 'next/navigation';
 
 const Page = async ({ params: { id } }: { params: { id: string } }) => {
