@@ -16,6 +16,12 @@
                 ]
             }
         ],
+        "@typescript-eslint/no-unused-vars": [
+            "error",
+            {
+                "ignoreRestSiblings": true
+            }
+        ],
         "@emotion/no-vanilla": "error",
         "@emotion/import-from-emotion": "error",
         "@emotion/styled-import": "error"

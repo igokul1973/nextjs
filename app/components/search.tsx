@@ -1,6 +1,8 @@
 'use client';
 
 import SearchOutlined from '@mui/icons-material/SearchOutlined';
+import { InputAdornment } from '@mui/material';
+import TextField from '@mui/material/TextField';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { useDebounce } from '../lib/utils';
@@ -32,19 +34,23 @@ export default function Search({ placeholder }: { placeholder: string }) {
     const debouncedHandleSearch = useDebounce<string>(handleSearch, 400);
 
     return (
-        <div className='relative flex flex-1 flex-shrink-0'>
-            <label htmlFor='search' className='sr-only'>
-                Search
-            </label>
-            <input
-                className='peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500'
+        <div>
+            <TextField
+                label='Search'
+                variant='outlined'
                 placeholder={placeholder}
                 onChange={(e) => {
                     debouncedHandleSearch(e.target.value);
                 }}
                 defaultValue={searchParams?.get('query')?.toString()}
+                InputProps={{
+                    startAdornment: (
+                        <InputAdornment position='start'>
+                            <SearchOutlined />
+                        </InputAdornment>
+                    )
+                }}
             />
-            <SearchOutlined className='absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900' />
         </div>
     );
 }

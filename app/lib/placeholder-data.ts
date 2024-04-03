@@ -315,7 +315,7 @@ const customerOrganizations = [
             country: 'USA'
         },
         accountRelation: AccountRelationEnum.customer,
-        emails: [{ email: 'other@oracle.com', type: EmailTypeEnum.other }],
+        emails: [{ email: 'other@legman.com', type: EmailTypeEnum.other }],
         phones: [{ countryCode: '1', number: '1234379990', type: PhoneTypeEnum.invoicing }]
     },
     {

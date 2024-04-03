@@ -19,15 +19,6 @@ export default function LoginForm() {
     const theme = useTheme();
     const { toggleColorMode } = useContext(ColorModeContext);
 
-    useEffect(() => {
-        const f = async () => {
-            const res = await fetch('/api/hello', { method: 'get' });
-            const data = await res.json();
-            console.log('The returned message: ', data);
-        };
-        f();
-    }, []);
-
     return (
         <form action={formAction} className={styles.form}>
             <Typography variant='h4'>Please log in to continue</Typography>

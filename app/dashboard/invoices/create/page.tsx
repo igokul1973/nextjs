@@ -1,22 +1,32 @@
-import Breadcrumbs from '@/app/components/invoices/breadcrumbs';
-import Form from '@/app/components/invoices/create-form';
-import { fetchCustomers } from '@/app/lib/data/customers';
+import Form from '@/app/components/invoices/create-form/create-form';
+import { getCustomersByAccountId } from '@/app/lib/data/customers';
+import { auth } from '@/auth';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Link from '@mui/material/Link';
+import Typography from '@mui/material/Typography';
+import NextLink from 'next/link';
+import styles from './page.module.scss';
 
 export default async function Page() {
-    const customers = await fetchCustomers();
+    const session = await auth();
+    if (!session) return <div>Not logged in</div>;
+
+    const customers = await getCustomersByAccountId(session.user.accountId);
 
     return (
-        <main>
-            <Breadcrumbs
-                breadcrumbs={[
-                    { label: 'Invoices', href: '/dashboard/invoices' },
-                    {
-                        label: 'Create Invoice',
-                        href: '/dashboard/invoices/create',
-                        active: true
-                    }
-                ]}
-            />
+        <main className={styles.wrapper}>
+            <Typography variant='h1'>Create Invoice</Typography>
+            <Breadcrumbs aria-label='breadcrumb'>
+                <Link
+                    component={NextLink}
+                    underline='hover'
+                    color='inherit'
+                    href='/dashboard/invoices'
+                >
+                    Invoices
+                </Link>
+                <Typography color='text.primary'>Create Invoices</Typography>
+            </Breadcrumbs>
             <Form customers={customers} />
         </main>
     );

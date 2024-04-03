@@ -1,9 +1,9 @@
+import { getUser } from '@/app/lib/data/users';
 import bcrypt from 'bcrypt';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
 import { authConfig } from './auth.config';
-import { getUser } from '@/app/lib/data/users';
 
 export const { auth, signIn, signOut } = NextAuth({
     ...authConfig,
@@ -20,6 +20,9 @@ export const { auth, signIn, signOut } = NextAuth({
                 if (parsedCredentials.success) {
                     const { email, password } = parsedCredentials.data;
                     const user = await getUser(email);
+                    console.log('----------------------\n');
+                    console.log('User in authentication function: ', user);
+                    console.log('----------------------\n');
                     if (!user) {
                         return null;
                     }

@@ -68,18 +68,20 @@ model account {
 }
 
 model user {
-  id        String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  email     String       @unique
-  phone     String       @unique
-  password  String
-  isActive  Boolean      @default(true)
-  role      UserRoleEnum
-  accountId String       @map("account_id") @db.Uuid
-  account   account      @relation(fields: [accountId], references: [id])
-  profile   profile?
-  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
-  updatedBy String?      @map("updated_by") @db.Uuid
+  id              String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email           String       @unique
+  phone           String       @unique
+  password        String
+  isActive        Boolean      @default(true)
+  role            UserRoleEnum
+  accountId       String       @map("account_id") @db.Uuid
+  account         account      @relation(fields: [accountId], references: [id])
+  profile         profile?
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  updatedBy       String?      @map("updated_by") @db.Uuid
+  createdInvoices invoice[]    @relation("CreatedInvoices")
+  updatedInvoices invoice[]    @relation("UpdatedInvoices")
 
   @@map("users")
 }
@@ -372,6 +374,8 @@ model invoice {
   updatedAt                  DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
   createdBy                  String            @map("created_by") @db.Uuid
   updatedBy                  String            @map("updated_by") @db.Uuid
+  createdByUser              user              @relation("CreatedInvoices", fields: [createdBy], references: [id])
+  updatedByUser              user              @relation("UpdatedInvoices", fields: [updatedBy], references: [id])
 
   @@map("invoices")
 }

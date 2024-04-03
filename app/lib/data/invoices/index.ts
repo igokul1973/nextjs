@@ -76,7 +76,11 @@ export async function fetchInvoiceById(
     }
 }
 
-export async function fetchFilteredInvoices(query: string, currentPage: number) {
+export async function getFilteredInvoicesByAccountId(
+    accountId: string,
+    query: string,
+    currentPage: number
+) {
     noStore();
 
     const offset = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -85,14 +89,16 @@ export async function fetchFilteredInvoices(query: string, currentPage: number) 
         const rawInvoices = await prisma.invoice.findMany({
             relationLoadStrategy: 'join',
             orderBy: {
-                date: 'desc'
+                number: 'asc'
             },
-            take: ITEMS_PER_PAGE,
-            skip: offset,
+            // take: ITEMS_PER_PAGE,
+            // skip: offset,
             select: {
                 id: true,
                 date: true,
                 status: true,
+                number: true,
+                createdByUser: true,
                 customer: {
                     select: {
                         id: true,
@@ -132,60 +138,129 @@ export async function fetchFilteredInvoices(query: string, currentPage: number) 
                 }
             },
             where: {
-                customer: {
-                    organization: {
-                        OR: [
-                            {
-                                name: {
-                                    contains: query,
-                                    mode: 'insensitive'
-                                }
-                            },
-                            {
-                                emails: {
-                                    some: {
-                                        email: {
-                                            contains: query,
-                                            mode: 'insensitive'
-                                        }
-                                    }
+                AND: [
+                    {
+                        customer: {
+                            organization: {
+                                accountId: {
+                                    equals: accountId
                                 }
                             }
-                        ]
+                        }
                     },
-                    individual: {
+                    {
                         OR: [
                             {
-                                firstName: {
-                                    contains: query,
-                                    mode: 'insensitive'
-                                }
-                            },
-                            {
-                                lastName: {
-                                    contains: query,
-                                    mode: 'insensitive'
-                                }
-                            },
-                            {
-                                middleName: {
-                                    contains: query,
-                                    mode: 'insensitive'
-                                }
-                            },
-                            {
-                                emails: {
-                                    some: {
-                                        email: {
-                                            contains: query,
-                                            mode: 'insensitive'
-                                        }
+                                createdByUser: {
+                                    email: {
+                                        contains: query
                                     }
+                                }
+                            },
+                            {
+                                status: {
+                                    in: Object.values(InvoiceStatusEnum).filter((status) =>
+                                        status.includes(query)
+                                    )
+                                }
+                            },
+                            {
+                                customer: {
+                                    OR: [
+                                        {
+                                            organization: {
+                                                OR: [
+                                                    {
+                                                        name: {
+                                                            contains: query,
+                                                            mode: 'insensitive'
+                                                        }
+                                                    },
+                                                    {
+                                                        emails: {
+                                                            some: {
+                                                                email: {
+                                                                    contains: query,
+                                                                    mode: 'insensitive'
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            individual: {
+                                                OR: [
+                                                    {
+                                                        firstName: {
+                                                            contains: query,
+                                                            mode: 'insensitive'
+                                                        }
+                                                    },
+                                                    {
+                                                        lastName: {
+                                                            contains: query,
+                                                            mode: 'insensitive'
+                                                        }
+                                                    },
+                                                    {
+                                                        middleName: {
+                                                            contains: query,
+                                                            mode: 'insensitive'
+                                                        }
+                                                    },
+                                                    {
+                                                        emails: {
+                                                            some: {
+                                                                email: {
+                                                                    contains: query,
+                                                                    mode: 'insensitive'
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        AND: [
+                                                            {
+                                                                firstName: {
+                                                                    contains: query.split(' ')[0],
+                                                                    mode: 'insensitive'
+                                                                }
+                                                            },
+                                                            {
+                                                                lastName: {
+                                                                    contains: query.split(' ')[1],
+                                                                    mode: 'insensitive'
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        AND: [
+                                                            {
+                                                                firstName: {
+                                                                    contains: query.split(' ')[1],
+                                                                    mode: 'insensitive'
+                                                                }
+                                                            },
+                                                            {
+                                                                lastName: {
+                                                                    contains: query.split(' ')[0],
+                                                                    mode: 'insensitive'
+                                                                }
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
                                 }
                             }
                         ]
                     }
-                }
+                ]
             }
         });
         // Adding invoice amount
@@ -196,29 +271,8 @@ export async function fetchFilteredInvoices(query: string, currentPage: number) 
             const amount = invoice.invoiceItems.reduce((acc, ii) => {
                 return acc + ii.quantity * ii.price;
             }, 0);
-            return { ...invoice, amount, customer };
+            return { ...invoice, amount, customer, date: invoice.date.toLocaleDateString() };
         });
-
-        // const invoices = await prisma.$queryRaw<Invoice[]>`
-        //     SELECT
-        //         invoices.id,
-        //         invoices.amount,
-        //         invoices.date,
-        //         invoices.status,
-        //         customers.name,
-        //         customers.email,
-        //         customers.image_url
-        //     FROM invoices
-        //     JOIN customers ON invoices.customer_id = customers.id
-        //     WHERE
-        //         customers.name ILIKE ${`%${query}%`} OR
-        //         customers.email ILIKE ${`%${query}%`} OR
-        //         invoices.amount::text ILIKE ${`%${query}%`} OR
-        //         invoices.date::text ILIKE ${`%${query}%`} OR
-        //         invoices.status ILIKE ${`%${query}%`}
-        //     ORDER BY invoices.date DESC
-        //     LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-        // `;
 
         return invoices;
     } catch (error) {

@@ -28,6 +28,6 @@ export const fetchCustomersSelect = {
     }
 } satisfies Prisma.customerSelect;
 
-export type TFetchCustomersPayload = Prisma.customerGetPayload<{
+export type TGetCustomersPayload = Prisma.customerGetPayload<{
     select: typeof fetchCustomersSelect;
 }>;

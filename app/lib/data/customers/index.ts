@@ -1,57 +1,66 @@
 import prisma from '@/app/lib/prisma';
 import { flattenCustomer, formatCurrency } from '@/app/lib/utils';
-import { InvoiceStatusEnum } from '@prisma/client';
+import { AccountRelationEnum, InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore } from 'next/cache';
 import { fetchCustomersSelect } from './types';
 
 const ITEMS_PER_PAGE = 6;
 
-export async function fetchCustomers() {
+export async function getCustomersByAccountId(accountId: string) {
     noStore();
     try {
         const customers = await prisma.customer.findMany({
             relationLoadStrategy: 'query',
             select: fetchCustomersSelect,
-            orderBy: {
-                individual: {
-                    lastName: 'asc'
-                },
-                organization: {
-                    name: 'asc'
-                }
+            where: {
+                AND: [
+                    {
+                        organization: {
+                            account: {
+                                id: {
+                                    equals: accountId
+                                }
+                            }
+                        }
+                    },
+                    {
+                        OR: [
+                            {
+                                organization: {
+                                    accountRelation: AccountRelationEnum.customer
+                                }
+                            },
+                            {
+                                individual: {
+                                    accountRelation: AccountRelationEnum.customer
+                                }
+                            }
+                        ]
+                    }
+                ]
             }
         });
 
-        return customers.map((c) => {
-            return flattenCustomer(c);
-        });
+        return customers
+            .map((c) => {
+                return flattenCustomer(c);
+            })
+            .sort((c1, c2) => {
+                return c1.name.localeCompare(c2.name);
+            });
     } catch (err) {
         console.error('Database Error:', err);
         throw new Error('Failed to fetch all customers.');
     }
 }
 
-export async function fetchFilteredCustomers(query: string, currentPage: number) {
+export async function getFilteredCustomersByAccountId(
+    accountId: string,
+    query: string,
+    currentPage: number
+) {
     noStore();
     try {
-        //     const data = await sql<CustomersTableType>`
-        // 	SELECT
-        // 	  customers.id,
-        // 	  customers.name,
-        // 	  customers.email,
-        // 	  customers.image_url,
-        // 	  COUNT(invoices.id) AS total_invoices,
-        // 	  SUM(CASE WHEN invoices.status = 'pending' THEN invoices.amount ELSE 0 END) AS total_pending,
-        // 	  SUM(CASE WHEN invoices.status = 'paid' THEN invoices.amount ELSE 0 END) AS total_paid
-        // 	FROM customers
-        // 	LEFT JOIN invoices ON customers.id = invoices.customer_id
-        // 	WHERE
-        // 	  customers.name ILIKE ${`%${query}%`} OR
-        //     customers.email ILIKE ${`%${query}%`}
-        // 	GROUP BY customers.id, customers.name, customers.email, customers.image_url
-        // 	ORDER BY customers.name ASC
-        //   `;
-
         const offset = (currentPage - 1) * ITEMS_PER_PAGE;
 
         const rawCustomers = await prisma.customer.findMany({
@@ -114,62 +123,89 @@ export async function fetchFilteredCustomers(query: string, currentPage: number)
                 }
             },
             where: {
-                OR: [
+                AND: [
                     {
                         organization: {
-                            OR: [
-                                {
-                                    name: {
-                                        contains: query,
-                                        mode: 'insensitive'
-                                    }
-                                },
-                                {
-                                    emails: {
-                                        some: {
-                                            email: {
-                                                contains: query,
-                                                mode: 'insensitive'
-                                            }
-                                        }
-                                    }
+                            account: {
+                                id: {
+                                    equals: accountId
                                 }
-                            ]
+                            }
                         }
                     },
                     {
-                        individual: {
-                            OR: [
-                                {
-                                    firstName: {
-                                        contains: query,
-                                        mode: 'insensitive'
-                                    }
-                                },
-                                {
-                                    lastName: {
-                                        contains: query,
-                                        mode: 'insensitive'
-                                    }
-                                },
-                                {
-                                    middleName: {
-                                        contains: query,
-                                        mode: 'insensitive'
-                                    }
-                                },
-                                {
-                                    emails: {
-                                        some: {
-                                            email: {
+                        OR: [
+                            {
+                                organization: {
+                                    accountRelation: AccountRelationEnum.customer
+                                }
+                            },
+                            {
+                                individual: {
+                                    accountRelation: AccountRelationEnum.customer
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        OR: [
+                            {
+                                organization: {
+                                    OR: [
+                                        {
+                                            name: {
                                                 contains: query,
                                                 mode: 'insensitive'
                                             }
+                                        },
+                                        {
+                                            emails: {
+                                                some: {
+                                                    email: {
+                                                        contains: query,
+                                                        mode: 'insensitive'
+                                                    }
+                                                }
+                                            }
                                         }
-                                    }
+                                    ]
                                 }
-                            ]
-                        }
+                            },
+                            {
+                                individual: {
+                                    OR: [
+                                        {
+                                            firstName: {
+                                                contains: query,
+                                                mode: 'insensitive'
+                                            }
+                                        },
+                                        {
+                                            lastName: {
+                                                contains: query,
+                                                mode: 'insensitive'
+                                            }
+                                        },
+                                        {
+                                            middleName: {
+                                                contains: query,
+                                                mode: 'insensitive'
+                                            }
+                                        },
+                                        {
+                                            emails: {
+                                                some: {
+                                                    email: {
+                                                        contains: query,
+                                                        mode: 'insensitive'
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
                     }
                 ]
             }

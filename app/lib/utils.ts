@@ -1,5 +1,5 @@
 import { AccountRelationEnum } from '@prisma/client';
-import { TFetchCustomersPayload } from './data/customers/types';
+import { TGetCustomersPayload } from './data/customers/types';
 import {
     TEntities,
     TEntitiesWithNonNullableCustomer,
@@ -71,26 +71,28 @@ export function getIndividualFullNameString(individual: TIndividual | TIndividua
     return `${individual.firstName}${individual.middleName ? ' ' + individual.middleName : ''} ${individual.lastName}`;
 }
 
-export function flattenCustomer(rawCustomer: TFetchCustomersPayload) {
-    const rawIndividual = { ...rawCustomer.individual };
-    const rawOrganization = { ...rawCustomer.organization };
-    if (rawIndividual) {
-        return {
-            id: rawCustomer.id,
-            name: `${rawIndividual.firstName}${rawIndividual.middleName ? ' ' + rawIndividual.middleName : ''} ${rawIndividual.lastName}`,
-            email:
-                rawIndividual.emails && rawIndividual.emails.length
-                    ? rawIndividual.emails[0].email
-                    : 'no email provided'
-        };
+type TFlattenedCustomer = {
+    id: string;
+    name: string;
+    email: string;
+};
+
+export function flattenCustomer(rawCustomer: TGetCustomersPayload): TFlattenedCustomer {
+    const entity = rawCustomer.individual || rawCustomer.organization;
+    // const org = rawCustomer.organization;
+    if (!entity) {
+        throw Error('The customer organization or individual is not found. Please add one first.');
     }
+
+    const name =
+        'firstName' in entity
+            ? getIndividualFullNameString(entity as unknown as TIndividual)
+            : entity.name;
+
     return {
         id: rawCustomer.id,
-        name: rawOrganization.name ?? '',
-        email:
-            rawOrganization.emails && rawOrganization.emails.length
-                ? rawOrganization.emails[0].email
-                : 'no email provided'
+        name,
+        email: entity.emails && entity.emails.length ? entity.emails[0].email : 'no email provided'
     };
 }
 
