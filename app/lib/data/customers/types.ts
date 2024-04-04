@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-export const fetchCustomersSelect = {
+export const getCustomersSelect = {
     id: true,
     individual: {
         select: {
@@ -29,5 +29,15 @@ export const fetchCustomersSelect = {
 } satisfies Prisma.customerSelect;
 
 export type TGetCustomersPayload = Prisma.customerGetPayload<{
-    select: typeof fetchCustomersSelect;
+    select: typeof getCustomersSelect;
 }>;
+
+export interface ICreateCustomerState {
+    message?: string | null;
+    errors?: {
+        customerId?: string[];
+        amount?: string[];
+        status?: string[];
+        date?: string[];
+    };
+}

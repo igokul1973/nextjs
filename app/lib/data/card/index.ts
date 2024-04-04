@@ -1,3 +1,5 @@
+'use server';
+
 import prisma from '@/app/lib/prisma';
 import { formatCurrency } from '@/app/lib/utils';
 import { InvoiceStatusEnum } from '@prisma/client';
@@ -59,11 +61,6 @@ export async function fetchCardData() {
         const numberOfCustomers = Number(data[1] ?? '0');
         const totalPaidInvoices = formatCurrency(totalPaidInvoicesNum ?? '0');
         const totalPendingInvoices = formatCurrency(totalPendingInvoicesNum ?? '0');
-
-        console.log('---------------------------');
-        console.log('totalPaidInvoices: ', totalPaidInvoices);
-        console.log('totalPendingInvoices: ', totalPendingInvoices);
-        console.log('---------------------------');
 
         return {
             numberOfCustomers,

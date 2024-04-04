@@ -2,7 +2,6 @@ import InvoicesTable from '@/app/components/invoices/InvoicesTable';
 import TableWrapper from '@/app/components/invoices/TableWrapper';
 import { CreateButton } from '@/app/components/invoices/buttons';
 import Search from '@/app/components/search';
-import { fetchFilteredInvoicesCount } from '@/app/lib/data/invoices';
 import { ISearchParams } from '@/app/lib/definitions';
 import { auth } from '@/auth';
 import Box from '@mui/material/Box';
@@ -18,8 +17,18 @@ export default async function Page({ searchParams }: IProps) {
     const session = await auth();
     if (!session) return <div>Not logged in</div>;
     const query = searchParams?.query || '';
-    const currentPage = Number(searchParams?.page) || 1;
-    const totalPages = await fetchFilteredInvoicesCount(query);
+    // TODO: change to a paginated table
+    // const count = await fetchFilteredInvoicesCount(query);
+
+    // TODO:
+    // Resolve all problems with Invoices (list) page
+    // 1. Pagination
+    // 2. Filtering by date
+    // 3. Sorting by all columns
+    // 4. Add breadcrumbs everywhere
+    // Then, create View Invoice page
+    // Then, create Create Invoice page
+    // Then, create inventory page
 
     return (
         <Box component='section' className={styles.section}>
@@ -28,12 +37,8 @@ export default async function Page({ searchParams }: IProps) {
                 <Search placeholder='Search invoices...' />
                 <CreateButton href='/dashboard/invoices/create' name='Create invoice' />
             </Box>
-            <Suspense key={query + currentPage} fallback={<InvoicesTable invoices={[]} />}>
-                <TableWrapper
-                    accountId={session.user.accountId}
-                    query={query}
-                    currentPage={currentPage}
-                />
+            <Suspense fallback={<InvoicesTable invoices={[]} />}>
+                <TableWrapper accountId={session.user.accountId} query={query} />
             </Suspense>
         </Box>
     );

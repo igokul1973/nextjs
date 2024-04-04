@@ -1,9 +1,6 @@
 'use client';
 
-import { createInvoice } from '@/app/lib/actions';
-import AccessTimeOutlined from '@mui/icons-material/AccessTimeOutlined';
 import AttachMoney from '@mui/icons-material/AttachMoney';
-import Check from '@mui/icons-material/Check';
 import Face from '@mui/icons-material/Face';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -11,20 +8,32 @@ import InputAdornment from '@mui/material/InputAdornment';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
+
 import TextField from '@mui/material/TextField';
 import NextLink from 'next/link';
 
+import { createInvoice } from '@/app/lib/data/invoices';
+import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
-import { useState } from 'react';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import { InvoiceStatusEnum } from '@prisma/client';
+import { ChangeEvent, useState } from 'react';
 import { useFormState } from 'react-dom';
 import styles from './create-form.module.scss';
 
 export default function Form({ customers }: { customers: TGetCustomersPayload[] }) {
     const [touched, setTouched] = useState(false);
+    const [status, setStatus] = useState(InvoiceStatusEnum.pending);
     const initialState = { message: null, errors: {}, touched: false };
     const [state, formAction] = useFormState(createInvoice, initialState);
     const [customerId, setCustomerId] = useState<string>();
     const [amount, setAmount] = useState<string>();
+
+    const handleCustomerStatusChange = (event: ChangeEvent<HTMLInputElement>) => {
+        setStatus((event.target as HTMLInputElement).value);
+    };
 
     return (
         <form action={formAction} className={styles.form}>
@@ -88,32 +97,35 @@ export default function Form({ customers }: { customers: TGetCustomersPayload[] 
                 </div> */}
 
             {/* Invoice Status */}
-            <fieldset>
-                <legend>Set the invoice status</legend>
-                <div>
-                    <div>
-                        <div>
-                            <input id='pending' name='status' type='radio' value='pending' />
-                            <label htmlFor='pending'>
-                                Pending <AccessTimeOutlined />
-                            </label>
-                        </div>
-                        <div className='flex items-center'>
-                            <input id='paid' name='status' type='radio' value='paid' />
-                            <label htmlFor='paid'>
-                                Paid <Check />
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </fieldset>
+            <Box component={'fieldset'} sx={{ borderRadius: 1, borderColor: 'divider' }}>
+                <legend>Invoice status</legend>
+                <FormControl>
+                    <RadioGroup
+                        aria-labelledby='invoice-status'
+                        name='status'
+                        value={status}
+                        onChange={handleCustomerStatusChange}
+                    >
+                        <FormControlLabel
+                            value={InvoiceStatusEnum.pending}
+                            control={<Radio />}
+                            label={capitalize(InvoiceStatusEnum.pending)}
+                        />
+                        <FormControlLabel
+                            value={InvoiceStatusEnum.paid}
+                            control={<Radio />}
+                            label={capitalize(InvoiceStatusEnum.paid)}
+                        />
+                    </RadioGroup>
+                </FormControl>
+            </Box>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
                 <Button component={NextLink} href='/dashboard/invoices' variant='outlined'>
                     Cancel
                 </Button>
                 <Button
                     type='submit'
-                    disabled={!touched || !!state.errors?.customer_id}
+                    disabled={!touched || !!state.errors?.customerId}
                     variant='outlined'
                 >
                     Create Invoice

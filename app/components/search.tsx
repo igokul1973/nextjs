@@ -1,7 +1,8 @@
 'use client';
 
 import SearchOutlined from '@mui/icons-material/SearchOutlined';
-import { InputAdornment } from '@mui/material';
+import Box from '@mui/material/Box';
+import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
@@ -34,8 +35,9 @@ export default function Search({ placeholder }: { placeholder: string }) {
     const debouncedHandleSearch = useDebounce<string>(handleSearch, 400);
 
     return (
-        <div>
+        <Box sx={{ width: '300px' }}>
             <TextField
+                fullWidth
                 label='Search'
                 variant='outlined'
                 placeholder={placeholder}
@@ -51,6 +53,6 @@ export default function Search({ placeholder }: { placeholder: string }) {
                     )
                 }}
             />
-        </div>
+        </Box>
     );
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { authenticate } from '@/app/lib/data/users';
 import AlternateEmailOutlined from '@mui/icons-material/AlternateEmailOutlined';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -7,9 +8,8 @@ import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined';
 import { InputAdornment, Typography, useTheme } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import { useFormState } from 'react-dom';
-import { authenticate } from '../../lib/actions';
 import ColorModeContext from '../theme-registry/ColorModeContext';
 import { LoginButton } from './login-button';
 import styles from './login-form.module.scss';

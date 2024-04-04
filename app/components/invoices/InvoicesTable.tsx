@@ -11,6 +11,10 @@ import React, { Fragment } from 'react';
 import { TableComponents, TableVirtuoso } from 'react-virtuoso';
 import { IInvoice } from './TableWrapper';
 
+interface IInvoicesTableProps {
+    invoices: IInvoice[];
+}
+
 interface ColumnData {
     dataKey: keyof IInvoice;
     label: string;
@@ -103,7 +107,7 @@ function rowContent(_index: number, row: IInvoice) {
     );
 }
 
-export default function InvoicesTable({ invoices }: { invoices: IInvoice[] }) {
+export default function InvoicesTable({ invoices }: IInvoicesTableProps) {
     return (
         <Paper style={{ height: 400, width: '100%' }}>
             <TableVirtuoso
