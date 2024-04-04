@@ -9,13 +9,18 @@
   gap: 0.25rem;
   justify-content: center;
   align-items: center;
-  padding: 12px;
+  padding-bottom: 12px;
   color: rgb(101, 100, 100);
 }
 .card .heading .icon {
   height: 3rem;
   widht: 3rem;
   color: gray;
+}
+.card .heading .title {
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
 }
 .card .content {
   overflow: hidden;

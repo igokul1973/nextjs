@@ -14,21 +14,17 @@ revalidatePath('/dashboard');
 
 export default async function Page() {
     return (
-        <Box>
+        <Box component='section' className={styles.section}>
             <Typography variant='h1'>Dashboard</Typography>
-            <div className={styles['cards-wrapper']}>
-                <Suspense fallback={<CardsSkeleton />}>
-                    <CardWrapper />
-                </Suspense>
-            </div>
-            <div className={styles['latest-invoices']}>
-                {/* <Suspense fallback={<RevenueChartSkeleton />}>
+            <Suspense fallback={<CardsSkeleton />}>
+                <CardWrapper />
+            </Suspense>
+            {/* <Suspense fallback={<RevenueChartSkeleton />}>
                     <RevenueChart />
                 </Suspense> */}
-                <Suspense fallback={<LatestInvoicesSkeleton />}>
-                    <LatestInvoices />
-                </Suspense>
-            </div>
+            <Suspense fallback={<LatestInvoicesSkeleton />}>
+                <LatestInvoices />
+            </Suspense>
         </Box>
     );
 }

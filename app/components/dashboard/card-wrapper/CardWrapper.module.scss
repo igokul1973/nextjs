@@ -1,0 +1,13 @@
+.cards-wrapper {
+    display: grid;
+    gap: 2rem;
+    // grid-template-columns: repeat(2, 1fr);
+
+    @media screen and (min-width: 576px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media screen and (min-width: 1024px) {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}

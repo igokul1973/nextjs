@@ -9,13 +9,17 @@
         gap: 0.25rem;
         justify-content: center;
         align-items: center;
-        padding: 12px;
+        padding-bottom: 12px;
         color: rgb(101, 100, 100);
 
         .icon {
             height: 3rem;
             widht: 3rem;
             color: gray;
+        }
+
+        .title {
+            width: max-content;
         }
     }
 

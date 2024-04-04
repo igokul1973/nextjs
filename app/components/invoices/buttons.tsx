@@ -8,7 +8,7 @@ import { ICreateButtonProps, IDeleteButtonProps, IUpdateButtonProps } from './ty
 export function CreateButton({ href, name }: ICreateButtonProps) {
     return (
         <Link href={href} passHref>
-            <Button variant='contained' color='secondary'>
+            <Button variant='contained' color='primary'>
                 {name}
                 <AddOutlined className='h-5 md:ml-4' />
             </Button>
