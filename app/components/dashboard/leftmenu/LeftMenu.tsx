@@ -1,11 +1,13 @@
 'use client';
 
 import ColorModeContext from '@/app/components/theme-registry/ColorModeContext';
+import { logOut } from '@/app/lib/data/users';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Home from '@mui/icons-material/Home';
+import Logout from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import PeopleOutlined from '@mui/icons-material/PeopleOutlined';
 import PostAddOutlined from '@mui/icons-material/PostAddOutlined';
@@ -56,6 +58,10 @@ export default function LeftMenu() {
         setOpen(false);
     };
 
+    const onLogout = async () => {
+        return logOut();
+    };
+
     return (
         <Box sx={{ display: 'flex' }}>
             <AppBar position='fixed' open={open}>
@@ -77,6 +83,9 @@ export default function LeftMenu() {
                     </Typography>
                     <IconButton sx={{ ml: 1 }} onClick={toggleColorMode} color='inherit'>
                         {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
+                    </IconButton>
+                    <IconButton sx={{ ml: 1 }} onClick={onLogout} color='inherit'>
+                        <Logout />
                     </IconButton>
                 </Toolbar>
             </AppBar>

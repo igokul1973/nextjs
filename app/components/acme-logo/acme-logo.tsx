@@ -1,12 +1,20 @@
 import { lusitana } from '@/app/styles/fonts';
-import PublicOutlined from '@mui/icons-material/PublicOutlined';
+import Receipt from '@mui/icons-material/Receipt';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import styles from './acme-logo.module.scss';
 
-export default function AcmeLogo() {
+interface IProps {
+    color?: string;
+}
+
+export default function AcmeLogo({ color }: IProps) {
     return (
-        <div className={`${lusitana.className} ${styles['logo-wrapper']}`}>
-            <PublicOutlined className={styles.icon} />
-            <p className={styles.text}>Acme</p>
-        </div>
+        <Box component='span' className={`${styles['logo-wrapper']}`} sx={{ color }}>
+            <Receipt className={styles.icon} />
+            <Typography variant='h1' sx={{ fontFamily: lusitana.style.fontFamily }}>
+                InvoiceMe
+            </Typography>
+        </Box>
     );
 }

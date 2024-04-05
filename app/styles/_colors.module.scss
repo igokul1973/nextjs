@@ -1,0 +1,37 @@
+$primary: #00695f;
+$secondary: #52b202;
+$info: #00a2ff;
+$error: rgb(255 0 0);
+$danger: #ff5722;
+$warning: #ffc107;
+$dark: #0e1b20;
+$light: #aaa;
+$muted: #abafb3;
+$border: #dddfe1;
+$inverse: #2f3d4a;
+$shaft: #333;
+$white: #fff;
+$black: #000;
+$orange: #ff5900;
+$lime_green: #76ff03;
+$blue: rgb(0 106 255);
+
+:export {
+    primary: $primary;
+    secondary: $secondary;
+    info: $info;
+    error: $error;
+    danger: $danger;
+    warning: $warning;
+    dark: $dark;
+    light: $light;
+    muted: $muted;
+    border: $border;
+    inverse: $inverse;
+    shaft: $shaft;
+    white: $white;
+    black: $black;
+    orange: $orange;
+    lime_green: $lime_green;
+    blue: $blue;
+}

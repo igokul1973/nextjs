@@ -1,15 +1,15 @@
 .logo-wrapper {
-  background-color: blue;
+  width: -webkit-min-content;
+  width: -moz-min-content;
+  width: min-content;
   display: grid;
-  grid-template-columns: repeat(2, auto);
+  grid-template-columns: repeat(2, -webkit-min-content);
+  grid-template-columns: repeat(2, min-content);
   align-items: center;
-  color: white;
+  justify-content: center;
 }
 .logo-wrapper .icon {
   height: 4ch;
   width: 4ch;
-}
-.logo-wrapper .text {
-  font-size: 44px;
 }
 /*# sourceMappingURL=acme-logo.module.css.map */

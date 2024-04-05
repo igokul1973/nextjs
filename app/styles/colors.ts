@@ -1,22 +1,24 @@
-import { red } from '@mui/material/colors';
+import sassColors from './_colors.module.scss';
 
 export const colors = {
-    primary: '#00695f',
-    secondary: '#52b202',
-    lime_green: '#76ff03',
-    info: '#00a2ff',
-    error: red.A400,
-    danger: '#FF5722',
-    warning: '#FFC107',
-    dark: '#0e1b20',
-    light: '#aaa',
-    muted: '#abafb3',
-    border: '#DDDFE1',
-    inverse: '#2F3D4A',
-    shaft: '#333',
+    primary: sassColors.primary,
+    secondary: sassColors.secondary,
+    info: sassColors.info,
+    error: sassColors.error,
+    danger: sassColors.danger,
+    warning: sassColors.warning,
+    dark: sassColors.dark,
+    light: sassColors.light,
+    muted: sassColors.muted,
+    border: sassColors.border,
+    inverse: sassColors.inverse,
+    shaft: sassColors.shaft,
     ///////////////
     // Solid Color
     ///////////////
-    white: '#fff',
-    black: '#000'
+    white: sassColors.white,
+    black: sassColors.black,
+    limeGreen: sassColors.limeGreen,
+    blue: sassColors.blue,
+    orange: sassColors.orange
 };

@@ -1,7 +1,7 @@
 'use server';
 
 import prisma from '@/app/lib/prisma';
-import { signIn } from '@/auth';
+import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
 import { TUser } from '../../definitions';
 import { TGetUserPayload, getUserInclude } from './types';
@@ -66,4 +66,8 @@ export async function authenticate(_: string | undefined, formData: FormData) {
         }
         throw error;
     }
+}
+
+export async function logOut() {
+    await signOut({ redirectTo: '/' });
 }

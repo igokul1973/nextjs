@@ -1,17 +1,12 @@
 .logo-wrapper {
-    background-color: blue;
+    width: min-content;
     display: grid;
-    grid-template-columns: repeat(2, auto);
+    grid-template-columns: repeat(2, min-content);
     align-items: center;
     justify-content: center;
-    color: white;
 
     .icon {
         height: 4ch;
         width: 4ch;
-    }
-
-    .text {
-        font-size: 44px;
     }
 }
