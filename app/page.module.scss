@@ -1,5 +1,10 @@
 @use './styles/_colors.module.scss' as colors;
 
+.container {
+    display: grid;
+    gap: 5rem;
+}
+
 .main {
     background-image: url(/images/background.jpg);
     width: 100%;
@@ -14,7 +19,7 @@
 
 .headline-wrapper {
     background-color: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(7px);
     width: 100%;
     .header {
         display: flex;
@@ -37,6 +42,28 @@
 
 .headline {
     padding: 2rem;
-    // color: white;
-    // border: 10px solid white;
+}
+
+.about {
+    padding: 2rem;
+    display: grid;
+    justify-items: center;
+    &--steps {
+        display: flex;
+        gap: 4rem;
+        justify-content: space-around;
+    }
+    gap: 5rem;
+}
+
+.pricing {
+    padding: 2rem;
+    display: grid;
+    justify-items: center;
+    gap: 5rem;
+    &--plans {
+        display: flex;
+        gap: 4rem;
+        justify-content: space-around;
+    }
 }

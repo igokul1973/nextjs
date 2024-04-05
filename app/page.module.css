@@ -18,6 +18,11 @@
   blue: rgb(0, 106, 255);
 }
 
+.container {
+  display: grid;
+  gap: 5rem;
+}
+
 .main {
   background-image: url(/images/background.jpg);
   width: 100%;
@@ -32,8 +37,8 @@
 
 .headline-wrapper {
   background-color: rgba(255, 255, 255, 0.6);
-  -webkit-backdrop-filter: blur(2px);
-          backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(7px);
+          backdrop-filter: blur(7px);
   width: 100%;
 }
 .headline-wrapper .header {
@@ -55,5 +60,29 @@
 
 .headline {
   padding: 2rem;
+}
+
+.about {
+  padding: 2rem;
+  display: grid;
+  justify-items: center;
+  gap: 5rem;
+}
+.about--steps {
+  display: flex;
+  gap: 4rem;
+  justify-content: space-around;
+}
+
+.pricing {
+  padding: 2rem;
+  display: grid;
+  justify-items: center;
+  gap: 5rem;
+}
+.pricing--plans {
+  display: flex;
+  gap: 4rem;
+  justify-content: space-around;
 }
 /*# sourceMappingURL=page.module.css.map */
