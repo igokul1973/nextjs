@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { formatCurrency } from '../../utils';
 import {
     ICreateInventoryItemState,
     TGetInventoryPayload,
@@ -83,7 +84,12 @@ export async function getFilteredInventoryByAccountId(accountId: string, query: 
             }
         });
 
-        return inventory;
+        return inventory.map((inventoryItem) => {
+            return {
+                ...inventoryItem,
+                price: formatCurrency(inventoryItem.price)
+            };
+        });
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Failed to get inventory.');
