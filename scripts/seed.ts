@@ -1,4 +1,4 @@
-import { AccountRelationEnum, EntitiesEnum, UserRoleEnum } from '@prisma/client';
+import { AccountRelationEnum, EntitiesEnum, Prisma, UserRoleEnum } from '@prisma/client';
 import bcrypt from 'bcrypt';
 import { exec } from 'child_process';
 import dotenv from 'dotenv';
@@ -8,6 +8,8 @@ import {
     TEntities,
     TEntity,
     TEntityWithNonNullableCustomer,
+    TIndividualWithRelations,
+    TOrganizationWithRelations,
     TProfile,
     TUserWithRelations
 } from '../app/lib/definitions';
@@ -808,7 +810,7 @@ async function seedInvoices() {
 
     const createCustomerInvoiceData = (
         user: TUserWithRelations,
-        provider: TEntities,
+        provider: TEntities<TIndividualWithRelations, TOrganizationWithRelations>,
         customers: TEntityWithNonNullableCustomer[]
     ) => {
         const concreteProvider = provider.individual ?? provider.organization;
@@ -853,12 +855,12 @@ async function seedInvoices() {
 
                     const date = new Date(invoice.date);
 
-                    return {
+                    const data: Prisma.invoiceCreateInput = {
                         ...invoice,
+                        number: String(invoiceNumber++),
                         date,
                         payBy: new Date(invoice.payBy),
                         paidOn: invoice.paidOn && new Date(invoice.paidOn),
-                        number: String(invoiceNumber++),
                         customerName: name,
                         customerAddressLine_1: address.addressLine1,
                         customerAddressLine_2: address.addressLine2,
@@ -872,8 +874,6 @@ async function seedInvoices() {
                         providerPhone,
                         providerEmail,
                         createdAt: date,
-                        createdBy: user.id,
-                        updatedBy: user.id,
                         invoiceItems: {
                             createMany: {
                                 data: invoiceItems
@@ -883,8 +883,20 @@ async function seedInvoices() {
                             connect: {
                                 id: customer.customer.id
                             }
+                        },
+                        createdByUser: {
+                            connect: {
+                                id: user.id
+                            }
+                        },
+                        updatedByUser: {
+                            connect: {
+                                id: user.id
+                            }
                         }
                     };
+
+                    return data;
                 });
             })
             .flat();
@@ -901,7 +913,6 @@ async function seedInvoices() {
             const sanitizedInvoices = createCustomerInvoiceData(admin, provider, customers);
 
             return sanitizedInvoices.map((invoice) => {
-                console.log(invoice);
                 return prisma.invoice.create({
                     data: invoice,
                     select: {

@@ -3,16 +3,16 @@ import { colors } from '@/app/styles/colors';
 import { Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Link from 'next/link';
-import styles from './page.module.scss';
+import { ContainerBox } from './styled';
 
 export default function Page() {
     return (
-        <Box className={styles.container}>
-            <Box component='main' className={styles.main}>
-                <Box className={styles['headline-wrapper']}>
-                    <Box component='header' className={styles.header}>
+        <ContainerBox className='container'>
+            <Box component='main' className='main'>
+                <Box className='headline-wrapper'>
+                    <Box component='header' className='header'>
                         <InvoiceMeLogo color={colors.orange} />
-                        <Box component='nav' className={styles.nav}>
+                        <Box component='nav' className='nav'>
                             <Typography component={Link} href='#about'>
                                 About
                             </Typography>
@@ -24,7 +24,7 @@ export default function Page() {
                             </Typography>
                         </Box>
                     </Box>
-                    <Box component='main' className={styles.headline}>
+                    <Box component='main' className='headline'>
                         <Typography variant='h1' sx={{ fontWeight: 'bold' }}>
                             Invoice solution for your flourising business
                         </Typography>
@@ -34,11 +34,11 @@ export default function Page() {
                     </Box>
                 </Box>
             </Box>
-            <Box component='section' className={styles.about} id='about'>
+            <Box component='section' className='about' id='about'>
                 <Typography variant='h2' sx={{ color: colors.blue }}>
                     About
                 </Typography>
-                <Box className={styles['about--steps']}>
+                <Box className='about--steps'>
                     <Box>Register</Box>
                     <Box>Add your services and products</Box>
                     <Box>Create Invoices</Box>
@@ -56,15 +56,15 @@ export default function Page() {
                     /> */}
                 </Box>
             </Box>
-            <Box component='section' className={styles.pricing} id='pricing'>
+            <Box component='section' className='pricing' id='pricing'>
                 <Typography variant='h2' sx={{ color: colors.blue }}>
                     Pricing
                 </Typography>
-                <Box className={styles['pricing--plans']}>
+                <Box className='pricing--plans'>
                     <Box>Free</Box>
                     <Box>Pro</Box>
                 </Box>
             </Box>
-        </Box>
+        </ContainerBox>
     );
 }

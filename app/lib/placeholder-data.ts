@@ -69,31 +69,31 @@ const users = [
     {
         email: 'admin1@admin.com',
         phone: '+17127601933',
-        password: '123456',
+        password: 'QuiteDifficult098$',
         role: UserRoleEnum.admin
     },
     {
         email: 'admin2@admin.com',
         phone: '+460857601966',
-        password: '123456',
+        password: 'QuiteDifficult098$',
         role: UserRoleEnum.admin
     },
     {
         email: 'writer1@writer.com',
         phone: '+463338601919',
-        password: '123456',
+        password: 'QuiteDifficult098$',
         role: UserRoleEnum.writer
     },
     {
         email: 'reader1@user.com',
         phone: '+468128901329',
-        password: '123456',
+        password: 'QuiteDifficult098$',
         role: UserRoleEnum.reader
     },
     {
         email: 'reader2@user.com',
         phone: '+463128601919',
-        password: '123456',
+        password: 'QuiteDifficult098$',
         role: UserRoleEnum.reader
     }
 ];
