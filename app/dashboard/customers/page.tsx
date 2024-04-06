@@ -1,14 +1,14 @@
 import TableWrapper from '@/app/components/customers/table-wrapper/TableWrapper';
 import CustomersTable from '@/app/components/customers/table-wrapper/customers-table/CustomersTable';
-import { CreateButton } from '@/app/components/invoices/buttons';
 import Search from '@/app/components/search';
-import { getFilteredCustomersCountByAccountId } from '@/app/lib/data/customers';
+// import { getFilteredCustomersCountByAccountId } from '@/app/lib/data/customers';
 import { ISearchParams } from '@/app/lib/definitions';
 import { auth } from '@/auth';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { Suspense } from 'react';
-import styles from './page.module.scss';
+import { StyledBox } from './styled';
+import { CreateButton } from '@/app/components/buttons/create/CreateButton';
 
 interface IProps {
     searchParams: ISearchParams;
@@ -19,12 +19,12 @@ export default async function Page({ searchParams }: IProps) {
     if (!session) return <div>Not logged in</div>;
     const query = searchParams?.query || '';
     const currentPage = Number(searchParams?.page) || 1;
-    const totalPages = await getFilteredCustomersCountByAccountId(query, session.user.accountId);
+    // const totalPages = await getFilteredCustomersCountByAccountId(query, session.user.accountId);
 
     return (
-        <Box component='section' className={styles.section}>
+        <StyledBox component='section' className='section'>
             <Typography variant='h1'>Customers</Typography>
-            <Box component='section' className={styles.tools}>
+            <Box component='section' className='tools'>
                 <Search placeholder='Search customers...' />
                 <CreateButton href='/dashboard/customers/create' name='Create customer' />
             </Box>
@@ -35,6 +35,6 @@ export default async function Page({ searchParams }: IProps) {
                     currentPage={currentPage}
                 />
             </Suspense>
-        </Box>
+        </StyledBox>
     );
 }

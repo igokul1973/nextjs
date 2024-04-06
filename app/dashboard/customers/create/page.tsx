@@ -1,17 +1,17 @@
-import Form from '@/app/components/customers/create-form/create-form';
+import Form from '@/app/components/customers/create-form/Form';
 import { auth } from '@/auth';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import NextLink from 'next/link';
-import styles from './page.module.scss';
+import { StyledBox } from './styled';
 
 export default async function Page() {
     const session = await auth();
     if (!session) return <div>Not logged in</div>;
 
     return (
-        <main className={styles.wrapper}>
+        <StyledBox component='main' className='wrapper'>
             <Typography variant='h1'>Create Customer</Typography>
             <Breadcrumbs aria-label='breadcrumb'>
                 <Link
@@ -26,6 +26,6 @@ export default async function Page() {
             </Breadcrumbs>
             <Form />
             <div>TBD</div>
-        </main>
+        </StyledBox>
     );
 }

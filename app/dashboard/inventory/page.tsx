@@ -1,6 +1,6 @@
+import { CreateButton } from '@/app/components/buttons/create/CreateButton';
 import TableWrapper from '@/app/components/inventory/table-wrapper/TableWrapper';
 import InventoryTable from '@/app/components/inventory/table-wrapper/inventory-table/InventoryTable';
-import { CreateButton } from '@/app/components/invoices/buttons';
 import Search from '@/app/components/search';
 import { ISearchParams } from '@/app/lib/definitions';
 import { auth } from '@/auth';

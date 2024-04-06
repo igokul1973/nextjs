@@ -1,6 +1,5 @@
 import InvoicesTable from '@/app/components/invoices/InvoicesTable';
 import TableWrapper from '@/app/components/invoices/TableWrapper';
-import { CreateButton } from '@/app/components/invoices/buttons';
 import Search from '@/app/components/search';
 import { ISearchParams } from '@/app/lib/definitions';
 import { auth } from '@/auth';
@@ -8,6 +7,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { Suspense } from 'react';
 import styles from './page.module.scss';
+import { CreateButton } from '@/app/components/buttons/create/CreateButton';
 
 interface IProps {
     searchParams: ISearchParams;

@@ -1,8 +1,8 @@
 // import SideNav from '@/app/ui/dashboard/sidenav';
 import { auth } from '@/auth';
 import Box from '@mui/material/Box';
-import { DrawerHeader } from '../components/dashboard/leftmenu/DrawerHeader';
-import LeftMenu from '../components/dashboard/leftmenu/LeftMenu';
+import { DrawerHeader } from '../components/dashboard/left-menu/DrawerHeader';
+import LeftMenu from '../components/dashboard/left-menu/LeftMenu';
 import { TGetUserPayload } from '../lib/data/users/types';
 import { getUserProvider } from '../lib/utils';
 

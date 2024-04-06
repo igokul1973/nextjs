@@ -15,6 +15,7 @@ import NextLink from 'next/link';
 import { useState } from 'react';
 import { useFormState } from 'react-dom';
 import styles from './create-form.module.scss';
+import { CreateButton } from '../../buttons/create/CreateButton';
 
 export default function Form() {
     const [touched, setTouched] = useState(false);
@@ -58,13 +59,9 @@ export default function Form() {
                 <Button component={NextLink} href='/dashboard/customers' variant='outlined'>
                     Cancel
                 </Button>
-                <Button
-                    type='submit'
-                    disabled={!touched || !!state.errors?.customerId}
-                    variant='outlined'
-                >
+                <CreateButton disabled={!touched || !!state.errors?.customerId} variant='outlined'>
                     Create Customer
-                </Button>
+                </CreateButton>
             </Box>
         </form>
     );
