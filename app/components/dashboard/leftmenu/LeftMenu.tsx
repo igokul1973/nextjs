@@ -2,11 +2,15 @@
 
 import ColorModeContext from '@/app/components/theme-registry/ColorModeContext';
 import { logOut } from '@/app/lib/data/users';
+import { TGetUserPayload } from '@/app/lib/data/users/types';
+import { TEntities } from '@/app/lib/definitions';
+import { getIndividualFullNameString } from '@/app/lib/utils';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Home from '@mui/icons-material/Home';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import Logout from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import PeopleOutlined from '@mui/icons-material/PeopleOutlined';
@@ -36,7 +40,8 @@ const links = [
         href: '/dashboard/invoices',
         icon: PostAddOutlined
     },
-    { name: 'Customers', href: '/dashboard/customers', icon: PeopleOutlined }
+    { name: 'Customers', href: '/dashboard/customers', icon: PeopleOutlined },
+    { name: 'Inventory', href: '/dashboard/inventory', icon: InventoryIcon }
 ];
 
 const DynamicIcon = ({ name }: { name: string }) => {
@@ -45,10 +50,25 @@ const DynamicIcon = ({ name }: { name: string }) => {
     return <Component />;
 };
 
-export default function LeftMenu() {
+interface IProps {
+    provider: TEntities<
+        TGetUserPayload['account']['individuals'][0],
+        TGetUserPayload['account']['organizations'][0]
+    >;
+}
+
+export default function LeftMenu({ provider: { individual, organization } }: IProps) {
     const theme = useTheme();
     const { toggleColorMode } = useContext(ColorModeContext);
     const [open, setOpen] = useState(false);
+
+    const isProviderIndividual = individual && !organization;
+    const isProviderOrg = !individual && organization;
+    const providerName = isProviderIndividual
+        ? getIndividualFullNameString(individual)
+        : isProviderOrg
+          ? organization?.name
+          : 'No provider name';
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -66,27 +86,40 @@ export default function LeftMenu() {
         <Box sx={{ display: 'flex' }}>
             <AppBar position='fixed' open={open}>
                 <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <IconButton
-                        color='inherit'
-                        aria-label='open drawer'
-                        onClick={handleDrawerOpen}
-                        edge='start'
-                        sx={{
-                            marginRight: 5,
-                            ...(open && { display: 'none' })
-                        }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant='h6' noWrap component='div'>
-                        InvoiceMe.biz
-                    </Typography>
-                    <IconButton sx={{ ml: 1 }} onClick={toggleColorMode} color='inherit'>
-                        {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
-                    </IconButton>
-                    <IconButton sx={{ ml: 1 }} onClick={onLogout} color='inherit'>
-                        <Logout />
-                    </IconButton>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <IconButton
+                            color='inherit'
+                            aria-label='open drawer'
+                            onClick={handleDrawerOpen}
+                            edge='start'
+                            sx={{
+                                marginRight: 5,
+                                ...(open && { display: 'none' })
+                            }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                        <Typography variant='h5' noWrap component='div'>
+                            InvoiceMe.biz
+                        </Typography>
+                    </Box>
+                    <Box>
+                        <Typography variant='h6' noWrap component='span'>
+                            Welcome, {providerName}!
+                        </Typography>
+                    </Box>
+                    <Box>
+                        <IconButton sx={{ ml: 1 }} onClick={toggleColorMode} color='inherit'>
+                            {theme.palette.mode === 'dark' ? (
+                                <Brightness7Icon />
+                            ) : (
+                                <Brightness4Icon />
+                            )}
+                        </IconButton>
+                        <IconButton sx={{ ml: 1 }} onClick={onLogout} color='inherit'>
+                            <Logout />
+                        </IconButton>
+                    </Box>
                 </Toolbar>
             </AppBar>
             <aside>

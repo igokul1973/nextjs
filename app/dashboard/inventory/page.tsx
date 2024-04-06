@@ -1,8 +1,7 @@
-import TableWrapper from '@/app/components/customers/table-wrapper/TableWrapper';
-import CustomersTable from '@/app/components/customers/table-wrapper/customers-table/CustomersTable';
+import TableWrapper from '@/app/components/inventory/table-wrapper/TableWrapper';
+import InventoryTable from '@/app/components/inventory/table-wrapper/inventory-table/InventoryTable';
 import { CreateButton } from '@/app/components/invoices/buttons';
 import Search from '@/app/components/search';
-import { getFilteredCustomersCount } from '@/app/lib/data/customers';
 import { ISearchParams } from '@/app/lib/definitions';
 import { auth } from '@/auth';
 import Box from '@mui/material/Box';
@@ -19,16 +18,16 @@ export default async function Page({ searchParams }: IProps) {
     if (!session) return <div>Not logged in</div>;
     const query = searchParams?.query || '';
     const currentPage = Number(searchParams?.page) || 1;
-    const totalPages = await getFilteredCustomersCount(query);
+    // const totalPages = await fetchFilteredCustomersCount(query);
 
     return (
         <Box component='section' className={styles.section}>
-            <Typography variant='h1'>Customers</Typography>
+            <Typography variant='h1'>Inventory</Typography>
             <Box component='section' className={styles.tools}>
-                <Search placeholder='Search customers...' />
-                <CreateButton href='/dashboard/customers/create' name='Create customer' />
+                <Search placeholder='Search inventory...' />
+                <CreateButton href='/dashboard/inventory/create' name='Create customer' />
             </Box>
-            <Suspense key={query + currentPage} fallback={<CustomersTable customers={[]} />}>
+            <Suspense key={query + currentPage} fallback={<InventoryTable inventory={[]} />}>
                 <TableWrapper
                     accountId={session.user.accountId}
                     query={query}

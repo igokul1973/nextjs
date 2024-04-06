@@ -1,4 +1,4 @@
-import AcmeLogo from '@/app/components/acme-logo/acme-logo';
+import InvoiceMeLogo from '@/app/components/invoice-me-logo/InvoiceMeLogo';
 import { colors } from '@/app/styles/colors';
 import { Typography } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -11,7 +11,7 @@ export default function Page() {
             <Box component='main' className={styles.main}>
                 <Box className={styles['headline-wrapper']}>
                     <Box component='header' className={styles.header}>
-                        <AcmeLogo color={colors.orange} />
+                        <InvoiceMeLogo color={colors.orange} />
                         <Box component='nav' className={styles.nav}>
                             <Typography component={Link} href='#about'>
                                 About

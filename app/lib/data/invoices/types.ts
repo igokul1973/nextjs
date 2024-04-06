@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client';
 
-export const fetchInvoiceSelect = {
+export const getInvoiceSelect = {
     id: true,
     number: true,
     date: true,
@@ -15,7 +15,7 @@ export const fetchInvoiceSelect = {
     }
 } satisfies Prisma.invoiceSelect;
 
-export type TFetchInvoicePayload = Prisma.invoiceGetPayload<{ select: typeof fetchInvoiceSelect }>;
+export type TGetInvoicePayload = Prisma.invoiceGetPayload<{ select: typeof getInvoiceSelect }>;
 
 export interface ICreateInvoiceState {
     message?: string | null;

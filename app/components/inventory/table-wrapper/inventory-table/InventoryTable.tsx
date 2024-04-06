@@ -9,37 +9,31 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { Fragment, forwardRef } from 'react';
 import { TableComponents, TableVirtuoso } from 'react-virtuoso';
-import { ICustomer } from './TableWrapper';
-
-interface ColumnData {
-    dataKey: keyof ICustomer;
-    label: string;
-    numeric?: boolean;
-    width: number;
-}
+import { IInventory } from '../../types';
+import { ColumnData, IProps } from './types';
 
 const columns: ColumnData[] = [
     {
         width: 120,
-        label: 'ID',
-        dataKey: 'id',
-        numeric: false
-    },
-    {
-        width: 120,
-        label: 'Customer Name',
+        label: 'Name',
         dataKey: 'name',
         numeric: false
     },
     {
         width: 120,
-        label: 'Email',
-        dataKey: 'email',
+        label: 'Description',
+        dataKey: 'description',
+        numeric: false
+    },
+    {
+        width: 120,
+        label: 'Price',
+        dataKey: 'price',
         numeric: false
     }
 ];
 
-const VirtuosoTableComponents: TableComponents<ICustomer> = {
+const VirtuosoTableComponents: TableComponents<IInventory> = {
     Scroller: forwardRef<HTMLDivElement>(function Scroller(props, ref) {
         return <TableContainer component={Paper} {...props} ref={ref} />;
     }),
@@ -73,7 +67,7 @@ function fixedHeaderContent() {
     );
 }
 
-function rowContent(_index: number, row: IInvoice) {
+function rowContent(_index: number, row: IInventory) {
     return (
         <Fragment>
             {columns.map((column) => (
@@ -85,11 +79,11 @@ function rowContent(_index: number, row: IInvoice) {
     );
 }
 
-export default function CustomersTable({ customers }: { customers: ICustomer[] }) {
+export default function InventoryTable({ inventory }: IProps) {
     return (
         <Paper style={{ height: 400, width: '100%' }}>
             <TableVirtuoso
-                data={customers}
+                data={inventory}
                 components={VirtuosoTableComponents}
                 fixedHeaderContent={fixedHeaderContent}
                 itemContent={rowContent}

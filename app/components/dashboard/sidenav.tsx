@@ -1,5 +1,5 @@
-import AcmeLogo from '@/app/components/acme-logo/acme-logo';
 import NavLinks from '@/app/components/dashboard/nav-links';
+import InvoiceMeLogo from '@/app/components/invoice-me-logo/InvoiceMeLogo';
 import { signOut } from '@/auth';
 import PowerSettingsNewOutlined from '@mui/icons-material/PowerSettingsNewOutlined';
 import Link from 'next/link';
@@ -9,7 +9,7 @@ export default function SideNav() {
         <div className='flex h-full flex-col px-3 py-4 md:px-2'>
             <Link href='/'>
                 <div className='w-32 text-white md:w-40'>
-                    <AcmeLogo />
+                    <InvoiceMeLogo />
                 </div>
             </Link>
             <div className='flex grow flex-row justify-between space-x-2 md:flex-col md:space-x-0 md:space-y-2'>

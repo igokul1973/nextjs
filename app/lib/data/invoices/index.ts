@@ -5,8 +5,8 @@ import { InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { flattenCustomer } from '../../utils';
-import { ICreateInvoiceState, TFetchInvoicePayload, fetchInvoiceSelect } from './types';
+import { flattenCustomer, formatCurrency } from '../../utils';
+import { ICreateInvoiceState, TGetInvoicePayload, getInvoiceSelect } from './types';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -74,12 +74,12 @@ export async function fetchLatestInvoices(): Promise<LatestInvoice[]> {
 
 export async function fetchInvoiceById(
     id: string
-): Promise<(TFetchInvoicePayload & { amount: number }) | null> {
+): Promise<(TGetInvoicePayload & { amount: number }) | null> {
     noStore();
     try {
         const invoice = await prisma.invoice.findFirst({
             relationLoadStrategy: 'query',
-            select: fetchInvoiceSelect,
+            select: getInvoiceSelect,
             where: {
                 id
             }
@@ -284,9 +284,11 @@ export async function getFilteredInvoicesByAccountId(accountId: string, query: s
             const rawCustomer = { ...invoice.customer };
             const customer = flattenCustomer(rawCustomer);
 
-            const amount = invoice.invoiceItems.reduce((acc, ii) => {
-                return acc + ii.quantity * ii.price;
-            }, 0);
+            const amount = formatCurrency(
+                invoice.invoiceItems.reduce((acc, ii) => {
+                    return acc + ii.quantity * ii.price;
+                }, 0)
+            );
             return { ...invoice, amount, customer, date: invoice.date.toLocaleDateString() };
         });
 

@@ -77,9 +77,9 @@ export type TEntityPropsDiff = {
 
 export type TEntity = (TOrganizationWithRelations | TIndividualWithRelations) & TEntityPropsDiff;
 
-export type TEntities = {
-    individual?: TIndividualWithRelations;
-    organization?: TOrganizationWithRelations;
+export type TEntities<I, O> = {
+    individual?: I;
+    organization?: O;
 };
 
 export type TEntityWithNonNullableCustomer = (

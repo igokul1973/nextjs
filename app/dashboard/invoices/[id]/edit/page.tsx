@@ -1,8 +1,12 @@
-import Breadcrumbs from '@/app/components/invoices/breadcrumbs';
 import Form from '@/app/components/invoices/edit-form';
 import { getCustomersByAccountId } from '@/app/lib/data/customers';
 import { fetchInvoiceById } from '@/app/lib/data/invoices';
 import { auth } from '@/auth';
+import Box from '@mui/material/Box';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Link from '@mui/material/Link';
+import Typography from '@mui/material/Typography';
+import NextLink from 'next/link';
 import { notFound } from 'next/navigation';
 
 const Page = async ({ params: { id } }: { params: { id: string } }) => {
@@ -16,19 +20,20 @@ const Page = async ({ params: { id } }: { params: { id: string } }) => {
         notFound();
     }
     return (
-        <main>
-            <Breadcrumbs
-                breadcrumbs={[
-                    { label: 'Invoices', href: '/dashboard/invoices' },
-                    {
-                        label: `Edit Invoice ${id}`,
-                        href: `/dashboard/invoices/${id}/edit`,
-                        active: true
-                    }
-                ]}
-            />
+        <Box component='main'>
+            <Breadcrumbs aria-label='breadcrumb'>
+                <Link
+                    component={NextLink}
+                    underline='hover'
+                    color='inherit'
+                    href='/dashboard/invoices'
+                >
+                    Invoices
+                </Link>
+                <Typography color='text.primary'>Edit Invoice ${id}</Typography>
+            </Breadcrumbs>
             <Form invoice={invoice} customers={customers} />
-        </main>
+        </Box>
     );
 };
 

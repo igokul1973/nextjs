@@ -7,62 +7,34 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import React, { Fragment } from 'react';
+import { Fragment, forwardRef } from 'react';
 import { TableComponents, TableVirtuoso } from 'react-virtuoso';
-import { IInvoice } from './TableWrapper';
-
-interface IProps {
-    invoices: IInvoice[];
-}
-
-interface ColumnData {
-    dataKey: keyof IInvoice;
-    label: string;
-    numeric?: boolean;
-    width: number;
-}
+import { ICustomer } from '../../types';
+import { ColumnData } from './types';
 
 const columns: ColumnData[] = [
     {
-        width: 60,
-        label: 'Number',
-        dataKey: 'number',
+        width: 120,
+        label: 'ID',
+        dataKey: 'id',
         numeric: false
     },
     {
         width: 120,
         label: 'Customer Name',
-        dataKey: 'customerName',
+        dataKey: 'name',
         numeric: false
     },
     {
         width: 120,
         label: 'Email',
-        dataKey: 'customerEmail',
+        dataKey: 'email',
         numeric: false
-    },
-    {
-        width: 80,
-        label: 'Status',
-        dataKey: 'status',
-        numeric: false
-    },
-    {
-        width: 80,
-        label: 'Date',
-        dataKey: 'date',
-        numeric: true
-    },
-    {
-        width: 80,
-        label: 'Amount',
-        dataKey: 'amount',
-        numeric: true
     }
 ];
 
-const VirtuosoTableComponents: TableComponents<IInvoice> = {
-    Scroller: React.forwardRef<HTMLDivElement>(function Scroller(props, ref) {
+const VirtuosoTableComponents: TableComponents<ICustomer> = {
+    Scroller: forwardRef<HTMLDivElement>(function Scroller(props, ref) {
         return <TableContainer component={Paper} {...props} ref={ref} />;
     }),
     Table: (props) => (
@@ -70,7 +42,7 @@ const VirtuosoTableComponents: TableComponents<IInvoice> = {
     ),
     TableHead,
     TableRow: ({ item: _item, ...props }) => <TableRow {...props} />,
-    TableBody: React.forwardRef<HTMLTableSectionElement>(function TableBodyComponent(props, ref) {
+    TableBody: forwardRef<HTMLTableSectionElement>(function TableBodyComponent(props, ref) {
         return <TableBody {...props} ref={ref} />;
     })
 };
@@ -95,7 +67,7 @@ function fixedHeaderContent() {
     );
 }
 
-function rowContent(_index: number, row: IInvoice) {
+function rowContent(_index: number, row: ICustomer) {
     return (
         <Fragment>
             {columns.map((column) => (
@@ -107,11 +79,11 @@ function rowContent(_index: number, row: IInvoice) {
     );
 }
 
-export default function InvoicesTable({ invoices }: IProps) {
+export default function CustomersTable({ customers }: { customers: ICustomer[] }) {
     return (
         <Paper style={{ height: 400, width: '100%' }}>
             <TableVirtuoso
-                data={invoices}
+                data={customers}
                 components={VirtuosoTableComponents}
                 fixedHeaderContent={fixedHeaderContent}
                 itemContent={rowContent}

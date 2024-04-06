@@ -1,5 +1,6 @@
 import { AccountRelationEnum } from '@prisma/client';
 import { TGetCustomersPayload } from './data/customers/types';
+import { TGetUserPayload } from './data/users/types';
 import {
     TEntities,
     TEntitiesWithNonNullableCustomer,
@@ -67,7 +68,9 @@ export function useDebounce<T>(f: (...args: T[]) => unknown, ms: number = 500) {
     };
 }
 
-export function getIndividualFullNameString(individual: TIndividual | TIndividualWithRelations) {
+export function getIndividualFullNameString(
+    individual: Pick<TIndividual, 'firstName' | 'middleName' | 'lastName'>
+) {
     return `${individual.firstName}${individual.middleName ? ' ' + individual.middleName : ''} ${individual.lastName}`;
 }
 
@@ -96,12 +99,30 @@ export function flattenCustomer(rawCustomer: TGetCustomersPayload): TFlattenedCu
     };
 }
 
-export function getUserProvider(user: TUserWithRelations): TEntities {
+type TT = {
+    individual?: TGetUserPayload['account']['individuals'][0];
+    organization?: TGetUserPayload['account']['organizations'][0];
+};
+
+export function getUserProvider2(user: TGetUserPayload): TT {
+    console.log(user);
+
+    return (
+        { individual: user.account.individuals[0] } || {
+            organization: user.account.organizations[0]
+        }
+    );
+}
+
+export function getUserProvider<I = TIndividualWithRelations, O = TOrganizationWithRelations>(
+    user: TGetUserPayload | TUserWithRelations
+): TEntities<I, O> {
+    // export function getUserProvider(user: TUserWithRelations): TEntities {
     const individualProvider = user.account.individuals?.find(
         (ind) => ind.accountRelation === AccountRelationEnum.provider
     );
     if (individualProvider) {
-        return { individual: individualProvider };
+        return { individual: individualProvider } as TEntities<I, O>;
     }
     const organizationProvider = user.account.organizations?.find(
         (org) => org.accountRelation === AccountRelationEnum.provider
@@ -110,7 +131,7 @@ export function getUserProvider(user: TUserWithRelations): TEntities {
     if (!organizationProvider) {
         throw Error('User account provider is not found.');
     }
-    return { organization: organizationProvider };
+    return { organization: organizationProvider } as TEntities<I, O>;
 }
 
 const isIndHasCustomer = (o: TIndividualWithRelations): o is TIndWithNonNullableCustomer => {

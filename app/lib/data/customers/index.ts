@@ -6,7 +6,7 @@ import { AccountRelationEnum, InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { ICreateCustomerState, getCustomersSelect } from './types';
+import { ICreateCustomerState, getCustomersSelect, getFilteredCustomersWhereClause } from './types';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -89,7 +89,6 @@ export async function getFilteredCustomersByAccountId(
 
         const rawCustomers = await prisma.customer.findMany({
             relationLoadStrategy: 'join',
-            // questionable orderBy, gotta check
             orderBy: [
                 {
                     organization: {
@@ -104,135 +103,8 @@ export async function getFilteredCustomersByAccountId(
             ],
             take: ITEMS_PER_PAGE,
             skip: offset,
-            select: {
-                id: true,
-                organization: {
-                    select: {
-                        id: true,
-                        name: true,
-                        emails: {
-                            select: {
-                                email: true
-                            }
-                        }
-                    }
-                },
-                individual: {
-                    select: {
-                        id: true,
-                        firstName: true,
-                        lastName: true,
-                        middleName: true,
-                        emails: {
-                            select: {
-                                email: true
-                            }
-                        }
-                    }
-                },
-                _count: true,
-                invoices: {
-                    select: {
-                        id: true,
-                        status: true,
-                        invoiceItems: {
-                            select: {
-                                id: true,
-                                name: true,
-                                price: true,
-                                quantity: true
-                            }
-                        }
-                    }
-                }
-            },
-            where: {
-                AND: [
-                    {
-                        organization: {
-                            account: {
-                                id: {
-                                    equals: accountId
-                                }
-                            }
-                        }
-                    },
-                    {
-                        OR: [
-                            {
-                                organization: {
-                                    accountRelation: AccountRelationEnum.customer
-                                }
-                            },
-                            {
-                                individual: {
-                                    accountRelation: AccountRelationEnum.customer
-                                }
-                            }
-                        ]
-                    },
-                    {
-                        OR: [
-                            {
-                                organization: {
-                                    OR: [
-                                        {
-                                            name: {
-                                                contains: query,
-                                                mode: 'insensitive'
-                                            }
-                                        },
-                                        {
-                                            emails: {
-                                                some: {
-                                                    email: {
-                                                        contains: query,
-                                                        mode: 'insensitive'
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                individual: {
-                                    OR: [
-                                        {
-                                            firstName: {
-                                                contains: query,
-                                                mode: 'insensitive'
-                                            }
-                                        },
-                                        {
-                                            lastName: {
-                                                contains: query,
-                                                mode: 'insensitive'
-                                            }
-                                        },
-                                        {
-                                            middleName: {
-                                                contains: query,
-                                                mode: 'insensitive'
-                                            }
-                                        },
-                                        {
-                                            emails: {
-                                                some: {
-                                                    email: {
-                                                        contains: query,
-                                                        mode: 'insensitive'
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    }
-                ]
-            }
+            select: getFilteredCustomersByAccountIdSelect(),
+            where: getFilteredCustomersWhereClause(query, accountId)
         });
 
         // Preparing customer objejct
@@ -272,95 +144,12 @@ export async function getFilteredCustomersByAccountId(
     }
 }
 
-export async function fetchFilteredCustomersCount(query: string) {
+export async function getFilteredCustomersCount(query: string) {
     noStore();
     try {
-        const status = Object.values(InvoiceStatusEnum).find((s) => s.includes(query));
         const count = await prisma.customer.count({
-            where: {
-                OR: [
-                    {
-                        invoices: {
-                            some: {
-                                status: {
-                                    equals: status
-                                }
-                            }
-                        }
-                    },
-                    {
-                        organization: {
-                            OR: [
-                                {
-                                    name: {
-                                        contains: query,
-                                        mode: 'insensitive'
-                                    }
-                                },
-                                {
-                                    emails: {
-                                        some: {
-                                            email: {
-                                                contains: query,
-                                                mode: 'insensitive'
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        individual: {
-                            OR: [
-                                {
-                                    firstName: {
-                                        contains: query,
-                                        mode: 'insensitive'
-                                    }
-                                },
-                                {
-                                    lastName: {
-                                        contains: query,
-                                        mode: 'insensitive'
-                                    }
-                                },
-                                {
-                                    middleName: {
-                                        contains: query,
-                                        mode: 'insensitive'
-                                    }
-                                },
-                                {
-                                    emails: {
-                                        some: {
-                                            email: {
-                                                contains: query,
-                                                mode: 'insensitive'
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
+            where: getFilteredCustomersWhereClause(query, '1')
         });
-
-        // const count = await prisma.$queryRaw<[{ count: number }]>`SELECT COUNT(*)
-        //     FROM invoices
-        //     JOIN customers ON invoices.customer_id = customers.id
-        //     WHERE
-        //     customers.name ILIKE ${`%${query}%`} OR
-        //     customers.email ILIKE ${`%${query}%`} OR
-        //     invoices.amount::text ILIKE ${`%${query}%`} OR // can realize in JS
-        //     invoices.date::text ILIKE ${`%${query}%`} OR // can realize in JS
-        //     invoices.status ILIKE ${`%${query}%`}`;
-
-        console.log('-------------------------');
-        console.log('Count: ', count);
-        console.log('-------------------------');
 
         const totalPages = Math.ceil(Number(count) / ITEMS_PER_PAGE);
         return totalPages;
