@@ -12,7 +12,7 @@ declare module '@mui/material/styles' {
 const theme = {
     palette: {
         primary: {
-            main: colors.error
+            main: colors.primary
         },
         secondary: {
             main: colors.secondary

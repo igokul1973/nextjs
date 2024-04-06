@@ -15,12 +15,6 @@ import { ColumnData } from './types';
 const columns: ColumnData[] = [
     {
         width: 120,
-        label: 'ID',
-        dataKey: 'id',
-        numeric: false
-    },
-    {
-        width: 120,
         label: 'Customer Name',
         dataKey: 'name',
         numeric: false
@@ -29,6 +23,12 @@ const columns: ColumnData[] = [
         width: 120,
         label: 'Email',
         dataKey: 'email',
+        numeric: false
+    },
+    {
+        width: 120,
+        label: 'Phone',
+        dataKey: 'phone',
         numeric: false
     }
 ];

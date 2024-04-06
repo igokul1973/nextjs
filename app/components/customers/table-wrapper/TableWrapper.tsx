@@ -8,7 +8,8 @@ const TableWrapper = async ({ accountId, query, currentPage }: IProps) => {
             return {
                 id: customer.id,
                 name: customer.name,
-                email: customer.email
+                email: customer.email,
+                phone: customer.phone
             };
         }
     );

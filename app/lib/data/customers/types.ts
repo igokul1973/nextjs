@@ -10,7 +10,14 @@ export const getCustomersSelect = {
             middleName: true,
             emails: {
                 select: {
-                    email: true
+                    email: true,
+                    type: true
+                }
+            },
+            phones: {
+                select: {
+                    countryCode: true,
+                    number: true
                 }
             }
         }
@@ -21,7 +28,14 @@ export const getCustomersSelect = {
             name: true,
             emails: {
                 select: {
-                    email: true
+                    email: true,
+                    type: true
+                }
+            },
+            phones: {
+                select: {
+                    countryCode: true,
+                    number: true
                 }
             }
         }
@@ -38,6 +52,12 @@ export const getFilteredCustomersByAccountIdSelect = {
                 select: {
                     email: true
                 }
+            },
+            phones: {
+                select: {
+                    countryCode: true,
+                    number: true
+                }
             }
         }
     },
@@ -50,6 +70,12 @@ export const getFilteredCustomersByAccountIdSelect = {
             emails: {
                 select: {
                     email: true
+                }
+            },
+            phones: {
+                select: {
+                    countryCode: true,
+                    number: true
                 }
             }
         }
@@ -127,6 +153,26 @@ export const getFilteredCustomersWhereClause = (
                                 emails: {
                                     some: {
                                         email: {
+                                            contains: query,
+                                            mode: 'insensitive'
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                phones: {
+                                    some: {
+                                        countryCode: {
+                                            contains: query,
+                                            mode: 'insensitive'
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                phones: {
+                                    some: {
+                                        number: {
                                             contains: query,
                                             mode: 'insensitive'
                                         }

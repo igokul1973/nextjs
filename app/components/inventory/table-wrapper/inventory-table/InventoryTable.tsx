@@ -10,6 +10,7 @@ import TableRow from '@mui/material/TableRow';
 import { Fragment, forwardRef } from 'react';
 import { TableComponents, TableVirtuoso } from 'react-virtuoso';
 import { IInventory } from '../../types';
+import { TableCellStyled } from './styled';
 import { ColumnData, IProps } from './types';
 
 const columns: ColumnData[] = [
@@ -67,13 +68,17 @@ function fixedHeaderContent() {
     );
 }
 
-function rowContent(_index: number, row: IInventory) {
+function RowContent(_index: number, row: IInventory) {
     return (
         <Fragment>
             {columns.map((column) => (
-                <TableCell key={column.dataKey} align={column.numeric || false ? 'right' : 'left'}>
+                <TableCellStyled
+                    key={column.dataKey}
+                    align={column.numeric || false ? 'right' : 'left'}
+                    data-column={column.dataKey}
+                >
                     {row[column.dataKey]}
-                </TableCell>
+                </TableCellStyled>
             ))}
         </Fragment>
     );
@@ -86,7 +91,7 @@ export default function InventoryTable({ inventory }: IProps) {
                 data={inventory}
                 components={VirtuosoTableComponents}
                 fixedHeaderContent={fixedHeaderContent}
-                itemContent={rowContent}
+                itemContent={RowContent}
             />
         </Paper>
     );

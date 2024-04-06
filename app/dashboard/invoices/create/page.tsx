@@ -28,6 +28,7 @@ export default async function Page() {
                 <Typography color='text.primary'>Create Invoices</Typography>
             </Breadcrumbs>
             <Form customers={customers} />
+            <div>TBD</div>
         </main>
     );
 }

@@ -100,12 +100,7 @@ export default function LeftMenu({ provider: { individual, organization } }: IPr
                             <MenuIcon />
                         </IconButton>
                         <Typography variant='h5' noWrap component='div'>
-                            InvoiceMe.biz
-                        </Typography>
-                    </Box>
-                    <Box>
-                        <Typography variant='h6' noWrap component='span'>
-                            Welcome, {providerName}!
+                            InvoiceMe | {providerName}
                         </Typography>
                     </Box>
                     <Box>

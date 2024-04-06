@@ -12,7 +12,7 @@ export interface IInvoice {
     number: string;
     date: string;
     status: InvoiceStatusEnum;
-    amount: number;
+    amount: string;
     customerName: string;
     customerEmail: string;
     createdByUserEmail: string;

@@ -1,7 +1,6 @@
 'use client';
 
 import { createInventoryItem } from '@/app/lib/data/inventory';
-import { TGetInventoryPayload } from '@/app/lib/data/inventory/types';
 import Business from '@mui/icons-material/Business';
 import Face from '@mui/icons-material/Face';
 import { capitalize } from '@mui/material';
@@ -17,11 +16,7 @@ import { useState } from 'react';
 import { useFormState } from 'react-dom';
 import styles from './create-form.module.scss';
 
-interface IProps {
-    inventory: TGetInventoryPayload[];
-}
-
-export default function Form({ inventory }: IProps) {
+export default function Form() {
     const [touched, setTouched] = useState(false);
     const initialState = { message: null, errors: {}, touched: false };
     const [state, formAction] = useFormState(createInventoryItem, initialState);

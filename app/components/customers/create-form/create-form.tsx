@@ -1,7 +1,6 @@
 'use client';
 
 import { createCustomer } from '@/app/lib/data/customers';
-import { TGetCustomersPayload } from '@/app/lib/data/customers/types';
 import Business from '@mui/icons-material/Business';
 import Face from '@mui/icons-material/Face';
 import { capitalize } from '@mui/material';
@@ -17,7 +16,7 @@ import { useState } from 'react';
 import { useFormState } from 'react-dom';
 import styles from './create-form.module.scss';
 
-export default function Form({ customers }: { customers: TGetCustomersPayload[] }) {
+export default function Form() {
     const [touched, setTouched] = useState(false);
     const initialState = { message: null, errors: {}, touched: false };
     const [state, formAction] = useFormState(createCustomer, initialState);

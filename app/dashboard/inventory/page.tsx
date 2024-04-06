@@ -25,7 +25,7 @@ export default async function Page({ searchParams }: IProps) {
             <Typography variant='h1'>Inventory</Typography>
             <Box component='section' className={styles.tools}>
                 <Search placeholder='Search inventory...' />
-                <CreateButton href='/dashboard/inventory/create' name='Create customer' />
+                <CreateButton href='/dashboard/inventory/create' name='Create inventory' />
             </Box>
             <Suspense key={query + currentPage} fallback={<InventoryTable inventory={[]} />}>
                 <TableWrapper

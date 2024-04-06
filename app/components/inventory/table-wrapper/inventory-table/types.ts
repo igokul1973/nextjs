@@ -1,3 +1,5 @@
+import { IInventory } from '../../types';
+
 export interface IProps {
     inventory: IInventory[];
 }

@@ -2,7 +2,7 @@ import TableWrapper from '@/app/components/customers/table-wrapper/TableWrapper'
 import CustomersTable from '@/app/components/customers/table-wrapper/customers-table/CustomersTable';
 import { CreateButton } from '@/app/components/invoices/buttons';
 import Search from '@/app/components/search';
-import { getFilteredCustomersCount } from '@/app/lib/data/customers';
+import { getFilteredCustomersCountByAccountId } from '@/app/lib/data/customers';
 import { ISearchParams } from '@/app/lib/definitions';
 import { auth } from '@/auth';
 import Box from '@mui/material/Box';
@@ -19,7 +19,7 @@ export default async function Page({ searchParams }: IProps) {
     if (!session) return <div>Not logged in</div>;
     const query = searchParams?.query || '';
     const currentPage = Number(searchParams?.page) || 1;
-    const totalPages = await getFilteredCustomersCount(query);
+    const totalPages = await getFilteredCustomersCountByAccountId(query, session.user.accountId);
 
     return (
         <Box component='section' className={styles.section}>

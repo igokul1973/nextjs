@@ -78,6 +78,7 @@ type TFlattenedCustomer = {
     id: string;
     name: string;
     email: string;
+    phone: string;
 };
 
 export function flattenCustomer(rawCustomer: TGetCustomersPayload): TFlattenedCustomer {
@@ -95,23 +96,12 @@ export function flattenCustomer(rawCustomer: TGetCustomersPayload): TFlattenedCu
     return {
         id: rawCustomer.id,
         name,
-        email: entity.emails && entity.emails.length ? entity.emails[0].email : 'no email provided'
+        email: entity.emails && entity.emails.length ? entity.emails[0].email : 'no email provided',
+        phone:
+            entity.phones && entity.phones.length
+                ? `+${entity.phones[0].countryCode}-${entity.phones[0].number}`
+                : 'no phone provided'
     };
-}
-
-type TT = {
-    individual?: TGetUserPayload['account']['individuals'][0];
-    organization?: TGetUserPayload['account']['organizations'][0];
-};
-
-export function getUserProvider2(user: TGetUserPayload): TT {
-    console.log(user);
-
-    return (
-        { individual: user.account.individuals[0] } || {
-            organization: user.account.organizations[0]
-        }
-    );
 }
 
 export function getUserProvider<I = TIndividualWithRelations, O = TOrganizationWithRelations>(

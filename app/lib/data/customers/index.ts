@@ -6,7 +6,12 @@ import { AccountRelationEnum, InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { ICreateCustomerState, getCustomersSelect, getFilteredCustomersWhereClause } from './types';
+import {
+    ICreateCustomerState,
+    getCustomersSelect,
+    getFilteredCustomersByAccountIdSelect,
+    getFilteredCustomersWhereClause
+} from './types';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -103,7 +108,7 @@ export async function getFilteredCustomersByAccountId(
             ],
             take: ITEMS_PER_PAGE,
             skip: offset,
-            select: getFilteredCustomersByAccountIdSelect(),
+            select: getFilteredCustomersByAccountIdSelect,
             where: getFilteredCustomersWhereClause(query, accountId)
         });
 
@@ -144,11 +149,11 @@ export async function getFilteredCustomersByAccountId(
     }
 }
 
-export async function getFilteredCustomersCount(query: string) {
+export async function getFilteredCustomersCountByAccountId(query: string, accountId: string) {
     noStore();
     try {
         const count = await prisma.customer.count({
-            where: getFilteredCustomersWhereClause(query, '1')
+            where: getFilteredCustomersWhereClause(query, accountId)
         });
 
         const totalPages = Math.ceil(Number(count) / ITEMS_PER_PAGE);
