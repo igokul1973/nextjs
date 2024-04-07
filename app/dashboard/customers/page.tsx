@@ -2,13 +2,13 @@ import TableWrapper from '@/app/components/customers/table-wrapper/TableWrapper'
 import CustomersTable from '@/app/components/customers/table-wrapper/customers-table/CustomersTable';
 import Search from '@/app/components/search';
 // import { getFilteredCustomersCountByAccountId } from '@/app/lib/data/customers';
+import { CreateButton } from '@/app/components/buttons/create/CreateButton';
 import { ISearchParams } from '@/app/lib/definitions';
 import { auth } from '@/auth';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { Suspense } from 'react';
 import { StyledBox } from './styled';
-import { CreateButton } from '@/app/components/buttons/create/CreateButton';
 
 interface IProps {
     searchParams: ISearchParams;

@@ -1,27 +1,21 @@
 'use client';
 
-import { createCustomer } from '@/app/lib/data/customers';
+import OrganizationForm from '@/app/components/organizations/create-form/OrganizationForm';
+import { StyledBox } from '@/app/dashboard/customers/create/styled';
 import Business from '@mui/icons-material/Business';
 import Face from '@mui/icons-material/Face';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { EntitiesEnum } from '@prisma/client';
-import NextLink from 'next/link';
 import { useState } from 'react';
-import { useFormState } from 'react-dom';
-import styles from './create-form.module.scss';
-import { CreateButton } from '../../buttons/create/CreateButton';
+import IndividualForm from '../../individuals/create-form/IndividualForm';
 
-export default function Form() {
-    const [touched, setTouched] = useState(false);
-    const initialState = { message: null, errors: {}, touched: false };
-    const [state, formAction] = useFormState(createCustomer, initialState);
-    const [customerType, setCustomerType] = useState<string>();
+export default function CustomerForm() {
+    const [customerType, setCustomerType] = useState<EntitiesEnum | ''>('');
     const entities = Object.values(EntitiesEnum).map((entity) => {
         return {
             name: entity,
@@ -30,17 +24,19 @@ export default function Form() {
     });
 
     return (
-        <form action={formAction} className={styles.form}>
+        <StyledBox component='section'>
             {/* Customer Name */}
             <FormControl fullWidth>
-                <InputLabel id='customer'>Select customer type</InputLabel>
+                <InputLabel id='customer-type-label'>Select customer type</InputLabel>
                 <Select
-                    labelId='customer'
-                    id='customer-select'
-                    name='customeId'
+                    labelId='customer-type'
+                    id='customer-type'
+                    name='customerType'
                     value={customerType}
                     label='Select customer type'
-                    onChange={(event: SelectChangeEvent) => setCustomerType(event.target.value)}
+                    onChange={(event: SelectChangeEvent) =>
+                        setCustomerType(event.target.value as EntitiesEnum)
+                    }
                 >
                     {entities.map((entity, index) => {
                         const Icon = entity.icon;
@@ -55,14 +51,11 @@ export default function Form() {
                     })}
                 </Select>
             </FormControl>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                <Button component={NextLink} href='/dashboard/customers' variant='outlined'>
-                    Cancel
-                </Button>
-                <CreateButton disabled={!touched || !!state.errors?.customerId} variant='outlined'>
-                    Create Customer
-                </CreateButton>
-            </Box>
-        </form>
+            {customerType === EntitiesEnum.individual ? (
+                <IndividualForm />
+            ) : customerType === EntitiesEnum.organization ? (
+                <OrganizationForm />
+            ) : null}
+        </StyledBox>
     );
 }

@@ -36,7 +36,7 @@ export default function Form() {
                 <Select
                     labelId='inventoryItem'
                     id='inventoryItem-select'
-                    name='customeId'
+                    name='customerId'
                     value={inventoryItemType}
                     label='Select inventoryItem type'
                     onChange={(event: SelectChangeEvent) => setInventoryType(event.target.value)}

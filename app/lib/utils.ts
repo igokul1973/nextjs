@@ -74,7 +74,7 @@ export function getIndividualFullNameString(
     return `${individual.firstName}${individual.middleName ? ' ' + individual.middleName : ''} ${individual.lastName}`;
 }
 
-type TFlattenedCustomer = {
+export type TFlattenedCustomer = {
     id: string;
     name: string;
     email: string;

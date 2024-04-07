@@ -1,4 +1,4 @@
-import Form from '@/app/components/customers/create-form/Form';
+import CustomerForm from '@/app/components/customers/create-form/CustomerForm';
 import { auth } from '@/auth';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
@@ -24,7 +24,7 @@ export default async function Page() {
                 </Link>
                 <Typography color='text.primary'>Create Customers</Typography>
             </Breadcrumbs>
-            <Form />
+            <CustomerForm />
             <div>TBD</div>
         </StyledBox>
     );

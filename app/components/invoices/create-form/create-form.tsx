@@ -13,26 +13,26 @@ import TextField from '@mui/material/TextField';
 import NextLink from 'next/link';
 
 import { createInvoice } from '@/app/lib/data/invoices';
+import { TFlattenedCustomer } from '@/app/lib/utils';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import { InvoiceStatusEnum } from '@prisma/client';
-import { ChangeEvent, useState } from 'react';
+import { useState } from 'react';
 import { useFormState } from 'react-dom';
 import styles from './create-form.module.scss';
 
-export default function Form({ customers }: { customers: TGetCustomersPayload[] }) {
-    const [touched, setTouched] = useState(false);
-    const [status, setStatus] = useState(InvoiceStatusEnum.pending);
+export default function Form({ customers }: { customers: TFlattenedCustomer[] }) {
+    const [status, setStatus] = useState<InvoiceStatusEnum>(InvoiceStatusEnum.pending);
     const initialState = { message: null, errors: {}, touched: false };
     const [state, formAction] = useFormState(createInvoice, initialState);
     const [customerId, setCustomerId] = useState<string>();
     const [amount, setAmount] = useState<string>();
 
-    const handleCustomerStatusChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setStatus((event.target as HTMLInputElement).value);
+    const handleCustomerStatusChange = (event: SelectChangeEvent<HTMLInputElement>) => {
+        setStatus(event.target.value as InvoiceStatusEnum);
     };
 
     return (
@@ -43,10 +43,10 @@ export default function Form({ customers }: { customers: TGetCustomersPayload[] 
                 <Select
                     labelId='customer'
                     id='customer-select'
-                    name='customeId'
+                    name='customerId'
                     value={customerId}
                     label='Choose customer'
-                    onChange={(event: SelectChangeEvent) => setCustomerId(event.target.value)}
+                    onChange={(event) => setCustomerId(event.target.value)}
                     inputProps={{
                         startAdornment: <Face />
                     }}
@@ -80,21 +80,6 @@ export default function Form({ customers }: { customers: TGetCustomersPayload[] 
                     )
                 }}
             />
-            {/* <div>
-                    <label htmlFor='amount'>Choose an amount</label>
-                    <div>
-                        <div>
-                            <input
-                                id='amount'
-                                name='amount'
-                                type='text'
-                                step='0.01'
-                                placeholder='Enter USD amount'
-                            />
-                            <AttachMoney />
-                        </div>
-                    </div>
-                </div> */}
 
             {/* Invoice Status */}
             <Box component={'fieldset'} sx={{ borderRadius: 1, borderColor: 'divider' }}>
@@ -123,11 +108,7 @@ export default function Form({ customers }: { customers: TGetCustomersPayload[] 
                 <Button component={NextLink} href='/dashboard/invoices' variant='outlined'>
                     Cancel
                 </Button>
-                <Button
-                    type='submit'
-                    disabled={!touched || !!state.errors?.customerId}
-                    variant='outlined'
-                >
+                <Button type='submit' disabled={!!state.errors?.customerId} variant='outlined'>
                     Create Invoice
                 </Button>
             </Box>
