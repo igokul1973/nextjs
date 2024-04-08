@@ -5,18 +5,12 @@ import Box from '@mui/material/Box';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
 import { useDebounce } from '../lib/utils';
 
 export default function Search({ placeholder }: { placeholder: string }) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
-
-    useEffect(() => {
-        console.log(searchParams);
-        console.log(searchParams);
-    }, [searchParams]);
 
     const handleSearch = (term: string) => {
         const params = new URLSearchParams(searchParams || undefined);

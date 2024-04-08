@@ -1,5 +1,5 @@
 import { getUserByEmail } from '@/app/lib/data/users';
-import bcrypt from 'bcrypt';
+import { compare } from 'bcryptjs';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
@@ -20,13 +20,10 @@ export const { auth, signIn, signOut } = NextAuth({
                 if (parsedCredentials.success) {
                     const { email, password } = parsedCredentials.data;
                     const user = await getUserByEmail(email);
-                    console.log('----------------------\n');
-                    console.log('User in authentication function: ', user);
-                    console.log('----------------------\n');
                     if (!user) {
                         return null;
                     }
-                    const passwordMatch = await bcrypt.compare(password, user.password);
+                    const passwordMatch = await compare(password, user.password);
 
                     if (passwordMatch) {
                         return user;

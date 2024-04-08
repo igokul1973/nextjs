@@ -139,7 +139,7 @@ export default function IndividualForm() {
                         placeholder='First name'
                         variant='outlined'
                         required
-                        {...register('firstName')}
+                        {...register('firstName', { required: 'Please enter first name' })}
                     />
                 </FormControl>
                 <FormControl>
@@ -148,7 +148,7 @@ export default function IndividualForm() {
                         variant='outlined'
                         placeholder='Last name'
                         required
-                        {...register('lastName')}
+                        {...register('lastName', { required: 'Please enter last name' })}
                     />
                 </FormControl>
                 <FormControl>

@@ -1,17 +1,16 @@
 'use client';
 
 import ColorModeContext from '@/app/components/theme-registry/ColorModeContext';
-import { logOut } from '@/app/lib/data/users';
 import { TGetUserPayload } from '@/app/lib/data/users/types';
 import { TEntities } from '@/app/lib/definitions';
 import { getIndividualFullNameString } from '@/app/lib/utils';
+import { useI18n } from '@/locales/client';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import Home from '@mui/icons-material/Home';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import Logout from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import PeopleOutlined from '@mui/icons-material/PeopleOutlined';
 import PostAddOutlined from '@mui/icons-material/PostAddOutlined';
@@ -26,23 +25,26 @@ import ListItemText from '@mui/material/ListItemText';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
+import { capitalize } from '@mui/material/utils';
 import Link from 'next/link';
 import { useContext, useState } from 'react';
 import { AppBar } from './AppBar';
 import { Drawer } from './Drawer';
 import { DrawerHeader } from './DrawerHeader';
+import LanguageSwitcher from './LanguageSwitcher';
+import MenuAvatar from './MenuAvatar';
+import { ILink } from './types';
 
-2;
 const links = [
-    { name: 'Home', href: '/dashboard', icon: Home },
+    { name: 'home', href: '/dashboard', icon: Home },
     {
-        name: 'Invoices',
+        name: 'invoices',
         href: '/dashboard/invoices',
         icon: PostAddOutlined
     },
-    { name: 'Customers', href: '/dashboard/customers', icon: PeopleOutlined },
-    { name: 'Inventory', href: '/dashboard/inventory', icon: InventoryIcon }
-];
+    { name: 'customers', href: '/dashboard/customers', icon: PeopleOutlined },
+    { name: 'inventory', href: '/dashboard/inventory', icon: InventoryIcon }
+] satisfies ILink[];
 
 const DynamicIcon = ({ name }: { name: string }) => {
     const Component = links.find((l) => l.name === name)!.icon;
@@ -59,6 +61,8 @@ interface IProps {
 
 export default function LeftMenu({ provider: { individual, organization } }: IProps) {
     const theme = useTheme();
+    const t = useI18n();
+    // const currentLocale = useCurrentLocale();
     const { toggleColorMode } = useContext(ColorModeContext);
     const [open, setOpen] = useState(false);
 
@@ -76,10 +80,6 @@ export default function LeftMenu({ provider: { individual, organization } }: IPr
 
     const handleDrawerClose = () => {
         setOpen(false);
-    };
-
-    const onLogout = async () => {
-        return logOut();
     };
 
     return (
@@ -103,17 +103,17 @@ export default function LeftMenu({ provider: { individual, organization } }: IPr
                             InvoiceMe | {providerName}
                         </Typography>
                     </Box>
-                    <Box>
-                        <IconButton sx={{ ml: 1 }} onClick={toggleColorMode} color='inherit'>
+                    <Box sx={{ display: 'flex', gap: '1.5rem;' }}>
+                        {/* <Typography>{capitalize(currentLocale)}</Typography> */}
+                        <IconButton onClick={toggleColorMode} color='inherit'>
                             {theme.palette.mode === 'dark' ? (
                                 <Brightness7Icon />
                             ) : (
                                 <Brightness4Icon />
                             )}
                         </IconButton>
-                        <IconButton sx={{ ml: 1 }} onClick={onLogout} color='inherit'>
-                            <Logout />
-                        </IconButton>
+                        <LanguageSwitcher />
+                        <MenuAvatar />
                     </Box>
                 </Toolbar>
             </AppBar>
@@ -148,7 +148,7 @@ export default function LeftMenu({ provider: { individual, organization } }: IPr
                                         <DynamicIcon name={link.name} />
                                     </ListItemIcon>
                                     <ListItemText
-                                        primary={link.name}
+                                        primary={capitalize(t(link.name))}
                                         sx={{ opacity: open ? 1 : 0 }}
                                     />
                                 </ListItemButton>

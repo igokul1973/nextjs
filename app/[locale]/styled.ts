@@ -2,7 +2,7 @@
 
 import { styled } from '@mui/material';
 import Box from '@mui/material/Box';
-import { colors } from './styles/colors';
+import { colors } from '../styles/colors';
 
 export const ContainerBox = styled(Box, {
     name: 'Container Box',
@@ -42,7 +42,9 @@ export const ContainerBox = styled(Box, {
                 color: ${colors.orange};
                 font-weight: bold;
                 text-decoration: none;
+                text-transform: uppercase;
             }
+            align-items: center;
         }
     }
 

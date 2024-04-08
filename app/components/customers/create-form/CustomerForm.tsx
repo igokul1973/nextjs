@@ -1,7 +1,7 @@
 'use client';
 
+import { StyledBox } from '@/app/[locale]/dashboard/customers/create/styled';
 import OrganizationForm from '@/app/components/organizations/create-form/OrganizationForm';
-import { StyledBox } from '@/app/dashboard/customers/create/styled';
 import Business from '@mui/icons-material/Business';
 import Face from '@mui/icons-material/Face';
 import { capitalize } from '@mui/material';
