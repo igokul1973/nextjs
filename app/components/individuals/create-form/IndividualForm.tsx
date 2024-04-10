@@ -1,16 +1,20 @@
 'use client';
+
 import PartialAddressForm from '@/app/components/address/form/PartialAddressForm';
+import { useI18n } from '@/locales/client';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
+import { capitalize } from '@mui/material/utils';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import NextLink from 'next/link';
 import { FC } from 'react';
-import { Control, Controller, FieldValues, useForm } from 'react-hook-form';
+import { FieldValues, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { IProps } from '../../customers/create-form/types';
+import DateInput from '../../date-input/DateInput';
 import { StyledForm } from './styled';
 
 /*
@@ -35,39 +39,7 @@ import { StyledForm } from './styled';
   phones                individualPhone[]
 */
 
-interface IProps {
-    name: string;
-    label: string;
-    control: Control;
-}
-const DateInput: FC<IProps> = ({ name, label, control }) => {
-    const placeholder = 'Enter the date of birth';
-
-    return (
-        <Controller
-            name={name}
-            control={control}
-            render={({ field: { onChange }, fieldState: { error } }) => (
-                <DatePicker
-                    label={label}
-                    format='YYYY-MM-DD'
-                    onChange={(event) => {
-                        onChange(event);
-                    }}
-                    slotProps={{
-                        textField: {
-                            placeholder,
-                            error: !!error,
-                            helperText: error?.message
-                        }
-                    }}
-                />
-            )}
-        />
-    );
-};
-
-export default function IndividualForm() {
+const IndividualForm: FC<IProps> = ({ countries, userAccountCountry }) => {
     const {
         register,
         handleSubmit,
@@ -75,6 +47,7 @@ export default function IndividualForm() {
         control
     } = useForm();
     // const [state, formAction] = useFormState(createCustomer, initialState);
+    const t = useI18n();
 
     const onSubmit = (formData: FieldValues) => {
         const FormSchema = z.object({
@@ -83,27 +56,15 @@ export default function IndividualForm() {
                 invalid_type_error: 'Please enter first name'
             }),
             lastName: z.string({
-                invalid_type_error: 'Please enter first name'
+                invalid_type_error: 'Please enter last name'
             }),
-            middleName: z
-                .string({
-                    invalid_type_error: 'Please enter first name'
-                })
-                .optional(),
+            middleName: z.string().optional(),
             dob: z.coerce.date().optional(),
             addressLine1: z.string({
-                invalid_type_error: 'Please enter first name'
+                invalid_type_error: 'Please enter the address'
             }),
-            addressLine2: z
-                .string({
-                    invalid_type_error: 'Please enter first name'
-                })
-                .optional(),
-            addressLine3: z
-                .string({
-                    invalid_type_error: 'Please enter first name'
-                })
-                .optional(),
+            addressLine2: z.string().optional(),
+            addressLine3: z.string().optional(),
             locality: z.string({
                 invalid_type_error: 'Please enter city/village/locality'
             }),
@@ -112,6 +73,9 @@ export default function IndividualForm() {
             }),
             postalcode: z.string({
                 invalid_type_error: 'Please enter zip/postal code'
+            }),
+            country: z.string({
+                invalid_type_error: 'Please enter the country'
             })
         });
         const CreateCustomer = FormSchema.omit({ id: true });
@@ -135,8 +99,8 @@ export default function IndividualForm() {
             <StyledForm onSubmit={handleSubmit(onSubmit)}>
                 <FormControl>
                     <TextField
-                        label='First name'
-                        placeholder='First name'
+                        label={capitalize(t('first name'))}
+                        placeholder={capitalize(t('first name'))}
                         variant='outlined'
                         required
                         {...register('firstName', { required: 'Please enter first name' })}
@@ -144,33 +108,43 @@ export default function IndividualForm() {
                 </FormControl>
                 <FormControl>
                     <TextField
-                        label='Last name'
+                        label={capitalize(t('last name'))}
                         variant='outlined'
-                        placeholder='Last name'
+                        placeholder={capitalize(t('last name'))}
                         required
                         {...register('lastName', { required: 'Please enter last name' })}
                     />
                 </FormControl>
                 <FormControl>
                     <TextField
-                        label='Middle name'
-                        placeholder='Middle name'
+                        label={capitalize(t('middle name'))}
+                        placeholder={capitalize(t('middle name'))}
                         variant='outlined'
                         {...register('middleName')}
                     />
                 </FormControl>
                 <FormControl>
                     <TextField
-                        label='Description'
-                        placeholder='Description'
+                        label={capitalize(t('description'))}
+                        placeholder={capitalize(t('description'))}
                         variant='outlined'
                         {...register('description')}
                     />
                 </FormControl>
                 <FormControl>
-                    <DateInput label='Date of birth' name='dob' control={control} />
+                    <DateInput
+                        label={capitalize(t('dob'))}
+                        name='dob'
+                        control={control}
+                        format='YYYY-MM-DD'
+                    />
                 </FormControl>
-                <PartialAddressForm register={register} />
+                <PartialAddressForm
+                    register={register}
+                    countries={countries}
+                    userAccountCountry={userAccountCountry}
+                    control={control}
+                />
                 <Box className='action-buttons'>
                     <Button
                         component={NextLink}
@@ -178,13 +152,15 @@ export default function IndividualForm() {
                         variant='outlined'
                         color='warning'
                     >
-                        Cancel
+                        {capitalize(t('cancel'))}
                     </Button>
                     <Button type='submit' variant='contained' color='primary'>
-                        Create Customer
+                        {capitalize(t('create customer'))}
                     </Button>
                 </Box>
             </StyledForm>
         </LocalizationProvider>
     );
-}
+};
+
+export default IndividualForm;

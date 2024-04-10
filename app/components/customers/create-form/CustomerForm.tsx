@@ -1,7 +1,6 @@
 'use client';
 
 import { StyledBox } from '@/app/[locale]/dashboard/customers/create/styled';
-import OrganizationForm from '@/app/components/organizations/create-form/OrganizationForm';
 import Business from '@mui/icons-material/Business';
 import Face from '@mui/icons-material/Face';
 import { capitalize } from '@mui/material';
@@ -11,10 +10,12 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { EntitiesEnum } from '@prisma/client';
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import IndividualForm from '../../individuals/create-form/IndividualForm';
+import { IProps } from './types';
+import OrganizationForm from '../../organizations/create-form/OrganizationForm';
 
-export default function CustomerForm() {
+const CustomerForm: FC<IProps> = ({ countries, userAccountCountry }) => {
     const [customerType, setCustomerType] = useState<EntitiesEnum | ''>('');
     const entities = Object.values(EntitiesEnum).map((entity) => {
         return {
@@ -29,7 +30,7 @@ export default function CustomerForm() {
             <FormControl fullWidth>
                 <InputLabel id='customer-type-label'>Select customer type</InputLabel>
                 <Select
-                    labelId='customer-type'
+                    labelId='customer-type-label'
                     id='customer-type'
                     name='customerType'
                     value={customerType}
@@ -52,10 +53,12 @@ export default function CustomerForm() {
                 </Select>
             </FormControl>
             {customerType === EntitiesEnum.individual ? (
-                <IndividualForm />
+                <IndividualForm countries={countries} userAccountCountry={userAccountCountry} />
             ) : customerType === EntitiesEnum.organization ? (
-                <OrganizationForm />
+                <OrganizationForm countries={countries} />
             ) : null}
         </StyledBox>
     );
-}
+};
+
+export default CustomerForm;

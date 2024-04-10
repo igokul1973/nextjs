@@ -8,7 +8,12 @@ export const getUserInclude = {
                     id: true,
                     name: true,
                     customerId: true,
-                    accountRelation: true
+                    accountRelation: true,
+                    address: {
+                        select: {
+                            country: true
+                        }
+                    }
                 }
             },
             individuals: {
@@ -18,7 +23,12 @@ export const getUserInclude = {
                     lastName: true,
                     middleName: true,
                     customerId: true,
-                    accountRelation: true
+                    accountRelation: true,
+                    address: {
+                        select: {
+                            country: true
+                        }
+                    }
                 }
             }
         }

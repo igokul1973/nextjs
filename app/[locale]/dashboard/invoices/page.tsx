@@ -2,8 +2,10 @@ import { CreateButton } from '@/app/components/buttons/create/CreateButton';
 import InvoicesTable from '@/app/components/invoices/InvoicesTable';
 import TableWrapper from '@/app/components/invoices/TableWrapper';
 import Search from '@/app/components/search';
-import { ISearchParams } from '@/app/lib/definitions';
+import { ISearchParams } from '@/app/lib/types';
+import { capitalize } from '@/app/lib/utils';
 import { auth } from '@/auth';
+import { getI18n } from '@/locales/server';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { Suspense } from 'react';
@@ -17,6 +19,8 @@ export default async function Page({ searchParams }: IProps) {
     const session = await auth();
     if (!session) return <div>Not logged in</div>;
     const query = searchParams?.query || '';
+    const t = await getI18n();
+
     // TODO: change to a paginated table
     // const count = await fetchFilteredInvoicesCount(query);
 
@@ -32,7 +36,7 @@ export default async function Page({ searchParams }: IProps) {
 
     return (
         <Box component='section' className={styles.section}>
-            <Typography variant='h1'>Invoices</Typography>
+            <Typography variant='h1'>{capitalize(t('invoices'))}</Typography>
             <Box component='section' className={styles.tools}>
                 <Search placeholder='Search invoices...' />
                 <CreateButton href='/dashboard/invoices/create' name='Create invoice' />

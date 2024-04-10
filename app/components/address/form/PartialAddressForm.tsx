@@ -1,20 +1,23 @@
 'use client';
+
+import { useI18n } from '@/locales/client';
+import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import { capitalize } from '@mui/material/utils';
 import { FC } from 'react';
-import { FieldValues, UseFormRegister } from 'react-hook-form';
+import FormSelect from '../../form-select/FormSelect';
+import { IProps } from './types';
 
-interface IProps {
-    register: UseFormRegister<FieldValues>;
-}
-
-const PartialAddressForm: FC<IProps> = ({ register }) => {
+const PartialAddressForm: FC<IProps> = ({ register, countries, control, userAccountCountry }) => {
+    const t = useI18n();
     return (
         <>
             <FormControl>
                 <TextField
                     label='Street Address'
-                    placeholder='Enter street address and building number'
+                    placeholder={capitalize(t('enter street address and building number'))}
                     variant='outlined'
                     required
                     {...register('addressLine1')}
@@ -22,24 +25,24 @@ const PartialAddressForm: FC<IProps> = ({ register }) => {
             </FormControl>
             <FormControl>
                 <TextField
-                    label='Address (line 2)'
-                    placeholder='Continue street address and/or apartment number'
+                    label={capitalize(t('address (line 2)'))}
+                    placeholder={capitalize(t('continue street address and/or apartment number'))}
                     variant='outlined'
                     {...register('addressLine2')}
                 />
             </FormControl>
             <FormControl>
                 <TextField
-                    label='Address (line 3)'
-                    placeholder='Continue street address and/or apartment number'
+                    label={capitalize(t('address (line 3)'))}
+                    placeholder={capitalize(t('continue street address and/or apartment number'))}
                     variant='outlined'
                     {...register('addressLine3')}
                 />
             </FormControl>
             <FormControl>
                 <TextField
-                    label='City or locality'
-                    placeholder='Enter city, village or locality'
+                    label={capitalize(t('city or locality'))}
+                    placeholder={capitalize(t('enter city, village or locality'))}
                     variant='outlined'
                     required
                     {...register('locality')}
@@ -47,20 +50,36 @@ const PartialAddressForm: FC<IProps> = ({ register }) => {
             </FormControl>
             <FormControl>
                 <TextField
-                    label='State or region'
-                    placeholder='Enter state or region'
+                    label={capitalize(t('state or region'))}
+                    placeholder={capitalize(t('enter state or region'))}
                     variant='outlined'
                     {...register('region')}
                 />
             </FormControl>
             <FormControl>
                 <TextField
-                    label='Postal code'
-                    placeholder='Enter postal/zip code'
+                    label={capitalize(t('postal code'))}
+                    placeholder={capitalize(t('enter postal/zip code'))}
                     variant='outlined'
                     {...register('postalcode')}
                 />
             </FormControl>
+            <FormSelect
+                name='country'
+                label={capitalize(t('country'))}
+                control={control}
+                defaultValue={[userAccountCountry.name]}
+            >
+                {countries.map((country) => {
+                    return (
+                        <MenuItem key={country.id} value={country.name}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <span>{capitalize(country.name)}</span>
+                            </Box>
+                        </MenuItem>
+                    );
+                })}
+            </FormSelect>
         </>
     );
 };

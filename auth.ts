@@ -26,7 +26,8 @@ export const { auth, signIn, signOut } = NextAuth({
                     const passwordMatch = await compare(password, user.password);
 
                     if (passwordMatch) {
-                        return user;
+                        const { password: undefined, ...sanitizedUser } = user;
+                        return sanitizedUser;
                     }
                 }
                 return null;

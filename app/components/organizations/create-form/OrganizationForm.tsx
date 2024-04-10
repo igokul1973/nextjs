@@ -1,6 +1,7 @@
 'use client';
 
 import { createCustomer } from '@/app/lib/data/customers';
+import { TCountry } from '@/app/lib/types';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
@@ -9,7 +10,7 @@ import NextLink from 'next/link';
 import { useFormState } from 'react-dom';
 import { StyledForm } from './styled';
 
-export default function OrganizationForm() {
+export default function OrganizationForm({ countries }: { countries: TCountry[] }) {
     const initialState = { message: null, errors: {}, touched: false };
     const [state, formAction] = useFormState(createCustomer, initialState);
     return (

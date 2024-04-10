@@ -1,7 +1,7 @@
 'use client';
 
 import { updateInvoice } from '@/app/lib/actions';
-import { CustomerField, InvoiceForm } from '@/app/lib/definitions';
+import { CustomerField, InvoiceForm } from '@/app/lib/types';
 import { Button } from '@/app/ui/button';
 import {
     CheckIcon,

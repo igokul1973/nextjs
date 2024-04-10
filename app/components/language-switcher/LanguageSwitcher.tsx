@@ -1,19 +1,17 @@
 'use client';
 
-import { logOut } from '@/app/lib/data/users';
-import { colors } from '@/app/styles/colors';
-import Logout from '@mui/icons-material/Logout';
-import Settings from '@mui/icons-material/Settings';
-import Avatar from '@mui/material/Avatar';
-import Divider from '@mui/material/Divider';
+import Language from '@mui/icons-material/Language';
+
+import { useChangeLocale, useCurrentLocale } from '@/locales/client';
 import IconButton from '@mui/material/IconButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Tooltip from '@mui/material/Tooltip';
 import { MouseEvent, useState } from 'react';
 
-export default function MenuAvatar() {
+export default function LanguageSwitcher() {
+    const changeLocale = useChangeLocale();
+    const currentLocale = useCurrentLocale();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
     const handleClick = (event: MouseEvent<HTMLElement>) => {
@@ -23,26 +21,29 @@ export default function MenuAvatar() {
         setAnchorEl(null);
     };
 
-    const onLogout = async () => {
-        return logOut();
+    const onSwitchLocale = (lang: 'en' | 'sv') => {
+        changeLocale(lang);
+        handleClose();
     };
 
     return (
         <>
-            <Tooltip title='Account settings'>
+            <Tooltip title='Language selection'>
                 <IconButton
                     onClick={handleClick}
+                    color='inherit'
                     size='small'
-                    aria-controls={open ? 'account-menu' : undefined}
+                    aria-controls={open ? 'language-menu' : undefined}
                     aria-haspopup='true'
                     aria-expanded={open ? 'true' : undefined}
                 >
-                    <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
+                    <Language sx={{ width: 28, height: 28 }}>M</Language>
+                    {currentLocale}
                 </IconButton>
             </Tooltip>
             <Menu
                 anchorEl={anchorEl}
-                id='account-menu'
+                id='language-menu'
                 open={open}
                 onClose={handleClose}
                 onClick={handleClose}
@@ -75,27 +76,17 @@ export default function MenuAvatar() {
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-                <MenuItem onClick={handleClose}>
-                    <Avatar /> Profile
+                <MenuItem
+                    onClick={() => onSwitchLocale('en')}
+                    sx={{ fontWeight: currentLocale === 'en' ? '700' : null }}
+                >
+                    English
                 </MenuItem>
-                <MenuItem onClick={handleClose}>
-                    <Avatar /> My account
-                </MenuItem>
-                <Divider />
-                <MenuItem onClick={handleClose}>
-                    <ListItemIcon>
-                        <Settings fontSize='small' />
-                    </ListItemIcon>
-                    Settings
-                </MenuItem>
-                <MenuItem onClick={onLogout}>
-                    {/* <IconButton sx={{ ml: 1 }} onClick={onLogout} color='inherit'>
-                        <Logout />
-                    </IconButton> */}
-                    <ListItemIcon>
-                        <Logout fontSize='small' />
-                    </ListItemIcon>
-                    Logout
+                <MenuItem
+                    onClick={() => onSwitchLocale('sv')}
+                    sx={{ fontWeight: currentLocale === 'sv' ? '700' : null }}
+                >
+                    Swedish
                 </MenuItem>
             </Menu>
         </>

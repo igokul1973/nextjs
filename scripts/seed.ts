@@ -1,16 +1,9 @@
 import { AccountRelationEnum, EntitiesEnum, Prisma, UserRoleEnum } from '@prisma/client';
+import { hash } from 'bcryptjs';
 import { exec } from 'child_process';
 import dotenv from 'dotenv';
 import { readFile, readdirSync, writeFile } from 'fs';
 import path from 'path';
-import {
-    TEntities,
-    TEntity,
-    TEntityWithNonNullableCustomer,
-    TIndividualWithRelations,
-    TOrganizationWithRelations,
-    TUserWithRelations
-} from '../app/lib/definitions';
 import {
     countries,
     customerIndividuals,
@@ -26,6 +19,14 @@ import {
 } from '../app/lib/placeholder-data.ts';
 import prisma from '../app/lib/prisma.ts';
 import {
+    TEntities,
+    TEntity,
+    TEntityWithNonNullableCustomer,
+    TIndividualWithRelations,
+    TOrganizationWithRelations,
+    TUserWithRelations
+} from '../app/lib/types';
+import {
     getEntityFirstEmailString,
     getEntityFirstPhoneString,
     getEntityName,
@@ -33,7 +34,6 @@ import {
     getUserProvider
 } from '../app/lib/utils.ts';
 import { seedSuperuser } from './seedSuperuser.ts';
-import { hash } from 'bcryptjs';
 
 dotenv.config();
 

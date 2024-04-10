@@ -1,6 +1,6 @@
 import { UserRoleEnum } from '@prisma/client';
-import { TProfile } from '../app/lib/definitions';
 import prisma from '../app/lib/prisma.ts';
+import { TProfile } from '../app/lib/types';
 
 export async function seedSuperuser() {
     console.log('Seeding superuser...');

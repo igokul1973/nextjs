@@ -1,18 +1,27 @@
 'use client';
 
-import Language from '@mui/icons-material/Language';
-
-import { useChangeLocale, useCurrentLocale } from '@/locales/client';
+import { useNavState } from '@/app/context/navigation/provider';
+import { logOut } from '@/app/lib/data/users';
+import Logout from '@mui/icons-material/Logout';
+import Settings from '@mui/icons-material/Settings';
+import Avatar from '@mui/material/Avatar';
+import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Tooltip from '@mui/material/Tooltip';
 import { MouseEvent, useState } from 'react';
 
-export default function LanguageSwitcher() {
-    const changeLocale = useChangeLocale();
-    const currentLocale = useCurrentLocale();
+const AccountNode = () => <h3>Account Panel</h3>;
+const ProfileNode = () => <h3>Profile Panel</h3>;
+
+export default function MenuAvatar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const {
+        state: { isOpen: isRightDrawerOpen },
+        dispatch
+    } = useNavState();
     const open = Boolean(anchorEl);
     const handleClick = (event: MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
@@ -21,30 +30,40 @@ export default function LanguageSwitcher() {
         setAnchorEl(null);
     };
 
-    const onSwitchLocale = (lang: 'en' | 'sv') => {
-        changeLocale(lang);
-        console.log('switched to lang: ', lang);
+    const openAccountPanel = (what: 'account' | 'profile') => {
+        dispatch({
+            type: isRightDrawerOpen ? 'close' : 'open',
+            payload: {
+                childComponent: isRightDrawerOpen ? null : what === 'account' ? (
+                    <AccountNode />
+                ) : (
+                    <ProfileNode />
+                )
+            }
+        });
         handleClose();
+    };
+
+    const onLogout = async () => {
+        return logOut();
     };
 
     return (
         <>
-            <Tooltip title='Language selection'>
+            <Tooltip title='Account settings'>
                 <IconButton
                     onClick={handleClick}
-                    color='inherit'
                     size='small'
-                    aria-controls={open ? 'language-menu' : undefined}
+                    aria-controls={open ? 'account-menu' : undefined}
                     aria-haspopup='true'
                     aria-expanded={open ? 'true' : undefined}
                 >
-                    <Language sx={{ width: 28, height: 28 }}>M</Language>
-                    {currentLocale}
+                    <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
                 </IconButton>
             </Tooltip>
             <Menu
                 anchorEl={anchorEl}
-                id='language-menu'
+                id='account-menu'
                 open={open}
                 onClose={handleClose}
                 onClick={handleClose}
@@ -77,17 +96,27 @@ export default function LanguageSwitcher() {
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-                <MenuItem
-                    onClick={() => onSwitchLocale('en')}
-                    sx={{ fontWeight: currentLocale === 'en' ? '700' : null }}
-                >
-                    English
+                <MenuItem onClick={() => openAccountPanel('profile')}>
+                    <Avatar /> Profile
                 </MenuItem>
-                <MenuItem
-                    onClick={() => onSwitchLocale('sv')}
-                    sx={{ fontWeight: currentLocale === 'sv' ? '700' : null }}
-                >
-                    Swedish
+                <MenuItem onClick={() => openAccountPanel('account')}>
+                    <Avatar /> My account
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleClose}>
+                    <ListItemIcon>
+                        <Settings fontSize='small' />
+                    </ListItemIcon>
+                    Settings
+                </MenuItem>
+                <MenuItem onClick={onLogout}>
+                    {/* <IconButton sx={{ ml: 1 }} onClick={onLogout} color='inherit'>
+                        <Logout />
+                    </IconButton> */}
+                    <ListItemIcon>
+                        <Logout fontSize='small' />
+                    </ListItemIcon>
+                    Logout
                 </MenuItem>
             </Menu>
         </>

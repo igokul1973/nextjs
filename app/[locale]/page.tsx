@@ -4,7 +4,7 @@ import { getCurrentLocale } from '@/locales/server';
 import { Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Link from 'next/link';
-import LanguageSwitcher from '../components/dashboard/left-menu/LanguageSwitcher';
+import LanguageSwitcher from '../components/language-switcher/LanguageSwitcher';
 import { ContainerBox } from './styled';
 
 export default function Page() {

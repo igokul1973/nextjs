@@ -1,52 +1,31 @@
-// import SideNav from '@/app/ui/dashboard/sidenav';
+import { DrawerHeader } from '@/app/components/dashboard/navigation/styled';
+import RightDrawer from '@/app/components/right-drawer/RightDrawer';
+import NavProvider from '@/app/context/navigation/provider';
 import { auth } from '@/auth';
 import { I18nProviderClient } from '@/locales/client';
 import Box from '@mui/material/Box';
 import { FC } from 'react';
-import { DrawerHeader } from '../../components/dashboard/left-menu/DrawerHeader';
-import LeftMenu from '../../components/dashboard/left-menu/LeftMenu';
-import { TGetUserPayload } from '../../lib/data/users/types';
-import { getUserProvider } from '../../lib/utils';
+import Navigation from '../../components/dashboard/navigation/Navigation';
 import { TProps } from './types';
 
 const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
     const session = await auth();
     if (!session) return <div>Not logged in</div>;
-    const provider = await getUserProvider<
-        TGetUserPayload['account']['individuals'][0],
-        TGetUserPayload['account']['organizations'][0]
-    >(session.user);
+
     return (
         <Box sx={{ display: 'flex' }}>
             <I18nProviderClient locale={locale}>
-                <LeftMenu provider={provider} />
-                <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
-                    <DrawerHeader />
-                    {children}
-                </Box>
+                <NavProvider>
+                    <Navigation provider={session.provider} />
+                    <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
+                        <DrawerHeader />
+                        {children}
+                    </Box>
+                    <RightDrawer />
+                </NavProvider>
             </I18nProviderClient>
         </Box>
     );
 };
 
 export default Layout;
-
-// export default async function Layout({ params, children }: { children: React.ReactNode }) {
-//     const session = await auth();
-//     if (!session) return <div>Not logged in</div>;
-//     const provider = await getUserProvider<
-//         TGetUserPayload['account']['individuals'][0],
-//         TGetUserPayload['account']['organizations'][0]
-//     >(session.user);
-//     return (
-//         <Box sx={{ display: 'flex' }}>
-//             <I18nProviderClient locale={locale}>
-//                 <LeftMenu provider={provider} />
-//                 <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
-//                     <DrawerHeader />
-//                     {children}
-//                 </Box>
-//             </I18nProviderClient>
-//         </Box>
-//     );
-// }

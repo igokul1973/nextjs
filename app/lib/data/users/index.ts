@@ -3,7 +3,7 @@
 import prisma from '@/app/lib/prisma';
 import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
-import { TUser } from '../../definitions';
+import { TUser } from '../../types';
 import { TGetUserPayload, getUserInclude } from './types';
 
 export async function getUsersByEmail(email: string): Promise<TUser[]> {

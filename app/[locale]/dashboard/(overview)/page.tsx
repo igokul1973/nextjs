@@ -1,4 +1,6 @@
 import { CardsSkeleton, LatestInvoicesSkeleton } from '@/app/components/skeletons';
+import { capitalize } from '@/app/lib/utils';
+import { getI18n } from '@/locales/server';
 import { Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { Suspense } from 'react';
@@ -10,9 +12,10 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export default async function Page() {
+    const t = await getI18n();
     return (
         <Box component='section' className={styles.section}>
-            <Typography variant='h1'>Dashboard</Typography>
+            <Typography variant='h1'>{capitalize(t('dashboard'))}</Typography>
             <Suspense fallback={<CardsSkeleton />}>
                 <CardWrapper />
             </Suspense>

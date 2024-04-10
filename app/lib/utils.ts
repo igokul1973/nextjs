@@ -1,4 +1,4 @@
-import { AccountRelationEnum } from '@prisma/client';
+import { AccountRelationEnum, EntitiesEnum } from '@prisma/client';
 import { TGetCustomersPayload } from './data/customers/types';
 import { TGetUserPayload } from './data/users/types';
 import {
@@ -11,7 +11,7 @@ import {
     TOrgWithNonNullableCustomer,
     TOrganizationWithRelations,
     TUserWithRelations
-} from './definitions';
+} from './types';
 
 export const formatCurrency = (amount: number) => {
     return (amount / 100).toLocaleString('en-US', {
@@ -74,6 +74,23 @@ export function getIndividualFullNameString(
     return `${individual.firstName}${individual.middleName ? ' ' + individual.middleName : ''} ${individual.lastName}`;
 }
 
+export function getProviderName(
+    provider?: TEntities<
+        TGetUserPayload['account']['individuals'][0],
+        TGetUserPayload['account']['organizations'][0]
+    >
+): string {
+    if (!provider) {
+        return 'No provider name';
+    }
+    if (provider.organization) {
+        return provider.organization.name;
+    } else if (provider.individual) {
+        return getIndividualFullNameString(provider.individual);
+    }
+    return 'No provider name';
+}
+
 export type TFlattenedCustomer = {
     id: string;
     name: string;
@@ -104,9 +121,19 @@ export function flattenCustomer(rawCustomer: TGetCustomersPayload): TFlattenedCu
     };
 }
 
+/**
+ * Generates the user provider based on the input user payload.
+ *
+ * NOTE: Returning undefined if no provider is found.
+ * Should work fornew users who cannot
+ * have a provider until they add one.
+ *
+ * @param {TGetUserPayload | TUserWithRelations} user - The user payload or user with relations object.
+ * @return {TEntities<I, O> | undefined} The individual or organization provider entity, or undefined if no provider is found.
+ */
 export function getUserProvider<I = TIndividualWithRelations, O = TOrganizationWithRelations>(
     user: TGetUserPayload | TUserWithRelations
-): TEntities<I, O> {
+): TEntities<I, O> | undefined {
     // export function getUserProvider(user: TUserWithRelations): TEntities {
     const individualProvider = user.account.individuals?.find(
         (ind) => ind.accountRelation === AccountRelationEnum.provider
@@ -117,11 +144,26 @@ export function getUserProvider<I = TIndividualWithRelations, O = TOrganizationW
     const organizationProvider = user.account.organizations?.find(
         (org) => org.accountRelation === AccountRelationEnum.provider
     );
-    // TODO: Questionable return of error. What should it return?
-    if (!organizationProvider) {
-        throw Error('User account provider is not found.');
-    }
-    return { organization: organizationProvider } as TEntities<I, O>;
+    return organizationProvider
+        ? ({ organization: organizationProvider } as TEntities<I, O>)
+        : undefined;
+}
+
+export function getUserProviderType(
+    provider:
+        | TEntities<
+              TGetUserPayload['account']['individuals'][0],
+              TGetUserPayload['account']['organizations'][0]
+          >
+        | undefined
+) {
+    if (!provider) return undefined;
+
+    return provider.individual
+        ? EntitiesEnum.individual
+        : provider.organization
+          ? EntitiesEnum.organization
+          : undefined;
 }
 
 const isIndHasCustomer = (o: TIndividualWithRelations): o is TIndWithNonNullableCustomer => {
@@ -132,6 +174,14 @@ const isOrgHasCustomer = (o: TOrganizationWithRelations): o is TOrgWithNonNullab
     return !!o.customer;
 };
 
+/**
+ * Generate a list of individual and organization customers associated
+ * with a user's account and return them as an object with corresponding
+ * lists.
+ *
+ * @param {TUserWithRelations} user - The user object with relations.
+ * @return {TEntitiesWithNonNullableCustomer} An object containing lists of individual and organization customers.
+ */
 export function getUserCustomersPerEntity(
     user: TUserWithRelations
 ): TEntitiesWithNonNullableCustomer {
@@ -168,4 +218,8 @@ export const getEntityFirstPhoneString = (entity: TEntity) => {
         throw Error('The provider does not have associated phone number. Please seed one first.');
     }
     return `+${countryCode}-${phoneNumber}`;
+};
+
+export const capitalize = (str: string): string => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
 };

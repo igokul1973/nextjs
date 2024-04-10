@@ -12,5 +12,40 @@ export default {
     dashboard: 'instrumentpanel',
     invoices: 'fakturor',
     customers: 'kunder',
-    inventory: 'inventering'
+    inventory: 'inventering',
+    // Individual
+    'first name': 'fornamn',
+    'last name': 'afternamn',
+    'middle name': 'mellanamn',
+    dob: 'födelsedatum',
+    description: 'beskrivning',
+    // Address
+    'street address': 'gatuaddress',
+    'address (line 2)': 'gatuaddress 2',
+    'address (line 3)': 'gatuaddress 3',
+    'enter street address and building number': 'ange gatuadress och byggnadsnummer',
+    'continue street address and/or apartment number':
+        'fortsätt gatuadress och/eller lägenhetsnummer',
+    locality: 'lokalitet',
+    'city or locality': 'stad eller lokalitet',
+    'enter city, village or locality': 'Ange stad, by eller annat lokalitet',
+    region: 'län',
+    'state or region': 'län eller region',
+    'enter state or region': 'Ange län eller region',
+    'postal code': 'postnummer',
+    'enter postal/zip code': 'ange postnummer',
+    country: 'land',
+    'enter the country': 'ange landet',
+    // Errors
+    'please enter the first name': 'var god ange förnamn',
+    'please enter the last name': 'var god ange efternamn',
+    'please enter the street address': 'var god ange gatuadress',
+    'please enter the city/village/locality': 'var god ange stad, by eller lokalitet',
+    'please enter the region/state': 'var god ange län eller region',
+    'please enter the zip/postal code': 'var god ange postnummer',
+    'please enter the country': 'var god ange landet',
+    // Buttons
+    'create customer': 'skapa en kund',
+    'update customer': 'redigera kunden',
+    'delete customer': 'ta bort kunden'
 } as const;

@@ -11,5 +11,41 @@ export default {
     dashboard: 'dashboard',
     invoices: 'invoices',
     customers: 'customers',
-    inventory: 'inventory'
+    inventory: 'inventory',
+    // Individual
+    'first name': 'first name',
+    'last name': 'last name',
+    'middle name': 'middle name',
+    dob: 'dob',
+    'date of birth': 'date of birth',
+    description: 'description',
+    // Address
+    'street address': 'street address',
+    'address (line 2)': 'address (line 2)',
+    'address (line 3)': 'address (line 3)',
+    'enter street address and building number': 'enter street address and building number',
+    'continue street address and/or apartment number':
+        'continue street address and/or apartment number',
+    locality: 'locality',
+    'city or locality': 'city or locality',
+    'enter city, village or locality': 'enter city, village or locality',
+    region: 'region',
+    'state or region': 'state or region',
+    'enter state or region': 'Enter state or region',
+    'postal code': 'postal code',
+    'enter postal/zip code': 'enter postal/zip code',
+    country: 'country',
+    'enter the country': 'enter the country',
+    // Errors
+    'please enter the first name': 'please enter the first name',
+    'please enter the last name': 'please enter the last name',
+    'please enter the street address': 'please enter the street address',
+    'please enter the city/village/locality': 'please enter the city/village/locality',
+    'please enter the region/state': 'please enter the region/state',
+    'please enter the zip/postal code': 'please enter the zip/postal code',
+    'please enter the country': 'please enter the country',
+    // Buttons
+    'create customer': 'create customer',
+    'update customer': 'update customer',
+    'delete customer': 'delete customer'
 } as const;
