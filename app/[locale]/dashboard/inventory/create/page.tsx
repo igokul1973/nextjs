@@ -4,14 +4,15 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import NextLink from 'next/link';
-import styles from './page.module.scss';
+import { FC } from 'react';
+import { StyledBox } from './styled';
 
-export default async function Page() {
+const Page: FC = async () => {
     const session = await auth();
     if (!session) return <div>Not logged in</div>;
 
     return (
-        <main className={styles.wrapper}>
+        <StyledBox component='main'>
             <Typography variant='h1'>Create Inventory</Typography>
             <Breadcrumbs aria-label='breadcrumb'>
                 <Link
@@ -26,6 +27,8 @@ export default async function Page() {
             </Breadcrumbs>
             <Form />
             <div>TBD</div>
-        </main>
+        </StyledBox>
     );
-}
+};
+
+export default Page;

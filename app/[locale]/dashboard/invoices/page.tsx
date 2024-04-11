@@ -2,20 +2,15 @@ import { CreateButton } from '@/app/components/buttons/create/CreateButton';
 import InvoicesTable from '@/app/components/invoices/InvoicesTable';
 import TableWrapper from '@/app/components/invoices/TableWrapper';
 import Search from '@/app/components/search';
-import { ISearchParams } from '@/app/lib/types';
 import { capitalize } from '@/app/lib/utils';
 import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
-import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { Suspense } from 'react';
-import styles from './page.module.scss';
+import { FC, Suspense } from 'react';
+import { StyledSectionBox, StyledToolsBox } from './styled';
+import { IProps } from './types';
 
-interface IProps {
-    searchParams: ISearchParams;
-}
-
-export default async function Page({ searchParams }: IProps) {
+const Page: FC<IProps> = async ({ searchParams }) => {
     const session = await auth();
     if (!session) return <div>Not logged in</div>;
     const query = searchParams?.query || '';
@@ -35,15 +30,17 @@ export default async function Page({ searchParams }: IProps) {
     // Then, create inventory page
 
     return (
-        <Box component='section' className={styles.section}>
+        <StyledSectionBox component='section'>
             <Typography variant='h1'>{capitalize(t('invoices'))}</Typography>
-            <Box component='section' className={styles.tools}>
+            <StyledToolsBox component='div'>
                 <Search placeholder='Search invoices...' />
                 <CreateButton href='/dashboard/invoices/create' name='Create invoice' />
-            </Box>
+            </StyledToolsBox>
             <Suspense fallback={<InvoicesTable invoices={[]} />}>
                 <TableWrapper accountId={session.user.accountId} query={query} />
             </Suspense>
-        </Box>
+        </StyledSectionBox>
     );
-}
+};
+
+export default Page;

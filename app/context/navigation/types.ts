@@ -1,11 +1,14 @@
-import { ReactNode } from 'react';
+import { TMuiIcon } from '@/app/lib/types';
+import { FC } from 'react';
 
 export interface IRightDrawerState {
     isOpen: boolean;
-    childComponent: ReactNode | null;
+    childComponent: FC;
+    title?: string;
+    icon?: TMuiIcon;
 }
 
 export interface IRightDrawerAction {
     type: 'open' | 'close';
-    payload: Pick<IRightDrawerState, 'childComponent'>;
+    payload: Omit<IRightDrawerState, 'isOpen'>;
 }

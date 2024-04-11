@@ -14,7 +14,7 @@ import { EntitiesEnum } from '@prisma/client';
 import NextLink from 'next/link';
 import { useState } from 'react';
 import { useFormState } from 'react-dom';
-import styles from './create-form.module.scss';
+import { StyledForm } from './styled';
 
 export default function Form() {
     const [touched, setTouched] = useState(false);
@@ -29,7 +29,7 @@ export default function Form() {
     });
 
     return (
-        <form action={formAction} className={styles.form}>
+        <StyledForm action={formAction}>
             {/* Inventory Name */}
             <FormControl fullWidth>
                 <InputLabel id='inventoryItem'>Select customer type</InputLabel>
@@ -66,6 +66,6 @@ export default function Form() {
                     Create Inventory
                 </Button>
             </Box>
-        </form>
+        </StyledForm>
     );
 }

@@ -1,5 +1,5 @@
 import { AccountRelationEnum, EntitiesEnum, Prisma, UserRoleEnum } from '@prisma/client';
-import { hash } from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import { exec } from 'child_process';
 import dotenv from 'dotenv';
 import { readFile, readdirSync, writeFile } from 'fs';
@@ -36,6 +36,8 @@ import {
 import { seedSuperuser } from './seedSuperuser.ts';
 
 dotenv.config();
+
+const { hash } = bcrypt;
 
 async function getSupervisor() {
     const supervisor = await prisma.user.findFirst({
@@ -859,7 +861,9 @@ async function seedInvoices() {
                 ...orgCustomers
             ] as TEntityWithNonNullableCustomer[];
             const provider = getUserProvider(admin);
-            const sanitizedInvoices = createCustomerInvoiceData(admin, provider, customers);
+            const sanitizedInvoices = provider
+                ? createCustomerInvoiceData(admin, provider, customers)
+                : [];
 
             return sanitizedInvoices.map((invoice) => {
                 return prisma.invoice.create({

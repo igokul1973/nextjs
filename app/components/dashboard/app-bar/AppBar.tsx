@@ -11,7 +11,7 @@ import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import { FC, useContext } from 'react';
 import LanguageSwitcher from '../../language-switcher/LanguageSwitcher';
-import MenuAvatar from '../menu-avatar/MenuAvatar';
+import AvatarMenu from '../avatar-menu/AvatarMenu';
 import { StyledAppBar } from './styled';
 import { IProps } from './types';
 
@@ -45,7 +45,7 @@ export const AppBar: FC<IProps> = ({ providerName, isOpen, handleDrawerToggle })
                         {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
                     </IconButton>
                     <LanguageSwitcher />
-                    <MenuAvatar />
+                    <AvatarMenu />
                 </Box>
             </Toolbar>
         </StyledAppBar>

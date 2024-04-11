@@ -241,7 +241,7 @@ model organization {
   name                  String               @db.VarChar(255)
   description           String               @db.Text
   typeId                String               @map("type_id") @db.Uuid
-  types                 organizationType     @relation(fields: [typeId], references: [id])
+  type                  organizationType     @relation(fields: [typeId], references: [id])
   isPrivate             Boolean?             @map("is_private") @db.Boolean // as opposed to government
   isCharity             Boolean?             @map("is_charity") @db.Boolean // 
   localIdentifierNameId String?              @map("local_identifier_name_id") @db.Uuid
@@ -266,11 +266,11 @@ model organization {
 }
 
 model organizationType {
-  id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  type         String         @db.VarChar(255) // AB, Handelsbolag, LLC, Corporation
-  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
-  organization organization[]
+  id            String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  type          String         @db.VarChar(255) // AB, Handelsbolag, LLC, Corporation
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
+  organizations organization[]
 
   @@map("organization_types")
 }

@@ -37,6 +37,9 @@ const theme = {
         },
         h5: {
             fontSize: '1.5rem'
+        },
+        body1: {
+            fontSize: '1.1rem'
         }
     },
 

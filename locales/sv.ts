@@ -1,25 +1,50 @@
-export default {
+import { TTranslationKeys } from './types';
+
+const sv: Record<TTranslationKeys, string> = {
     create: 'skapa',
     add: 'lägg till',
     edit: 'redigera',
     delete: 'ta bort',
     save: 'spara',
     cancel: 'avbryt',
+    'log out': 'logga ut',
+    'log in': 'logga in',
     yes: 'ja',
     no: 'nej',
     close: 'stäng',
+    // Navigation
     home: 'hem',
     dashboard: 'instrumentpanel',
     invoices: 'fakturor',
     customers: 'kunder',
     inventory: 'inventering',
+    account: 'kontot',
+    'my account': 'mitt konto',
+    provider: 'leverantör',
+    'provider type': 'leverantörstyp',
+    profile: 'profil',
+    'user profile': 'användarprofil',
+    settings: 'inställningar',
+    'account settings': 'kontoinställningar',
+    'account id': 'kontoid',
+    id: 'id',
+    // Organization
+    organization: 'företag',
+    name: 'namn',
+    'organization type': 'organizationstyp',
+    'is private': 'är privat',
+    'is charity': 'är en välgörenhetsorganisation',
     // Individual
+    individual: 'enskild',
     'first name': 'fornamn',
-    'last name': 'afternamn',
+    'last name': 'efternamn',
     'middle name': 'mellanamn',
-    dob: 'födelsedatum',
+    'full name': 'fullt namn',
+    dob: 'fd',
+    'date of birth': 'födelsedatum',
     description: 'beskrivning',
     // Address
+    address: 'adress',
     'street address': 'gatuaddress',
     'address (line 2)': 'gatuaddress 2',
     'address (line 3)': 'gatuaddress 3',
@@ -36,6 +61,12 @@ export default {
     'enter postal/zip code': 'ange postnummer',
     country: 'land',
     'enter the country': 'ange landet',
+    // Phones
+    phones: 'telefonnummer',
+    number: 'nummer',
+    // Emails
+    email: 'e-post',
+    'email addresses': 'mejladresser',
     // Errors
     'please enter the first name': 'var god ange förnamn',
     'please enter the last name': 'var god ange efternamn',
@@ -47,5 +78,12 @@ export default {
     // Buttons
     'create customer': 'skapa en kund',
     'update customer': 'redigera kunden',
-    'delete customer': 'ta bort kunden'
+    'delete customer': 'ta bort kunden',
+    // Reports
+    collected: 'insamlad',
+    pending: 'avvaktande',
+    'total invoices': 'totala fakturor',
+    'total customers': 'totala kunder'
 } as const;
+
+export default sv;

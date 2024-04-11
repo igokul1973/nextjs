@@ -2,6 +2,8 @@
 // It describes the shape of the data, and what data type each property should accept.
 // For simplicity of teaching, we're manually defining these types.
 
+import { OverridableComponent } from '@mui/material/OverridableComponent';
+import { SvgIconTypeMap } from '@mui/material/SvgIcon';
 import type {
     account as TAccount,
     address as TAddress,
@@ -34,6 +36,10 @@ export {
     TOrganizationPhone,
     TProfile,
     TUser
+};
+
+export type TMuiIcon = OverridableComponent<SvgIconTypeMap<object, 'svg'>> & {
+    muiName: string;
 };
 
 export type TOrganizationWithRelations = TOrganization & {

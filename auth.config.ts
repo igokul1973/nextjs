@@ -2,8 +2,7 @@ import { TGetUserPayload } from '@/app/lib/data/users/types';
 import { TEntities } from '@/app/lib/types';
 import { getUserProvider, getUserProviderType } from '@/app/lib/utils';
 import { EntitiesEnum } from '@prisma/client';
-import type { DefaultSession, NextAuthConfig, User } from 'next-auth';
-import type { AdapterUser } from 'next-auth/adapters';
+import type { DefaultSession, NextAuthConfig } from 'next-auth';
 
 declare module 'next-auth' {
     interface Session {
@@ -33,7 +32,7 @@ export const authConfig = {
             const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
             const isOnLoginPage = nextUrl.pathname.startsWith('/login');
             if (isOnDashboard) {
-                return isLoggedIn;
+                return isLoggedIn ? true : Response.redirect(new URL('/', nextUrl.origin));
             } else if (isLoggedIn && isOnLoginPage) {
                 return Response.redirect(new URL('/dashboard', nextUrl.origin));
             } else {
@@ -61,5 +60,7 @@ export const authConfig = {
             return token;
         }
     },
+    secret: process.env.JWT_SECRET || 'anything',
+    // secret: 'qQL2xyHC4JILq5FlvAa/5BiutIy5IFcg8LYrE3GnmoQ=',
     providers: []
 } satisfies NextAuthConfig;

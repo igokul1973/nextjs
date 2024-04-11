@@ -1,20 +1,17 @@
 import { lusitana } from '@/app/styles/fonts';
-import Receipt from '@mui/icons-material/Receipt';
-import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import styles from './InvoiceMeLogo.module.scss';
+import { FC } from 'react';
+import { StyledLogoIcon, StyledLogoWrapper } from './styled';
+import { IProps } from './types';
 
-interface IProps {
-    color?: string;
-}
-
-export default function InvoiceMeLogo({ color }: IProps) {
+const InvoiceMeLogo: FC<IProps> = ({ color }) => {
     return (
-        <Box component='span' className={`${styles['logo-wrapper']}`} sx={{ color }}>
-            <Receipt className={styles.icon} />
+        <StyledLogoWrapper component='span' sx={{ color }}>
+            <StyledLogoIcon />
             <Typography variant='h1' sx={{ fontFamily: lusitana.style.fontFamily }}>
                 InvoiceMe
             </Typography>
-        </Box>
+        </StyledLogoWrapper>
     );
-}
+};
+export default InvoiceMeLogo;

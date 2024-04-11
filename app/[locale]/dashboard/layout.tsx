@@ -20,8 +20,8 @@ const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
                     <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
                         <DrawerHeader />
                         {children}
+                        <RightDrawer />
                     </Box>
-                    <RightDrawer />
                 </NavProvider>
             </I18nProviderClient>
         </Box>

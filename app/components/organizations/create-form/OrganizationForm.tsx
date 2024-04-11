@@ -9,8 +9,10 @@ import TextField from '@mui/material/TextField';
 import NextLink from 'next/link';
 import { useFormState } from 'react-dom';
 import { StyledForm } from './styled';
+import { FC } from 'react';
+import { IProps } from './types';
 
-export default function OrganizationForm({ countries }: { countries: TCountry[] }) {
+const OrganizationForm: FC<IProps> = ({ countries }) => {
     const initialState = { message: null, errors: {}, touched: false };
     const [state, formAction] = useFormState(createCustomer, initialState);
     return (
@@ -38,4 +40,5 @@ export default function OrganizationForm({ countries }: { countries: TCountry[] 
             </Box>
         </StyledForm>
     );
-}
+};
+export default OrganizationForm;

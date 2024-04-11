@@ -1,25 +1,48 @@
-export default {
+const en = {
+    create: 'create',
     add: 'add',
     edit: 'edit',
     delete: 'delete',
     save: 'save',
     cancel: 'cancel',
+    'log out': 'log out',
+    'log in': 'log in',
     yes: 'yes',
     no: 'no',
     close: 'close',
+    // Navigation
     home: 'home',
     dashboard: 'dashboard',
     invoices: 'invoices',
     customers: 'customers',
     inventory: 'inventory',
+    account: 'account',
+    'my account': 'my account',
+    provider: 'provider',
+    'provider type': 'provider type',
+    profile: 'profile',
+    'user profile': 'user profile',
+    settings: 'settings',
+    'account settings': 'account settings',
+    'account id': 'account id',
+    id: 'id',
+    // Organization
+    organization: 'organization',
+    name: 'name',
+    'organization type': 'organization type',
+    'is private': 'is private',
+    'is charity': 'is charity',
     // Individual
+    individual: 'individual',
     'first name': 'first name',
     'last name': 'last name',
     'middle name': 'middle name',
+    'full name': 'full name',
     dob: 'dob',
     'date of birth': 'date of birth',
     description: 'description',
     // Address
+    address: 'address',
     'street address': 'street address',
     'address (line 2)': 'address (line 2)',
     'address (line 3)': 'address (line 3)',
@@ -36,6 +59,12 @@ export default {
     'enter postal/zip code': 'enter postal/zip code',
     country: 'country',
     'enter the country': 'enter the country',
+    // Phones
+    phones: 'phones',
+    number: 'number',
+    // Emails
+    email: 'email',
+    'email addresses': 'email addresses',
     // Errors
     'please enter the first name': 'please enter the first name',
     'please enter the last name': 'please enter the last name',
@@ -47,5 +76,12 @@ export default {
     // Buttons
     'create customer': 'create customer',
     'update customer': 'update customer',
-    'delete customer': 'delete customer'
+    'delete customer': 'delete customer',
+    // Reports
+    collected: 'collected',
+    pending: 'pending',
+    'total invoices': 'total invoices',
+    'total customers': 'total customers'
 } as const;
+
+export default en;

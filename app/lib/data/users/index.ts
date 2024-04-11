@@ -1,9 +1,9 @@
 'use server';
 
 import prisma from '@/app/lib/prisma';
+import { TUser } from '@/app/lib/types';
 import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
-import { TUser } from '../../types';
 import { TGetUserPayload, getUserInclude } from './types';
 
 export async function getUsersByEmail(email: string): Promise<TUser[]> {

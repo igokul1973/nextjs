@@ -1,7 +1,7 @@
 import { FC } from 'react';
 
 interface IProps {
-    debugObject: object;
+    debugObject?: object | null;
 }
 
 const Debug: FC<IProps> = ({ debugObject }) => {

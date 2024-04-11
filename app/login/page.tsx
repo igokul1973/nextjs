@@ -1,5 +1,5 @@
 import InvoiceMeLogo from '@/app/components/invoice-me-logo/InvoiceMeLogo';
-import LoginForm from '@/app/components/login-form/login-form';
+import LoginForm from '@/app/components/login-form/LoginForm';
 
 export default function LoginPage() {
     return (

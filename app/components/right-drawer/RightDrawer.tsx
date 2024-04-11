@@ -1,55 +1,47 @@
 'use client';
 
+import CloseButton from '@/app/components/buttons/close/CloseButton';
 import { useNavState } from '@/app/context/navigation/provider';
-import Close from '@mui/icons-material/Close';
+import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import { FC } from 'react';
 import { DrawerHeader } from '../dashboard/navigation/styled';
 import { StyledRightDrawer } from './styled';
 
-const drawerWidth = 500;
+const drawerWidth = 550;
 
 const RightDrawer: FC = () => {
     const {
-        state: { isOpen, childComponent },
-        dispatch
+        state: { isOpen, childComponent: Component, title, icon: Icon }
     } = useNavState();
 
     return (
-        <StyledRightDrawer sx={{ display: 'flex', padding: '2rem' }}>
-            <Drawer
-                sx={{
-                    padding: '2rem',
-                    width: drawerWidth,
-                    flexShrink: 0,
-                    '& .MuiDrawer-paper': {
-                        width: drawerWidth
-                    }
-                }}
-                variant='persistent'
-                anchor='right'
-                open={isOpen}
-            >
-                <DrawerHeader />
-                <Box
-                    sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '2rem' }}
-                >
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant='h2'>Right drawer</Typography>
-                        <IconButton
-                            onClick={() =>
-                                dispatch({ payload: { childComponent: null }, type: 'close' })
-                            }
-                        >
-                            <Close />
-                        </IconButton>
+        <StyledRightDrawer
+            sx={{
+                '& .MuiDrawer-paper': {
+                    width: drawerWidth
+                }
+            }}
+            variant='persistent'
+            anchor='right'
+            open={isOpen}
+        >
+            <DrawerHeader />
+            <Box className='drawer-content'>
+                <CloseButton className='close-button' />
+                {(Icon || title) && (
+                    <Box className='drawer-heading'>
+                        {Icon && <Icon color='primary' fontSize='large' />}
+                        {title && (
+                            <Typography variant='h2' className='drawer-title'>
+                                {capitalize(title)}
+                            </Typography>
+                        )}
                     </Box>
-                    {childComponent}
-                </Box>
-            </Drawer>
+                )}
+                {Component && <Component />}
+            </Box>
         </StyledRightDrawer>
     );
 };

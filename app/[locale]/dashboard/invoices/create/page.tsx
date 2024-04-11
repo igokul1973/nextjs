@@ -1,11 +1,11 @@
-import Form from '@/app/components/invoices/create-form/create-form';
+import Form from '@/app/components/invoices/create-form/Form';
 import { getCustomersByAccountId } from '@/app/lib/data/customers';
 import { auth } from '@/auth';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import NextLink from 'next/link';
-import styles from './page.module.scss';
+import { StyledBox } from './styled';
 
 export default async function Page() {
     const session = await auth();
@@ -14,7 +14,7 @@ export default async function Page() {
     const customers = await getCustomersByAccountId(session.user.accountId);
 
     return (
-        <main className={styles.wrapper}>
+        <StyledBox component='section'>
             <Typography variant='h1'>Create Invoice</Typography>
             <Breadcrumbs aria-label='breadcrumb'>
                 <Link
@@ -29,6 +29,6 @@ export default async function Page() {
             </Breadcrumbs>
             <Form customers={customers} />
             <div>TBD</div>
-        </main>
+        </StyledBOx>
     );
 }

@@ -1,6 +1,9 @@
 import { UserRoleEnum } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 import prisma from '../app/lib/prisma.ts';
 import { TProfile } from '../app/lib/types';
+
+const { hash } = bcrypt;
 
 export async function seedSuperuser() {
     console.log('Seeding superuser...');

@@ -12,13 +12,17 @@ const rightDrawerReducer = (
             return {
                 ...state,
                 isOpen: true,
-                childComponent: action.payload.childComponent
+                childComponent: action.payload.childComponent,
+                title: action.payload.title,
+                icon: action.payload.icon
             };
         case 'close':
             return {
                 ...state,
                 isOpen: false,
-                childComponent: action.payload.childComponent
+                childComponent: action.payload.childComponent,
+                title: undefined,
+                icon: undefined
             };
         default:
             throw new Error(`Unhandled action type: ${action.type}`);

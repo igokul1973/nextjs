@@ -7,13 +7,20 @@ export const getUserInclude = {
                 select: {
                     id: true,
                     name: true,
+                    type: true,
+                    isPrivate: true,
+                    isCharity: true,
+                    localIdentifierName: true,
+                    localIdentifierValue: true,
                     customerId: true,
                     accountRelation: true,
                     address: {
-                        select: {
+                        include: {
                             country: true
                         }
-                    }
+                    },
+                    phones: true,
+                    emails: true
                 }
             },
             individuals: {
@@ -22,13 +29,17 @@ export const getUserInclude = {
                     firstName: true,
                     lastName: true,
                     middleName: true,
+                    localIdentifierName: true,
+                    localIdentifierValue: true,
                     customerId: true,
                     accountRelation: true,
                     address: {
-                        select: {
+                        include: {
                             country: true
                         }
-                    }
+                    },
+                    phones: true,
+                    emails: true
                 }
             }
         }
