@@ -1,46 +1,53 @@
+import { useI18n } from '@/locales/client';
+import { TTranslationKeys } from '@/locales/types';
+import { capitalize } from '@mui/material';
 import { DatePicker, DatePickerProps } from '@mui/x-date-pickers/DatePicker';
 import { BaseNonStaticPickerProps } from '@mui/x-date-pickers/internals';
 import { Dayjs } from 'dayjs';
 import { FC } from 'react';
-import { Control, Controller } from 'react-hook-form';
-
-interface IProps {
-    name: string;
-    label: string;
-    control: Control;
-    placeholder: string;
-}
+import { Controller } from 'react-hook-form';
+import { IProps } from './types';
 
 const DateInput: FC<IProps & BaseNonStaticPickerProps & DatePickerProps<Dayjs, boolean>> = ({
     name,
     label,
     control,
-    placeholder,
+    helperText,
     format,
     slotProps
 }) => {
+    const t = useI18n();
+
     return (
         <Controller
             name={name}
             control={control}
-            render={({ field: { onChange }, fieldState: { error } }) => (
-                <DatePicker
-                    label={label}
-                    format={format}
-                    onChange={(event) => {
-                        onChange(event);
-                    }}
-                    slotProps={
-                        slotProps || {
-                            textField: {
-                                placeholder,
-                                error: !!error,
-                                helperText: error?.message
+            render={({ field: { onChange }, fieldState: { error } }) => {
+                return (
+                    <DatePicker
+                        label={label}
+                        format={format}
+                        onChange={(event) => {
+                            onChange(event);
+                        }}
+                        slotProps={
+                            slotProps || {
+                                textField: {
+                                    error: !!error,
+                                    helperText:
+                                        !!error &&
+                                        capitalize(
+                                            t(
+                                                (error?.message?.toLocaleLowerCase() ||
+                                                    helperText) as TTranslationKeys
+                                            )
+                                        )
+                                }
                             }
                         }
-                    }
-                />
-            )}
+                    />
+                );
+            }}
         />
     );
 };

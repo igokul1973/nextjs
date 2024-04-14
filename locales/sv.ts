@@ -11,6 +11,7 @@ const sv: Record<TTranslationKeys, string> = {
     'log in': 'logga in',
     yes: 'ja',
     no: 'nej',
+    type: 'typ',
     close: 'stäng',
     // Navigation
     home: 'hem',
@@ -29,6 +30,7 @@ const sv: Record<TTranslationKeys, string> = {
     'account id': 'kontoid',
     id: 'id',
     // Organization
+    'select customer type': 'valj kundtyp',
     organization: 'företag',
     name: 'namn',
     'organization type': 'organizationstyp',
@@ -42,6 +44,7 @@ const sv: Record<TTranslationKeys, string> = {
     'full name': 'fullt namn',
     dob: 'fd',
     'date of birth': 'födelsedatum',
+    'Enter the date of birth': 'Ange födelsedatum',
     description: 'beskrivning',
     // Address
     address: 'adress',
@@ -64,9 +67,17 @@ const sv: Record<TTranslationKeys, string> = {
     // Phones
     phones: 'telefonnummer',
     number: 'nummer',
+    'country code': 'landskod',
+    'must be up to 3 digits': 'måste vara upp till 3 siffror',
+    'phone country code': 'telefon landskod',
+    'please enter the country code': 'var god ange landskod',
+    'please enter the phone number': 'var god ange telefonnummer',
+    'please enter the phone type': 'var god ange telefontyp',
     // Emails
     email: 'e-post',
     'email addresses': 'mejladresser',
+    'please enter the email address': 'var god ange e-postadress',
+    'please enter the email type': 'var god ange e-posttyp',
     // Errors
     'please enter the first name': 'var god ange förnamn',
     'please enter the last name': 'var god ange efternamn',
@@ -75,6 +86,7 @@ const sv: Record<TTranslationKeys, string> = {
     'please enter the region/state': 'var god ange län eller region',
     'please enter the zip/postal code': 'var god ange postnummer',
     'please enter the country': 'var god ange landet',
+    'invalid date': 'ogiltig datum',
     // Buttons
     'create customer': 'skapa en kund',
     'update customer': 'redigera kunden',

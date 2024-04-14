@@ -7,7 +7,7 @@ export const StyledForm = styled('form', {
     slot: 'Root'
 })`
     display: grid;
-    gap: 2rem;
+    gap: 1rem;
 
     .action-buttons {
         display: flex;

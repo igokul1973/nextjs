@@ -40,6 +40,7 @@ enum InvoiceStatusEnum {
 
 enum EmailTypeEnum {
   main
+  home
   work
   invoicing
   secondary
@@ -48,6 +49,8 @@ enum EmailTypeEnum {
 
 enum PhoneTypeEnum {
   mobile
+  office
+  main
   home
   work
   invoicing

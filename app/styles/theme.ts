@@ -44,6 +44,13 @@ const theme = {
     },
 
     components: {
+        MuiFormHelperText: {
+            styleOverrides: {
+                root: {
+                    color: colors.error
+                }
+            }
+        },
         MainMenuFrameComponent: {
             styleOverrides: {
                 root: {

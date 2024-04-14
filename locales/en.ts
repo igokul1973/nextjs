@@ -9,6 +9,7 @@ const en = {
     'log in': 'log in',
     yes: 'yes',
     no: 'no',
+    type: 'type',
     close: 'close',
     // Navigation
     home: 'home',
@@ -27,6 +28,7 @@ const en = {
     'account id': 'account id',
     id: 'id',
     // Organization
+    'select customer type': 'select customer type',
     organization: 'organization',
     name: 'name',
     'organization type': 'organization type',
@@ -40,6 +42,7 @@ const en = {
     'full name': 'full name',
     dob: 'dob',
     'date of birth': 'date of birth',
+    'Enter the date of birth': 'Enter the date of birth',
     description: 'description',
     // Address
     address: 'address',
@@ -62,9 +65,18 @@ const en = {
     // Phones
     phones: 'phones',
     number: 'number',
+    'country code': 'country code',
+    'must be 3 digits': 'must be 3 digits',
+    'must be up to 3 digits': 'must be up to 3 digits',
+    'phone country code': 'phone country code',
+    'please enter the country code': 'please enter the country code',
+    'please enter the phone number': 'please enter the phone number',
+    'please enter the phone type': 'please enter the phone type',
     // Emails
     email: 'email',
     'email addresses': 'email addresses',
+    'please enter the email address': 'please enter the email address',
+    'please enter the email type': 'please enter the email type',
     // Errors
     'please enter the first name': 'please enter the first name',
     'please enter the last name': 'please enter the last name',
@@ -73,6 +85,8 @@ const en = {
     'please enter the region/state': 'please enter the region/state',
     'please enter the zip/postal code': 'please enter the zip/postal code',
     'please enter the country': 'please enter the country',
+    'please enter the company name': 'please enter the company name',
+    'invalid date': 'invalid date',
     // Buttons
     'create customer': 'create customer',
     'update customer': 'update customer',

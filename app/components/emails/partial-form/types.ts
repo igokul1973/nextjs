@@ -1,11 +1,11 @@
 import { TForm, TIndividualFormControl } from '@/app/components/individuals/create-form/types';
-import { TCountry } from '@/app/lib/types';
-import { FieldErrors, FieldValues, UseFormRegister } from 'react-hook-form';
+import { FieldErrors, UseFieldArrayRemove, UseFormRegister } from 'react-hook-form';
 
 export interface IProps {
-    register: UseFormRegister<TForm>;
-    countries: TCountry[];
-    control: TIndividualFormControl;
+    index: number;
+    types: string[];
     errors: FieldErrors<TForm>;
-;
+    register: UseFormRegister<TForm>;
+    control: TIndividualFormControl;
+    remove: UseFieldArrayRemove;
 }

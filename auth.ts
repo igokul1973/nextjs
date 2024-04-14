@@ -64,12 +64,6 @@ type AppRouteHandlerFn = (
     ctx: AppRouteHandlerFnContext
 ) => void | Response | Promise<void | Response>;
 
-type TAuth =
-    | ((...args: [NextApiRequest, NextApiResponse]) => Promise<Session | null>)
-    | ((...args: []) => Promise<Session | null>)
-    | ((...args: [GetServerSidePropsContext]) => Promise<Session | null>)
-    | ((...args: [(req: NextAuthRequest) => ReturnType<AppRouteHandlerFn>]) => AppRouteHandlerFn);
-
 // @ts-expect-error(there is something wrong with the types in the next-auth package : NextAuthResult['auth'])
 export const auth: NextAuthResult['auth'] = async (...args) => {
     // @ts-expect-error(Read above)

@@ -6,8 +6,8 @@ import { SvgIconTypeMap } from '@mui/material/SvgIcon';
 
 export interface IProps {
     provider?: TEntities<
-        TGetUserPayload['account']['individuals'][0],
-        TGetUserPayload['account']['organizations'][0]
+        TGetUserPayload['account']['individuals'][number],
+        TGetUserPayload['account']['organizations'][number]
     >;
 }
 

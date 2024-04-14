@@ -76,8 +76,8 @@ export function getIndividualFullNameString(
 
 export function getProviderName(
     provider?: TEntities<
-        TGetUserPayload['account']['individuals'][0],
-        TGetUserPayload['account']['organizations'][0]
+        TGetUserPayload['account']['individuals'][number],
+        TGetUserPayload['account']['organizations'][number]
     >
 ): string {
     if (!provider) {

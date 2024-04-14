@@ -1,32 +1,29 @@
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
+import { BaseTextFieldProps, InputLabel } from '@mui/material';
+import FormControl, { FormControlProps } from '@mui/material/FormControl';
+import FormHelperText from '@mui/material/FormHelperText';
 import Select from '@mui/material/Select';
 import { FC, PropsWithChildren } from 'react';
-import { Controller } from 'react-hook-form';
-import { IProps } from './types';
+import { Controller, UseControllerProps } from 'react-hook-form';
 
-const FormSelect: FC<IProps & PropsWithChildren> = ({
-    name,
-    label,
-    control,
-    defaultValue,
-    children,
-    ...props
-}) => {
+const FormSelect: FC<
+    BaseTextFieldProps & FormControlProps & UseControllerProps & PropsWithChildren
+> = ({ name, label, control, defaultValue, error, helperText, children, ...props }) => {
     const labelId = `${name}-label`;
+
     return (
         <FormControl {...props}>
-            <InputLabel id={labelId}>{label}</InputLabel>
+            {label && <InputLabel id={labelId}>{label}</InputLabel>}
             <Controller
                 name={name}
                 control={control}
                 defaultValue={defaultValue}
                 render={({ field }) => (
-                    <Select labelId={labelId} label={label} {...field}>
+                    <Select labelId={labelId} label={label} error={error} {...field}>
                         {children}
                     </Select>
                 )}
             />
+            {helperText && <FormHelperText>{helperText}</FormHelperText>}
         </FormControl>
     );
 };

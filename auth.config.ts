@@ -9,8 +9,8 @@ declare module 'next-auth' {
         user: TGetUserPayload & DefaultSession['user'];
         account: TGetUserPayload['account'];
         provider?: TEntities<
-            TGetUserPayload['account']['individuals'][0],
-            TGetUserPayload['account']['organizations'][0]
+            TGetUserPayload['account']['individuals'][number],
+            TGetUserPayload['account']['organizations'][number]
         >;
         providerType?: EntitiesEnum;
     }
