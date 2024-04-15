@@ -1,8 +1,8 @@
 import { styled } from '@mui/material';
 import Box from '@mui/material/Box';
 
-export const StyledBox = styled(Box, {
-    name: 'StyledBox',
+export const StyledEmailFormBox = styled(Box, {
+    name: 'Styled Email Form Box',
     slot: 'Root'
 })`
     display: flex;
@@ -16,5 +16,19 @@ export const StyledBox = styled(Box, {
 
     & > :last-child {
         flex: 1 0 400px;
+    }
+`;
+
+export const StyledEmailBox = styled(Box, {
+    name: 'Styled Email Box',
+    slot: 'Root'
+})`
+    position: relative;
+
+    .delete-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 1rem;
+        z-index: 1;
     }
 `;

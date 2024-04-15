@@ -1,6 +1,11 @@
 'use client';
 
+import PartialAddressForm from '@/app/components/address/form/PartialAddressForm';
+import { IProps } from '@/app/components/customers/create-form/types';
+import DateInput from '@/app/components/date-input/DateInput';
 import PartialEmailForm from '@/app/components/emails/partial-form/PartialEmailForm';
+import PartialAttributeForm from '@/app/components/entity-attributes/partial-form/EntityAttributeForm';
+import { AttributeTypeEnum } from '@/app/components/entity-attributes/partial-form/types';
 import { useI18n } from '@/locales/client';
 import { TTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,15 +19,12 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
 import NextLink from 'next/link';
-import { FC } from 'react';
-import { Control, useFieldArray, useForm } from 'react-hook-form';
-import PartialAddressForm from '../../address/form/PartialAddressForm';
-import { IProps } from '../../customers/create-form/types';
-import DateInput from '../../date-input/DateInput';
+import { FC, useEffect } from 'react';
+import { Control, useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
 import PartialPhoneForm from '../../phones/partial-form/PartialPhoneForm';
 import FormSchema from './formSchema';
 import { StyledForm } from './styled';
-import { TEmail, TForm, TIndividualFormControl, TPhone } from './types';
+import { TAttribute, TEmail, TForm, TIndividualFormControl, TPhone } from './types';
 
 /*
 
@@ -46,12 +48,14 @@ import { TEmail, TForm, TIndividualFormControl, TPhone } from './types';
   phones                individualPhone[]
 */
 
-const phonesInitial = [
-    { countryCode: '', number: '', type: PhoneTypeEnum.mobile } as unknown as TPhone
-];
-const emailsInitial = [{ email: '', type: EmailTypeEnum.main } as unknown as TEmail];
-
 const IndividualForm: FC<IProps> = ({ countries, userAccountCountry }) => {
+    const phonesInitial = [
+        { countryCode: '', number: '', type: PhoneTypeEnum.mobile } as unknown as TPhone
+    ];
+    const emailsInitial = [{ email: '', type: EmailTypeEnum.main } as unknown as TEmail];
+    const attributesInitial: TAttribute[] = [];
+    const emptyAttribute = { type: AttributeTypeEnum.text, name: '', value: '' };
+
     const defaultFormValues: TForm = {
         id: '',
         firstName: '',
@@ -67,10 +71,13 @@ const IndividualForm: FC<IProps> = ({ countries, userAccountCountry }) => {
             countryId: userAccountCountry.id
         },
         phones: phonesInitial,
-        emails: emailsInitial
+        emails: emailsInitial,
+        attributes: attributesInitial
     };
 
     const {
+        getValues,
+        setValue,
         register,
         handleSubmit,
         formState: { errors, isDirty, isValid, validatingFields },
@@ -103,35 +110,44 @@ const IndividualForm: FC<IProps> = ({ countries, userAccountCountry }) => {
         control
     });
 
-    // const useFormValues = () => {
-    //     const { getValues } = useFormContext();
-    //     return {
-    //         ...useWatch(), // subscribe to form value updates
-    //         ...getValues() // always merge with latest form values
-    //     };
-    // };
+    const {
+        fields: attributes,
+        append: appendAttribute,
+        remove: removeAttribute
+    } = useFieldArray({
+        name: 'attributes',
+        control
+    });
 
-    // useEffect(() => {
-    //     const formData = getValues();
-    //     console.log('FormData:', formData);
-    //     console.log('Form Data Errors:', errors);
-    //     // console.log('Is dirty:', isDirty);
-    //     console.log('Is valid:', isValid);
-    //     const CreateCustomer = FormSchema.omit({ id: true });
-    //     // console.log('Form data: ', formData);
-    //     // const dateISOString = new Date().toISOString();
-    //     // formData.date = dateISOString;
-    //     // Validate form using Zod
-    //     const validatedForm = CreateCustomer.safeParse(formData);
-    //     if (!validatedForm.success) {
-    //         console.log('Validated form errors: ', validatedForm.error.flatten().fieldErrors);
-    //     }
-    //     if (validatedForm.success) {
-    //         console.log('Validated form: ', validatedForm.data);
-    //     }
-    //     // console.log('Validated form:', validatedForm);
-    //     // console.log('Errors:', errors);
-    // }, [errors, getValues, isValid, validatingFields]);
+    const useFormValues = () => {
+        const { getValues } = useFormContext();
+        return {
+            ...useWatch(), // subscribe to form value updates
+            ...getValues() // always merge with latest form values
+        };
+    };
+
+    useEffect(() => {
+        const formData = getValues();
+        console.log('FormData:', formData);
+        console.log('Form Data Errors:', errors);
+        // console.log('Is dirty:', isDirty);
+        console.log('Is valid:', isValid);
+        const CreateCustomer = FormSchema.omit({ id: true });
+        // console.log('Form data: ', formData);
+        // const dateISOString = new Date().toISOString();
+        // formData.date = dateISOString;
+        // Validate form using Zod
+        const validatedForm = CreateCustomer.safeParse(formData);
+        if (!validatedForm.success) {
+            console.log('Validated form errors: ', validatedForm.error.flatten().fieldErrors);
+        }
+        if (validatedForm.success) {
+            console.log('Validated form: ', validatedForm.data);
+        }
+        // console.log('Validated form:', validatedForm);
+        // console.log('Errors:', errors);
+    }, [errors, getValues, isValid, validatingFields]);
 
     const onSubmit = (formData: TForm) => {
         const CreateCustomer = FormSchema.omit({ id: true });
@@ -144,6 +160,10 @@ const IndividualForm: FC<IProps> = ({ countries, userAccountCountry }) => {
     };
 
     const isSubmittable = !!isDirty;
+
+    const getPhoneFieldProps = (index: number) => {
+        return [register(`phones.${index}.countryCode`), register(`phones.${index}.number`)];
+    };
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -221,7 +241,9 @@ const IndividualForm: FC<IProps> = ({ countries, userAccountCountry }) => {
                     />
                 ))}
                 <Button onClick={() => appendPhone({ ...phonesInitial[0] })}>
-                    Add another phone
+                    {phones.length > 0
+                        ? capitalize(t('add another phone'))
+                        : capitalize(t('add phone'))}
                 </Button>
                 <Divider />
                 {emails.map((email, index) => (
@@ -236,7 +258,25 @@ const IndividualForm: FC<IProps> = ({ countries, userAccountCountry }) => {
                     />
                 ))}
                 <Button onClick={() => appendEmail({ ...emailsInitial[0] })}>
-                    Add another email
+                    {emails.length > 0
+                        ? capitalize(t('add another phone'))
+                        : capitalize(t('add phone'))}
+                </Button>
+                <Divider />
+                {attributes.map((attribute, index) => (
+                    <PartialAttributeForm
+                        key={attribute.id}
+                        index={index}
+                        register={register}
+                        control={control as TIndividualFormControl}
+                        errors={errors}
+                        remove={removeAttribute}
+                    />
+                ))}
+                <Button onClick={() => appendAttribute(emptyAttribute)}>
+                    {attributes.length > 0
+                        ? capitalize(t('add another attribute'))
+                        : capitalize(t('add attribute'))}
                 </Button>
                 <Box className='action-buttons'>
                     <Button

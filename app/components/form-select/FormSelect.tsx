@@ -23,6 +23,7 @@ const FormSelect: FC<
                     </Select>
                 )}
             />
+
             {helperText && <FormHelperText>{helperText}</FormHelperText>}
         </FormControl>
     );

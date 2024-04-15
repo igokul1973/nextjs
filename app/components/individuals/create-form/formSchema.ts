@@ -61,15 +61,17 @@ const FormSchema = z.object({
                     })
                     .positive({ message: 'please enter the country code' })
                     .min(1, { message: 'please enter the country code' })
-                    .max(3, { message: 'please enter the country code' }),
+                    .max(999, { message: 'the country code cannot be bigger than 999' }),
                 number: z.coerce
                     .number({
                         required_error: 'please enter the phone number',
                         invalid_type_error: 'please enter the phone number'
                     })
-                    .positive({ message: 'please enter the country code' })
-                    .min(10000000, { message: 'please enter the country code' })
-                    .max(1000000000000, { message: 'please enter the country code' }),
+                    .positive({ message: 'please enter the phone number' })
+                    .min(10000000, { message: 'please enter the phone number' })
+                    .max(99999999999999, {
+                        message: 'the phone number cannot have more than 13 numbers'
+                    }),
                 type: z
                     .string({
                         required_error: 'please enter the phone type',
@@ -87,8 +89,7 @@ const FormSchema = z.object({
                         required_error: 'please enter the email address',
                         invalid_type_error: 'please enter the email address'
                     })
-                    .email({ message: 'please enter a valid email address' })
-                    .min(2, { message: 'please enter the email address' }),
+                    .email({ message: 'please enter a valid email address' }),
                 type: z
                     .string({
                         required_error: 'please enter the email type',
@@ -97,7 +98,29 @@ const FormSchema = z.object({
                     .min(2, { message: 'please enter the email type' })
             })
         )
-        .min(1, { message: 'please enter the email address' })
+        .min(1, { message: 'please enter the email address' }),
+    attributes: z.array(
+        z.object({
+            type: z
+                .string({
+                    required_error: 'please enter the attribute type',
+                    invalid_type_error: 'please enter the attribute type'
+                })
+                .min(4, { message: 'please enter the attribute type' }),
+            name: z
+                .string({
+                    required_error: 'please enter the attribute name',
+                    invalid_type_error: 'please enter the attribute name'
+                })
+                .min(1, { message: 'please enter the attribute name' }),
+            value: z
+                .string({
+                    required_error: 'please enter the attribute value',
+                    invalid_type_error: 'please enter the attribute value'
+                })
+                .min(1, { message: 'please enter the attribute value' })
+        })
+    )
 });
 
 export default FormSchema;

@@ -22,3 +22,17 @@ export const StyledBox = styled(Box, {
         flex: 1 0 300px;
     }
 `;
+
+export const StyledPhoneNumberBox = styled(Box, {
+    name: 'StyledBox',
+    slot: 'Root'
+})`
+    position: relative;
+
+    .delete-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 1rem;
+        z-index: 1;
+    }
+`;

@@ -1,27 +1,29 @@
 'use client';
 
+import FormSelect from '@/app/components/form-select/FormSelect';
 import { useI18n } from '@/locales/client';
 import { TTranslationKeys } from '@/locales/types';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
+import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import { capitalize } from '@mui/material/utils';
-import { FC, FormEventHandler } from 'react';
-import FormSelect from '../../form-select/FormSelect';
-import { StyledBox } from './styled';
-import { IProps } from './types';
+import { FC, FormEvent, FormEventHandler } from 'react';
 import { FieldError } from 'react-hook-form';
+import { StyledBox, StyledPhoneNumberBox } from './styled';
+import { IProps } from './types';
 
-const PartialPhoneForm: FC<IProps> = ({ register, types, control, errors, index }) => {
+const PartialPhoneForm: FC<IProps> = ({ register, types, control, errors, index, remove }) => {
     const t = useI18n();
 
     const onInvalidCountryCode: FormEventHandler<HTMLInputElement> = (event) => {
         const target = event.target as HTMLInputElement;
-        target.setCustomValidity(capitalize(t('must be up to 3 digits')));
+        target.setCustomValidity(capitalize(t('must be up to digits', { count: 3 })));
     };
 
-    const onCountryCodeInput = (e) => {
+    const onCountryCodeInput = (e: FormEvent<HTMLInputElement>) => {
         const target = e.target as HTMLInputElement;
         target.setCustomValidity('');
         if (target.value.startsWith('+')) target.value = target.value.slice(1);
@@ -46,7 +48,6 @@ const PartialPhoneForm: FC<IProps> = ({ register, types, control, errors, index 
                     label={capitalize(t('type'))}
                     autoComplete='phone-type'
                     control={control}
-                    defaultValue={types[0]}
                     required
                     error={!!typeError}
                     helperText={!!typeError && capitalize(t(typeError.message as TTranslationKeys))}
@@ -66,7 +67,7 @@ const PartialPhoneForm: FC<IProps> = ({ register, types, control, errors, index 
                 <FormControl fullWidth>
                     <TextField
                         sx={{ overflowX: 'clip' }}
-                        title={capitalize(t('must be up to 3 digits'))}
+                        title={capitalize(t('must be up to digits', { count: 3 }))}
                         label={capitalize(t('country code'))}
                         autoComplete='tel-country-code'
                         inputProps={{
@@ -75,7 +76,7 @@ const PartialPhoneForm: FC<IProps> = ({ register, types, control, errors, index 
                             maxLength: 4
                         }}
                         variant='outlined'
-                        // required
+                        required
                         onInvalid={onInvalidCountryCode}
                         onInput={onCountryCodeInput}
                         error={!!countryCodeError}
@@ -87,7 +88,7 @@ const PartialPhoneForm: FC<IProps> = ({ register, types, control, errors, index 
                     />
                 </FormControl>
             </Box>
-            <Box>
+            <StyledPhoneNumberBox>
                 <FormControl fullWidth>
                     <TextField
                         label={capitalize(t('phones'))}
@@ -109,7 +110,17 @@ const PartialPhoneForm: FC<IProps> = ({ register, types, control, errors, index 
                         {...register(`phones.${index}.number`)}
                     />
                 </FormControl>
-            </Box>
+                {index > 0 && (
+                    <IconButton
+                        onClick={() => remove(index)}
+                        className='delete-btn'
+                        aria-label='delete'
+                        color='error'
+                    >
+                        <DeleteIcon />
+                    </IconButton>
+                )}
+            </StyledPhoneNumberBox>
         </StyledBox>
     );
 };

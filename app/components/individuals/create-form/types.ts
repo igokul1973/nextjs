@@ -6,3 +6,4 @@ export type TForm = z.infer<typeof FormSchema>;
 export type TIndividualFormControl = Control<TForm> & Control<FieldValues>;
 export type TPhone = z.infer<typeof FormSchema>['phones'][number];
 export type TEmail = z.infer<typeof FormSchema>['emails'][number];
+export type TAttribute = z.infer<typeof FormSchema>['attributes'][number];
