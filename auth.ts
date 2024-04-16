@@ -1,11 +1,10 @@
 'use server';
 
-import { getUserByEmail } from '@/app/lib/data/users';
+import { getUserByEmail } from '@/app/lib/data/user';
 import { compare } from 'bcryptjs';
 import NextAuth, { NextAuthResult, Session } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { NextRequest } from 'next/server';
-import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from 'next/types';
 import { z } from 'zod';
 import { authConfig } from './auth.config';
 

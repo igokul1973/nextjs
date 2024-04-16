@@ -1,5 +1,5 @@
 import Form from '@/app/components/invoices/create-form/Form';
-import { getCustomersByAccountId } from '@/app/lib/data/customers';
+import { getCustomersByAccountId } from '@/app/lib/data/customer';
 import { auth } from '@/auth';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';

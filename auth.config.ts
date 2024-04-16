@@ -1,4 +1,4 @@
-import { TGetUserPayload } from '@/app/lib/data/users/types';
+import { TGetUserPayload } from '@/app/lib/data/user/types';
 import { TEntities } from '@/app/lib/types';
 import { getUserProvider, getUserProviderType } from '@/app/lib/utils';
 import { EntitiesEnum } from '@prisma/client';

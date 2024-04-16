@@ -10,12 +10,12 @@ import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import { FC, FormEvent, FormEventHandler } from 'react';
+import { FormEvent, FormEventHandler } from 'react';
 import { FieldError } from 'react-hook-form';
 import { StyledBox, StyledPhoneNumberBox } from './styled';
 import { IProps } from './types';
 
-const PartialPhoneForm: FC<IProps> = ({ register, types, control, errors, index, remove }) => {
+const PartialPhoneForm = <T,>({ register, types, control, errors, index, remove }: IProps<T>) => {
     const t = useI18n();
 
     const onInvalidCountryCode: FormEventHandler<HTMLInputElement> = (event) => {

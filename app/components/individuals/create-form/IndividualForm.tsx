@@ -1,11 +1,12 @@
 'use client';
 
 import PartialAddressForm from '@/app/components/address/form/PartialAddressForm';
-import { IProps } from '@/app/components/customers/create-form/types';
+import { ICustomerFormProps } from '@/app/components/customers/create-form/types';
 import DateInput from '@/app/components/date-input/DateInput';
 import PartialEmailForm from '@/app/components/emails/partial-form/PartialEmailForm';
 import PartialAttributeForm from '@/app/components/entity-attributes/partial-form/EntityAttributeForm';
 import { AttributeTypeEnum } from '@/app/components/entity-attributes/partial-form/types';
+import { createCustomer } from '@/app/lib/data/customer';
 import { useI18n } from '@/locales/client';
 import { TTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,14 +18,15 @@ import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
+import { EmailTypeEnum, EntitiesEnum, PhoneTypeEnum } from '@prisma/client';
 import NextLink from 'next/link';
-import { FC, useEffect } from 'react';
-import { Control, useFieldArray, useForm, useFormContext, useWatch } from 'react-hook-form';
+import { FC } from 'react';
+import { Control, useFieldArray, useForm } from 'react-hook-form';
+import { TEntityFormRegister } from '../../customers/types';
 import PartialPhoneForm from '../../phones/partial-form/PartialPhoneForm';
-import FormSchema from './formSchema';
+import formSchema from './formSchema';
 import { StyledForm } from './styled';
-import { TAttribute, TEmail, TForm, TIndividualFormControl, TPhone } from './types';
+import { TAttribute, TEmail, TIndividualForm, TIndividualFormControl, TPhone } from './types';
 
 /*
 
@@ -48,18 +50,27 @@ import { TAttribute, TEmail, TForm, TIndividualFormControl, TPhone } from './typ
   phones                individualPhone[]
 */
 
-const IndividualForm: FC<IProps> = ({ countries, userAccountCountry }) => {
+const IndividualForm: FC<Omit<ICustomerFormProps, 'organizationTypes'>> = ({
+    countries,
+    userAccountCountry,
+    localIdentifierNames
+}) => {
     const phonesInitial = [
         { countryCode: '', number: '', type: PhoneTypeEnum.mobile } as unknown as TPhone
     ];
     const emailsInitial = [{ email: '', type: EmailTypeEnum.main } as unknown as TEmail];
     const attributesInitial: TAttribute[] = [];
     const emptyAttribute = { type: AttributeTypeEnum.text, name: '', value: '' };
+    const localIdentifierName = localIdentifierNames.find(
+        (name) => name.type === EntitiesEnum.individual
+    );
 
-    const defaultFormValues: TForm = {
+    const defaultFormValues: TIndividualForm = {
         id: '',
         firstName: '',
         lastName: '',
+        localIdentifierNameId: localIdentifierName?.id,
+        localIdentifierValue: '',
         dob: null,
         description: '',
         address: {
@@ -76,14 +87,13 @@ const IndividualForm: FC<IProps> = ({ countries, userAccountCountry }) => {
     };
 
     const {
-        getValues,
-        setValue,
+        // watch,
         register,
         handleSubmit,
-        formState: { errors, isDirty, isValid, validatingFields },
+        formState: { errors, isDirty },
         control
     } = useForm({
-        resolver: zodResolver(FormSchema.omit({ id: true })),
+        resolver: zodResolver(formSchema.omit({ id: true })),
         reValidateMode: 'onBlur',
         defaultValues: defaultFormValues
     });
@@ -119,51 +129,19 @@ const IndividualForm: FC<IProps> = ({ countries, userAccountCountry }) => {
         control
     });
 
-    const useFormValues = () => {
-        const { getValues } = useFormContext();
-        return {
-            ...useWatch(), // subscribe to form value updates
-            ...getValues() // always merge with latest form values
-        };
-    };
+    // const w = watch();
 
-    useEffect(() => {
-        const formData = getValues();
-        console.log('FormData:', formData);
-        console.log('Form Data Errors:', errors);
-        // console.log('Is dirty:', isDirty);
-        console.log('Is valid:', isValid);
-        const CreateCustomer = FormSchema.omit({ id: true });
-        // console.log('Form data: ', formData);
-        // const dateISOString = new Date().toISOString();
-        // formData.date = dateISOString;
-        // Validate form using Zod
-        const validatedForm = CreateCustomer.safeParse(formData);
-        if (!validatedForm.success) {
-            console.log('Validated form errors: ', validatedForm.error.flatten().fieldErrors);
-        }
-        if (validatedForm.success) {
-            console.log('Validated form: ', validatedForm.data);
-        }
-        // console.log('Validated form:', validatedForm);
-        // console.log('Errors:', errors);
-    }, [errors, getValues, isValid, validatingFields]);
+    // useEffect(() => {
+    //     console.log('Watch:', w);
+    //     console.error('Errors:', errors);
+    // }, [errors, w]);
 
-    const onSubmit = (formData: TForm) => {
-        const CreateCustomer = FormSchema.omit({ id: true });
-        // Validate form using Zod
-        const validatedForm = CreateCustomer.safeParse(formData);
-        if (validatedForm.success) {
-            const formData = validatedForm.data;
-            console.log('Validated form: ', formData);
-        }
+    const onSubmit = (formData: TIndividualForm) => {
+        console.log('The form data: ', formData);
+        const newCustomer = createCustomer(formData, EntitiesEnum.individual);
     };
 
     const isSubmittable = !!isDirty;
-
-    const getPhoneFieldProps = (index: number) => {
-        return [register(`phones.${index}.countryCode`), register(`phones.${index}.number`)];
-    };
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -204,11 +182,26 @@ const IndividualForm: FC<IProps> = ({ countries, userAccountCountry }) => {
                         {...register('middleName')}
                     />
                 </FormControl>
+                {localIdentifierName && (
+                    <FormControl>
+                        <TextField
+                            label={capitalize(
+                                localIdentifierName.abbreviation || localIdentifierName.name
+                            )}
+                            placeholder={`${capitalize(t('add'))} ${localIdentifierName.name}`}
+                            variant='outlined'
+                            {...register('localIdentifierValue')}
+                        />
+                    </FormControl>
+                )}
                 <FormControl>
                     <TextField
+                        multiline
+                        minRows={2}
+                        maxRows={5}
                         label={capitalize(t('description'))}
-                        placeholder={capitalize(t('description'))}
                         variant='outlined'
+                        placeholder={capitalize(t('description'))}
                         {...register('description')}
                     />
                 </FormControl>
@@ -222,20 +215,20 @@ const IndividualForm: FC<IProps> = ({ countries, userAccountCountry }) => {
                     />
                 </FormControl>
                 <Divider />
-                <PartialAddressForm
-                    register={register}
+                <PartialAddressForm<TIndividualForm>
                     countries={countries}
+                    register={register as TEntityFormRegister}
                     control={control as TIndividualFormControl}
                     errors={errors}
                 />
                 <Divider />
                 {phones.map((phone, index) => (
-                    <PartialPhoneForm
+                    <PartialPhoneForm<TIndividualForm>
                         key={phone.id}
                         index={index}
-                        register={register}
-                        control={control as TIndividualFormControl}
                         types={phoneTypes}
+                        register={register as TEntityFormRegister}
+                        control={control as TIndividualFormControl}
                         errors={errors}
                         remove={removePhone}
                     />
@@ -247,12 +240,12 @@ const IndividualForm: FC<IProps> = ({ countries, userAccountCountry }) => {
                 </Button>
                 <Divider />
                 {emails.map((email, index) => (
-                    <PartialEmailForm
+                    <PartialEmailForm<TIndividualForm>
                         key={email.id}
                         index={index}
-                        register={register}
-                        control={control as TIndividualFormControl}
                         types={emailTypes}
+                        register={register as TEntityFormRegister}
+                        control={control as TIndividualFormControl}
                         errors={errors}
                         remove={removeEmail}
                     />
@@ -264,10 +257,10 @@ const IndividualForm: FC<IProps> = ({ countries, userAccountCountry }) => {
                 </Button>
                 <Divider />
                 {attributes.map((attribute, index) => (
-                    <PartialAttributeForm
+                    <PartialAttributeForm<TIndividualForm>
                         key={attribute.id}
                         index={index}
-                        register={register}
+                        register={register as TEntityFormRegister}
                         control={control as TIndividualFormControl}
                         errors={errors}
                         remove={removeAttribute}

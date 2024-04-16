@@ -1,6 +1,6 @@
 'use client';
 
-import { authenticate } from '@/app/lib/data/users';
+import { authenticate } from '@/app/lib/data/user';
 import AlternateEmailOutlined from '@mui/icons-material/AlternateEmailOutlined';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';

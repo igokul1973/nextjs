@@ -12,7 +12,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 import NextLink from 'next/link';
 
-import { createInvoice } from '@/app/lib/data/invoices';
+import { createInvoice } from '@/app/lib/data/invoice';
 import { TFlattenedCustomer } from '@/app/lib/utils';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';

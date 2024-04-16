@@ -1,6 +1,6 @@
 import Form from '@/app/components/invoices/edit-form';
-import { getCustomersByAccountId } from '@/app/lib/data/customers';
-import { fetchInvoiceById } from '@/app/lib/data/invoices';
+import { getCustomersByAccountId } from '@/app/lib/data/customer';
+import { fetchInvoiceById } from '@/app/lib/data/invoice';
 import { auth } from '@/auth';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';

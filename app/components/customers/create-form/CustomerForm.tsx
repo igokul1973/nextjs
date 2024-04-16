@@ -14,9 +14,14 @@ import { EntitiesEnum } from '@prisma/client';
 import { FC, useState } from 'react';
 import IndividualForm from '../../individuals/create-form/IndividualForm';
 import OrganizationForm from '../../organizations/create-form/OrganizationForm';
-import { IProps } from './types';
+import { ICustomerFormProps } from './types';
 
-const CustomerForm: FC<IProps> = ({ countries, userAccountCountry }) => {
+const CustomerForm: FC<ICustomerFormProps> = ({
+    countries,
+    userAccountCountry,
+    localIdentifierNames,
+    organizationTypes
+}) => {
     const t = useI18n();
     const [customerType, setCustomerType] = useState<EntitiesEnum | ''>('');
     const entities = Object.values(EntitiesEnum).map((entity) => {
@@ -57,9 +62,18 @@ const CustomerForm: FC<IProps> = ({ countries, userAccountCountry }) => {
                 </Select>
             </FormControl>
             {customerType === EntitiesEnum.individual ? (
-                <IndividualForm countries={countries} userAccountCountry={userAccountCountry} />
+                <IndividualForm
+                    countries={countries}
+                    userAccountCountry={userAccountCountry}
+                    localIdentifierNames={localIdentifierNames}
+                />
             ) : customerType === EntitiesEnum.organization ? (
-                <OrganizationForm countries={countries} />
+                <OrganizationForm
+                    countries={countries}
+                    userAccountCountry={userAccountCountry}
+                    localIdentifierNames={localIdentifierNames}
+                    organizationTypes={organizationTypes}
+                />
             ) : null}
         </StyledBox>
     );

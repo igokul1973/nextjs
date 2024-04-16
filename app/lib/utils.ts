@@ -1,6 +1,6 @@
 import { AccountRelationEnum, EntitiesEnum } from '@prisma/client';
-import { TGetCustomersPayload } from './data/customers/types';
-import { TGetUserPayload } from './data/users/types';
+import { TGetCustomersPayload } from './data/customer/types';
+import { TGetUserPayload } from './data/user/types';
 import {
     TEntities,
     TEntitiesWithNonNullableCustomer,

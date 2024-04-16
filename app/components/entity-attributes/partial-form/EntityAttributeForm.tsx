@@ -7,13 +7,13 @@ import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import { capitalize } from '@mui/material/utils';
-import { FC, FormEventHandler } from 'react';
+import { FormEventHandler } from 'react';
 import { FieldError } from 'react-hook-form';
 import FormSelect from '../../form-select/FormSelect';
 import { StyledEntityAttributeBox, StyledMenuItemBox } from './styled';
 import { AttributeTypeEnum, IProps } from './types';
 
-const PartialAttributeForm: FC<IProps> = ({ register, control, errors, index }) => {
+const PartialAttributeForm = <T,>({ register, control, errors, index }: IProps<T>) => {
     const t = useI18n();
 
     const types = Object.values(AttributeTypeEnum);

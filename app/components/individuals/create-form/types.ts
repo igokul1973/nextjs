@@ -1,9 +1,9 @@
-import { z } from 'zod';
-import FormSchema from './formSchema';
 import { Control, FieldValues } from 'react-hook-form';
+import { z } from 'zod';
+import formSchema from './formSchema';
 
-export type TForm = z.infer<typeof FormSchema>;
-export type TIndividualFormControl = Control<TForm> & Control<FieldValues>;
-export type TPhone = z.infer<typeof FormSchema>['phones'][number];
-export type TEmail = z.infer<typeof FormSchema>['emails'][number];
-export type TAttribute = z.infer<typeof FormSchema>['attributes'][number];
+export type TIndividualForm = z.infer<typeof formSchema>;
+export type TIndividualFormControl = Control<TIndividualForm> & Control<FieldValues>;
+export type TPhone = TIndividualForm['phones'][number];
+export type TEmail = TIndividualForm['emails'][number];
+export type TAttribute = TIndividualForm['attributes'][number];

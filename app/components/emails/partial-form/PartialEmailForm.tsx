@@ -9,13 +9,13 @@ import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import { capitalize } from '@mui/material/utils';
-import { FC, FormEventHandler } from 'react';
+import { FormEventHandler } from 'react';
 import { FieldError } from 'react-hook-form';
 import FormSelect from '../../form-select/FormSelect';
 import { StyledEmailBox, StyledEmailFormBox } from './styled';
 import { IProps } from './types';
 
-const PartialEmailForm: FC<IProps> = ({ register, types, control, errors, index, remove }) => {
+const PartialEmailForm = <T,>({ register, types, control, errors, index, remove }: IProps<T>) => {
     const t = useI18n();
 
     const onInvalidEmail: FormEventHandler<HTMLInputElement> = (event) => {

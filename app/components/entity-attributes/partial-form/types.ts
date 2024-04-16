@@ -1,5 +1,13 @@
-import { TForm, TIndividualFormControl } from '@/app/components/individuals/create-form/types';
-import { FieldErrors, UseFieldArrayRemove, UseFormRegister } from 'react-hook-form';
+import { TEntityFormRegister } from '@/app/components/customers/types';
+import {
+    TIndividualForm,
+    TIndividualFormControl
+} from '@/app/components/individuals/create-form/types';
+import {
+    TOrganizationForm,
+    TOrganizationFormControl
+} from '@/app/components/organizations/create-form/types';
+import { FieldErrors, UseFieldArrayRemove } from 'react-hook-form';
 
 export enum AttributeTypeEnum {
     text = 'text',
@@ -7,10 +15,18 @@ export enum AttributeTypeEnum {
     yesOrNo = 'yes/no'
 }
 
-export interface IProps {
+export interface IProps<T> {
     index: number;
-    errors: FieldErrors<TForm>;
-    register: UseFormRegister<TForm>;
-    control: TIndividualFormControl;
+    register: TEntityFormRegister;
+    control: T extends TIndividualForm
+        ? TIndividualFormControl
+        : T extends TOrganizationForm
+          ? TOrganizationFormControl
+          : never;
+    errors: T extends TIndividualForm
+        ? FieldErrors<TIndividualForm>
+        : T extends TOrganizationForm
+          ? FieldErrors<TOrganizationForm>
+          : never;
     remove: UseFieldArrayRemove;
 }

@@ -1,8 +1,9 @@
 'use server';
 
+import { TIndividualForm } from '@/app/components/individuals/create-form/types';
 import prisma from '@/app/lib/prisma';
 import { flattenCustomer, formatCurrency } from '@/app/lib/utils';
-import { AccountRelationEnum, InvoiceStatusEnum } from '@prisma/client';
+import { AccountRelationEnum, EntitiesEnum, InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
@@ -173,26 +174,33 @@ export async function deleteCustomerById(id: string) {
 }
 
 export async function createCustomer(
-    prevState: ICreateCustomerState,
-    formData: FormData
+    formData: TIndividualForm | TOrganizationForm,
+    type: EntitiesEnum
 ): Promise<ICreateCustomerState> {
-    console.log('Form data: ', formData);
-    console.log('PrevState: ', prevState);
-    const rawFormData = Object.fromEntries(formData ? formData.entries() : []);
-    const dateISOString = new Date().toISOString();
-    rawFormData.date = dateISOString;
-    // Validate form using Zod
-    const validatedForm = CreateCustomer.safeParse(rawFormData);
-    if (!validatedForm.success) {
-        return {
-            errors: validatedForm.error.flatten().fieldErrors,
-            message: 'Missing fields, failed to create customer'
-        };
-    }
     // Creating customer in DB
     try {
-        console.log('Data: ', validatedForm.data);
-        // await prisma.customers.create({ data });
+        if (type === EntitiesEnum.organization) {
+            const { address, phones, emails, attributes, ...organization } = formData;
+            await prisma.customer.create({
+                data: {
+                    organization: {
+                        create: {
+                            ...formData
+                        }
+                    }
+                }
+            });
+        } else if (type === CustomerTypeEnum.INDIVIDUAL) {
+        }
+        // const data = { individuals: 'bla' };
+        // await prisma.customer.create({
+        //     data,
+        //     include: {
+        //         individual: {
+        //             data: {}
+        //         }
+        //     }
+        // });
         console.log('Successfully created customer.');
     } catch (error) {
         console.error('Database Error:', error);

@@ -1,4 +1,4 @@
-import { getFilteredCustomersByAccountId } from '@/app/lib/data/customers';
+import { getFilteredCustomersByAccountId } from '@/app/lib/data/customer';
 import CustomersTable from './customers-table/CustomersTable';
 import { IProps } from './types';
 

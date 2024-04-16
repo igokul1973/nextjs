@@ -1,4 +1,4 @@
-import { fetchLatestInvoices } from '@/app/lib/data/invoices';
+import { fetchLatestInvoices } from '@/app/lib/data/invoice';
 import { lusitana } from '@/app/styles/fonts';
 import CallMadeOutlined from '@mui/icons-material/CallMadeOutlined';
 import clsx from 'clsx';

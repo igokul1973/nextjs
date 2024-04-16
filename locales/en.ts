@@ -31,6 +31,7 @@ const en = {
     'select customer type': 'select customer type',
     organization: 'organization',
     name: 'name',
+    'organization name': 'organization name',
     'organization type': 'organization type',
     'is private': 'is private',
     'is charity': 'is charity',
@@ -76,9 +77,9 @@ const en = {
     'please enter the phone type': 'please enter the phone type',
     // Emails
     email: 'email',
-    'add email': 'add email',
-    'add another email': 'add another email',
     'email addresses': 'email addresses',
+    'add email': 'add email',
+    'add another email address': 'add another email address',
     'please enter the email address': 'please enter the email address',
     'please enter the email type': 'please enter the email type',
     // Attributes
@@ -88,6 +89,7 @@ const en = {
     value: 'value',
     // Errors
     'please enter at least one character': 'please enter at least one character',
+    'please enter the name': 'please enter the name',
     'please enter the first name': 'please enter the first name',
     'please enter the last name': 'please enter the last name',
     'please enter the street address': 'please enter the street address',

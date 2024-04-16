@@ -1,4 +1,4 @@
-import { getFilteredInvoicesByAccountId } from '@/app/lib/data/invoices';
+import { getFilteredInvoicesByAccountId } from '@/app/lib/data/invoice';
 import { InvoiceStatusEnum } from '@prisma/client';
 import InvoicesTable from './InvoicesTable';
 

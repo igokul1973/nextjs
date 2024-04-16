@@ -1,7 +1,7 @@
 'use client';
 
 import { useNavState } from '@/app/context/navigation/provider';
-import { logOut } from '@/app/lib/data/users';
+import { logOut } from '@/app/lib/data/user';
 import { useI18n } from '@/locales/client';
 import AccountIcon from '@mui/icons-material/AccountBalance';
 import Logout from '@mui/icons-material/Logout';

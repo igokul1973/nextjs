@@ -7,11 +7,10 @@ import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import { capitalize } from '@mui/material/utils';
-import { FC } from 'react';
 import FormSelect from '../../form-select/FormSelect';
 import { IProps } from './types';
 
-const PartialAddressForm: FC<IProps> = ({ register, countries, control, errors }) => {
+const PartialAddressForm = <T,>({ register, countries, control, errors }: IProps<T>) => {
     const t = useI18n();
 
     const addressLine1Error = errors.address?.addressLine1;
@@ -33,7 +32,7 @@ const PartialAddressForm: FC<IProps> = ({ register, countries, control, errors }
                         !!addressLine1Error &&
                         capitalize(t(addressLine1Error?.message as TTranslationKeys))
                     }
-                    {...register('address.addressLine1', { required: true })}
+                    {...register('address.addressLine1')}
                 />
             </FormControl>
             <FormControl>
