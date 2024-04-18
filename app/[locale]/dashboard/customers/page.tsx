@@ -12,9 +12,9 @@ import { getI18n } from '@/locales/server';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { FC, Suspense } from 'react';
-import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_PAGE_NUMBER } from './constants';
 import { StyledBox } from './styled';
 import { IProps } from './types';
+import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_PAGE_NUMBER } from './utils';
 
 const Page: FC<IProps> = async ({ searchParams }) => {
     const session = await auth();
@@ -37,7 +37,7 @@ const Page: FC<IProps> = async ({ searchParams }) => {
         <StyledBox component='section' className='section'>
             <Typography variant='h1'>{capitalize(t('customers'))}</Typography>
             <Box component='section' className='tools'>
-                <Search placeholder='Search customers...' />
+                <Search placeholder={capitalize(t('search customers'))} />
                 <CreateButton href='/dashboard/customers/create' name='Create customer' />
             </Box>
             <Suspense

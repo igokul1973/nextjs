@@ -115,8 +115,13 @@ const sv: Record<TTranslationKeys, string> = {
     // Reports
     collected: 'insamlad',
     pending: 'avvaktande',
+    'paid invoices': 'betalade fakturor',
+    'pending invoices': 'avvaktande fakturor',
     'total invoices': 'totala fakturor',
-    'total customers': 'totala kunder'
+    'total customers': 'totala kunder',
+    // Miscellaneous
+    'search customers': 'sök kunder',
+    search: 'sök'
 } as const;
 
 export default sv;

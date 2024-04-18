@@ -1,6 +1,7 @@
 'use client';
 
 import { useNavState } from '@/app/context/navigation/provider';
+import { useUser } from '@/app/context/user/provider';
 import { logOut } from '@/app/lib/data/user';
 import { useI18n } from '@/locales/client';
 import AccountIcon from '@mui/icons-material/AccountBalance';
@@ -21,7 +22,7 @@ import { TComponentName } from './types';
 
 const AvatarMenu: FC = () => {
     const t = useI18n();
-    // const { profile: userProfile } = useUser();
+    const { profile: userProfile } = useUser();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const { dispatch } = useNavState();
     const open = Boolean(anchorEl);
@@ -49,9 +50,9 @@ const AvatarMenu: FC = () => {
         return logOut();
     };
 
-    // const userInitials =
-    //     capitalize(userProfile?.firstName.slice(0, 1)) +
-    //     capitalize(userProfile?.lastName.slice(0, 1));
+    const userInitials =
+        capitalize(userProfile?.firstName.slice(0, 1)) +
+        capitalize(userProfile?.lastName.slice(0, 1));
 
     return (
         <>
@@ -63,8 +64,8 @@ const AvatarMenu: FC = () => {
                     aria-haspopup='true'
                     aria-expanded={open ? 'true' : undefined}
                 >
-                    {/* <Avatar sx={{ width: 32, height: 32 }}>{userInitials}</Avatar> */}
-                    <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
+                    <Avatar sx={{ width: 32, height: 32 }}>{userInitials}</Avatar>
+                    {/* <Avatar sx={{ width: 32, height: 32 }}>M</Avatar> */}
                 </IconButton>
             </Tooltip>
             <Menu

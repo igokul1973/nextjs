@@ -7,8 +7,8 @@ export const addressFormSchema = z.object({
             invalid_type_error: 'please enter the street address'
         })
         .min(2, { message: 'please enter the street address' }),
-    addressLine2: z.string().optional(),
-    addressLine3: z.string().optional(),
+    addressLine2: z.string().nullish().optional(),
+    addressLine3: z.string().nullish().optional(),
     locality: z
         .string({
             required_error: 'please enter the city/village/locality',
@@ -19,6 +19,7 @@ export const addressFormSchema = z.object({
         .string({
             invalid_type_error: 'please enter the region/state'
         })
+        .nullish()
         .optional(),
     postcode: z
         .string({

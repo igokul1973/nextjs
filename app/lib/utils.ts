@@ -1,5 +1,5 @@
 import { AccountRelationEnum, EntitiesEnum } from '@prisma/client';
-import { TGetCustomersPayload } from './data/customer/types';
+import { TGetCustomerPayload } from './data/customer/types';
 import { TGetUserPayload } from './data/user/types';
 import {
     TEntities,
@@ -70,7 +70,7 @@ export function useDebounce<T>(f: (...args: T[]) => unknown, ms: number = 500) {
 
 export function getIndividualFullNameString(
     individual: Pick<TIndividual, 'firstName' | 'middleName' | 'lastName'>
-) {
+): string {
     return `${individual.firstName}${individual.middleName ? ' ' + individual.middleName : ''} ${individual.lastName}`;
 }
 
@@ -99,7 +99,7 @@ export type TFlattenedCustomer = {
     phone: string;
 };
 
-export function flattenCustomer(rawCustomer: TGetCustomersPayload): TFlattenedCustomer {
+export function flattenCustomer(rawCustomer: TGetCustomerPayload): TFlattenedCustomer {
     const entity = rawCustomer.individual || rawCustomer.organization;
     // const org = rawCustomer.organization;
     if (!entity) {

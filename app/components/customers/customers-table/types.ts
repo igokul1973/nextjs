@@ -7,6 +7,7 @@ export interface IHeadCell {
     id: keyof ICustomerTable;
     label: string;
     isNumeric: boolean;
+    align: 'left' | 'right' | 'center';
 }
 
 export interface IEnhancedTableProps {

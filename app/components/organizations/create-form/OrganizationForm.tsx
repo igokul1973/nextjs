@@ -1,8 +1,12 @@
 'use client';
 
+import {
+    getEmailsInitial,
+    getEmptyAttribute,
+    getPhonesInitial
+} from '@/app/[locale]/dashboard/customers/utils';
 import PartialAddressForm from '@/app/components/address/form/PartialAddressForm';
 import PartialAttributeForm from '@/app/components/entity-attributes/partial-form/EntityAttributeForm';
-import { AttributeTypeEnum } from '@/app/components/entity-attributes/partial-form/types';
 import { IProps, TOrganizationFormControl } from '@/app/components/organizations/create-form/types';
 import PartialPhoneForm from '@/app/components/phones/partial-form/PartialPhoneForm';
 import { useData } from '@/app/context/data/provider';
@@ -19,7 +23,7 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import TextField from '@mui/material/TextField';
-import { AccountRelationEnum, EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
+import { EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FC } from 'react';
@@ -27,70 +31,17 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import PartialEmailForm from '../../emails/partial-form/PartialEmailForm';
 import FormSelect from '../../form-select/FormSelect';
+import { getDefaultFormValues } from '../utils';
 import formSchema from './formSchema';
 import { StyledForm } from './styled';
-import { TAttribute, TEmail, TOrganizationForm, TPhone } from './types';
+import { TOrganizationForm } from './types';
 
-const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName }) => {
+const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, form }) => {
     const { countries, organizationTypes } = useData();
     const { user, account } = useUser();
     const userId = user.id;
     const { openSnackbar } = useSnackbar();
     const { push } = useRouter();
-
-    const phonesInitial = [
-        {
-            countryCode: '',
-            number: '',
-            type: PhoneTypeEnum.mobile,
-            createdBy: userId,
-            updatedBy: userId
-        } as unknown as TPhone
-    ];
-    const emailsInitial = [
-        {
-            email: '',
-            type: EmailTypeEnum.main,
-            createdBy: userId,
-            updatedBy: userId
-        } as unknown as TEmail
-    ];
-    const attributesInitial: TAttribute[] = [];
-    const emptyAttribute = {
-        type: AttributeTypeEnum.text,
-        name: '',
-        value: '',
-        createdBy: userId,
-        updatedBy: userId
-    };
-
-    const defaultFormValues: TOrganizationForm = {
-        id: '',
-        accountRelation: AccountRelationEnum.customer,
-        accountId: account.id,
-        name: '',
-        localIdentifierNameId: localIdentifierName?.id,
-        localIdentifierValue: '',
-        typeId: '',
-        description: '',
-        isPrivate: false,
-        isCharity: false,
-        address: {
-            addressLine1: '',
-            addressLine2: '',
-            locality: '',
-            region: '',
-            postcode: '',
-            countryId: userAccountCountry.id,
-            createdBy: userId,
-            updatedBy: userId
-        },
-        phones: phonesInitial,
-        emails: emailsInitial,
-        attributes: attributesInitial,
-        createdBy: userId,
-        updatedBy: userId
-    };
 
     const {
         // watch,
@@ -101,7 +52,9 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName 
     } = useForm({
         resolver: zodResolver(formSchema.omit({ id: true })),
         reValidateMode: 'onBlur',
-        defaultValues: defaultFormValues
+        defaultValues:
+            form ||
+            getDefaultFormValues(account.id, userId, userAccountCountry.id, localIdentifierName.id)
     });
 
     const t = useI18n();
@@ -219,7 +172,7 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName 
                             render={({ field: props }) => (
                                 <Checkbox
                                     {...props}
-                                    checked={props.value}
+                                    checked={!!props.value}
                                     onChange={(e) => props.onChange(e.target.checked)}
                                 />
                             )}
@@ -238,7 +191,7 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName 
                             render={({ field: props }) => (
                                 <Checkbox
                                     {...props}
-                                    checked={props.value}
+                                    checked={!!props.value}
                                     onChange={(e) => props.onChange(e.target.checked)}
                                 />
                             )}
@@ -265,7 +218,7 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName 
                     remove={removePhone}
                 />
             ))}
-            <Button onClick={() => appendPhone({ ...phonesInitial[0] })}>
+            <Button onClick={() => appendPhone({ ...getPhonesInitial(userId)[0] })}>
                 {phones.length > 0
                     ? capitalize(t('add another phone'))
                     : capitalize(t('add phone'))}
@@ -282,7 +235,7 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName 
                     remove={removeEmail}
                 />
             ))}
-            <Button onClick={() => appendEmail({ ...emailsInitial[0] })}>
+            <Button onClick={() => appendEmail({ ...getEmailsInitial(userId)[0] })}>
                 {emails.length > 0
                     ? capitalize(t('add another email'))
                     : capitalize(t('add email'))}
@@ -298,7 +251,11 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName 
                     remove={removeAttribute}
                 />
             ))}
-            <Button onClick={() => appendAttribute(emptyAttribute)}>
+            <Button
+                onClick={() => {
+                    return appendAttribute(getEmptyAttribute(userId));
+                }}
+            >
                 {attributes.length > 0
                     ? capitalize(t('add another attribute'))
                     : capitalize(t('add attribute'))}

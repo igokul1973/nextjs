@@ -1,84 +1,71 @@
 import { AccountRelationEnum, Prisma } from '@prisma/client';
 
+export const organizationsSelect = {
+    id: true,
+    name: true,
+    type: true,
+    isPrivate: true,
+    isCharity: true,
+    localIdentifierNameId: true,
+    localIdentifierName: true,
+    localIdentifierValue: true,
+    customerId: true,
+    accountId: true,
+    accountRelation: true,
+    address: {
+        include: {
+            country: true
+        }
+    },
+    phones: true,
+    emails: true,
+    attributes: true,
+    createdBy: true,
+    updatedBy: true
+};
+
+export const inidividualsSelect = {
+    id: true,
+    firstName: true,
+    lastName: true,
+    middleName: true,
+    dob: true,
+    description: true,
+    localIdentifierNameId: true,
+    localIdentifierName: true,
+    localIdentifierValue: true,
+    customerId: true,
+    accountId: true,
+    accountRelation: true,
+    address: {
+        include: {
+            country: true
+        }
+    },
+    phones: true,
+    emails: true,
+    attributes: true,
+    createdBy: true,
+    updatedBy: true
+};
+
 export const getCustomersSelect = {
     id: true,
     individual: {
-        select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            middleName: true,
-            emails: {
-                select: {
-                    email: true,
-                    type: true
-                }
-            },
-            phones: {
-                select: {
-                    countryCode: true,
-                    number: true
-                }
-            }
-        }
+        select: inidividualsSelect
     },
     organization: {
-        select: {
-            id: true,
-            name: true,
-            emails: {
-                select: {
-                    email: true,
-                    type: true
-                }
-            },
-            phones: {
-                select: {
-                    countryCode: true,
-                    number: true
-                }
-            }
-        }
+        select: organizationsSelect
     }
 } satisfies Prisma.customerSelect;
 
 export const getFilteredCustomersByAccountIdSelect = {
     id: true,
     organization: {
-        select: {
-            id: true,
-            name: true,
-            emails: {
-                select: {
-                    email: true
-                }
-            },
-            phones: {
-                select: {
-                    countryCode: true,
-                    number: true
-                }
-            }
-        }
+        select: organizationsSelect
     },
     individual: {
-        select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            middleName: true,
-            emails: {
-                select: {
-                    email: true
-                }
-            },
-            phones: {
-                select: {
-                    countryCode: true,
-                    number: true
-                }
-            }
-        }
+        select: inidividualsSelect
     },
     _count: true,
     invoices: {
@@ -97,7 +84,7 @@ export const getFilteredCustomersByAccountIdSelect = {
     }
 };
 
-export type TGetCustomersPayload = Prisma.customerGetPayload<{
+export type TGetCustomerPayload = Prisma.customerGetPayload<{
     select: typeof getCustomersSelect;
 }>;
 

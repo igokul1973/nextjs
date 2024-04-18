@@ -15,6 +15,7 @@ import { FC, useState } from 'react';
 import IndividualForm from '../../individuals/create-form/IndividualForm';
 import OrganizationForm from '../../organizations/create-form/OrganizationForm';
 import { ICustomerFormProps } from './types';
+import Warning from '../../warning/Warning';
 
 const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentifierNames }) => {
     const t = useI18n();
@@ -36,10 +37,10 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
 
     if (!individualLocalIdentifierName || !organizationLocalIdentifierName) {
         return (
-            <div>
+            <Warning variant='h4'>
                 No local identifier names provided. Please create one(s) for organization and/or
                 individual customers for the current user&apos;s country.
-            </div>
+            </Warning>
         );
     }
 

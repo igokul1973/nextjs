@@ -1,10 +1,14 @@
 'use client';
 
+import {
+    getEmailsInitial,
+    getEmptyAttribute,
+    getPhonesInitial
+} from '@/app/[locale]/dashboard/customers/utils';
 import PartialAddressForm from '@/app/components/address/form/PartialAddressForm';
 import DateInput from '@/app/components/date-input/DateInput';
 import PartialEmailForm from '@/app/components/emails/partial-form/PartialEmailForm';
 import PartialAttributeForm from '@/app/components/entity-attributes/partial-form/EntityAttributeForm';
-import { AttributeTypeEnum } from '@/app/components/entity-attributes/partial-form/types';
 import { useData } from '@/app/context/data/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
@@ -20,83 +24,25 @@ import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AccountRelationEnum, EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
+import { EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { Control, useFieldArray, useForm } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import PartialPhoneForm from '../../phones/partial-form/PartialPhoneForm';
+import { getDefaultFormValues } from '../utils';
 import formSchema from './formSchema';
 import { StyledForm } from './styled';
-import {
-    IProps,
-    TAttribute,
-    TEmail,
-    TIndividualForm,
-    TIndividualFormControl,
-    TPhone
-} from './types';
+import { IProps, TIndividualForm, TIndividualFormControl } from './types';
 
-const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName }) => {
+const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, form }) => {
     const { openSnackbar } = useSnackbar();
     const { countries } = useData();
     const { user, account } = useUser();
-    const createdUpdatedBy = user.id;
+    const userId = user.id;
+    const accountId = account.id;
     const { push } = useRouter();
-
-    const phonesInitial = [
-        {
-            countryCode: '',
-            number: '',
-            type: PhoneTypeEnum.mobile,
-            createdBy: createdUpdatedBy,
-            updatedBy: createdUpdatedBy
-        } as unknown as TPhone
-    ];
-    const emailsInitial = [
-        {
-            email: '',
-            type: EmailTypeEnum.main,
-            createdBy: createdUpdatedBy,
-            updatedBy: createdUpdatedBy
-        } as unknown as TEmail
-    ];
-    const attributesInitial: TAttribute[] = [];
-    const emptyAttribute = {
-        type: AttributeTypeEnum.text,
-        name: '',
-        value: '',
-        createdBy: createdUpdatedBy,
-        updatedBy: createdUpdatedBy
-    };
-
-    const defaultFormValues: TIndividualForm = {
-        id: '',
-        accountRelation: AccountRelationEnum.customer,
-        accountId: account.id,
-        firstName: '',
-        lastName: '',
-        localIdentifierNameId: localIdentifierName?.id,
-        localIdentifierValue: '',
-        dob: null,
-        description: '',
-        address: {
-            addressLine1: '',
-            addressLine2: '',
-            locality: '',
-            region: '',
-            postcode: '',
-            countryId: userAccountCountry.id,
-            createdBy: createdUpdatedBy,
-            updatedBy: createdUpdatedBy
-        },
-        phones: phonesInitial,
-        emails: emailsInitial,
-        attributes: attributesInitial,
-        createdBy: createdUpdatedBy,
-        updatedBy: createdUpdatedBy
-    };
 
     const {
         // watch,
@@ -107,7 +53,9 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName })
     } = useForm({
         resolver: zodResolver(formSchema.omit({ id: true })),
         reValidateMode: 'onBlur',
-        defaultValues: defaultFormValues
+        defaultValues:
+            form ||
+            getDefaultFormValues(accountId, userId, userAccountCountry.id, localIdentifierName.id)
     });
 
     const t = useI18n();
@@ -250,7 +198,7 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName })
                         remove={removePhone}
                     />
                 ))}
-                <Button onClick={() => appendPhone({ ...phonesInitial[0] })}>
+                <Button onClick={() => appendPhone({ ...getPhonesInitial(userId)[0] })}>
                     {phones.length > 0
                         ? capitalize(t('add another phone'))
                         : capitalize(t('add phone'))}
@@ -267,7 +215,7 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName })
                         remove={removeEmail}
                     />
                 ))}
-                <Button onClick={() => appendEmail({ ...emailsInitial[0] })}>
+                <Button onClick={() => appendEmail({ ...getEmailsInitial(userId)[0] })}>
                     {emails.length > 0
                         ? capitalize(t('add another phone'))
                         : capitalize(t('add phone'))}
@@ -283,7 +231,7 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName })
                         remove={removeAttribute}
                     />
                 ))}
-                <Button onClick={() => appendAttribute(emptyAttribute)}>
+                <Button onClick={() => appendAttribute(getEmptyAttribute(userId))}>
                     {attributes.length > 0
                         ? capitalize(t('add another attribute'))
                         : capitalize(t('add attribute'))}

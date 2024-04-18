@@ -3,13 +3,14 @@
 import {
     DEFAULT_ITEMS_PER_PAGE,
     DEFAULT_PAGE_NUMBER
-} from '@/app/[locale]/dashboard/customers/constants';
-import { useSnackbar } from '@/app/context/snackbar/provider';
+} from '@/app/[locale]/dashboard/customers/utils';
 import { TOrder } from '@/app/lib/types';
+import { useI18n } from '@/locales/client';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
-import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
 import Paper from '@mui/material/Paper';
@@ -61,48 +62,56 @@ const headCells: readonly IHeadCell[] = [
         id: 'name',
         isNumeric: false,
         disablePadding: true,
-        label: 'name'
+        label: 'name',
+        align: 'left'
     },
     {
         id: 'type',
         isNumeric: false,
-        disablePadding: true,
-        label: 'type'
+        disablePadding: false,
+        label: 'type',
+        align: 'center'
     },
     {
         id: 'email',
         isNumeric: false,
         disablePadding: false,
-        label: 'email'
+        label: 'email',
+        align: 'center'
     },
     {
         id: 'phone',
         isNumeric: false,
         disablePadding: false,
-        label: 'email'
+        label: 'email',
+        align: 'center'
     },
     {
         id: 'totalPending',
         isNumeric: true,
         disablePadding: false,
-        label: 'pending invoices'
+        label: 'pending invoices',
+        align: 'center'
     },
     {
         id: 'totalPaid',
         isNumeric: true,
         disablePadding: false,
-        label: 'paid invoices'
+        label: 'paid invoices',
+        align: 'center'
     },
     {
         id: 'totalInvoices',
         isNumeric: true,
         disablePadding: false,
-        label: 'invoices total'
+        label: 'total invoices',
+        align: 'center'
     }
 ];
 
 function EnhancedTableHead(props: IEnhancedTableProps) {
-    const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+    const t = useI18n();
+    const { order, orderBy, onRequestSort } = props;
     const createSortHandler = (property: keyof ICustomerTable) => (event: MouseEvent<unknown>) => {
         onRequestSort(event, property);
     };
@@ -110,30 +119,20 @@ function EnhancedTableHead(props: IEnhancedTableProps) {
     return (
         <TableHead>
             <TableRow>
-                <TableCell padding='checkbox'>
-                    <Checkbox
-                        color='primary'
-                        indeterminate={numSelected > 0 && numSelected < rowCount}
-                        checked={rowCount > 0 && numSelected === rowCount}
-                        onChange={onSelectAllClick}
-                        inputProps={{
-                            'aria-label': 'select all desserts'
-                        }}
-                    />
-                </TableCell>
                 {headCells.map((headCell) => (
                     <TableCell
                         key={headCell.id}
-                        align={headCell.isNumeric ? 'right' : 'left'}
+                        align={headCell.align}
                         padding={headCell.disablePadding ? 'none' : 'normal'}
                         sortDirection={orderBy === headCell.id ? order : false}
+                        sx={{ whiteSpace: 'nowrap', color: 'green' }}
                     >
                         <TableSortLabel
                             active={orderBy === headCell.id}
                             direction={orderBy === headCell.id ? order : 'asc'}
                             onClick={createSortHandler(headCell.id)}
                         >
-                            {headCell.label}
+                            {capitalize(t(headCell.label))}
                             {orderBy === headCell.id ? (
                                 <Box component='span' sx={visuallyHidden}>
                                     {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
@@ -148,6 +147,7 @@ function EnhancedTableHead(props: IEnhancedTableProps) {
 }
 
 function EnhancedTableToolbar(props: IEnhancedTableToolbarProps) {
+    const t = useI18n();
     const { numSelected } = props;
 
     return (
@@ -161,33 +161,14 @@ function EnhancedTableToolbar(props: IEnhancedTableToolbarProps) {
                 })
             }}
         >
-            {numSelected > 0 ? (
-                <Typography
-                    sx={{ flex: '1 1 100%' }}
-                    color='inherit'
-                    variant='subtitle1'
-                    component='div'
-                >
-                    {numSelected} selected
-                </Typography>
-            ) : (
-                <Typography sx={{ flex: '1 1 100%' }} variant='h6' id='tableTitle' component='div'>
-                    Nutrition
-                </Typography>
-            )}
-            {numSelected > 0 ? (
-                <Tooltip title='Delete'>
-                    <IconButton>
-                        <DeleteIcon />
-                    </IconButton>
-                </Tooltip>
-            ) : (
-                <Tooltip title='Filter list'>
-                    <IconButton>
-                        <FilterListIcon />
-                    </IconButton>
-                </Tooltip>
-            )}
+            <Typography sx={{ flex: '1 1 100%' }} variant='h6' id='tableTitle' component='div'>
+                {capitalize(t('customers'))}
+            </Typography>
+            <Tooltip title='Filter list'>
+                <IconButton>
+                    <FilterListIcon />
+                </IconButton>
+            </Tooltip>
         </Toolbar>
     );
 }
@@ -196,7 +177,7 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
     const [order, setOrder] = useState<TOrder>('asc');
     const [orderBy, setOrderBy] = useState<keyof ICustomerTable>('name');
     const [selected, setSelected] = useState<readonly ICustomerTable['id'][]>([]);
-    const [dense, setDense] = useState(false);
+    const [dense, setDense] = useState(true);
 
     const { replace } = useRouter();
     const pathname = usePathname();
@@ -278,6 +259,8 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
         [customers, order, orderBy]
     );
 
+    const { push } = useRouter();
+
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
@@ -305,23 +288,14 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
                                     <TableRow
                                         hover
                                         onClick={(event) => handleClick(event, row.id)}
-                                        role='checkbox'
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
                                         key={row.id}
                                         selected={isItemSelected}
                                         sx={{ cursor: 'pointer' }}
                                     >
-                                        <TableCell padding='checkbox'>
-                                            <Checkbox
-                                                color='primary'
-                                                checked={isItemSelected}
-                                                inputProps={{
-                                                    'aria-labelledby': labelId
-                                                }}
-                                            />
-                                        </TableCell>
                                         <TableCell
+                                            align='left'
                                             component='th'
                                             id={labelId}
                                             scope='row'
@@ -329,12 +303,26 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
                                         >
                                             {row.name}
                                         </TableCell>
-                                        <TableCell align='left'>{row.type}</TableCell>
-                                        <TableCell align='left'>{row.email}</TableCell>
-                                        <TableCell align='left'>{row.phone}</TableCell>
-                                        <TableCell align='right'>{row.totalPending}</TableCell>
-                                        <TableCell align='right'>{row.totalPaid}</TableCell>
-                                        <TableCell align='right'>{row.totalInvoices}</TableCell>
+                                        <TableCell align='center'>{row.type}</TableCell>
+                                        <TableCell align='center'>{row.email}</TableCell>
+                                        <TableCell align='center'>{row.phone}</TableCell>
+                                        <TableCell align='center'>{row.totalPending}</TableCell>
+                                        <TableCell align='center'>{row.totalPaid}</TableCell>
+                                        <TableCell align='center'>{row.totalInvoices}</TableCell>
+                                        <TableCell align='center' sx={{ display: 'flex' }}>
+                                            <IconButton
+                                                color='primary'
+                                                aria-label='edit'
+                                                onClick={() => {
+                                                    push(`/dashboard/customers/${row.id}/edit`);
+                                                }}
+                                            >
+                                                <EditIcon />
+                                            </IconButton>
+                                            <IconButton color='warning' aria-label='edit'>
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        </TableCell>
                                     </TableRow>
                                 );
                             })}

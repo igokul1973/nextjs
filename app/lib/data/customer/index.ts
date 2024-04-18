@@ -14,9 +14,26 @@ import {
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import {
     getCustomersSelect,
+    TGetCustomerPayload,
     getFilteredCustomersByAccountIdSelect,
     getFilteredCustomersWhereClause
 } from './types';
+
+export async function getCustomerById(id: string): Promise<TGetCustomerPayload | null> {
+    try {
+        return await prisma.customer.findUnique({
+            select: {
+                ...getCustomersSelect
+            },
+            where: {
+                id
+            }
+        });
+    } catch (err) {
+        console.error('Database Error:', err);
+        throw new Error('Failed to fetch customer.');
+    }
+}
 
 export async function getCustomersByAccountId(accountId: string) {
     noStore();

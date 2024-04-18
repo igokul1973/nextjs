@@ -243,8 +243,8 @@ model organization {
   id                    String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name                  String               @db.VarChar(255)
   description           String?              @db.Text
-  isPrivate             Boolean?             @map("is_private") @db.Boolean // as opposed to government
-  isCharity             Boolean?             @map("is_charity") @db.Boolean // 
+  isPrivate             Boolean              @default(true) @map("is_private") @db.Boolean // as opposed to government
+  isCharity             Boolean              @default(false) @map("is_charity") @db.Boolean // as opposed to for profit
   typeId                String?              @map("type_id") @db.Uuid
   type                  organizationType?    @relation(fields: [typeId], references: [id])
   localIdentifierNameId String?              @map("local_identifier_name_id") @db.Uuid

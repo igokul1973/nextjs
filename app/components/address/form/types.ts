@@ -1,4 +1,4 @@
-import { TEntityForm, TEntityFormRegister } from '@/app/components/customers/types';
+import { TEntityFormRegister } from '@/app/components/customers/types';
 import {
     TIndividualForm,
     TIndividualFormControl
@@ -10,7 +10,7 @@ import {
 import { TCountry } from '@/app/lib/types';
 import { FieldErrors } from 'react-hook-form';
 
-export interface IProps<T extends TEntityForm> {
+export interface IProps<T> {
     countries: TCountry[];
     register: TEntityFormRegister;
     control: T extends TIndividualForm

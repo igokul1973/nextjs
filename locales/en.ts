@@ -113,8 +113,13 @@ const en = {
     // Reports
     collected: 'collected',
     pending: 'pending',
+    'paid invoices': 'paid invoices',
+    'pending invoices': 'pending invoices',
     'total invoices': 'total invoices',
-    'total customers': 'total customers'
+    'total customers': 'total customers',
+    // Miscellaneous
+    'search customers': 'search customers',
+    search: 'search'
 } as const;
 
 export default en;

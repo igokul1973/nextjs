@@ -20,13 +20,13 @@ const baseIndividualFormSchema = z.object({
             invalid_type_error: 'please enter the last name'
         })
         .min(1, { message: 'please enter the last name' }),
-    middleName: z.string().optional(),
+    middleName: z.string().optional().nullish(),
     accountId: z.string(),
-    localIdentifierNameId: z.string(),
-    localIdentifierValue: z.string().optional(),
+    localIdentifierNameId: z.string().nullish(),
+    localIdentifierValue: z.string().optional().nullish(),
     accountRelation: z.string().optional(),
     dob: z.coerce.date().nullish().optional(),
-    description: z.string().optional(),
+    description: z.string().nullish().optional(),
     createdBy: z.string(),
     updatedBy: z.string()
 });

@@ -7,6 +7,7 @@ import { TGetLocalIdentifierNamePayload } from '@/app/lib/data/local-identifier-
 export interface IProps {
     userAccountCountry: TCountry;
     localIdentifierName: TGetLocalIdentifierNamePayload;
+    form?: TIndividualForm;
 }
 
 export type TIndividualForm = z.infer<typeof formSchema>;

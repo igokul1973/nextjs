@@ -3,10 +3,12 @@ import { z } from 'zod';
 import formSchema from './formSchema';
 import { TCountry } from '@/app/lib/types';
 import { TGetLocalIdentifierNamePayload } from '@/app/lib/data/local-identifier-name/types';
+import { TGetCustomerPayload } from '@/app/lib/data/customer/types';
 
 export interface IProps {
     userAccountCountry: TCountry;
     localIdentifierName: TGetLocalIdentifierNamePayload;
+    form?: TOrganizationForm;
 }
 
 export type TOrganizationForm = z.infer<typeof formSchema>;

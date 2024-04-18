@@ -1,6 +1,8 @@
 'use client';
 
+import { useI18n } from '@/locales/client';
 import SearchOutlined from '@mui/icons-material/SearchOutlined';
+import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
@@ -11,6 +13,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const { replace } = useRouter();
+    const t = useI18n();
 
     const handleSearch = (term: string) => {
         const params = new URLSearchParams(searchParams || undefined);
@@ -32,7 +35,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
         <Box sx={{ width: '300px' }}>
             <TextField
                 fullWidth
-                label='Search'
+                label={capitalize(t('search'))}
                 variant='outlined'
                 placeholder={placeholder}
                 onChange={(e) => {

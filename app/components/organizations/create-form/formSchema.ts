@@ -15,13 +15,13 @@ const baseOrganizationFormSchema = z.object({
         })
         .min(1, { message: 'please enter the name' }),
     accountId: z.string(),
-    localIdentifierNameId: z.string().optional(),
-    localIdentifierValue: z.string().optional(),
+    localIdentifierNameId: z.string().nullish().optional(),
+    localIdentifierValue: z.string().nullish().optional(),
     accountRelation: z.string().optional(),
-    typeId: z.string().optional(),
-    description: z.string().optional(),
-    isPrivate: z.boolean().optional(),
-    isCharity: z.boolean().optional(),
+    typeId: z.string().nullish().optional(),
+    description: z.string().nullish().optional(),
+    isPrivate: z.boolean().nullish().optional(),
+    isCharity: z.boolean().nullish().optional(),
     createdBy: z.string(),
     updatedBy: z.string()
 });
