@@ -15,12 +15,13 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Tooltip from '@mui/material/Tooltip';
-import { MouseEvent, useState } from 'react';
+import { FC, MouseEvent, useState } from 'react';
 import { components } from './constants';
 import { TComponentName } from './types';
 
-export default function AvatarMenu() {
+const AvatarMenu: FC = () => {
     const t = useI18n();
+    // const { profile: userProfile } = useUser();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const { dispatch } = useNavState();
     const open = Boolean(anchorEl);
@@ -48,6 +49,10 @@ export default function AvatarMenu() {
         return logOut();
     };
 
+    // const userInitials =
+    //     capitalize(userProfile?.firstName.slice(0, 1)) +
+    //     capitalize(userProfile?.lastName.slice(0, 1));
+
     return (
         <>
             <Tooltip title='Account settings'>
@@ -58,6 +63,7 @@ export default function AvatarMenu() {
                     aria-haspopup='true'
                     aria-expanded={open ? 'true' : undefined}
                 >
+                    {/* <Avatar sx={{ width: 32, height: 32 }}>{userInitials}</Avatar> */}
                     <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
                 </IconButton>
             </Tooltip>
@@ -67,29 +73,31 @@ export default function AvatarMenu() {
                 open={open}
                 onClose={handleClose}
                 onClick={handleClose}
-                PaperProps={{
-                    elevation: 0,
-                    sx: {
-                        overflow: 'visible',
-                        filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                        mt: 1.5,
-                        '& .MuiAvatar-root': {
-                            width: 32,
-                            height: 32,
-                            ml: -0.5,
-                            mr: 1
-                        },
-                        '&::before': {
-                            content: '""',
-                            display: 'block',
-                            position: 'absolute',
-                            top: 0,
-                            right: 14,
-                            width: 10,
-                            height: 10,
-                            bgcolor: 'background.paper',
-                            transform: 'translateY(-50%) rotate(45deg)',
-                            zIndex: 0
+                slotProps={{
+                    paper: {
+                        elevation: 0,
+                        sx: {
+                            overflow: 'visible',
+                            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                            mt: 1.5,
+                            '& .MuiAvatar-root': {
+                                width: 32,
+                                height: 32,
+                                ml: -0.5,
+                                mr: 1
+                            },
+                            '&::before': {
+                                content: '""',
+                                display: 'block',
+                                position: 'absolute',
+                                top: 0,
+                                right: 14,
+                                width: 10,
+                                height: 10,
+                                bgcolor: 'background.paper',
+                                transform: 'translateY(-50%) rotate(45deg)',
+                                zIndex: 0
+                            }
                         }
                     }
                 }}
@@ -116,9 +124,6 @@ export default function AvatarMenu() {
                     {capitalize(t('settings'))}
                 </MenuItem>
                 <MenuItem onClick={onLogout}>
-                    {/* <IconButton sx={{ ml: 1 }} onClick={onLogout} color='inherit'>
-                        <Logout />
-                    </IconButton> */}
                     <ListItemIcon>
                         <Logout fontSize='small' />
                     </ListItemIcon>
@@ -127,4 +132,6 @@ export default function AvatarMenu() {
             </Menu>
         </>
     );
-}
+};
+
+export default AvatarMenu;

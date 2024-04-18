@@ -21,10 +21,14 @@ const baseIndividualFormSchema = z.object({
         })
         .min(1, { message: 'please enter the last name' }),
     middleName: z.string().optional(),
-    localIdentifierNameId: z.string().optional(),
+    accountId: z.string(),
+    localIdentifierNameId: z.string(),
     localIdentifierValue: z.string().optional(),
+    accountRelation: z.string().optional(),
     dob: z.coerce.date().nullish().optional(),
-    description: z.string().optional()
+    description: z.string().optional(),
+    createdBy: z.string(),
+    updatedBy: z.string()
 });
 
 const individualFormSchema = baseIndividualFormSchema.extend({

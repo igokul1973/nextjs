@@ -12,7 +12,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import { FormEvent, FormEventHandler } from 'react';
 import { FieldError } from 'react-hook-form';
-import { StyledBox, StyledPhoneNumberBox } from './styled';
+import { StyledBox, StyledMenuItemBox, StyledPhoneNumberBox } from './styled';
 import { IProps } from './types';
 
 const PartialPhoneForm = <T,>({ register, types, control, errors, index, remove }: IProps<T>) => {
@@ -55,9 +55,7 @@ const PartialPhoneForm = <T,>({ register, types, control, errors, index, remove 
                     {types.map((type, index) => {
                         return (
                             <MenuItem key={index} value={type}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    {capitalize(type)}
-                                </Box>
+                                <StyledMenuItemBox>{capitalize(type)}</StyledMenuItemBox>
                             </MenuItem>
                         );
                     })}

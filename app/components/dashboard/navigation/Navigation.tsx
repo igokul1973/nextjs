@@ -1,6 +1,6 @@
 'use client';
 
-import { getProviderName } from '@/app/lib/utils';
+import { useUser } from '@/app/context/user/provider';
 import { useI18n } from '@/locales/client';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -22,7 +22,7 @@ import Link from 'next/link';
 import { FC, useState } from 'react';
 import { AppBar } from '../app-bar/AppBar';
 import { Drawer, DrawerHeader } from './styled';
-import { ILink, IProps } from './types';
+import { ILink } from './types';
 
 const links = [
     { name: 'dashboard', href: '/dashboard', icon: Home },
@@ -41,14 +41,13 @@ const DynamicIcon = ({ name }: { name: string }) => {
     return <Component />;
 };
 
-const Navigation: FC<IProps> = ({ provider }) => {
+const Navigation: FC = () => {
     const theme = useTheme();
     const t = useI18n();
 
     const [isOpen, setIsOpen] = useState(true);
+    const { provider } = useUser();
     const isProvider = !!provider;
-
-    const providerName = getProviderName(provider);
 
     const handleDrawerToggle = (isOpen: boolean) => {
         setIsOpen(isOpen);
@@ -56,11 +55,7 @@ const Navigation: FC<IProps> = ({ provider }) => {
 
     return (
         <Box sx={{ display: 'flex' }}>
-            <AppBar
-                providerName={providerName}
-                handleDrawerToggle={handleDrawerToggle}
-                isOpen={isOpen}
-            />
+            <AppBar handleDrawerToggle={handleDrawerToggle} isOpen={isOpen} />
             {isProvider && (
                 <Box component='aside'>
                     <Drawer variant='permanent' open={isOpen}>

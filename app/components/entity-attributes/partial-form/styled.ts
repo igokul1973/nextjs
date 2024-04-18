@@ -31,3 +31,17 @@ export const StyledMenuItemBox = styled(Box, {
     alignitems: center;
     gap: 1;
 `;
+
+export const StyledAttributeValueBox = styled(Box, {
+    name: 'Styled Attribute Value Box',
+    slot: 'Root'
+})`
+    position: relative;
+
+    .delete-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 1rem;
+        z-index: 1;
+    }
+`;

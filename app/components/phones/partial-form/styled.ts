@@ -23,6 +23,15 @@ export const StyledBox = styled(Box, {
     }
 `;
 
+export const StyledMenuItemBox = styled(Box, {
+    name: 'Styled Menu Item Box',
+    slot: 'Root'
+})`
+    display: flex;
+    alignitems: center;
+    gap: 1;
+`;
+
 export const StyledPhoneNumberBox = styled(Box, {
     name: 'StyledBox',
     slot: 'Root'

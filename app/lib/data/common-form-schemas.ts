@@ -32,36 +32,45 @@ export const addressFormSchema = z.object({
             required_error: 'please enter the country',
             invalid_type_error: 'please enter the country'
         })
-        .min(10, { message: 'please enter the country' })
+        .min(10, { message: 'please enter the country' }),
+    createdBy: z.string(),
+    updatedBy: z.string()
 });
 
 export const phonesFormSchema = z
     .array(
         z.object({
-            countryCode: z.coerce
-                .number({
-                    required_error: 'please enter the country code',
-                    invalid_type_error: 'please enter the country code'
-                })
-                .positive({ message: 'please enter the country code' })
-                .min(1, { message: 'please enter the country code' })
-                .max(999, { message: 'the country code cannot be bigger than 999' }),
+            countryCode: z.preprocess(
+                (value) => {
+                    return typeof value === 'string' && value.startsWith('+')
+                        ? value.slice(1)
+                        : value;
+                },
+                z
+                    .string({
+                        required_error: 'please enter the country code',
+                        invalid_type_error: 'please enter the country code'
+                    })
+                    .min(1, { message: 'please enter the country code' })
+                    .max(3, { message: 'the country code cannot be bigger than 999' })
+            ),
             number: z.coerce
-                .number({
+                .string({
                     required_error: 'please enter the phone number',
                     invalid_type_error: 'please enter the phone number'
                 })
-                .positive({ message: 'please enter the phone number' })
-                .min(10000000, { message: 'please enter the phone number' })
-                .max(99999999999999, {
-                    message: 'the phone number cannot have more than 13 numbers'
+                .min(8, { message: 'please enter the phone number' })
+                .max(14, {
+                    message: 'the phone number cannot have more than 14 numbers'
                 }),
             type: z
                 .string({
                     required_error: 'please enter the phone type',
                     invalid_type_error: 'please enter the phone type'
                 })
-                .min(2, { message: 'please enter the phone type' })
+                .min(2, { message: 'please enter the phone type' }),
+            createdBy: z.string(),
+            updatedBy: z.string()
         })
     )
     .min(1, { message: 'please enter the phone number' });
@@ -80,7 +89,9 @@ export const emailsFormSchema = z
                     required_error: 'please enter the email type',
                     invalid_type_error: 'please enter the email type'
                 })
-                .min(2, { message: 'please enter the email type' })
+                .min(2, { message: 'please enter the email type' }),
+            createdBy: z.string(),
+            updatedBy: z.string()
         })
     )
     .min(1, { message: 'please enter the email address' });
@@ -104,6 +115,8 @@ export const attributesFormSchema = z.array(
                 required_error: 'please enter the attribute value',
                 invalid_type_error: 'please enter the attribute value'
             })
-            .min(1, { message: 'please enter the attribute value' })
+            .min(1, { message: 'please enter the attribute value' }),
+        createdBy: z.string(),
+        updatedBy: z.string()
     })
 );

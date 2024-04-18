@@ -12,7 +12,7 @@ import { capitalize } from '@mui/material/utils';
 import { FormEventHandler } from 'react';
 import { FieldError } from 'react-hook-form';
 import FormSelect from '../../form-select/FormSelect';
-import { StyledEmailBox, StyledEmailFormBox } from './styled';
+import { StyledEmailBox, StyledEmailFormBox, StyledMenuItemBox } from './styled';
 import { IProps } from './types';
 
 const PartialEmailForm = <T,>({ register, types, control, errors, index, remove }: IProps<T>) => {
@@ -44,9 +44,7 @@ const PartialEmailForm = <T,>({ register, types, control, errors, index, remove 
                     {types.map((type, index) => {
                         return (
                             <MenuItem key={index} value={type}>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    {capitalize(type)}
-                                </Box>
+                                <StyledMenuItemBox>{capitalize(type)}</StyledMenuItemBox>
                             </MenuItem>
                         );
                     })}

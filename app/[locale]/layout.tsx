@@ -1,14 +1,22 @@
-import '@/app/styles/global.css';
-import React from 'react';
 import ThemeRegistry from '@/app/components/theme-registry/ThemeRegistry';
+import { getCountries } from '@/app/lib/data/country';
+import { getOrganizationTypes } from '@/app/lib/data/organization-type';
+import '@/app/styles/global.css';
+import { FC, PropsWithChildren } from 'react';
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-    console.log(children);
+const RootLayout: FC<PropsWithChildren> = async ({ children }) => {
+    const countries = await getCountries();
+    const organizationTypes = await getOrganizationTypes();
+
     return (
         <html lang='en'>
             <body>
-                <ThemeRegistry>{children}</ThemeRegistry>
+                <ThemeRegistry countries={countries} organizationTypes={organizationTypes}>
+                    {children}
+                </ThemeRegistry>
             </body>
         </html>
     );
-}
+};
+
+export default RootLayout;

@@ -1,6 +1,8 @@
 'use client';
 
-import ColorModeContext from '@/app/components/theme-registry/ColorModeContext';
+import ColorModeContext from '@/app/context/color-mode/provider';
+import { useUser } from '@/app/context/user/provider';
+import { getProviderName } from '@/app/lib/utils';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -15,9 +17,13 @@ import AvatarMenu from '../avatar-menu/AvatarMenu';
 import { StyledAppBar } from './styled';
 import { IProps } from './types';
 
-export const AppBar: FC<IProps> = ({ providerName, isOpen, handleDrawerToggle }) => {
+export const AppBar: FC<IProps> = ({ isOpen, handleDrawerToggle }) => {
     const theme = useTheme();
     const { toggleColorMode } = useContext(ColorModeContext);
+
+    const { provider } = useUser();
+
+    const providerName = getProviderName(provider);
 
     return (
         <StyledAppBar position='fixed' open={isOpen}>

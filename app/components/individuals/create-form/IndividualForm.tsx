@@ -1,11 +1,12 @@
 'use client';
 
 import PartialAddressForm from '@/app/components/address/form/PartialAddressForm';
-import { ICustomerFormProps } from '@/app/components/customers/create-form/types';
 import DateInput from '@/app/components/date-input/DateInput';
 import PartialEmailForm from '@/app/components/emails/partial-form/PartialEmailForm';
 import PartialAttributeForm from '@/app/components/entity-attributes/partial-form/EntityAttributeForm';
 import { AttributeTypeEnum } from '@/app/components/entity-attributes/partial-form/types';
+import { useData } from '@/app/context/data/provider';
+import { useUser } from '@/app/context/user/provider';
 import { createCustomer } from '@/app/lib/data/customer';
 import { useI18n } from '@/locales/client';
 import { TTranslationKeys } from '@/locales/types';
@@ -18,7 +19,7 @@ import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { EmailTypeEnum, EntitiesEnum, PhoneTypeEnum } from '@prisma/client';
+import { AccountRelationEnum, EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
 import NextLink from 'next/link';
 import { FC } from 'react';
 import { Control, useFieldArray, useForm } from 'react-hook-form';
@@ -26,47 +27,49 @@ import { TEntityFormRegister } from '../../customers/types';
 import PartialPhoneForm from '../../phones/partial-form/PartialPhoneForm';
 import formSchema from './formSchema';
 import { StyledForm } from './styled';
-import { TAttribute, TEmail, TIndividualForm, TIndividualFormControl, TPhone } from './types';
+import {
+    IProps,
+    TAttribute,
+    TEmail,
+    TIndividualForm,
+    TIndividualFormControl,
+    TPhone
+} from './types';
 
-/*
-
-  firstName             String               @map("first_name") @db.VarChar(255)
-  lastName              String               @map("last_name") @db.VarChar(255)
-  middleName            String?              @map("middle_name") @db.VarChar(255)
-  localIdentifierNameId String?              @map("local_identifier_name_id") @db.Uuid
-  localIdentifierName   localIdentifierName? @relation(fields: [localIdentifierNameId], references: [id], onDelete: Restrict)
-  localIdentifierValue  String?              @map("local_identifier_value")
-  dob                   DateTime?            @db.Date
-  description           String?              @db.Text
-  attributes            Json?                @db.JsonB
-  addressId             String               @map("address_id") @db.Uuid
-  address               address              @relation(fields: [addressId], references: [id])
-  accountId             String               @map("account_id") @db.Uuid
-  account               account              @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  accountRelation       AccountRelationEnum  @map("account_relation")
-  customerId            String?              @unique @map("customer_id") @db.Uuid
-  customer              customer?            @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  emails                individualEmail[]
-  phones                individualPhone[]
-*/
-
-const IndividualForm: FC<Omit<ICustomerFormProps, 'organizationTypes'>> = ({
-    countries,
-    userAccountCountry,
-    localIdentifierNames
-}) => {
+const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName }) => {
+    const { countries } = useData();
+    const { user, account } = useUser();
+    const createdUpdatedBy = user.id;
     const phonesInitial = [
-        { countryCode: '', number: '', type: PhoneTypeEnum.mobile } as unknown as TPhone
+        {
+            countryCode: '',
+            number: '',
+            type: PhoneTypeEnum.mobile,
+            createdBy: createdUpdatedBy,
+            updatedBy: createdUpdatedBy
+        } as unknown as TPhone
     ];
-    const emailsInitial = [{ email: '', type: EmailTypeEnum.main } as unknown as TEmail];
+    const emailsInitial = [
+        {
+            email: '',
+            type: EmailTypeEnum.main,
+            createdBy: createdUpdatedBy,
+            updatedBy: createdUpdatedBy
+        } as unknown as TEmail
+    ];
     const attributesInitial: TAttribute[] = [];
-    const emptyAttribute = { type: AttributeTypeEnum.text, name: '', value: '' };
-    const localIdentifierName = localIdentifierNames.find(
-        (name) => name.type === EntitiesEnum.individual
-    );
+    const emptyAttribute = {
+        type: AttributeTypeEnum.text,
+        name: '',
+        value: '',
+        createdBy: createdUpdatedBy,
+        updatedBy: createdUpdatedBy
+    };
 
     const defaultFormValues: TIndividualForm = {
         id: '',
+        accountRelation: AccountRelationEnum.customer,
+        accountId: account.id,
         firstName: '',
         lastName: '',
         localIdentifierNameId: localIdentifierName?.id,
@@ -79,11 +82,15 @@ const IndividualForm: FC<Omit<ICustomerFormProps, 'organizationTypes'>> = ({
             locality: '',
             region: '',
             postcode: '',
-            countryId: userAccountCountry.id
+            countryId: userAccountCountry.id,
+            createdBy: createdUpdatedBy,
+            updatedBy: createdUpdatedBy
         },
         phones: phonesInitial,
         emails: emailsInitial,
-        attributes: attributesInitial
+        attributes: attributesInitial,
+        createdBy: createdUpdatedBy,
+        updatedBy: createdUpdatedBy
     };
 
     const {
@@ -136,9 +143,9 @@ const IndividualForm: FC<Omit<ICustomerFormProps, 'organizationTypes'>> = ({
     //     console.error('Errors:', errors);
     // }, [errors, w]);
 
-    const onSubmit = (formData: TIndividualForm) => {
-        console.log('The form data: ', formData);
-        const newCustomer = createCustomer(formData, EntitiesEnum.individual);
+    const onSubmit = async (formData: TIndividualForm) => {
+        // TODO: catch database errors and display them
+        await createCustomer(formData);
     };
 
     const isSubmittable = !!isDirty;

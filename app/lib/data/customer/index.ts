@@ -1,40 +1,22 @@
 'use server';
 
-import { TIndividualForm } from '@/app/components/individuals/create-form/types';
+import { TEmail, TIndividualForm, TPhone } from '@/app/components/individuals/create-form/types';
+import { TOrganizationForm } from '@/app/components/organizations/create-form/types';
 import prisma from '@/app/lib/prisma';
 import { flattenCustomer, formatCurrency } from '@/app/lib/utils';
-import { AccountRelationEnum, EntitiesEnum, InvoiceStatusEnum } from '@prisma/client';
-import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { z } from 'zod';
 import {
-    ICreateCustomerState,
+    AccountRelationEnum,
+    EmailTypeEnum,
+    InvoiceStatusEnum,
+    PhoneTypeEnum,
+    Prisma
+} from '@prisma/client';
+import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
+import {
     getCustomersSelect,
     getFilteredCustomersByAccountIdSelect,
     getFilteredCustomersWhereClause
 } from './types';
-
-const ITEMS_PER_PAGE = 6;
-
-const FormSchema = z.object({
-    id: z.string(),
-    customer_id: z.string({
-        invalid_type_error: 'Please select a customer'
-    }),
-    amount: z.coerce
-        .number()
-        .gt(0, { message: 'Please enter an amount greater than 0' })
-        .transform((val) => {
-            return Math.floor(val * 100);
-        }),
-    status: z.enum(['pending', 'paid'], {
-        invalid_type_error: 'Please select an customer status'
-    }),
-    date: z.coerce.date()
-});
-
-const UpdateCustomer = FormSchema.omit({ id: true });
-const CreateCustomer = FormSchema.omit({ id: true });
 
 export async function getCustomersByAccountId(accountId: string) {
     noStore();
@@ -87,11 +69,12 @@ export async function getCustomersByAccountId(accountId: string) {
 export async function getFilteredCustomersByAccountId(
     accountId: string,
     query: string,
-    currentPage: number
+    currentPage: number,
+    itemsPerPage: number
 ) {
     noStore();
     try {
-        const offset = (currentPage - 1) * ITEMS_PER_PAGE;
+        const offset = currentPage * itemsPerPage;
 
         const rawCustomers = await prisma.customer.findMany({
             relationLoadStrategy: 'join',
@@ -107,7 +90,7 @@ export async function getFilteredCustomersByAccountId(
                     }
                 }
             ],
-            take: ITEMS_PER_PAGE,
+            take: itemsPerPage,
             skip: offset,
             select: getFilteredCustomersByAccountIdSelect,
             where: getFilteredCustomersWhereClause(query, accountId)
@@ -150,15 +133,12 @@ export async function getFilteredCustomersByAccountId(
     }
 }
 
-export async function getFilteredCustomersCountByAccountId(query: string, accountId: string) {
+export async function getFilteredCustomersCountByAccountId(accountId: string, query: string) {
     noStore();
     try {
-        const count = await prisma.customer.count({
+        return await prisma.customer.count({
             where: getFilteredCustomersWhereClause(query, accountId)
         });
-
-        const totalPages = Math.ceil(Number(count) / ITEMS_PER_PAGE);
-        return totalPages;
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Failed to fetch customers count.');
@@ -173,68 +153,118 @@ export async function deleteCustomerById(id: string) {
     });
 }
 
-export async function createCustomer(
-    formData: TIndividualForm | TOrganizationForm,
-    type: EntitiesEnum
-): Promise<ICreateCustomerState> {
+export async function createCustomer(formData: TIndividualForm | TOrganizationForm) {
     // Creating customer in DB
     try {
-        if (type === EntitiesEnum.organization) {
-            const { address, phones, emails, attributes, ...organization } = formData;
-            await prisma.customer.create({
-                data: {
-                    organization: {
-                        create: {
-                            ...formData
-                        }
+        const {
+            address,
+            phones,
+            emails,
+            accountRelation,
+            localIdentifierNameId,
+            accountId,
+            ...entity
+        } = formData;
+
+        let data: Prisma.XOR<
+            Prisma.customerCreateInput,
+            Prisma.customerUncheckedCreateInput
+        > | null = null;
+
+        const createEntityObject = {
+            ...entity,
+            accountRelation: accountRelation as AccountRelationEnum,
+            account: {
+                connect: {
+                    id: accountId
+                }
+            },
+            localIdentifierName: {
+                connect: {
+                    id: localIdentifierNameId
+                }
+            },
+            address: {
+                create: address
+            },
+            phones: {
+                create: phones as unknown as Omit<TPhone, 'type'> & {
+                    type: PhoneTypeEnum;
+                }
+            },
+            emails: {
+                create: emails as unknown as Omit<TEmail, 'type'> & {
+                    type: EmailTypeEnum;
+                }
+            }
+        };
+        if ('typeId' in createEntityObject) {
+            const { typeId, ...createEntityObjectWithoutType } = createEntityObject;
+
+            const createEntityObjectWithType = {
+                ...createEntityObjectWithoutType,
+                type: {
+                    connect: {
+                        id: typeId
                     }
                 }
-            });
-        } else if (type === CustomerTypeEnum.INDIVIDUAL) {
+            };
+
+            data = {
+                organization: {
+                    create: createEntityObjectWithType
+                }
+            };
+        } else if ('firstName' in createEntityObject) {
+            data = {
+                individual: {
+                    create: createEntityObject
+                }
+            };
         }
-        // const data = { individuals: 'bla' };
-        // await prisma.customer.create({
-        //     data,
-        //     include: {
-        //         individual: {
-        //             data: {}
-        //         }
-        //     }
-        // });
-        console.log('Successfully created customer.');
+
+        if (!data) {
+            throw new Error('Failed to create customer.');
+        }
+
+        const newCustomer = await prisma.customer.create({
+            data,
+            select: {
+                id: true,
+                isActive: true,
+                organization: true,
+                individual: true
+            }
+        });
+
+        console.log('Successfully created new customer: ', newCustomer);
+
+        return newCustomer;
     } catch (error) {
         console.error('Database Error:', error);
         return {
             message: 'Database Error: Failed to create customer.'
         };
     }
-    revalidatePath('/dashboard/customers');
-    redirect('/dashboard/customers');
 }
 
-export async function updateCustomer(id: string, formData: FormData) {
-    const rawFormData = Object.fromEntries(formData.entries());
-    const dateISOString = new Date().toISOString();
-    rawFormData.date = dateISOString;
-
-    const data = UpdateCustomer.parse(rawFormData);
-
-    // Creating customer in DB
-    try {
-        await prisma.customer.update({
-            where: {
-                id
-            },
-            data
-        });
-        console.log('Successfully updated customer.');
-    } catch (error) {
-        console.error('Database Error:', error);
-        throw new Error('Failed to delete customer.');
-    }
-    revalidatePath('/dashboard/customers');
-    redirect('/dashboard/customers');
-}
+// export async function updateCustomer(id: string, formData: TIndividualForm | TOrganizationForm) {
+//     // Creating customer in DB
+//     try {
+//         await prisma.customer.update({
+//             where: {
+//                 id
+//             },
+//             formData
+//         });
+//         console.log('Successfully updated customer.');
+//     } catch (error) {
+//         console.error('Database Error:', error);
+//         throw new Error('Failed to delete customer.');
+//     }
+//     revalidatePath('/dashboard/customers');
+//     redirect('/dashboard/customers');
+// }
 
 export async function deleteCustomer(id: string): Promise<{ message: string }> {
     if (!id) {

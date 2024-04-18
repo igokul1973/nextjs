@@ -3,7 +3,7 @@ import { FC } from 'react';
 
 export interface IRightDrawerState {
     isOpen: boolean;
-    childComponent: FC;
+    childComponent: FC | null;
     title?: string;
     icon?: TMuiIcon;
 }

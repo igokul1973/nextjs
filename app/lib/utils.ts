@@ -93,6 +93,7 @@ export function getProviderName(
 
 export type TFlattenedCustomer = {
     id: string;
+    type: EntitiesEnum;
     name: string;
     email: string;
     phone: string;
@@ -110,8 +111,11 @@ export function flattenCustomer(rawCustomer: TGetCustomersPayload): TFlattenedCu
             ? getIndividualFullNameString(entity as unknown as TIndividual)
             : entity.name;
 
+    const type = 'firstName' in entity ? EntitiesEnum.individual : EntitiesEnum.organization;
+
     return {
         id: rawCustomer.id,
+        type,
         name,
         email: entity.emails && entity.emails.length ? entity.emails[0].email : 'no email provided',
         phone:

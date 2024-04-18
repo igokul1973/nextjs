@@ -9,7 +9,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { Fragment, forwardRef } from 'react';
 import { TableComponents, TableVirtuoso } from 'react-virtuoso';
-import { ICustomer } from '../../types';
+import { ICustomer } from '../types';
 import { ColumnData } from './types';
 
 const columns: ColumnData[] = [
@@ -79,7 +79,7 @@ function rowContent(_index: number, row: ICustomer) {
     );
 }
 
-export default function CustomersTable({ customers }: { customers: ICustomer[] }) {
+export default function CustomersTableOld({ customers }: { customers: ICustomer[] }) {
     return (
         <Paper style={{ height: 400, width: '100%' }}>
             <TableVirtuoso

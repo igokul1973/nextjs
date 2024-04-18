@@ -101,28 +101,32 @@ export type TGetCustomersPayload = Prisma.customerGetPayload<{
     select: typeof getCustomersSelect;
 }>;
 
-export interface ICreateCustomerState {
-    message?: string | null;
-    errors?: {
-        customerId?: string[];
-        amount?: string[];
-        status?: string[];
-        date?: string[];
-    };
-}
 export const getFilteredCustomersWhereClause = (
     query: string,
     accountId: string
 ): Prisma.customerWhereInput => ({
     AND: [
         {
-            organization: {
-                account: {
-                    id: {
-                        equals: accountId
+            OR: [
+                {
+                    organization: {
+                        account: {
+                            id: {
+                                equals: accountId
+                            }
+                        }
+                    }
+                },
+                {
+                    individual: {
+                        account: {
+                            id: {
+                                equals: accountId
+                            }
+                        }
                     }
                 }
-            }
+            ]
         },
         {
             OR: [
@@ -207,6 +211,26 @@ export const getFilteredCustomersWhereClause = (
                                 emails: {
                                     some: {
                                         email: {
+                                            contains: query,
+                                            mode: 'insensitive'
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                phones: {
+                                    some: {
+                                        countryCode: {
+                                            contains: query,
+                                            mode: 'insensitive'
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                phones: {
+                                    some: {
+                                        number: {
                                             contains: query,
                                             mode: 'insensitive'
                                         }

@@ -2,18 +2,20 @@
 
 import { useI18n } from '@/locales/client';
 import { TTranslationKeys } from '@/locales/types';
+import DeleteIcon from '@mui/icons-material/Delete';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
+import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import { capitalize } from '@mui/material/utils';
 import { FormEventHandler } from 'react';
 import { FieldError } from 'react-hook-form';
 import FormSelect from '../../form-select/FormSelect';
-import { StyledEntityAttributeBox, StyledMenuItemBox } from './styled';
+import { StyledAttributeValueBox, StyledEntityAttributeBox, StyledMenuItemBox } from './styled';
 import { AttributeTypeEnum, IProps } from './types';
 
-const PartialAttributeForm = <T,>({ register, control, errors, index }: IProps<T>) => {
+const PartialAttributeForm = <T,>({ register, control, errors, index, remove }: IProps<T>) => {
     const t = useI18n();
 
     const types = Object.values(AttributeTypeEnum);
@@ -77,7 +79,7 @@ const PartialAttributeForm = <T,>({ register, control, errors, index }: IProps<T
                     />
                 </FormControl>
             </Box>
-            <Box>
+            <StyledAttributeValueBox>
                 <FormControl fullWidth>
                     <TextField
                         label={capitalize(t('value'))}
@@ -98,7 +100,15 @@ const PartialAttributeForm = <T,>({ register, control, errors, index }: IProps<T
                         {...register(`attributes.${index}.value`)}
                     />
                 </FormControl>
-            </Box>
+                <IconButton
+                    onClick={() => remove(index)}
+                    className='delete-btn'
+                    aria-label='delete'
+                    color='error'
+                >
+                    <DeleteIcon />
+                </IconButton>
+            </StyledAttributeValueBox>
         </StyledEntityAttributeBox>
     );
 };

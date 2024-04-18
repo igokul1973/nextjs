@@ -13,10 +13,10 @@ CREATE TYPE "AccountRelationEnum" AS ENUM ('provider', 'customer');
 CREATE TYPE "invoiceStatus" AS ENUM ('draft', 'pending', 'paid', 'cancelled');
 
 -- CreateEnum
-CREATE TYPE "EmailTypeEnum" AS ENUM ('main', 'work', 'invoicing', 'secondary', 'other');
+CREATE TYPE "EmailTypeEnum" AS ENUM ('main', 'home', 'work', 'invoicing', 'secondary', 'other');
 
 -- CreateEnum
-CREATE TYPE "PhoneTypeEnum" AS ENUM ('mobile', 'home', 'work', 'invoicing', 'other');
+CREATE TYPE "PhoneTypeEnum" AS ENUM ('mobile', 'office', 'main', 'home', 'work', 'invoicing', 'other');
 
 -- CreateTable
 CREATE TABLE "accounts" (
@@ -164,10 +164,10 @@ CREATE TABLE "individuals" (
     "first_name" VARCHAR(255) NOT NULL,
     "last_name" VARCHAR(255) NOT NULL,
     "middle_name" VARCHAR(255),
-    "local_identifier_name_id" UUID,
-    "local_identifier_value" TEXT,
     "dob" DATE,
     "description" TEXT,
+    "local_identifier_name_id" UUID,
+    "local_identifier_value" TEXT,
     "attributes" JSONB,
     "address_id" UUID NOT NULL,
     "account_id" UUID NOT NULL,
@@ -185,10 +185,10 @@ CREATE TABLE "individuals" (
 CREATE TABLE "organizations" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "name" VARCHAR(255) NOT NULL,
-    "description" TEXT NOT NULL,
-    "type_id" UUID NOT NULL,
+    "description" TEXT,
     "is_private" BOOLEAN,
     "is_charity" BOOLEAN,
+    "type_id" UUID,
     "local_identifier_name_id" UUID,
     "local_identifier_value" TEXT,
     "attributes" JSONB,
@@ -366,7 +366,7 @@ ALTER TABLE "individuals" ADD CONSTRAINT "individuals_account_id_fkey" FOREIGN K
 ALTER TABLE "individuals" ADD CONSTRAINT "individuals_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "customers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "organizations" ADD CONSTRAINT "organizations_type_id_fkey" FOREIGN KEY ("type_id") REFERENCES "organization_types"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "organizations" ADD CONSTRAINT "organizations_type_id_fkey" FOREIGN KEY ("type_id") REFERENCES "organization_types"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "organizations" ADD CONSTRAINT "organizations_local_identifier_name_id_fkey" FOREIGN KEY ("local_identifier_name_id") REFERENCES "local_identifier_names"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

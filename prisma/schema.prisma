@@ -215,11 +215,11 @@ model individual {
   firstName             String               @map("first_name") @db.VarChar(255)
   lastName              String               @map("last_name") @db.VarChar(255)
   middleName            String?              @map("middle_name") @db.VarChar(255)
+  dob                   DateTime?            @db.Date
+  description           String?              @db.Text
   localIdentifierNameId String?              @map("local_identifier_name_id") @db.Uuid
   localIdentifierName   localIdentifierName? @relation(fields: [localIdentifierNameId], references: [id], onDelete: Restrict)
   localIdentifierValue  String?              @map("local_identifier_value")
-  dob                   DateTime?            @db.Date
-  description           String?              @db.Text
   attributes            Json?                @db.JsonB
   addressId             String               @map("address_id") @db.Uuid
   address               address              @relation(fields: [addressId], references: [id])
@@ -242,11 +242,11 @@ model individual {
 model organization {
   id                    String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name                  String               @db.VarChar(255)
-  description           String               @db.Text
-  typeId                String               @map("type_id") @db.Uuid
-  type                  organizationType     @relation(fields: [typeId], references: [id])
+  description           String?              @db.Text
   isPrivate             Boolean?             @map("is_private") @db.Boolean // as opposed to government
   isCharity             Boolean?             @map("is_charity") @db.Boolean // 
+  typeId                String?              @map("type_id") @db.Uuid
+  type                  organizationType?    @relation(fields: [typeId], references: [id])
   localIdentifierNameId String?              @map("local_identifier_name_id") @db.Uuid
   localIdentifierName   localIdentifierName? @relation(fields: [localIdentifierNameId], references: [id], onDelete: Restrict)
   localIdentifierValue  String?              @map("local_identifier_value")

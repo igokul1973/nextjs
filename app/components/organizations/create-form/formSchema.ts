@@ -14,12 +14,16 @@ const baseOrganizationFormSchema = z.object({
             invalid_type_error: 'please enter the name'
         })
         .min(1, { message: 'please enter the name' }),
+    accountId: z.string(),
     localIdentifierNameId: z.string().optional(),
     localIdentifierValue: z.string().optional(),
+    accountRelation: z.string().optional(),
     typeId: z.string().optional(),
     description: z.string().optional(),
     isPrivate: z.boolean().optional(),
-    isCharity: z.boolean().optional()
+    isCharity: z.boolean().optional(),
+    createdBy: z.string(),
+    updatedBy: z.string()
 });
 
 const organizationFormSchema = baseOrganizationFormSchema.extend({

@@ -1,21 +1,17 @@
 'use client';
+
+import ColorModeContext from '@/app/context/color-mode/provider';
+import DataContext from '@/app/context/data/provider';
 import theme from '@/app/styles/theme';
-import { Options } from '@emotion/cache';
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v14-appRouter';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { useMemo, useState } from 'react';
-import ColorModeContext from './ColorModeContext';
+import { FC, useMemo, useState } from 'react';
+import { IProps } from './types';
 
 // This implementation is from emotion-js
 // https://github.com/emotion-js/emotion/issues/2928#issuecomment-1319747902
-export default function ThemeRegistry({
-    options,
-    children
-}: {
-    options?: Partial<Options> & { enableCssLayer?: boolean };
-    children: React.ReactNode;
-}) {
+const ThemeRegistry: FC<IProps> = ({ options, children, countries, organizationTypes }) => {
     const [mode, setMode] = useState<'light' | 'dark'>('light');
     const colorMode = useMemo(
         () => ({
@@ -40,10 +36,14 @@ export default function ThemeRegistry({
         <AppRouterCacheProvider options={options}>
             <ColorModeContext.Provider value={colorMode}>
                 <ThemeProvider theme={appTheme}>
-                    <CssBaseline />
-                    {children}
+                    <DataContext.Provider value={{ countries, organizationTypes }}>
+                        <CssBaseline />
+                        {children}
+                    </DataContext.Provider>
                 </ThemeProvider>
             </ColorModeContext.Provider>
         </AppRouterCacheProvider>
     );
-}
+};
+
+export default ThemeRegistry;

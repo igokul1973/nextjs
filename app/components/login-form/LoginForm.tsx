@@ -1,5 +1,6 @@
 'use client';
 
+import ColorModeContext from '@/app/context/color-mode/provider';
 import { authenticate } from '@/app/lib/data/user';
 import AlternateEmailOutlined from '@mui/icons-material/AlternateEmailOutlined';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
@@ -10,7 +11,6 @@ import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
 import { FC, useContext } from 'react';
 import { useFormState } from 'react-dom';
-import ColorModeContext from '../theme-registry/ColorModeContext';
 import LoginButton from './LoginButton';
 import { StyledErrorMessage, StyledFields, StyledForm } from './styled';
 

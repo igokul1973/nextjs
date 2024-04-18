@@ -16,12 +16,7 @@ import IndividualForm from '../../individuals/create-form/IndividualForm';
 import OrganizationForm from '../../organizations/create-form/OrganizationForm';
 import { ICustomerFormProps } from './types';
 
-const CustomerForm: FC<ICustomerFormProps> = ({
-    countries,
-    userAccountCountry,
-    localIdentifierNames,
-    organizationTypes
-}) => {
+const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentifierNames }) => {
     const t = useI18n();
     const [customerType, setCustomerType] = useState<EntitiesEnum | ''>('');
     const entities = Object.values(EntitiesEnum).map((entity) => {
@@ -30,6 +25,23 @@ const CustomerForm: FC<ICustomerFormProps> = ({
             icon: entity === EntitiesEnum.individual ? Face : Business
         };
     });
+
+    const individualLocalIdentifierName = localIdentifierNames.find(
+        (name) => name.type === EntitiesEnum.individual
+    );
+
+    const organizationLocalIdentifierName = localIdentifierNames.find(
+        (name) => name.type === EntitiesEnum.organization
+    );
+
+    if (!individualLocalIdentifierName || !organizationLocalIdentifierName) {
+        return (
+            <div>
+                No local identifier names provided. Please create one(s) for organization and/or
+                individual customers for the current user&apos;s country.
+            </div>
+        );
+    }
 
     return (
         <StyledBox component='section'>
@@ -63,16 +75,13 @@ const CustomerForm: FC<ICustomerFormProps> = ({
             </FormControl>
             {customerType === EntitiesEnum.individual ? (
                 <IndividualForm
-                    countries={countries}
                     userAccountCountry={userAccountCountry}
-                    localIdentifierNames={localIdentifierNames}
+                    localIdentifierName={individualLocalIdentifierName}
                 />
             ) : customerType === EntitiesEnum.organization ? (
                 <OrganizationForm
-                    countries={countries}
                     userAccountCountry={userAccountCountry}
-                    localIdentifierNames={localIdentifierNames}
-                    organizationTypes={organizationTypes}
+                    localIdentifierName={organizationLocalIdentifierName}
                 />
             ) : null}
         </StyledBox>

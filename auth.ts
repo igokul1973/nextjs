@@ -2,9 +2,8 @@
 
 import { getUserByEmail } from '@/app/lib/data/user';
 import { compare } from 'bcryptjs';
-import NextAuth, { NextAuthResult, Session } from 'next-auth';
+import NextAuth, { NextAuthResult } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { authConfig } from './auth.config';
 
@@ -42,26 +41,6 @@ const {
         })
     ]
 });
-
-type NextAuthRequest = NextRequest & {
-    auth: Session | null;
-};
-
-type AppRouteHandlerFnContext = {
-    params?: Record<string, string | string[]>;
-};
-
-type AppRouteHandlerFn = (
-    /**
-     * Incoming request object.
-     */
-    req: NextRequest,
-    /**
-     * Context properties on the request (including the parameters if this was a
-     * dynamic route).
-     */
-    ctx: AppRouteHandlerFnContext
-) => void | Response | Promise<void | Response>;
 
 // @ts-expect-error(there is something wrong with the types in the next-auth package : NextAuthResult['auth'])
 export const auth: NextAuthResult['auth'] = async (...args) => {

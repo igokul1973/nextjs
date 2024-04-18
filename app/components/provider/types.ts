@@ -1,7 +1,11 @@
 import { EntitiesEnum } from '@prisma/client';
-import { TProvider } from '../account/types';
+import { TEntities } from '@/app/lib/types';
+import { TGetUserPayload } from '@/app/lib/data/user/types';
 
 export interface IProps {
-    provider: TProvider;
+    provider?: TEntities<
+        TGetUserPayload['account']['individuals'][number],
+        TGetUserPayload['account']['organizations'][number]
+    >;
     providerType: EntitiesEnum;
 }

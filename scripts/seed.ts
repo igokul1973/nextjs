@@ -198,10 +198,10 @@ async function getInventoryTypes() {
     return inventoryTypes;
 }
 
-async function createUUIDExtension() {
-    console.log('Creating UUID Extension...');
-    return prisma.$queryRaw`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-}
+// async function createUUIDExtension() {
+//     console.log('Creating UUID Extension...');
+//     return prisma.$queryRaw`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+// }
 
 async function seedAccounts() {
     console.log('Seeding accounts...');
@@ -1046,8 +1046,8 @@ async function main() {
     await addExtensionToInitialMigrationFile();
     await runMigrateCommand();
     console.log('Successfully prepared migrations!\n');
-    await seedDatabase();
     await runGeneratePrismaClientCommand();
+    await seedDatabase();
     console.log('\nFinished seeding the database!\n');
 
     await prisma.$disconnect();

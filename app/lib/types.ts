@@ -2,6 +2,8 @@
 // It describes the shape of the data, and what data type each property should accept.
 // For simplicity of teaching, we're manually defining these types.
 
+export type TOrder = 'asc' | 'desc';
+
 import { OverridableComponent } from '@mui/material/OverridableComponent';
 import { SvgIconTypeMap } from '@mui/material/SvgIcon';
 import type {
@@ -110,4 +112,5 @@ export type TEntitiesWithNonNullableCustomer = {
 export interface ISearchParams {
     query?: string;
     page?: string;
+    itemsPerPage?: string;
 }

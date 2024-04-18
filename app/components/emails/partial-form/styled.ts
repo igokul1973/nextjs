@@ -19,6 +19,15 @@ export const StyledEmailFormBox = styled(Box, {
     }
 `;
 
+export const StyledMenuItemBox = styled(Box, {
+    name: 'Styled Menu Item Box',
+    slot: 'Root'
+})`
+    display: flex;
+    alignitems: center;
+    gap: 1;
+`;
+
 export const StyledEmailBox = styled(Box, {
     name: 'Styled Email Box',
     slot: 'Root'
