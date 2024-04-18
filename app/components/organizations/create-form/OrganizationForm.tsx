@@ -6,6 +6,8 @@ import { AttributeTypeEnum } from '@/app/components/entity-attributes/partial-fo
 import { IProps, TOrganizationFormControl } from '@/app/components/organizations/create-form/types';
 import PartialPhoneForm from '@/app/components/phones/partial-form/PartialPhoneForm';
 import { useData } from '@/app/context/data/provider';
+import { useSnackbar } from '@/app/context/snackbar/provider';
+import { useUser } from '@/app/context/user/provider';
 import { createCustomer } from '@/app/lib/data/customer';
 import { useI18n } from '@/locales/client';
 import { TTranslationKeys } from '@/locales/types';
@@ -19,6 +21,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import TextField from '@mui/material/TextField';
 import { AccountRelationEnum, EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
 import NextLink from 'next/link';
+import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
@@ -27,12 +30,14 @@ import FormSelect from '../../form-select/FormSelect';
 import formSchema from './formSchema';
 import { StyledForm } from './styled';
 import { TAttribute, TEmail, TOrganizationForm, TPhone } from './types';
-import { useUser } from '@/app/context/user/provider';
 
 const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName }) => {
     const { countries, organizationTypes } = useData();
     const { user, account } = useUser();
     const userId = user.id;
+    const { openSnackbar } = useSnackbar();
+    const { push } = useRouter();
+
     const phonesInitial = [
         {
             countryCode: '',
@@ -138,8 +143,13 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName 
     // }, [errors, w]);
 
     const onSubmit = async (formData: TOrganizationForm) => {
-        // TODO: catch database errors and display them
-        await createCustomer(formData);
+        try {
+            await createCustomer(formData);
+            openSnackbar('Successfully created customer.');
+            push('/dashboard/customers');
+        } catch (error) {
+            openSnackbar(`Failed to create customer: ${error}`, 'error');
+        }
     };
 
     const isSubmittable = !!isDirty;
@@ -274,8 +284,8 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName 
             ))}
             <Button onClick={() => appendEmail({ ...emailsInitial[0] })}>
                 {emails.length > 0
-                    ? capitalize(t('add another phone'))
-                    : capitalize(t('add phone'))}
+                    ? capitalize(t('add another email'))
+                    : capitalize(t('add email'))}
             </Button>
             <Divider />
             {attributes.map((attribute, index) => (

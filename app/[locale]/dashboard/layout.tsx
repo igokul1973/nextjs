@@ -1,6 +1,8 @@
 import { DrawerHeader } from '@/app/components/dashboard/navigation/styled';
 import RightDrawer from '@/app/components/right-drawer/RightDrawer';
+import GlobalSnackbar from '@/app/components/snackbar/GlobalSnackbar';
 import NavProvider from '@/app/context/navigation/provider';
+import { SnackbarProvider } from '@/app/context/snackbar/provider';
 import UserProvider from '@/app/context/user/provider';
 import { getUserProfile } from '@/app/lib/data/profile';
 import { auth } from '@/auth';
@@ -25,12 +27,15 @@ const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
             <I18nProviderClient locale={locale}>
                 <NavProvider>
                     <UserProvider value={{ user, profile, account, provider, providerType }}>
-                        <Navigation />
-                        <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
-                            <DrawerHeader />
-                            {children}
-                            <RightDrawer />
-                        </Box>
+                        <SnackbarProvider>
+                            <Navigation />
+                            <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
+                                <DrawerHeader />
+                                {children}
+                                <RightDrawer />
+                            </Box>
+                            <GlobalSnackbar />
+                        </SnackbarProvider>
                     </UserProvider>
                 </NavProvider>
             </I18nProviderClient>

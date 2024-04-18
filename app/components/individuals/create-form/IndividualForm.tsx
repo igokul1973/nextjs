@@ -6,6 +6,7 @@ import PartialEmailForm from '@/app/components/emails/partial-form/PartialEmailF
 import PartialAttributeForm from '@/app/components/entity-attributes/partial-form/EntityAttributeForm';
 import { AttributeTypeEnum } from '@/app/components/entity-attributes/partial-form/types';
 import { useData } from '@/app/context/data/provider';
+import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
 import { createCustomer } from '@/app/lib/data/customer';
 import { useI18n } from '@/locales/client';
@@ -21,6 +22,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AccountRelationEnum, EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
 import NextLink from 'next/link';
+import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { Control, useFieldArray, useForm } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
@@ -37,9 +39,12 @@ import {
 } from './types';
 
 const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName }) => {
+    const { openSnackbar } = useSnackbar();
     const { countries } = useData();
     const { user, account } = useUser();
     const createdUpdatedBy = user.id;
+    const { push } = useRouter();
+
     const phonesInitial = [
         {
             countryCode: '',
@@ -144,8 +149,13 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName })
     // }, [errors, w]);
 
     const onSubmit = async (formData: TIndividualForm) => {
-        // TODO: catch database errors and display them
-        await createCustomer(formData);
+        try {
+            await createCustomer(formData);
+            openSnackbar('Successfully created customer.');
+            push('/dashboard/customers');
+        } catch (error) {
+            openSnackbar(`Failed to create customer: ${error}`, 'error');
+        }
     };
 
     const isSubmittable = !!isDirty;

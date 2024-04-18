@@ -4,6 +4,7 @@ import {
     DEFAULT_ITEMS_PER_PAGE,
     DEFAULT_PAGE_NUMBER
 } from '@/app/[locale]/dashboard/customers/constants';
+import { useSnackbar } from '@/app/context/snackbar/provider';
 import { TOrder } from '@/app/lib/types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -192,7 +193,7 @@ function EnhancedTableToolbar(props: IEnhancedTableToolbarProps) {
 }
 
 const CustomersTable: FC<IProps> = ({ customers, count }) => {
-    const [order, setOrder] = useState<Order>('asc');
+    const [order, setOrder] = useState<TOrder>('asc');
     const [orderBy, setOrderBy] = useState<keyof ICustomerTable>('name');
     const [selected, setSelected] = useState<readonly ICustomerTable['id'][]>([]);
     const [dense, setDense] = useState(false);
@@ -277,11 +278,9 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
         [customers, order, orderBy]
     );
 
-    console.log('visibleRows: ', visibleRows);
-
     return (
         <Box sx={{ width: '100%' }}>
-            <Paper sx={{ width: '70%', mb: 2 }}>
+            <Paper sx={{ width: '100%', mb: 2 }}>
                 <EnhancedTableToolbar numSelected={selected.length} />
                 <TableContainer>
                     <Table

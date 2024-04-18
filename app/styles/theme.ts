@@ -42,23 +42,55 @@ const theme = {
             fontSize: '1.1rem'
         }
     },
-
     components: {
+        MuiAlert: {
+            styleOverrides: {
+                filledSuccess: {
+                    backgroundColor: colors.success,
+                    color: 'white',
+                    maxWidth: '400px'
+                },
+                filledError: {
+                    backgroundColor: colors.error,
+                    color: 'white',
+                    maxWidth: '400px'
+                },
+                filledWarning: {
+                    backgroundColor: colors.warning,
+                    color: 'red',
+                    maxWidth: '400px'
+                },
+                filledInfo: {
+                    backgroundColor: colors.info,
+                    color: 'white',
+                    maxWidth: '400px'
+                },
+                standardSuccess: {
+                    backgroundColor: colors.success,
+                    color: 'white',
+                    maxWidth: '400px'
+                },
+                standardError: {
+                    backgroundColor: colors.error,
+                    color: 'white',
+                    maxWidth: '400px'
+                },
+                standardWarning: {
+                    backgroundColor: colors.warning,
+                    color: 'red',
+                    maxWidth: '400px'
+                },
+                standardInfo: {
+                    backgroundColor: colors.info,
+                    color: 'black',
+                    maxWidth: '400px'
+                }
+            }
+        },
         MuiFormHelperText: {
             styleOverrides: {
                 root: {
                     color: colors.error
-                }
-            }
-        },
-        MainMenuFrameComponent: {
-            styleOverrides: {
-                root: {
-                    width: 250,
-                    height: 400,
-                    border: `12px ${colors.primary}`,
-                    borderStyle: 'ridge solid',
-                    borderRadius: '36px'
                 }
             }
         },

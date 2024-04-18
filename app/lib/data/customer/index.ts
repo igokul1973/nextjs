@@ -242,9 +242,7 @@ export async function createCustomer(formData: TIndividualForm | TOrganizationFo
         return newCustomer;
     } catch (error) {
         console.error('Database Error:', error);
-        return {
-            message: 'Database Error: Failed to create customer.'
-        };
+        throw error;
     }
 }
 
