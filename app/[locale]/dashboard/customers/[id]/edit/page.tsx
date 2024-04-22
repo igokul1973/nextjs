@@ -5,7 +5,8 @@ import { TOrganizationForm } from '@/app/components/organizations/create-form/ty
 import Warning from '@/app/components/warning/Warning';
 import { getCustomerById } from '@/app/lib/data/customer';
 import { getLocalIdentifierNamesByCountryId } from '@/app/lib/data/local-identifier-name';
-import { capitalize } from '@/app/lib/utils';
+import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
+import { capitalize, deNullifyObject, getUserProvider, getUserProviderType } from '@/app/lib/utils';
 import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
@@ -20,11 +21,22 @@ import { IProps } from './types';
 
 const Page: FC<IProps> = async ({ params: { id } }) => {
     const t = await getI18n();
+
     const session = await auth();
-    if (!session) redirect('/');
-    const { provider, providerType } = session;
+    const sessionUser = session?.user;
+    if (!session || !sessionUser) redirect('/');
+
+    const dbUser = await getUserWithRelationsByEmail(sessionUser.email);
+
+    if (!dbUser) {
+        redirect('/');
+    }
+
+    const provider = getUserProvider(dbUser);
+    const providerType = getUserProviderType(provider);
+
     const userAccountProvider = provider && providerType && provider[providerType];
-    const userAccountCountry = userAccountProvider && userAccountProvider.address?.country;
+    const userAccountCountry = userAccountProvider?.address?.country;
     const localIdentifierNames =
         userAccountCountry && (await getLocalIdentifierNamesByCountryId(userAccountCountry?.id));
     const isDataLoaded = !!userAccountCountry && !!localIdentifierNames;
@@ -71,23 +83,23 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
     const isIndividual = 'firstName' in entity;
     const { address, attributes, ...entityFields } = entity;
     const { country, ...addressFields } = address;
-    const { ...attributesFields } = attributes as Record<string, TAttribute>;
+    // Transforming JSON fields into array-like object
+    const attributesFields = attributes
+        ? { ...(attributes as Record<string, TAttribute>) }
+        : undefined;
 
-    const form: TIndividualForm | TOrganizationForm = isIndividual
-        ? {
-              ...entityFields,
-              address: {
-                  ...addressFields
-              },
-              attributes: Object.values(attributesFields)
-          }
-        : {
-              ...entityFields,
-              address: {
-                  ...addressFields
-              },
-              attributes: Object.values(attributesFields)
-          };
+    const form = {
+        ...entityFields,
+        address: {
+            ...addressFields
+        },
+        // Transforming JSON fields into array of objects
+        attributes: attributesFields ? Object.values(attributesFields) : []
+    };
+    // Since the DB returns null values where they can be empty,
+    // but the form expects undefined,
+    // we need to convert them to undefined where appropriate
+    const customerForm: TIndividualForm | TOrganizationForm = deNullifyObject<typeof form>(form);
 
     return (
         <StyledBox component='main' className='wrapper'>
@@ -107,13 +119,13 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
                 <IndividualForm
                     userAccountCountry={userAccountCountry}
                     localIdentifierName={individualLocalIdentifierName}
-                    form={form as TIndividualForm}
+                    form={customerForm as TIndividualForm}
                 />
             ) : (
                 <OrganizationForm
                     userAccountCountry={userAccountCountry}
                     localIdentifierName={organizationLocalIdentifierName}
-                    form={form as TOrganizationForm}
+                    form={customerForm as TOrganizationForm}
                 />
             )}
         </StyledBox>

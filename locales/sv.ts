@@ -1,6 +1,11 @@
-import { TTranslationKeys } from './types';
+import { TPluralTranslationKeys, TSingleTranslationKeys } from './types';
 
-const sv: Record<TTranslationKeys, string> = {
+const svPlural: Record<TPluralTranslationKeys, string> = {
+    'must be digits#many': 'måste vara {count} siffror',
+    'must be up to digits#many': 'måste vara upp till {count} siffror'
+};
+
+const svSingle: Record<TSingleTranslationKeys, string> = {
     create: 'skapa',
     add: 'lägg till',
     edit: 'redigera',
@@ -71,16 +76,14 @@ const sv: Record<TTranslationKeys, string> = {
     'add phone': 'lägg till telefon nummer',
     'add another phone': 'lägg till ett annat telefonnummer',
     'country code': 'landskod',
-    'must be digits#many': 'måste vara {count} siffror',
-    'must be up to digits#many': 'måste vara upp till {count} siffror',
     'phone country code': 'telefon landskod',
     'please enter the country code': 'var god ange landskod',
     'please enter the phone number': 'var god ange telefonnummer',
     'please enter the phone type': 'var god ange telefontyp',
     // Emails
     email: 'e-post',
-    'email addresses': 'mejladresser',
-    'add email': 'lägg till e-post',
+    'email addresses': 'e-postadress',
+    'add email address': 'lägg till e-postadress',
     'add another email address': 'lägg till en annan e-postadress',
     'please enter the email address': 'var god ange e-postadress',
     'please enter the email type': 'var god ange e-posttyp',
@@ -101,6 +104,8 @@ const sv: Record<TTranslationKeys, string> = {
     'please enter the country': 'var god ange landet',
     'please enter the company name': 'var god ange företagsnamn',
     'the country code cannot be bigger than 999': 'landskoden kan inte vara mer än 999',
+    'the phone number cannot have less than 8 digits':
+        'telefonnumret kan inte ha mindre än 8 siffror',
     'the phone number cannot have more than 14 digits':
         'telefonnumret kan inte ha mer än 14 siffror',
     'invalid date': 'ogiltig datum',
@@ -122,6 +127,11 @@ const sv: Record<TTranslationKeys, string> = {
     // Miscellaneous
     'search customers': 'sök kunder',
     search: 'sök'
+};
+
+const sv = {
+    ...svSingle,
+    ...svPlural
 } as const;
 
 export default sv;

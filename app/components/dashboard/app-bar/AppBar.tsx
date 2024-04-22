@@ -46,7 +46,6 @@ export const AppBar: FC<IProps> = ({ isOpen, handleDrawerToggle }) => {
                     </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', gap: '1.5rem;' }}>
-                    {/* <Typography>{capitalize(currentLocale)}</Typography> */}
                     <IconButton onClick={toggleColorMode} color='inherit'>
                         {theme.palette.mode === 'dark' ? <Brightness7Icon /> : <Brightness4Icon />}
                     </IconButton>

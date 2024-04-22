@@ -1,7 +1,8 @@
 'use client';
 
+import FormSelect from '@/app/components/form-select/FormSelect';
 import { useI18n } from '@/locales/client';
-import { TTranslationKeys } from '@/locales/types';
+import { TSingleTranslationKeys } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
@@ -11,11 +12,18 @@ import TextField from '@mui/material/TextField';
 import { capitalize } from '@mui/material/utils';
 import { FormEventHandler } from 'react';
 import { FieldError } from 'react-hook-form';
-import FormSelect from '../../form-select/FormSelect';
 import { StyledEmailBox, StyledEmailFormBox, StyledMenuItemBox } from './styled';
 import { IProps } from './types';
 
-const PartialEmailForm = <T,>({ register, types, control, errors, index, remove }: IProps<T>) => {
+const PartialEmailForm = <T,>({
+    register,
+    types,
+    control,
+    errors,
+    index,
+    count,
+    remove
+}: IProps<T>) => {
     const t = useI18n();
 
     const onInvalidEmail: FormEventHandler<HTMLInputElement> = (event) => {
@@ -23,8 +31,8 @@ const PartialEmailForm = <T,>({ register, types, control, errors, index, remove 
         target.setCustomValidity(capitalize(t('please enter the email address')));
     };
 
-    const typeError = errors.emails && (errors.emails[index]?.type as FieldError);
-    const emailError = errors.emails && errors.emails[index]?.email;
+    const typeError = errors.emails?.[index]?.type as FieldError;
+    const emailError = errors.emails?.[index]?.email;
 
     return (
         <StyledEmailFormBox>
@@ -38,12 +46,12 @@ const PartialEmailForm = <T,>({ register, types, control, errors, index, remove 
                     required
                     error={!!typeError}
                     helperText={
-                        !!typeError && capitalize(t(typeError?.message as TTranslationKeys))
+                        !!typeError && capitalize(t(typeError?.message as TSingleTranslationKeys))
                     }
                 >
-                    {types.map((type, index) => {
+                    {types.map((type) => {
                         return (
-                            <MenuItem key={index} value={type}>
+                            <MenuItem key={type} value={type}>
                                 <StyledMenuItemBox>{capitalize(type)}</StyledMenuItemBox>
                             </MenuItem>
                         );
@@ -67,11 +75,12 @@ const PartialEmailForm = <T,>({ register, types, control, errors, index, remove 
                         onInvalid={onInvalidEmail}
                         onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                         helperText={
-                            !!emailError && capitalize(t(emailError?.message as TTranslationKeys))
+                            !!emailError &&
+                            capitalize(t(emailError?.message as TSingleTranslationKeys))
                         }
                         {...register(`emails.${index}.email`)}
                     />
-                    {index > 0 && (
+                    {count > 1 && (
                         <IconButton
                             onClick={() => remove(index)}
                             className='delete-btn'

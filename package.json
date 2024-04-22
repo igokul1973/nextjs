@@ -3,7 +3,8 @@
     "type": "module",
     "scripts": {
         "build": "next build",
-        "dev": "NODE_OPTIONS='--max-http-header-size=24576' next dev",
+        "dev:largeheader": "NODE_OPTIONS='--max-http-header-size=24576 --inspect' next dev",
+        "dev": "next dev",
         "lint": "next lint",
         "prettier": "prettier --write --ignore-unknown .",
         "prettier:check": "prettier --check --ignore-unknown .",

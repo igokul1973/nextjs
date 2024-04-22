@@ -12,9 +12,9 @@ import PartialPhoneForm from '@/app/components/phones/partial-form/PartialPhoneF
 import { useData } from '@/app/context/data/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { createCustomer } from '@/app/lib/data/customer';
+import { createCustomer, updateCustomer } from '@/app/lib/data/customer';
 import { useI18n } from '@/locales/client';
-import { TTranslationKeys } from '@/locales/types';
+import { TSingleTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Divider, MenuItem, capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -32,7 +32,7 @@ import { TEntityFormRegister } from '../../customers/types';
 import PartialEmailForm from '../../emails/partial-form/PartialEmailForm';
 import FormSelect from '../../form-select/FormSelect';
 import { getDefaultFormValues } from '../utils';
-import formSchema from './formSchema';
+import { organizationCreateSchema, organizationUpdateSchema } from './formSchema';
 import { StyledForm } from './styled';
 import { TOrganizationForm } from './types';
 
@@ -47,10 +47,10 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
         // watch,
         register,
         handleSubmit,
-        formState: { errors, isDirty },
+        formState: { errors, isDirty, dirtyFields },
         control
     } = useForm({
-        resolver: zodResolver(formSchema.omit({ id: true })),
+        resolver: zodResolver(form ? organizationUpdateSchema : organizationCreateSchema),
         reValidateMode: 'onBlur',
         defaultValues:
             form ||
@@ -97,8 +97,13 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
 
     const onSubmit = async (formData: TOrganizationForm) => {
         try {
-            await createCustomer(formData);
-            openSnackbar('Successfully created customer.');
+            if (formData.id) {
+                await updateCustomer(formData, dirtyFields, userId);
+                openSnackbar('Successfully updated customer.');
+            } else {
+                await createCustomer(formData);
+                openSnackbar('Successfully created customer.');
+            }
             push('/dashboard/customers');
         } catch (error) {
             openSnackbar(`Failed to create customer: ${error}`, 'error');
@@ -117,7 +122,8 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
                     required
                     error={!!errors.name}
                     helperText={
-                        !!errors.name && capitalize(t(errors.name?.message as TTranslationKeys))
+                        !!errors.name &&
+                        capitalize(t(errors.name?.message as TSingleTranslationKeys))
                     }
                     {...register('name')}
                 />
@@ -151,9 +157,9 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
                 label={capitalize(t('organization type'))}
                 control={control as TOrganizationFormControl}
             >
-                {organizationTypes.map((type, index) => {
+                {organizationTypes.map((type) => {
                     return (
-                        <MenuItem key={index} value={type.id}>
+                        <MenuItem key={type.id} value={type.id}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 {capitalize(type.type)}
                             </Box>
@@ -212,6 +218,7 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
                     key={phone.id}
                     index={index}
                     types={phoneTypes}
+                    count={phones.length}
                     register={register as TEntityFormRegister}
                     control={control as TOrganizationFormControl}
                     errors={errors}
@@ -229,6 +236,7 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
                     key={email.id}
                     index={index}
                     types={emailTypes}
+                    count={emails.length}
                     register={register as TEntityFormRegister}
                     control={control as TOrganizationFormControl}
                     errors={errors}
@@ -237,8 +245,8 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
             ))}
             <Button onClick={() => appendEmail({ ...getEmailsInitial(userId)[0] })}>
                 {emails.length > 0
-                    ? capitalize(t('add another email'))
-                    : capitalize(t('add email'))}
+                    ? capitalize(t('add another email address'))
+                    : capitalize(t('add email address'))}
             </Button>
             <Divider />
             {attributes.map((attribute, index) => (

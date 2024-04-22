@@ -2,7 +2,7 @@
 
 import FormSelect from '@/app/components/form-select/FormSelect';
 import { useI18n } from '@/locales/client';
-import { TTranslationKeys } from '@/locales/types';
+import { TSingleTranslationKeys } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -15,7 +15,15 @@ import { FieldError } from 'react-hook-form';
 import { StyledBox, StyledMenuItemBox, StyledPhoneNumberBox } from './styled';
 import { IProps } from './types';
 
-const PartialPhoneForm = <T,>({ register, types, control, errors, index, remove }: IProps<T>) => {
+const PartialPhoneForm = <T,>({
+    register,
+    types,
+    control,
+    errors,
+    index,
+    count,
+    remove
+}: IProps<T>) => {
     const t = useI18n();
 
     const onInvalidCountryCode: FormEventHandler<HTMLInputElement> = (event) => {
@@ -36,8 +44,8 @@ const PartialPhoneForm = <T,>({ register, types, control, errors, index, remove 
     };
 
     const typeError = errors.phones && (errors.phones[index]?.type as FieldError);
-    const countryCodeError = errors.phones && errors.phones[index]?.countryCode;
-    const numberError = errors.phones && errors.phones[index]?.number;
+    const countryCodeError = errors.phones?.[index]?.countryCode;
+    const numberError = errors.phones?.[index]?.number;
 
     return (
         <StyledBox>
@@ -50,11 +58,13 @@ const PartialPhoneForm = <T,>({ register, types, control, errors, index, remove 
                     control={control}
                     required
                     error={!!typeError}
-                    helperText={!!typeError && capitalize(t(typeError.message as TTranslationKeys))}
+                    helperText={
+                        !!typeError && capitalize(t(typeError.message as TSingleTranslationKeys))
+                    }
                 >
-                    {types.map((type, index) => {
+                    {types.map((type) => {
                         return (
-                            <MenuItem key={index} value={type}>
+                            <MenuItem key={type} value={type}>
                                 <StyledMenuItemBox>{capitalize(type)}</StyledMenuItemBox>
                             </MenuItem>
                         );
@@ -80,7 +90,7 @@ const PartialPhoneForm = <T,>({ register, types, control, errors, index, remove 
                         error={!!countryCodeError}
                         helperText={
                             !!countryCodeError &&
-                            capitalize(t(countryCodeError.message as TTranslationKeys))
+                            capitalize(t(countryCodeError.message as TSingleTranslationKeys))
                         }
                         {...register(`phones.${index}.countryCode`)}
                     />
@@ -103,12 +113,13 @@ const PartialPhoneForm = <T,>({ register, types, control, errors, index, remove 
                         onInvalid={onInvalidNumber}
                         onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                         helperText={
-                            !!numberError && capitalize(t(numberError.message as TTranslationKeys))
+                            !!numberError &&
+                            capitalize(t(numberError.message as TSingleTranslationKeys))
                         }
                         {...register(`phones.${index}.number`)}
                     />
                 </FormControl>
-                {index > 0 && (
+                {count > 1 && (
                     <IconButton
                         onClick={() => remove(index)}
                         className='delete-btn'

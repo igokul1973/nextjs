@@ -32,8 +32,9 @@ const {
                     const passwordMatch = await compare(password, user.password);
 
                     if (passwordMatch) {
-                        const { password: undefined, ...sanitizedUser } = user;
-                        return sanitizedUser;
+                        const { password, ...userWithoutPassword } = user;
+
+                        return userWithoutPassword;
                     }
                 }
                 return null;

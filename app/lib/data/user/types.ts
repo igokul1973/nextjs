@@ -1,17 +1,59 @@
-import { inidividualsSelect, organizationsSelect } from '@/app/lib/data/customer/types';
 import { Prisma } from '@prisma/client';
 
-export const getUserInclude = {
+export const includeEntityRelations = {
+    localIdentifierName: true,
+    address: {
+        include: {
+            country: true
+        }
+    },
+    emails: true,
+    phones: true,
+    customer: true
+} satisfies Prisma.organizationInclude;
+
+export const getUserWithRelations = {
+    profile: true,
     account: {
         include: {
             organizations: {
-                select: organizationsSelect
+                include: {
+                    ...includeEntityRelations,
+                    type: true
+                }
             },
             individuals: {
-                select: inidividualsSelect
+                include: includeEntityRelations
             }
         }
     }
 } satisfies Prisma.userInclude;
 
-export type TGetUserPayload = Prisma.userGetPayload<{ include: typeof getUserInclude }>;
+export const getUserWithRelationsAndInventory = {
+    profile: true,
+    account: {
+        include: {
+            organizations: {
+                include: {
+                    ...includeEntityRelations,
+
+                    type: true
+                }
+            },
+            individuals: {
+                include: includeEntityRelations
+            },
+            inventory: true
+        }
+    }
+} satisfies Prisma.userInclude;
+
+export type TGetUserPayload = Prisma.userGetPayload<null>;
+
+export type TGetUserWithRelationsPayload = Prisma.userGetPayload<{
+    include: typeof getUserWithRelations;
+}>;
+
+export type TGetUserWithRelationsAndInventoryPayload = Prisma.userGetPayload<{
+    include: typeof getUserWithRelationsAndInventory;
+}>;

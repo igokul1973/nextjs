@@ -4,6 +4,14 @@
 
 export type TOrder = 'asc' | 'desc';
 
+export type TDirtyFields<T> = {
+    [K in keyof T]?: T[K] extends Record<string, unknown>
+        ? TDirtyFields<T[K]>
+        : T[K] extends Array<Record<string, unknown>>
+          ? TDirtyFields<T[K][number]>[]
+          : boolean | undefined;
+};
+
 import { OverridableComponent } from '@mui/material/OverridableComponent';
 import { SvgIconTypeMap } from '@mui/material/SvgIcon';
 import type {
@@ -16,12 +24,15 @@ import type {
     individualPhone as TIndividualPhone,
     inventory as TInventory,
     invoice as TInvoice,
+    localIdentifierName as TLocalIdentifierName,
     organization as TOrganization,
     organizationEmail as TOrganizationEmail,
     organizationPhone as TOrganizationPhone,
+    organizationType as TOrganizationType,
     profile as TProfile,
     user as TUser
 } from '@prisma/client';
+import { TGetCustomerPayload } from './data/customer/types';
 
 export {
     TAccount,
@@ -33,41 +44,17 @@ export {
     TIndividualPhone,
     TInventory,
     TInvoice,
+    TLocalIdentifierName,
     TOrganization,
     TOrganizationEmail,
     TOrganizationPhone,
+    TOrganizationType,
     TProfile,
     TUser
 };
 
 export type TMuiIcon = OverridableComponent<SvgIconTypeMap<object, 'svg'>> & {
     muiName: string;
-};
-
-export type TOrganizationWithRelations = TOrganization & {
-    address: TAddress & {
-        country: TCountry;
-    };
-    customer: TCustomer | null;
-    phones: TOrganizationPhone[];
-    emails: TOrganizationEmail[];
-};
-
-export type TIndividualWithRelations = TIndividual & {
-    address: TAddress & {
-        country: TCountry;
-    };
-    customer: TCustomer | null;
-    phones: TIndividualPhone[];
-    emails: TIndividualEmail[];
-};
-
-export type TUserWithRelations = TUser & {
-    account: TAccount & {
-        organizations: TOrganizationWithRelations[];
-        individuals: TIndividualWithRelations[];
-        inventory: TInventory[];
-    };
 };
 
 export type TEntityPropsDiff = {
@@ -83,7 +70,8 @@ export type TEntityPropsDiff = {
     dob?: string;
 };
 
-export type TEntity = (TOrganizationWithRelations | TIndividualWithRelations) & TEntityPropsDiff;
+export type TEntity = (TGetCustomerPayload['organization'] | TGetCustomerPayload['individual']) &
+    TEntityPropsDiff;
 
 export type TEntities<I, O> = {
     individual?: I;
@@ -96,11 +84,17 @@ export type TEntityWithNonNullableCustomer = (
 ) &
     TEntityPropsDiff;
 
-export type TIndWithNonNullableCustomer = Omit<TIndividualWithRelations, 'customer'> & {
+export type TIndWithNonNullableCustomer = Omit<
+    Exclude<TGetCustomerPayload['individual'], null>,
+    'customer'
+> & {
     customer: TCustomer;
 };
 
-export type TOrgWithNonNullableCustomer = Omit<TOrganizationWithRelations, 'customer'> & {
+export type TOrgWithNonNullableCustomer = Omit<
+    Exclude<TGetCustomerPayload['organization'], null>,
+    'customer'
+> & {
     customer: TCustomer;
 };
 

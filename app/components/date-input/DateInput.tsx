@@ -1,5 +1,5 @@
 import { useI18n } from '@/locales/client';
-import { TTranslationKeys } from '@/locales/types';
+import { TSingleTranslationKeys } from '@/locales/types';
 import { capitalize } from '@mui/material';
 import { DatePicker, DatePickerProps } from '@mui/x-date-pickers/DatePicker';
 import { BaseNonStaticPickerProps } from '@mui/x-date-pickers/internals';
@@ -40,7 +40,7 @@ const DateInput: FC<IProps & BaseNonStaticPickerProps & DatePickerProps<Dayjs, b
                                         capitalize(
                                             t(
                                                 (error?.message?.toLocaleLowerCase() ||
-                                                    helperText) as TTranslationKeys
+                                                    helperText) as TSingleTranslationKeys
                                             )
                                         )
                                 }

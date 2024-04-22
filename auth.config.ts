@@ -1,24 +1,17 @@
-import { TGetUserPayload } from '@/app/lib/data/user/types';
-import { TEntities } from '@/app/lib/types';
-import { getUserProvider, getUserProviderType } from '@/app/lib/utils';
-import { EntitiesEnum } from '@prisma/client';
-import type { DefaultSession, NextAuthConfig } from 'next-auth';
+import type { NextAuthConfig } from 'next-auth';
+import { TGetUserPayload } from './app/lib/data/user/types';
+
+export type TSessionUser = Omit<TGetUserPayload, 'password'>;
 
 declare module 'next-auth' {
     interface Session {
-        user: TGetUserPayload & DefaultSession['user'];
-        account: TGetUserPayload['account'];
-        provider?: TEntities<
-            TGetUserPayload['account']['individuals'][number],
-            TGetUserPayload['account']['organizations'][number]
-        >;
-        providerType?: EntitiesEnum;
+        user: TSessionUser;
     }
 }
 
 declare module '@auth/core/jwt' {
     interface JWT {
-        user: TGetUserPayload;
+        user: TSessionUser;
     }
 }
 
@@ -40,27 +33,15 @@ export const authConfig = {
             }
         },
         session({ session, token }) {
-            if (token.user) {
-                session.user.id = token.user.id;
-                session.user.role = token.user.role;
-                session.user.isActive = token.user.isActive;
-                session.user.accountId = token.user.accountId;
-                session.user.account = token.user.account;
-                session.account = token.user.account;
-                // Get provider here and attach to the user
-                session.provider = getUserProvider(token.user);
-                session.providerType = getUserProviderType(session.provider);
-            }
-            return session;
+            return token.user ? { ...session, user: { ...session.user, ...token.user } } : session;
         },
         jwt({ token, user }) {
             if (user) {
-                token.user = user as TGetUserPayload;
+                token.user = user as TSessionUser;
             }
             return token;
         }
     },
-    secret: process.env.JWT_SECRET || 'anything',
-    // secret: 'qQL2xyHC4JILq5FlvAa/5BiutIy5IFcg8LYrE3GnmoQ=',
+    secret: process.env.JWT_SECRET ?? 'anything',
     providers: []
 } satisfies NextAuthConfig;

@@ -1,14 +1,16 @@
-import { TGetUserPayload } from '@/app/lib/data/user/types';
-import { TAccount, TEntities, TProfile, TUser } from '@/app/lib/types';
+import {
+    TAccount,
+    TIndividualWithRelations,
+    TOrganizationWithRelations,
+    TProfile,
+    TUser
+} from '@/app/lib/types';
 import { EntitiesEnum } from '@prisma/client';
 
 export interface IUserState {
     user: TUser;
-    profile: TProfile;
+    profile?: TProfile | null;
     account: TAccount;
-    provider?: TEntities<
-        TGetUserPayload['account']['individuals'][number],
-        TGetUserPayload['account']['organizations'][number]
-    >;
+    provider?: TIndividualWithRelations | TOrganizationWithRelations;
     providerType?: EntitiesEnum;
 }

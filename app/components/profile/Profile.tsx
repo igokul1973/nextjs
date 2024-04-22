@@ -7,10 +7,15 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { FC } from 'react';
 import { StyledProfileAttribute } from './styled';
+import Warning from '../warning/Warning';
 
 const Profile: FC = () => {
     const { profile } = useUser();
+
     const t = useI18n();
+
+    if (!profile)
+        return <Warning variant='h4'>The user has no profile. Please create one.</Warning>;
 
     return (
         <Box component='article'>

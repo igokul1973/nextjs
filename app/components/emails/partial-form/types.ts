@@ -11,6 +11,7 @@ import { FieldErrors, UseFieldArrayRemove } from 'react-hook-form';
 
 export interface IProps<T> {
     index: number;
+    count: number;
     types: string[];
     register: TEntityFormRegister;
     control: T extends TIndividualForm

@@ -3,6 +3,7 @@
 import { TEmail, TIndividualForm, TPhone } from '@/app/components/individuals/create-form/types';
 import { TOrganizationForm } from '@/app/components/organizations/create-form/types';
 import prisma from '@/app/lib/prisma';
+import { TDirtyFields } from '@/app/lib/types';
 import { flattenCustomer, formatCurrency } from '@/app/lib/utils';
 import {
     AccountRelationEnum,
@@ -11,10 +12,11 @@ import {
     PhoneTypeEnum,
     Prisma
 } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import {
-    getCustomersSelect,
     TGetCustomerPayload,
+    getCustomersSelect,
     getFilteredCustomersByAccountIdSelect,
     getFilteredCustomersWhereClause
 } from './types';
@@ -162,14 +164,6 @@ export async function getFilteredCustomersCountByAccountId(accountId: string, qu
     }
 }
 
-export async function deleteCustomerById(id: string) {
-    return prisma.customer.delete({
-        where: {
-            id
-        }
-    });
-}
-
 export async function createCustomer(formData: TIndividualForm | TOrganizationForm) {
     // Creating customer in DB
     try {
@@ -256,6 +250,7 @@ export async function createCustomer(formData: TIndividualForm | TOrganizationFo
 
         console.log('Successfully created new customer: ', newCustomer);
 
+        revalidatePath('/dashboard/customers');
         return newCustomer;
     } catch (error) {
         console.error('Database Error:', error);
@@ -263,39 +258,228 @@ export async function createCustomer(formData: TIndividualForm | TOrganizationFo
     }
 }
 
-// export async function updateCustomer(id: string, formData: TIndividualForm | TOrganizationForm) {
-//     // Creating customer in DB
-//     try {
-//         await prisma.customer.update({
-//             where: {
-//                 id
-//             },
-//             formData
-//         });
-//         console.log('Successfully updated customer.');
-//     } catch (error) {
-//         console.error('Database Error:', error);
-//         throw new Error('Failed to delete customer.');
-//     }
-//     revalidatePath('/dashboard/customers');
-//     redirect('/dashboard/customers');
-// }
+function getDirtyValues<T>(dirtyFields: T | TDirtyFields<T>, allValues: T): Partial<T> | undefined {
+    // If *any* item in an array was modified, the entire array must be submitted, because there's no way to indicate
+    // "placeholders" for unchanged elements. `dirtyFields` is `true` for leaves.
+    if ((Array.isArray(dirtyFields) && Array.isArray(allValues)) || dirtyFields === true) {
+        return allValues;
+    }
 
-export async function deleteCustomer(id: string): Promise<{ message: string }> {
+    // Here, we have an object
+    if (
+        typeof dirtyFields === 'object' &&
+        typeof allValues === 'object' &&
+        dirtyFields !== null &&
+        allValues !== null
+    ) {
+        const transformedFields = Object.keys(dirtyFields).map((key) => {
+            if (!(key in allValues)) {
+                return [key, undefined];
+            }
+            const nestedDirtyFields = (dirtyFields as Record<string, unknown>)[key];
+            const nestedAllValues = (allValues as Record<string, unknown>)[key];
+            const result = getDirtyValues(nestedDirtyFields, nestedAllValues);
+            return [key, result];
+        });
+        return Object.fromEntries(transformedFields);
+    }
+}
+
+export async function updateCustomer(
+    formData: TIndividualForm | TOrganizationForm,
+    dirtyFields: TDirtyFields<TIndividualForm | TOrganizationForm>,
+    userId: string
+) {
+    // Creating customer in DB
+    try {
+        const diff = getDirtyValues<TIndividualForm | TOrganizationForm>(dirtyFields, formData);
+        const isIndividual = 'firstName' in formData;
+        const customerId = formData.customerId;
+
+        if (!diff) {
+            return null;
+        }
+
+        const {
+            id,
+            address,
+            phones,
+            emails,
+            accountId,
+            localIdentifierNameId,
+            accountRelation,
+            ...entity
+        } = diff;
+
+        const { countryId, ...addressWithoutCountryId } = address || {};
+
+        const emailsWithoutIds = emails?.map((e) => {
+            const { id, ...email } = e;
+            return email;
+        });
+
+        const phonesWithoutIds = phones?.map((p) => {
+            const { id, ...phone } = p;
+            return phone;
+        });
+
+        let entityWithoutTypeId = null;
+
+        if (!isIndividual && 'typeId' in entity) {
+            const { typeId, ...rest } = entity;
+            entityWithoutTypeId = rest;
+        }
+
+        const data = !isIndividual
+            ? {
+                  organization: {
+                      update: {
+                          data: {
+                              ...entityWithoutTypeId,
+                              address: address
+                                  ? {
+                                        update: {
+                                            data: {
+                                                ...addressWithoutCountryId,
+                                                updatedBy: userId,
+                                                country: !!countryId
+                                                    ? {
+                                                          connect: {
+                                                              id: countryId
+                                                          }
+                                                      }
+                                                    : undefined
+                                            }
+                                        }
+                                    }
+                                  : undefined,
+                              updatedBy: userId,
+                              emails: emailsWithoutIds && {
+                                  deleteMany: {
+                                      organizationId: formData.id
+                                  },
+                                  createMany: {
+                                      data: emailsWithoutIds?.map((e) => ({
+                                          ...e,
+                                          updatedBy: userId
+                                      })) as unknown as (Omit<TEmail, 'type'> & {
+                                          type: EmailTypeEnum;
+                                      })[]
+                                  }
+                              },
+                              phones: phonesWithoutIds && {
+                                  deleteMany: {
+                                      organizationId: formData.id
+                                  },
+                                  createMany: {
+                                      data: phonesWithoutIds?.map((p) => ({
+                                          ...p,
+                                          updatedBy: userId
+                                      })) as unknown as (Omit<TPhone, 'type'> & {
+                                          type: PhoneTypeEnum;
+                                      })[]
+                                  }
+                              }
+                          }
+                      }
+                  }
+              }
+            : {
+                  individual: {
+                      update: {
+                          data: {
+                              ...entity,
+                              address: address
+                                  ? {
+                                        update: {
+                                            data: {
+                                                ...addressWithoutCountryId,
+                                                updatedBy: userId,
+                                                country: countryId
+                                                    ? {
+                                                          connect: {
+                                                              id: countryId
+                                                          }
+                                                      }
+                                                    : undefined
+                                            }
+                                        }
+                                    }
+                                  : undefined,
+                              updatedBy: userId,
+                              emails: emailsWithoutIds && {
+                                  deleteMany: {
+                                      individualId: formData.id
+                                  },
+                                  createMany: {
+                                      data: emailsWithoutIds?.map((e) => ({
+                                          ...e,
+                                          updatedBy: userId
+                                      })) as unknown as (Omit<TEmail, 'type'> & {
+                                          type: EmailTypeEnum;
+                                      })[]
+                                  }
+                              },
+                              phones: phonesWithoutIds && {
+                                  deleteMany: {
+                                      individualId: formData.id
+                                  },
+                                  createMany: {
+                                      data: phonesWithoutIds?.map((p) => ({
+                                          ...p,
+                                          updatedBy: userId
+                                      })) as unknown as (Omit<TPhone, 'type'> & {
+                                          type: PhoneTypeEnum;
+                                      })[]
+                                  }
+                              }
+                          }
+                      }
+                  }
+              };
+
+        const updatedCustomer = await prisma.customer.update({
+            where: {
+                id: customerId
+            },
+            data
+        });
+
+        console.log('Successfully updated customer with ID:', updatedCustomer.id);
+
+        revalidatePath('/dashboard/customers');
+        return updatedCustomer;
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw new Error('Failed to update customer');
+    }
+}
+
+export async function deleteCustomerById(id: string): Promise<{ message: string }> {
     if (!id) {
         throw Error('The id must be a valid UUID');
     }
 
     // Creating customer in DB
     try {
-        await deleteCustomerById(id);
-        const successMessage = 'Successfully deleted customer.';
-        console.log(successMessage);
+        await prisma.customer.delete({
+            where: {
+                id
+            }
+        });
+
+        console.log(`Successfully deleted customer with ID #${id}`);
 
         revalidatePath('/dashboard/customers');
-        return { message: successMessage };
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Database Error:', error);
+        if (
+            error instanceof PrismaClientKnownRequestError &&
+            error.message.toLocaleLowerCase().includes('foreign key constraint') &&
+            error.message.toLocaleLowerCase().includes('invoices')
+        ) {
+            throw new Error('Cannot delete customer because it has associated invoices.');
+        }
         throw new Error('Database Error: failed to delete Customer.');
     }
 }

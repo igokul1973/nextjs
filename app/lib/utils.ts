@@ -1,16 +1,16 @@
 import { AccountRelationEnum, EntitiesEnum } from '@prisma/client';
 import { TGetCustomerPayload } from './data/customer/types';
-import { TGetUserPayload } from './data/user/types';
+import {
+    TGetUserWithRelationsAndInventoryPayload,
+    TGetUserWithRelationsPayload
+} from './data/user/types';
 import {
     TEntities,
     TEntitiesWithNonNullableCustomer,
     TEntity,
     TIndWithNonNullableCustomer,
     TIndividual,
-    TIndividualWithRelations,
-    TOrgWithNonNullableCustomer,
-    TOrganizationWithRelations,
-    TUserWithRelations
+    TOrgWithNonNullableCustomer
 } from './types';
 
 export const formatCurrency = (amount: number) => {
@@ -75,18 +75,15 @@ export function getIndividualFullNameString(
 }
 
 export function getProviderName(
-    provider?: TEntities<
-        TGetUserPayload['account']['individuals'][number],
-        TGetUserPayload['account']['organizations'][number]
-    >
+    provider?: TGetCustomerPayload['individual'] | TGetCustomerPayload['organization']
 ): string {
     if (!provider) {
         return 'No provider name';
     }
-    if (provider.organization) {
-        return provider.organization.name;
-    } else if (provider.individual) {
-        return getIndividualFullNameString(provider.individual);
+    if ('name' in provider) {
+        return provider.name;
+    } else if ('firstName' in provider) {
+        return getIndividualFullNameString(provider);
     }
     return 'No provider name';
 }
@@ -101,7 +98,6 @@ export type TFlattenedCustomer = {
 
 export function flattenCustomer(rawCustomer: TGetCustomerPayload): TFlattenedCustomer {
     const entity = rawCustomer.individual || rawCustomer.organization;
-    // const org = rawCustomer.organization;
     if (!entity) {
         throw Error('The customer organization or individual is not found. Please add one first.');
     }
@@ -132,13 +128,13 @@ export function flattenCustomer(rawCustomer: TGetCustomerPayload): TFlattenedCus
  * Should work fornew users who cannot
  * have a provider until they add one.
  *
- * @param {TGetUserPayload | TUserWithRelations} user - The user payload or user with relations object.
+ * @param {TGetUserWithRelationsPayload | TUserWithRelations} user - The user payload or user with relations object.
  * @return {TEntities<I, O> | undefined} The individual or organization provider entity, or undefined if no provider is found.
  */
-export function getUserProvider<I = TIndividualWithRelations, O = TOrganizationWithRelations>(
-    user: TGetUserPayload | TUserWithRelations
-): TEntities<I, O> | undefined {
-    // export function getUserProvider(user: TUserWithRelations): TEntities {
+export function getUserProvider<
+    I = TGetCustomerPayload['individual'],
+    O = TGetCustomerPayload['organization']
+>(user: TGetUserWithRelationsPayload): TEntities<I, O> | undefined {
     const individualProvider = user.account.individuals?.find(
         (ind) => ind.accountRelation === AccountRelationEnum.provider
     );
@@ -156,8 +152,8 @@ export function getUserProvider<I = TIndividualWithRelations, O = TOrganizationW
 export function getUserProviderType(
     provider:
         | TEntities<
-              TGetUserPayload['account']['individuals'][0],
-              TGetUserPayload['account']['organizations'][0]
+              TGetUserWithRelationsPayload['account']['individuals'][0],
+              TGetUserWithRelationsPayload['account']['organizations'][0]
           >
         | undefined
 ) {
@@ -170,12 +166,16 @@ export function getUserProviderType(
           : undefined;
 }
 
-const isIndHasCustomer = (o: TIndividualWithRelations): o is TIndWithNonNullableCustomer => {
-    return !!o.customer;
+const isIndHasCustomer = (
+    o: TGetCustomerPayload['individual']
+): o is TIndWithNonNullableCustomer => {
+    return !!o?.customer;
 };
 
-const isOrgHasCustomer = (o: TOrganizationWithRelations): o is TOrgWithNonNullableCustomer => {
-    return !!o.customer;
+const isOrgHasCustomer = (
+    o: TGetCustomerPayload['organization']
+): o is TOrgWithNonNullableCustomer => {
+    return !!o?.customer;
 };
 
 /**
@@ -187,7 +187,7 @@ const isOrgHasCustomer = (o: TOrganizationWithRelations): o is TOrgWithNonNullab
  * @return {TEntitiesWithNonNullableCustomer} An object containing lists of individual and organization customers.
  */
 export function getUserCustomersPerEntity(
-    user: TUserWithRelations
+    user: TGetUserWithRelationsAndInventoryPayload
 ): TEntitiesWithNonNullableCustomer {
     const indCustomers = user.account.individuals.filter(isIndHasCustomer);
     const orgCustomers = user.account.organizations.filter(isOrgHasCustomer);
@@ -226,4 +226,38 @@ export const getEntityFirstPhoneString = (entity: TEntity) => {
 
 export const capitalize = (str: string): string => {
     return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+type TNullToUndefined<T> = {
+    [K in keyof T]: Exclude<T[K], null> extends never ? undefined : Exclude<T[K], null>;
+};
+
+export const deNullifyObject = <T extends Record<string, unknown>>(obj: T): TNullToUndefined<T> => {
+    let denullifiedEntity = { ...obj } as TNullToUndefined<T>;
+
+    if (typeof obj === 'object' && obj !== null) {
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                if (obj[key] === null) {
+                    denullifiedEntity = { ...denullifiedEntity, [key]: undefined };
+                } else if (Array.isArray(obj[key])) {
+                    const a = obj[key] as unknown[];
+                    const transformedArrayElements = a.map((item: unknown) => {
+                        if (item === null) {
+                            return undefined;
+                        } else if (typeof item === 'object') {
+                            return deNullifyObject(item as T);
+                        }
+                        return item;
+                    });
+                    denullifiedEntity = { ...denullifiedEntity, [key]: transformedArrayElements };
+                } else if (typeof obj[key] === 'object' && !(obj[key] instanceof Date)) {
+                    const subObj = obj[key] as T;
+                    denullifiedEntity = { ...denullifiedEntity, [key]: deNullifyObject(subObj) };
+                }
+            }
+        }
+    }
+
+    return denullifiedEntity;
 };

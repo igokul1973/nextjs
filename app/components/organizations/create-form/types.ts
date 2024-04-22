@@ -1,9 +1,8 @@
+import { TGetLocalIdentifierNamePayload } from '@/app/lib/data/local-identifier-name/types';
+import { TCountry } from '@/app/lib/types';
 import { Control, FieldValues } from 'react-hook-form';
 import { z } from 'zod';
-import formSchema from './formSchema';
-import { TCountry } from '@/app/lib/types';
-import { TGetLocalIdentifierNamePayload } from '@/app/lib/data/local-identifier-name/types';
-import { TGetCustomerPayload } from '@/app/lib/data/customer/types';
+import { organizationUpdateSchema } from './formSchema';
 
 export interface IProps {
     userAccountCountry: TCountry;
@@ -11,8 +10,8 @@ export interface IProps {
     form?: TOrganizationForm;
 }
 
-export type TOrganizationForm = z.infer<typeof formSchema>;
+export type TOrganizationForm = z.infer<typeof organizationUpdateSchema>;
 export type TOrganizationFormControl = Control<TOrganizationForm> & Control<FieldValues>;
-export type TPhone = z.infer<typeof formSchema>['phones'][number];
-export type TEmail = z.infer<typeof formSchema>['emails'][number];
-export type TAttribute = z.infer<typeof formSchema>['attributes'][number];
+export type TPhone = TOrganizationForm['phones'][number];
+export type TEmail = TOrganizationForm['emails'][number];
+export type TAttribute = TOrganizationForm['attributes'][number];

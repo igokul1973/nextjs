@@ -18,14 +18,20 @@
         "esModuleInterop": true
     },
     "include": [
-        "../app/lib/utils.ts",
+        "../app/lib/**/*.ts",
+        "next-env.d.ts",
+        "react-hook-form.d.ts",
         "**/*.ts",
-        "../app/lib/placeholder-data.ts"
+        "**/*.tsx",
+        ".next/types/**/*.ts",
+        "scripts/tsconfig.json",
+        "node_modules/@prisma/client"
     ],
     "exclude": [
         "node_modules",
         ".next/*.*",
-        ".vscode/*/*"
+        ".vscode/*/*",
+        ".history/*"
     ],
     "esm": true // <--- this is the most important part
 }

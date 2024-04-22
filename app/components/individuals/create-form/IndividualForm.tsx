@@ -12,9 +12,9 @@ import PartialAttributeForm from '@/app/components/entity-attributes/partial-for
 import { useData } from '@/app/context/data/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { createCustomer } from '@/app/lib/data/customer';
+import { createCustomer, updateCustomer } from '@/app/lib/data/customer';
 import { useI18n } from '@/locales/client';
-import { TTranslationKeys } from '@/locales/types';
+import { TSingleTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -32,7 +32,7 @@ import { Control, useFieldArray, useForm } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import PartialPhoneForm from '../../phones/partial-form/PartialPhoneForm';
 import { getDefaultFormValues } from '../utils';
-import formSchema from './formSchema';
+import { individualCreateSchema, individualUpdateSchema } from './formSchema';
 import { StyledForm } from './styled';
 import { IProps, TIndividualForm, TIndividualFormControl } from './types';
 
@@ -48,10 +48,10 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
         // watch,
         register,
         handleSubmit,
-        formState: { errors, isDirty },
+        formState: { errors, isDirty, dirtyFields },
         control
     } = useForm({
-        resolver: zodResolver(formSchema.omit({ id: true })),
+        resolver: zodResolver(form ? individualUpdateSchema : individualCreateSchema),
         reValidateMode: 'onBlur',
         defaultValues:
             form ||
@@ -92,14 +92,20 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
     // const w = watch();
 
     // useEffect(() => {
+    //     console.log('DirtyFields:', dirtyFields);
     //     console.log('Watch:', w);
     //     console.error('Errors:', errors);
-    // }, [errors, w]);
+    // }, [errors, w, dirtyFields]);
 
     const onSubmit = async (formData: TIndividualForm) => {
         try {
-            await createCustomer(formData);
-            openSnackbar('Successfully created customer.');
+            if (formData.id) {
+                await updateCustomer(formData, dirtyFields, userId);
+                openSnackbar('Successfully update customer.');
+            } else {
+                await createCustomer(formData);
+                openSnackbar('Successfully created customer.');
+            }
             push('/dashboard/customers');
         } catch (error) {
             openSnackbar(`Failed to create customer: ${error}`, 'error');
@@ -120,7 +126,7 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
                         required
                         helperText={
                             !!errors.firstName &&
-                            capitalize(t(errors.firstName?.message as TTranslationKeys))
+                            capitalize(t(errors.firstName?.message as TSingleTranslationKeys))
                         }
                         {...register('firstName')}
                     />
@@ -134,7 +140,7 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
                         error={!!errors.lastName}
                         helperText={
                             !!errors.lastName &&
-                            capitalize(t(errors.lastName?.message as TTranslationKeys))
+                            capitalize(t(errors.lastName?.message as TSingleTranslationKeys))
                         }
                         {...register('lastName')}
                     />
@@ -191,6 +197,7 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
                     <PartialPhoneForm<TIndividualForm>
                         key={phone.id}
                         index={index}
+                        count={phones.length}
                         types={phoneTypes}
                         register={register as TEntityFormRegister}
                         control={control as TIndividualFormControl}
@@ -208,6 +215,7 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
                     <PartialEmailForm<TIndividualForm>
                         key={email.id}
                         index={index}
+                        count={emails.length}
                         types={emailTypes}
                         register={register as TEntityFormRegister}
                         control={control as TIndividualFormControl}
@@ -217,8 +225,8 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
                 ))}
                 <Button onClick={() => appendEmail({ ...getEmailsInitial(userId)[0] })}>
                     {emails.length > 0
-                        ? capitalize(t('add another phone'))
-                        : capitalize(t('add phone'))}
+                        ? capitalize(t('add another email address'))
+                        : capitalize(t('add email address'))}
                 </Button>
                 <Divider />
                 {attributes.map((attribute, index) => (
@@ -251,7 +259,7 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
                         color='primary'
                         disabled={!isSubmittable}
                     >
-                        {capitalize(t('create customer'))}
+                        {capitalize(t(form ? 'update customer' : 'create customer'))}
                     </Button>
                 </Box>
             </StyledForm>

@@ -345,7 +345,7 @@ model invoice {
   providerEmail              String            @map("provider_email") @db.VarChar(255)
   // Customer id
   customerId                 String            @map("customer_id") @db.Uuid
-  customer                   customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customer                   customer          @relation(fields: [customerId], references: [id], onDelete: Restrict)
   status                     InvoiceStatusEnum
   // Inventory items with fixed name, price and other info
   invoiceItems               invoiceItem[]
@@ -400,7 +400,7 @@ model invoiceItem {
   // only shows the original inventory item ID
   // and cannot be relied upon.
   inventoryId String?    @map("inventory_id") @db.Uuid
-  inventory   inventory? @relation(fields: [inventoryId], references: [id])
+  inventory   inventory? @relation(fields: [inventoryId], references: [id], onDelete: Restrict)
   createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
   createdBy   String     @map("created_by") @db.Uuid

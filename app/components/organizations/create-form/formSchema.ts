@@ -15,22 +15,28 @@ const baseOrganizationFormSchema = z.object({
         })
         .min(1, { message: 'please enter the name' }),
     accountId: z.string(),
-    localIdentifierNameId: z.string().nullish().optional(),
+    localIdentifierNameId: z.string().optional(),
     localIdentifierValue: z.string().nullish().optional(),
-    accountRelation: z.string().optional(),
-    typeId: z.string().nullish().optional(),
+    accountRelation: z.string(),
+    customerId: z.string().optional(),
+    typeId: z.string().optional(),
     description: z.string().nullish().optional(),
-    isPrivate: z.boolean().nullish().optional(),
-    isCharity: z.boolean().nullish().optional(),
+    isPrivate: z.boolean().optional(),
+    isCharity: z.boolean().optional(),
     createdBy: z.string(),
     updatedBy: z.string()
 });
 
-const organizationFormSchema = baseOrganizationFormSchema.extend({
+export const organizationUpdateSchema = baseOrganizationFormSchema.extend({
     address: addressFormSchema,
     phones: phonesFormSchema,
     emails: emailsFormSchema,
     attributes: attributesFormSchema
 });
 
-export default organizationFormSchema;
+export const organizationCreateSchema = baseOrganizationFormSchema.omit({ id: true }).extend({
+    address: addressFormSchema.omit({ id: true }),
+    phones: phonesFormSchema.element.omit({ id: true }).array(),
+    emails: emailsFormSchema.element.omit({ id: true }).array(),
+    attributes: attributesFormSchema
+});

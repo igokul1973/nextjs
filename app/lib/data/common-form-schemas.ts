@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const addressFormSchema = z.object({
+    id: z.string().optional(),
     addressLine1: z
         .string({
             required_error: 'please enter the street address',
@@ -41,6 +42,7 @@ export const addressFormSchema = z.object({
 export const phonesFormSchema = z
     .array(
         z.object({
+            id: z.string().optional(),
             countryCode: z.preprocess(
                 (value) => {
                     return typeof value === 'string' && value.startsWith('+')
@@ -60,9 +62,9 @@ export const phonesFormSchema = z
                     required_error: 'please enter the phone number',
                     invalid_type_error: 'please enter the phone number'
                 })
-                .min(8, { message: 'please enter the phone number' })
+                .min(8, { message: 'the phone number cannot have less than 8 digits' })
                 .max(14, {
-                    message: 'the phone number cannot have more than 14 numbers'
+                    message: 'the phone number cannot have more than 14 digits'
                 }),
             type: z
                 .string({
@@ -79,6 +81,7 @@ export const phonesFormSchema = z
 export const emailsFormSchema = z
     .array(
         z.object({
+            id: z.string().optional(),
             email: z
                 .string({
                     required_error: 'please enter the email address',

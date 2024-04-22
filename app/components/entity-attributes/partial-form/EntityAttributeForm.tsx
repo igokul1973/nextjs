@@ -1,7 +1,7 @@
 'use client';
 
 import { useI18n } from '@/locales/client';
-import { TTranslationKeys } from '@/locales/types';
+import { TSingleTranslationKeys } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
@@ -45,7 +45,7 @@ const PartialAttributeForm = <T,>({ register, control, errors, index, remove }: 
                     required
                     error={!!typeError}
                     helperText={
-                        !!typeError && capitalize(t(typeError?.message as TTranslationKeys))
+                        !!typeError && capitalize(t(typeError?.message as TSingleTranslationKeys))
                     }
                 >
                     {types.map((type, index) => {
@@ -73,7 +73,8 @@ const PartialAttributeForm = <T,>({ register, control, errors, index, remove }: 
                         onInvalid={onInvalidAttributeName}
                         onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                         helperText={
-                            !!nameError && capitalize(t(nameError?.message as TTranslationKeys))
+                            !!nameError &&
+                            capitalize(t(nameError?.message as TSingleTranslationKeys))
                         }
                         {...register(`attributes.${index}.name`)}
                     />
@@ -95,7 +96,8 @@ const PartialAttributeForm = <T,>({ register, control, errors, index, remove }: 
                         onInvalid={onInvalidAttributeValue}
                         onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                         helperText={
-                            !!valueError && capitalize(t(valueError?.message as TTranslationKeys))
+                            !!valueError &&
+                            capitalize(t(valueError?.message as TSingleTranslationKeys))
                         }
                         {...register(`attributes.${index}.value`)}
                     />

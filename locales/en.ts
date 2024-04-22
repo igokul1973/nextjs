@@ -1,4 +1,9 @@
-const en = {
+export const enPlural = {
+    'must be digits#many': 'must be {count} digits',
+    'must be up to digits#many': 'must be up to {count} digits'
+};
+
+export const enSingle = {
     create: 'create',
     add: 'add',
     edit: 'edit',
@@ -69,8 +74,6 @@ const en = {
     'add phone': 'add phone',
     'add another phone': 'add another phone',
     'country code': 'country code',
-    'must be digits#many': 'must be {count} digits',
-    'must be up to digits#many': 'must be up to {count} digits',
     'phone country code': 'phone country code',
     'please enter the country code': 'please enter the country code',
     'please enter the phone number': 'please enter the phone number',
@@ -78,7 +81,7 @@ const en = {
     // Emails
     email: 'email',
     'email addresses': 'email addresses',
-    'add email': 'add email',
+    'add email address': 'add email address',
     'add another email address': 'add another email address',
     'please enter the email address': 'please enter the email address',
     'please enter the email type': 'please enter the email type',
@@ -99,6 +102,8 @@ const en = {
     'please enter the country': 'please enter the country',
     'please enter the company name': 'please enter the company name',
     'the country code cannot be bigger than 999': 'the country code cannot be bigger than 999',
+    'the phone number cannot have less than 8 digits':
+        'the phone number cannot have less than 8 digits',
     'the phone number cannot have more than 14 digits':
         'the phone number cannot have more than 14 digits',
     'invalid date': 'invalid date',
@@ -120,6 +125,11 @@ const en = {
     // Miscellaneous
     'search customers': 'search customers',
     search: 'search'
+};
+
+const en = {
+    ...enSingle,
+    ...enPlural
 } as const;
 
 export default en;

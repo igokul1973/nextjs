@@ -1,6 +1,5 @@
 import InvoiceMeLogo from '@/app/components/invoice-me-logo/InvoiceMeLogo';
 import { colors } from '@/app/styles/colors';
-import { getCurrentLocale } from '@/locales/server';
 import { Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import Link from 'next/link';
@@ -8,7 +7,6 @@ import LanguageSwitcher from '../components/language-switcher/LanguageSwitcher';
 import { ContainerBox } from './styled';
 
 export default function Page() {
-    const locale = getCurrentLocale();
     return (
         <ContainerBox className='container'>
             <Box component='main' className='main'>

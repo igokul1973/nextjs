@@ -1,3 +1,4 @@
-import en from './en';
+import { enPlural, enSingle } from './en';
 
-export type TTranslationKeys = keyof typeof en;
+export type TSingleTranslationKeys = keyof typeof enSingle;
+export type TPluralTranslationKeys = keyof typeof enPlural;

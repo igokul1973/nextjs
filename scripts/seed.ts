@@ -4,6 +4,11 @@ import { exec } from 'child_process';
 import dotenv from 'dotenv';
 import { readFile, readdirSync, writeFile } from 'fs';
 import path from 'path';
+import { TGetCustomerPayload } from '../app/lib/data/customer/types.ts';
+import {
+    TGetUserWithRelationsAndInventoryPayload,
+    getUserWithRelationsAndInventory
+} from '../app/lib/data/user/types.ts';
 import {
     countries,
     customerIndividuals,
@@ -18,14 +23,7 @@ import {
     users
 } from '../app/lib/placeholder-data.ts';
 import prisma from '../app/lib/prisma.ts';
-import {
-    TEntities,
-    TEntity,
-    TEntityWithNonNullableCustomer,
-    TIndividualWithRelations,
-    TOrganizationWithRelations,
-    TUserWithRelations
-} from '../app/lib/types';
+import { TEntities, TEntity, TEntityWithNonNullableCustomer } from '../app/lib/types';
 import {
     getEntityFirstEmailString,
     getEntityFirstPhoneString,
@@ -52,41 +50,7 @@ async function getSupervisor() {
 
 async function getAdmins() {
     const admins = await prisma.user.findMany({
-        include: {
-            account: {
-                include: {
-                    organizations: {
-                        include: {
-                            address: {
-                                include: {
-                                    country: true
-                                }
-                            },
-                            customer: true,
-                            phones: true,
-                            emails: true
-                        }
-                    },
-                    individuals: {
-                        include: {
-                            address: {
-                                include: {
-                                    country: true
-                                }
-                            },
-                            customer: true,
-                            phones: true,
-                            emails: true
-                        }
-                    },
-                    inventory: {
-                        include: {
-                            type: true
-                        }
-                    }
-                }
-            }
-        },
+        include: getUserWithRelationsAndInventory,
         where: {
             role: UserRoleEnum.admin
         }
@@ -101,41 +65,7 @@ async function getAdmins() {
 
 async function getWriters() {
     const admins = await prisma.user.findMany({
-        include: {
-            account: {
-                include: {
-                    organizations: {
-                        include: {
-                            address: {
-                                include: {
-                                    country: true
-                                }
-                            },
-                            customer: true,
-                            phones: true,
-                            emails: true
-                        }
-                    },
-                    individuals: {
-                        include: {
-                            address: {
-                                include: {
-                                    country: true
-                                }
-                            },
-                            customer: true,
-                            phones: true,
-                            emails: true
-                        }
-                    },
-                    inventory: {
-                        include: {
-                            type: true
-                        }
-                    }
-                }
-            }
-        },
+        include: getUserWithRelationsAndInventory,
         where: {
             role: UserRoleEnum.writer
         }
@@ -760,8 +690,8 @@ async function seedInvoices() {
     }
 
     const createCustomerInvoiceData = (
-        user: TUserWithRelations,
-        provider: TEntities<TIndividualWithRelations, TOrganizationWithRelations>,
+        user: TGetUserWithRelationsAndInventoryPayload,
+        provider: TEntities<TGetCustomerPayload['individual'], TGetCustomerPayload['organization']>,
         customers: TEntityWithNonNullableCustomer[]
     ) => {
         const concreteProvider = provider.individual ?? provider.organization;
@@ -784,8 +714,12 @@ async function seedInvoices() {
                 const address = customer.address;
                 const customerPhone = getEntityFirstPhoneString(customer);
                 const customerEmail = getEntityFirstEmailString(customer);
-                const providerPhone = getEntityFirstPhoneString(concreteProvider as TEntity);
-                const providerEmail = getEntityFirstEmailString(concreteProvider as TEntity);
+                const providerPhone = getEntityFirstPhoneString(
+                    concreteProvider as unknown as TEntity
+                );
+                const providerEmail = getEntityFirstEmailString(
+                    concreteProvider as unknown as TEntity
+                );
 
                 return invoices.map((invoice) => {
                     const invoiceItems = inventory.map((inventoryItem) => {

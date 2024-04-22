@@ -4,7 +4,7 @@ import prisma from '@/app/lib/prisma';
 import { TUser } from '@/app/lib/types';
 import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
-import { TGetUserPayload, getUserInclude } from './types';
+import { TGetUserPayload, TGetUserWithRelationsPayload, getUserWithRelations } from './types';
 
 export async function getUsersByEmail(email: string): Promise<TUser[]> {
     try {
@@ -22,7 +22,23 @@ export async function getUsersByEmail(email: string): Promise<TUser[]> {
 export async function getUserByEmail(email: string): Promise<TGetUserPayload | null> {
     try {
         const user = await prisma.user.findUnique({
-            include: getUserInclude,
+            where: {
+                email
+            }
+        });
+        return user;
+    } catch (error) {
+        console.log('Failed to fetch user: ', error);
+        throw new Error('Failed to fetch user.');
+    }
+}
+
+export async function getUserWithRelationsByEmail(
+    email: string
+): Promise<TGetUserWithRelationsPayload | null> {
+    try {
+        const user = await prisma.user.findUnique({
+            include: getUserWithRelations,
             where: {
                 email
             }

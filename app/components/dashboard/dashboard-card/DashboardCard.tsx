@@ -1,17 +1,17 @@
 'use client';
 
-import { TTranslationKeys } from '@/locales/types';
+import { useI18n } from '@/locales/client';
+import { TSingleTranslationKeys } from '@/locales/types';
+import { capitalize } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { getStyledIcon, StyledCard, StyledCardContent, StyledCardContentHeading } from './styled';
-import { useI18n } from '@/locales/client';
-import { capitalize } from '@mui/material';
 
 export default function DashboardCard({
     title,
     value,
     type
 }: {
-    title: TTranslationKeys;
+    title: TSingleTranslationKeys;
     value: number | string;
     type: 'invoices' | 'customers' | 'pending' | 'collected';
 }) {

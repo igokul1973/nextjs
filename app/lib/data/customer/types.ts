@@ -1,72 +1,34 @@
 import { AccountRelationEnum, Prisma } from '@prisma/client';
 
-export const organizationsSelect = {
-    id: true,
-    name: true,
-    type: true,
-    isPrivate: true,
-    isCharity: true,
-    localIdentifierNameId: true,
+export const includeEntityRelations = {
     localIdentifierName: true,
-    localIdentifierValue: true,
-    customerId: true,
-    accountId: true,
-    accountRelation: true,
     address: {
         include: {
             country: true
         }
     },
-    phones: true,
     emails: true,
-    attributes: true,
-    createdBy: true,
-    updatedBy: true
-};
-
-export const inidividualsSelect = {
-    id: true,
-    firstName: true,
-    lastName: true,
-    middleName: true,
-    dob: true,
-    description: true,
-    localIdentifierNameId: true,
-    localIdentifierName: true,
-    localIdentifierValue: true,
-    customerId: true,
-    accountId: true,
-    accountRelation: true,
-    address: {
-        include: {
-            country: true
-        }
-    },
     phones: true,
-    emails: true,
-    attributes: true,
-    createdBy: true,
-    updatedBy: true
-};
+    customer: true
+} satisfies Prisma.organizationInclude;
 
 export const getCustomersSelect = {
     id: true,
     individual: {
-        select: inidividualsSelect
+        include: includeEntityRelations
     },
     organization: {
-        select: organizationsSelect
+        include: {
+            ...includeEntityRelations,
+            type: true
+        }
     }
 } satisfies Prisma.customerSelect;
 
 export const getFilteredCustomersByAccountIdSelect = {
     id: true,
-    organization: {
-        select: organizationsSelect
-    },
-    individual: {
-        select: inidividualsSelect
-    },
+    organization: true,
+    individual: true,
     _count: true,
     invoices: {
         select: {
@@ -82,7 +44,7 @@ export const getFilteredCustomersByAccountIdSelect = {
             }
         }
     }
-};
+} satisfies Prisma.customerSelect;
 
 export type TGetCustomerPayload = Prisma.customerGetPayload<{
     select: typeof getCustomersSelect;

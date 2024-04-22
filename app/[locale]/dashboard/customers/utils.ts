@@ -8,6 +8,7 @@ export const DEFAULT_PAGE_NUMBER = 0;
 export const getPhonesInitial = (userId: string) => {
     return [
         {
+            id: '',
             countryCode: '',
             number: '',
             type: PhoneTypeEnum.mobile,
@@ -20,6 +21,7 @@ export const getPhonesInitial = (userId: string) => {
 export const getEmailsInitial = (userId: string) => {
     return [
         {
+            id: '',
             email: '',
             type: EmailTypeEnum.main,
             createdBy: userId,

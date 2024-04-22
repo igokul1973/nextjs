@@ -4,6 +4,8 @@ import {
     DEFAULT_ITEMS_PER_PAGE,
     DEFAULT_PAGE_NUMBER
 } from '@/app/[locale]/dashboard/customers/utils';
+import { useSnackbar } from '@/app/context/snackbar/provider';
+import { deleteCustomerById } from '@/app/lib/data/customer';
 import { TOrder } from '@/app/lib/types';
 import { useI18n } from '@/locales/client';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -174,6 +176,7 @@ function EnhancedTableToolbar(props: IEnhancedTableToolbarProps) {
 }
 
 const CustomersTable: FC<IProps> = ({ customers, count }) => {
+    const { openSnackbar } = useSnackbar();
     const [order, setOrder] = useState<TOrder>('asc');
     const [orderBy, setOrderBy] = useState<keyof ICustomerTable>('name');
     const [selected, setSelected] = useState<readonly ICustomerTable['id'][]>([]);
@@ -259,6 +262,15 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
         [customers, order, orderBy]
     );
 
+    const deleteCustomer = async (id: string, name: string) => {
+        try {
+            await deleteCustomerById(id);
+            openSnackbar(`Successfully deleted customer with ID: ${id}`);
+        } catch (error) {
+            openSnackbar(`Could not delete customer: ${name}: ${error}`, 'error');
+        }
+    };
+
     const { push } = useRouter();
 
     return (
@@ -319,7 +331,11 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
                                             >
                                                 <EditIcon />
                                             </IconButton>
-                                            <IconButton color='warning' aria-label='edit'>
+                                            <IconButton
+                                                color='warning'
+                                                aria-label='edit'
+                                                onClick={() => deleteCustomer(row.id, row.name)}
+                                            >
                                                 <DeleteIcon />
                                             </IconButton>
                                         </TableCell>
