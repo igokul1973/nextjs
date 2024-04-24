@@ -32,16 +32,16 @@ const baseIndividualFormSchema = z.object({
     updatedBy: z.string()
 });
 
-export const individualUpdateSchema = baseIndividualFormSchema.extend({
-    address: addressFormSchema,
-    phones: phonesFormSchema,
-    emails: emailsFormSchema,
-    attributes: attributesFormSchema
-});
-
 export const individualCreateSchema = baseIndividualFormSchema.omit({ id: true }).extend({
     address: addressFormSchema.omit({ id: true }),
     phones: phonesFormSchema.element.omit({ id: true }).array(),
     emails: emailsFormSchema.element.omit({ id: true }).array(),
+    attributes: attributesFormSchema
+});
+
+export const individualUpdateSchema = baseIndividualFormSchema.extend({
+    address: addressFormSchema,
+    phones: phonesFormSchema,
+    emails: emailsFormSchema,
     attributes: attributesFormSchema
 });

@@ -2,7 +2,9 @@ import { TPluralTranslationKeys, TSingleTranslationKeys } from './types';
 
 const svPlural: Record<TPluralTranslationKeys, string> = {
     'must be digits#many': 'måste vara {count} siffror',
-    'must be up to digits#many': 'måste vara upp till {count} siffror'
+    'must be up to digits#many': 'måste vara upp till {count} siffror',
+    'must be at least characters#many':
+        'innehållsartikelnamnet kan inte vara mindre än {count} tecken'
 };
 
 const svSingle: Record<TSingleTranslationKeys, string> = {
@@ -87,12 +89,23 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'add another email address': 'lägg till en annan e-postadress',
     'please enter the email address': 'var god ange e-postadress',
     'please enter the email type': 'var god ange e-posttyp',
+    // Inventory
+    price: 'pris',
+    'internal code': 'intern kod',
+    'external code': 'extern kod',
+    'manufacturer code': 'tillverkarekod',
+    'manufacturer price': 'tillverkarepris',
+    miscellaneous: 'annan',
+    product: 'produkt',
+    service: 'tjänst',
     // Attributes
     'add another attribute': 'lägg till ett annat attribut',
     'add attribute': 'lägg till en attribut',
     text: 'text',
     value: 'värde',
     // Errors
+    'must be a number': 'måste vara ett nummer',
+    'could not load data': 'kunde inte ladda data',
     'please enter at least one character': 'var god ange minst ett tecken',
     'please enter the name': 'var god ange namnet',
     'please enter the first name': 'var god ange förnamn',
@@ -103,6 +116,7 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'please enter the zip/postal code': 'var god ange postnummer',
     'please enter the country': 'var god ange landet',
     'please enter the company name': 'var god ange företagsnamn',
+    'please enter the price': 'var god ange priset',
     'the country code cannot be bigger than 999': 'landskoden kan inte vara mer än 999',
     'the phone number cannot have less than 8 digits':
         'telefonnumret kan inte ha mindre än 8 siffror',
@@ -113,10 +127,14 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'please enter the attribute type': 'var god ange attributtyp',
     'please enter the attribute name': 'var god ange attributnamn',
     'please enter the attribute value': 'var god ange attributvärde',
+    'please enter the inventory item name': 'var god ange innehållsartikelnamn',
+    'please enter the inventory item type': 'var god ange innehållsartikeltyp',
     // Buttons
     'create customer': 'skapa en kund',
     'update customer': 'redigera kunden',
     'delete customer': 'ta bort kunden',
+    'create inventory': 'skapa inventering',
+    'create inventory item': 'skapa innehållsartikel',
     // Reports
     collected: 'insamlad',
     pending: 'avvaktande',

@@ -1,6 +1,7 @@
 export const enPlural = {
     'must be digits#many': 'must be {count} digits',
-    'must be up to digits#many': 'must be up to {count} digits'
+    'must be up to digits#many': 'must be up to {count} digits',
+    'must be at least characters#many': 'must be at least {count} characters long'
 };
 
 export const enSingle = {
@@ -90,7 +91,18 @@ export const enSingle = {
     'add attribute': 'add attribute',
     text: 'text',
     value: 'value',
+    // Inventory
+    price: 'price',
+    'internal code': 'internal code',
+    'external code': 'external code',
+    'manufacturer code': 'manufacturer code',
+    'manufacturer price': 'manufacturer price',
+    miscellaneous: 'miscellaneous',
+    product: 'product',
+    service: 'service',
     // Errors
+    'must be a number': 'must be a number',
+    'could not load data': 'could not load data',
     'please enter at least one character': 'please enter at least one character',
     'please enter the name': 'please enter the name',
     'please enter the first name': 'please enter the first name',
@@ -101,6 +113,7 @@ export const enSingle = {
     'please enter the zip/postal code': 'please enter the zip/postal code',
     'please enter the country': 'please enter the country',
     'please enter the company name': 'please enter the company name',
+    'please enter the price': 'please enter the price',
     'the country code cannot be bigger than 999': 'the country code cannot be bigger than 999',
     'the phone number cannot have less than 8 digits':
         'the phone number cannot have less than 8 digits',
@@ -111,10 +124,14 @@ export const enSingle = {
     'please enter the attribute type': 'please enter the attribute type',
     'please enter the attribute name': 'please enter the attribute name',
     'please enter the attribute value': 'please enter the attribute value',
+    'please enter the inventory item name': 'please enter the inventory item name',
+    'please enter the inventory item type': 'please enter the inventory item type',
     // Buttons
     'create customer': 'create customer',
     'update customer': 'update customer',
     'delete customer': 'delete customer',
+    'create inventory': 'create inventory',
+    'create inventory item': 'create inventory item',
     // Reports
     collected: 'collected',
     pending: 'pending',
