@@ -17,7 +17,7 @@ import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import {
     TGetCustomerPayload,
     getCustomersSelect,
-    getFilteredCustomersByAccountIdSelect,
+    getCustomersWithInvoicesSelect,
     getFilteredCustomersWhereClause
 } from './types';
 
@@ -111,7 +111,7 @@ export async function getFilteredCustomersByAccountId(
             ],
             take: itemsPerPage,
             skip: offset,
-            select: getFilteredCustomersByAccountIdSelect,
+            select: getCustomersWithInvoicesSelect,
             where: getFilteredCustomersWhereClause(query, accountId)
         });
 
@@ -455,7 +455,7 @@ export async function updateCustomer(
     }
 }
 
-export async function deleteCustomerById(id: string): Promise<{ message: string }> {
+export async function deleteCustomerById(id: string): Promise<void> {
     if (!id) {
         throw Error('The id must be a valid UUID');
     }

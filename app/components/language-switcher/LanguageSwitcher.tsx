@@ -2,6 +2,7 @@
 
 import Language from '@mui/icons-material/Language';
 
+import { LocaleEnum } from '@/app/lib/types';
 import { useChangeLocale, useCurrentLocale } from '@/locales/client';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
@@ -21,7 +22,7 @@ export default function LanguageSwitcher() {
         setAnchorEl(null);
     };
 
-    const onSwitchLocale = (lang: 'en' | 'sv') => {
+    const onSwitchLocale = (lang: LocaleEnum) => {
         changeLocale(lang);
         handleClose();
     };
@@ -77,14 +78,14 @@ export default function LanguageSwitcher() {
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
                 <MenuItem
-                    onClick={() => onSwitchLocale('en')}
-                    sx={{ fontWeight: currentLocale === 'en' ? '700' : null }}
+                    onClick={() => onSwitchLocale(LocaleEnum.en_US)}
+                    sx={{ fontWeight: currentLocale === LocaleEnum.en_US ? '700' : null }}
                 >
                     English
                 </MenuItem>
                 <MenuItem
-                    onClick={() => onSwitchLocale('sv')}
-                    sx={{ fontWeight: currentLocale === 'sv' ? '700' : null }}
+                    onClick={() => onSwitchLocale(LocaleEnum.sv_SE)}
+                    sx={{ fontWeight: currentLocale === LocaleEnum.sv_SE ? '700' : null }}
                 >
                     Swedish
                 </MenuItem>

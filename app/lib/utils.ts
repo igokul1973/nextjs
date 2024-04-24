@@ -1,5 +1,5 @@
 import { AccountRelationEnum, EntitiesEnum } from '@prisma/client';
-import { TGetCustomerPayload } from './data/customer/types';
+import { TGetCustomerPayload, TGetCustomerWithInvoicesPayload } from './data/customer/types';
 import {
     TGetUserWithRelationsAndInventoryPayload,
     TGetUserWithRelationsPayload
@@ -96,7 +96,9 @@ export type TFlattenedCustomer = {
     phone: string;
 };
 
-export function flattenCustomer(rawCustomer: TGetCustomerPayload): TFlattenedCustomer {
+export function flattenCustomer(
+    rawCustomer: TGetCustomerPayload | TGetCustomerWithInvoicesPayload
+): TFlattenedCustomer {
     const entity = rawCustomer.individual || rawCustomer.organization;
     if (!entity) {
         throw Error('The customer organization or individual is not found. Please add one first.');
@@ -152,10 +154,11 @@ export function getUserProvider<
 export function getUserProviderType(
     provider:
         | TEntities<
-              TGetUserWithRelationsPayload['account']['individuals'][0],
-              TGetUserWithRelationsPayload['account']['organizations'][0]
+              TGetUserWithRelationsPayload['account']['individuals'][0] | null,
+              TGetUserWithRelationsPayload['account']['organizations'][0] | null
           >
         | undefined
+        | null
 ) {
     if (!provider) return undefined;
 

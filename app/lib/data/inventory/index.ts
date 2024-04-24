@@ -2,9 +2,11 @@
 
 import prisma from '@/app/lib/prisma';
 import { Prisma } from '@prisma/client';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { TOrder } from '../../types';
 import { formatCurrency } from '../../utils';
 import {
     ICreateInventoryItemState,
@@ -41,8 +43,17 @@ export async function getInventoryItemById(id: string): Promise<TGetInventoryPay
     }
 }
 
-export async function getFilteredInventoryByAccountId(accountId: string, query: string) {
+export async function getFilteredInventoryByAccountId(
+    accountId: string,
+    query: string,
+    currentPage: number,
+    itemsPerPage: number,
+    orderBy: string = 'name',
+    order: TOrder = 'asc'
+) {
     noStore();
+
+    const offset = currentPage * itemsPerPage;
 
     const numericQuery = Number(query);
     const isQueryNumber = !isNaN(numericQuery);
@@ -56,21 +67,19 @@ export async function getFilteredInventoryByAccountId(accountId: string, query: 
         });
     }
 
+    const orderByClause:
+        | Prisma.inventoryOrderByWithRelationInput
+        | Prisma.inventoryOrderByWithRelationInput[] =
+        orderBy === 'type' ? { type: { type: order } } : { [orderBy]: order };
+
     try {
         const inventory = await prisma.inventory.findMany({
             relationLoadStrategy: 'join',
-            orderBy: {
-                name: 'asc'
-            },
-            select: {
-                id: true,
-                name: true,
-                price: true,
-                description: true,
-                externalCode: true,
-                internalCode: true,
-                manufacturerCode: true,
-                manufacturerPrice: true
+            take: itemsPerPage,
+            skip: offset,
+            orderBy: orderByClause,
+            include: {
+                type: true
             },
             where: {
                 AND: [
@@ -87,7 +96,10 @@ export async function getFilteredInventoryByAccountId(accountId: string, query: 
         return inventory.map((inventoryItem) => {
             return {
                 ...inventoryItem,
-                price: formatCurrency(inventoryItem.price)
+                price: formatCurrency(inventoryItem.price),
+                manufacturerPrice: inventoryItem.manufacturerPrice
+                    ? formatCurrency(inventoryItem.manufacturerPrice)
+                    : ''
             };
         });
     } catch (error) {
@@ -114,7 +126,7 @@ export async function getFilteredInventoryCount(accountId: string, query: string
     try {
         const count = await prisma.inventory.count({
             where: {
-                OR: [
+                AND: [
                     {
                         accountId: {
                             equals: accountId
@@ -130,14 +142,6 @@ export async function getFilteredInventoryCount(accountId: string, query: string
         console.error('Database Error:', error);
         throw new Error('Failed to get total number of inventory.');
     }
-}
-
-export async function deleteInventoryItemById(id: string) {
-    return prisma.inventory.delete({
-        where: {
-            id
-        }
-    });
 }
 
 export async function createInventoryItem(
@@ -194,21 +198,31 @@ export async function updateInventoryItem(id: string, formData: FormData) {
     redirect('/dashboard/inventory');
 }
 
-export async function deleteInventoryItem(id: string): Promise<{ message: string }> {
+export async function deleteInventoryItemById(id: string) {
     if (!id) {
         throw Error('The id must be a valid UUID');
     }
 
-    // Deleting inventoryItem in DB
+    // Creating customer in DB
     try {
-        await deleteInventoryItemById(id);
-        const successMessage = 'Successfully deleted inventoryItem.';
-        console.log(successMessage);
+        await prisma.inventory.delete({
+            where: {
+                id
+            }
+        });
+
+        console.log(`Successfully deleted inventory with ID #${id}`);
 
         revalidatePath('/dashboard/inventory');
-        return { message: successMessage };
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Database Error:', error);
-        throw new Error('Database Error: failed to delete Inventory Item.');
+        if (
+            error instanceof PrismaClientKnownRequestError &&
+            error.message.toLocaleLowerCase().includes('foreign key constraint') &&
+            error.message.toLocaleLowerCase().includes('invoice')
+        ) {
+            throw new Error('Cannot delete inventory item because it has associated invoices.');
+        }
+        throw new Error('Database Error: failed to delete inventory item.');
     }
 }

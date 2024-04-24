@@ -1,7 +1,7 @@
 import { DrawerHeader } from '@/app/components/dashboard/navigation/styled';
 import RightDrawer from '@/app/components/right-drawer/RightDrawer';
 import GlobalSnackbar from '@/app/components/snackbar/GlobalSnackbar';
-import NavProvider from '@/app/context/navigation/provider';
+import RightDrawerProvider from '@/app/context/right-drawer/provider';
 import { SnackbarProvider } from '@/app/context/snackbar/provider';
 import UserProvider from '@/app/context/user/provider';
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
@@ -13,6 +13,7 @@ import { redirect } from 'next/navigation';
 import { FC } from 'react';
 import Navigation from '../../components/dashboard/navigation/Navigation';
 import { TProps } from './types';
+import { TEntity } from '@/app/lib/types';
 
 const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
     const session = await auth();
@@ -28,17 +29,22 @@ const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
     const { account, profile, ...user } = dbUser;
 
     const provider = getUserProvider(dbUser);
-    const concreteProvider =
-        (provider && provider.individual) || (provider && provider.organization);
+    const concreteProvider = provider?.individual || provider?.organization;
 
     const providerType = getUserProviderType(provider);
 
     return (
         <Box sx={{ display: 'flex' }}>
             <I18nProviderClient locale={locale}>
-                <NavProvider>
+                <RightDrawerProvider>
                     <UserProvider
-                        value={{ user, profile, account, provider: concreteProvider, providerType }}
+                        userState={{
+                            user,
+                            profile,
+                            account,
+                            provider: concreteProvider as TEntity,
+                            providerType
+                        }}
                     >
                         <SnackbarProvider>
                             <Navigation />
@@ -50,7 +56,7 @@ const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
                             <GlobalSnackbar />
                         </SnackbarProvider>
                     </UserProvider>
-                </NavProvider>
+                </RightDrawerProvider>
             </I18nProviderClient>
         </Box>
     );

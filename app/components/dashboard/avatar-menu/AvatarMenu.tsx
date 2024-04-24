@@ -1,6 +1,6 @@
 'use client';
 
-import { useNavState } from '@/app/context/navigation/provider';
+import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useUser } from '@/app/context/user/provider';
 import { logOut } from '@/app/lib/data/user';
 import { useI18n } from '@/locales/client';
@@ -24,7 +24,7 @@ const AvatarMenu: FC = () => {
     const t = useI18n();
     const { profile: userProfile } = useUser();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const { dispatch } = useNavState();
+    const { dispatch } = useRightDrawerState();
     const open = Boolean(anchorEl);
     const handleClick = (event: MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);

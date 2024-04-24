@@ -2,6 +2,40 @@
 // It describes the shape of the data, and what data type each property should accept.
 // For simplicity of teaching, we're manually defining these types.
 
+export enum LocaleEnum {
+    en_US = 'en-US',
+    en_GB = 'en-GB',
+    es_ES = 'es-ES',
+    fa_IR = 'fa-IR',
+    fr_FR = 'fr-FR',
+    he_IL = 'he-IL',
+    hi_IN = 'hi-IN',
+    id_ID = 'id-ID',
+    it_IT = 'it-IT',
+    ja_JP = 'ja-JP',
+    ko_KR = 'ko-KR',
+    mr_IN = 'mr-IN',
+    nl_NL = 'nl-NL',
+    no_NO = 'no-NO',
+    pa_PK = 'pa-PK',
+    pl_PL = 'pl-PL',
+    pt_PT = 'pt-PT',
+    ru_RU = 'ru-RU',
+    sv_SE = 'sv-SE',
+    sv_FI = 'sv-FI',
+    sv_AX = 'sv-AX',
+    ta_IN = 'ta-IN',
+    te_IN = 'te-IN',
+    th_TH = 'th-TH',
+    tr_TR = 'tr-TR',
+    ur_PK = 'ur-PK',
+    zh_CN = 'zh-CN',
+    zh_TW = 'zh-TW',
+    da_DK = 'da-DK',
+    ms_MY = 'ms-MY',
+    sw_KE = 'sw-KE'
+}
+
 export type TOrder = 'asc' | 'desc';
 
 export type TDirtyFields<T> = {
@@ -23,6 +57,7 @@ import type {
     individualEmail as TIndividualEmail,
     individualPhone as TIndividualPhone,
     inventory as TInventory,
+    inventoryType as TInventoryType,
     invoice as TInvoice,
     localIdentifierName as TLocalIdentifierName,
     organization as TOrganization,
@@ -43,6 +78,7 @@ export {
     TIndividualEmail,
     TIndividualPhone,
     TInventory,
+    TInventoryType,
     TInvoice,
     TLocalIdentifierName,
     TOrganization,
@@ -63,6 +99,7 @@ export type TEntityPropsDiff = {
     typeId?: string;
     isPrivate?: boolean;
     isCharity?: boolean;
+    type?: TOrganizationType;
     // Individual-related properties
     firstName?: string;
     lastName?: string;
@@ -107,4 +144,6 @@ export interface ISearchParams {
     query?: string;
     page?: string;
     itemsPerPage?: string;
+    orderBy?: string;
+    order: TOrder;
 }

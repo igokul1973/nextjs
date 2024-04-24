@@ -1,6 +1,7 @@
 {
     "transpileOnly": true,
     "compilerOptions": {
+        "target": "es6",
         "lib": [
             "dom",
             "dom.iterable",
@@ -8,14 +9,13 @@
         ],
         "skipLibCheck": true,
         "strict": true,
-        "target": "es6",
         "noEmit": true,
         "allowImportingTsExtensions": true,
         "module": "esnext",
         "moduleResolution": "Bundler",
         "resolveJsonModule": true,
         "isolatedModules": true,
-        "esModuleInterop": true
+        "esModuleInterop": true,
     },
     "include": [
         "../app/lib/**/*.ts",

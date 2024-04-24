@@ -68,7 +68,7 @@ export async function getFilteredOrganizationTypes(query: string) {
         const organizationTypes = await prisma.organizationType.findMany({
             relationLoadStrategy: 'join',
             orderBy: {
-                name: 'asc'
+                type: 'asc'
             },
             select: getOrganizationTypesSelect,
             where: getQueryFilterWhereClause(query)

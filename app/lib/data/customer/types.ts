@@ -25,10 +25,17 @@ export const getCustomersSelect = {
     }
 } satisfies Prisma.customerSelect;
 
-export const getFilteredCustomersByAccountIdSelect = {
+export const getCustomersWithInvoicesSelect = {
     id: true,
-    organization: true,
-    individual: true,
+    individual: {
+        include: includeEntityRelations
+    },
+    organization: {
+        include: {
+            ...includeEntityRelations,
+            type: true
+        }
+    },
     _count: true,
     invoices: {
         select: {
@@ -48,6 +55,10 @@ export const getFilteredCustomersByAccountIdSelect = {
 
 export type TGetCustomerPayload = Prisma.customerGetPayload<{
     select: typeof getCustomersSelect;
+}>;
+
+export type TGetCustomerWithInvoicesPayload = Prisma.customerGetPayload<{
+    select: typeof getCustomersWithInvoicesSelect;
 }>;
 
 export const getFilteredCustomersWhereClause = (

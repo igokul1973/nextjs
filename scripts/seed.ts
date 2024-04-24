@@ -178,6 +178,7 @@ async function seedCountries() {
     console.log('Seeding countries...');
     const supervisor = await getSupervisor();
     const queries = countries.map((c) => {
+        const { localIdentifierNames, ...country } = c;
         const sanitizedLocalIdentifierNames = c.localIdentifierNames.map((lin) => ({
             ...lin,
             createdBy: supervisor.id,
@@ -185,7 +186,7 @@ async function seedCountries() {
         }));
         return prisma.country.create({
             data: {
-                name: c.name,
+                ...country,
                 localIdentifierNames: {
                     create: sanitizedLocalIdentifierNames
                 }
@@ -272,6 +273,8 @@ async function seedAccountOrgsOrIndividualProviders() {
     const individualCountry = countries.find((c) =>
         c.name.toLowerCase().includes(indCountryName.toLowerCase())
     );
+
+    console.log('Coutries found:', countries, orgCountry, individualCountry, indCountryName);
 
     if (!individualCountry) {
         throw Error(

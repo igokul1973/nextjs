@@ -185,6 +185,9 @@ model individualEmail {
 model country {
   id                   String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name                 String                @db.VarChar(255)
+  abbreviation         String?               @db.VarChar(255)
+  locale               String                @db.VarChar(6)
+  phoneCode            Int                   @db.SmallInt
   addresses            address[]
   localIdentifierNames localIdentifierName[]
 
@@ -299,11 +302,11 @@ model inventory {
   type              inventoryType @relation(fields: [typeId], references: [id]) // service, product
   accountId         String        @map("account_id") @db.Uuid
   account           account       @relation(fields: [accountId], references: [id])
-  price             Int
+  price             Int           @db.Integer
   externalCode      String?       @map("external_code") @db.VarChar(255) // e.g. code from store invoice or receipt
   internalCode      String?       @map("internal_code") @db.VarChar(255) // e.g. code inside accounting software
   manufacturerCode  String?       @map("manufacturer_code") @db.VarChar(255) // e.g. code from store invoice or receipt
-  manufacturerPrice Int?
+  manufacturerPrice Int?          @db.Integer
   createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt         DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
   createdBy         String        @map("created_by") @db.Uuid
@@ -368,9 +371,9 @@ model invoice {
   // Any additional terms and conditions
   terms                      String?           @db.Text
   // Tax percentage (can be state sales tax in USA or VAT in Europe)
-  tax                        Int?
+  tax                        Int?              @db.Integer
   // Discount percentage on whole invoice
-  discount                   Int?
+  discount                   Int?              @db.Integer
   // Internal notes
   notes                      String?           @db.Text
   createdAt                  DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
@@ -391,8 +394,8 @@ model invoiceItem {
   // Price is also from Inventory table, but may not match
   // with inventory item with inventoryId on record, as inventory prices
   // have a tendency to change over the time.
-  price       Int
-  quantity    Int
+  price       Int        @db.Integer
+  quantity    Int        @db.Integer
   invoiceId   String     @map("invoice_id") @db.Uuid
   invoice     invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   // Used strictly for archiving/analytics purposes.

@@ -1,13 +1,13 @@
 'use client';
 
-import { useNavState } from '@/app/context/navigation/provider';
+import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import CloseIcon from '@mui/icons-material/Close';
 import { FC } from 'react';
 import { StyledCloseButton } from './styled';
 import { IProps } from './types';
 
 const CloseButton: FC<IProps> = ({ className }) => {
-    const { dispatch } = useNavState();
+    const { dispatch } = useRightDrawerState();
     return (
         <StyledCloseButton
             className={className}

@@ -1,11 +1,7 @@
 'use client';
 
-import {
-    DEFAULT_ITEMS_PER_PAGE,
-    DEFAULT_PAGE_NUMBER
-} from '@/app/[locale]/dashboard/customers/utils';
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { deleteCustomerById } from '@/app/lib/data/customer';
+import { deleteInventoryItemById } from '@/app/lib/data/inventory';
 import { TOrder } from '@/app/lib/types';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
@@ -32,33 +28,15 @@ import Typography from '@mui/material/Typography';
 import { alpha } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { ChangeEvent, FC, MouseEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, FC, MouseEvent, useEffect, useState } from 'react';
+import { IInventory } from '../types';
 import {
-    ICustomerTable,
-    IEnhancedTableProps,
-    IEnhancedTableToolbarProps,
-    IHeadCell,
-    IProps
-} from './types';
-
-function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
-    if (b[orderBy] < a[orderBy]) {
-        return -1;
-    }
-    if (b[orderBy] > a[orderBy]) {
-        return 1;
-    }
-    return 0;
-}
-
-function getComparator<Key extends keyof ICustomerTable>(
-    order: TOrder,
-    orderBy: Key
-): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
-    return order === 'desc'
-        ? (a, b) => descendingComparator(a, b, orderBy)
-        : (a, b) => -descendingComparator(a, b, orderBy);
-}
+    DEFAULT_ITEMS_PER_PAGE,
+    DEFAULT_ORDER,
+    DEFAULT_ORDER_BY,
+    DEFAULT_PAGE_NUMBER
+} from './constants';
+import { IEnhancedTableProps, IEnhancedTableToolbarProps, IHeadCell, IProps } from './types';
 
 const headCells: readonly IHeadCell[] = [
     {
@@ -69,6 +47,13 @@ const headCells: readonly IHeadCell[] = [
         align: 'left'
     },
     {
+        id: 'description',
+        isNumeric: false,
+        disablePadding: false,
+        label: 'description',
+        align: 'left'
+    },
+    {
         id: 'type',
         isNumeric: false,
         disablePadding: false,
@@ -76,38 +61,38 @@ const headCells: readonly IHeadCell[] = [
         align: 'center'
     },
     {
-        id: 'email',
+        id: 'price',
         isNumeric: false,
         disablePadding: false,
-        label: 'email',
+        label: 'price',
         align: 'center'
     },
     {
-        id: 'phone',
+        id: 'externalCode',
         isNumeric: false,
         disablePadding: false,
-        label: 'email',
+        label: 'external code',
         align: 'center'
     },
     {
-        id: 'totalPending',
-        isNumeric: true,
+        id: 'internalCode',
+        isNumeric: false,
         disablePadding: false,
-        label: 'pending invoices',
+        label: 'internal code',
         align: 'center'
     },
     {
-        id: 'totalPaid',
-        isNumeric: true,
+        id: 'manufacturerCode',
+        isNumeric: false,
         disablePadding: false,
-        label: 'paid invoices',
+        label: 'manufacturer code',
         align: 'center'
     },
     {
-        id: 'totalInvoices',
-        isNumeric: true,
+        id: 'manufacturerPrice',
+        isNumeric: false,
         disablePadding: false,
-        label: 'total invoices',
+        label: 'manufacturer price',
         align: 'center'
     }
 ];
@@ -115,7 +100,7 @@ const headCells: readonly IHeadCell[] = [
 function EnhancedTableHead(props: IEnhancedTableProps) {
     const t = useI18n();
     const { order, orderBy, onRequestSort } = props;
-    const createSortHandler = (property: keyof ICustomerTable) => (event: MouseEvent<unknown>) => {
+    const createSortHandler = (property: keyof IInventory) => (event: MouseEvent<unknown>) => {
         onRequestSort(event, property);
     };
 
@@ -165,7 +150,7 @@ function EnhancedTableToolbar(props: IEnhancedTableToolbarProps) {
             }}
         >
             <Typography sx={{ flex: '1 1 100%' }} variant='h6' id='tableTitle' component='div'>
-                {capitalize(t('customers'))}
+                {capitalize(t('inventory'))}
             </Typography>
             <Tooltip title='Filter list'>
                 <IconButton>
@@ -176,11 +161,9 @@ function EnhancedTableToolbar(props: IEnhancedTableToolbarProps) {
     );
 }
 
-const CustomersTable: FC<IProps> = ({ customers, count }) => {
+const InventoryTable: FC<IProps> = ({ inventory, count }) => {
     const { openSnackbar } = useSnackbar();
-    const [order, setOrder] = useState<TOrder>('asc');
-    const [orderBy, setOrderBy] = useState<keyof ICustomerTable>('name');
-    const [selected, setSelected] = useState<readonly ICustomerTable['id'][]>([]);
+    const [selected, setSelected] = useState<readonly IInventory['id'][]>([]);
     const [dense, setDense] = useState(true);
 
     const { replace } = useRouter();
@@ -188,6 +171,8 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
     const searchParams = useSearchParams();
     const pageParam = searchParams.get('page') ?? DEFAULT_PAGE_NUMBER.toString();
     const itemsPerPageParam = searchParams.get('itemsPerPage') ?? DEFAULT_ITEMS_PER_PAGE.toString();
+    const order = (searchParams.get('order') ?? DEFAULT_ORDER) as TOrder;
+    const orderBy = searchParams.get('orderBy') ?? DEFAULT_ORDER_BY;
 
     useEffect(() => {
         // If no search params, set defaults
@@ -202,15 +187,17 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
     const page = parseInt(pageParam, 10);
     const rowsPerPage = parseInt(itemsPerPageParam, 10);
 
-    const handleRequestSort = (event: MouseEvent<unknown>, property: keyof ICustomerTable) => {
+    const handleRequestSort = (event: MouseEvent<unknown>, property: keyof IInventory) => {
         const isAsc = orderBy === property && order === 'asc';
-        setOrder(isAsc ? 'desc' : 'asc');
-        setOrderBy(property);
+        const params = new URLSearchParams(searchParams || undefined);
+        params.set('order', isAsc ? 'desc' : 'asc');
+        params.set('orderBy', property);
+        replace(`${pathname}?${params.toString()}`);
     };
 
     const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            const newSelected = customers.map((n) => n.id);
+            const newSelected = inventory.map((n) => n.id);
             setSelected(newSelected);
             return;
         }
@@ -219,7 +206,7 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
 
     const handleClick = (event: MouseEvent<unknown>, id: string) => {
         const selectedIndex = selected.indexOf(id);
-        let newSelected: readonly ICustomerTable['id'][] = [];
+        let newSelected: readonly IInventory['id'][] = [];
 
         if (selectedIndex === -1) {
             newSelected = newSelected.concat(selected, id);
@@ -256,19 +243,14 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
     const isSelected = (id: string) => selected.indexOf(id) !== -1;
 
     // Avoid a layout jump when reaching the last page with empty rows.
-    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - customers.length) : 0;
+    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - inventory.length) : 0;
 
-    const visibleRows = useMemo(
-        () => customers.slice().sort(getComparator(order, orderBy)),
-        [customers, order, orderBy]
-    );
-
-    const deleteCustomer = async (id: string, name: string) => {
+    const deleteInventory = async (id: string, name: string) => {
         try {
-            await deleteCustomerById(id);
-            openSnackbar(`Successfully deleted customer with ID: ${id}`);
+            await deleteInventoryItemById(id);
+            openSnackbar(`Successfully deleted inventory with ID: ${id}`);
         } catch (error) {
-            openSnackbar(`Could not delete customer: ${name}: ${error}`, 'error');
+            openSnackbar(`Could not delete inventory: ${name}: ${error}`, 'error');
         }
     };
 
@@ -290,10 +272,10 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
                             orderBy={orderBy}
                             onSelectAllClick={handleSelectAllClick}
                             onRequestSort={handleRequestSort}
-                            rowCount={customers.length}
+                            rowCount={inventory.length}
                         />
                         <TableBody>
-                            {visibleRows.map((row, index) => {
+                            {inventory.map((row, index) => {
                                 const isItemSelected = isSelected(row.id);
                                 const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -313,21 +295,39 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
                                             id={labelId}
                                             scope='row'
                                             padding='none'
+                                            sx={{
+                                                width: '250px',
+                                                maxWidth: '250px'
+                                            }}
                                         >
                                             {row.name}
                                         </TableCell>
-                                        <TableCell align='center'>{row.type}</TableCell>
-                                        <TableCell align='center'>{row.email}</TableCell>
-                                        <TableCell align='center'>{row.phone}</TableCell>
-                                        <TableCell align='center'>{row.totalPending}</TableCell>
-                                        <TableCell align='center'>{row.totalPaid}</TableCell>
-                                        <TableCell align='center'>{row.totalInvoices}</TableCell>
+                                        <TableCell
+                                            align='left'
+                                            sx={{
+                                                width: '200px',
+                                                maxWidth: '200px',
+                                                textOverflow: 'ellipsis',
+                                                overflow: 'hidden',
+                                                whiteSpace: 'nowrap'
+                                            }}
+                                        >
+                                            {row.description}
+                                        </TableCell>
+                                        <TableCell align='center'>{row.type.type}</TableCell>
+                                        <TableCell align='center'>{row.price}</TableCell>
+                                        <TableCell align='center'>{row.externalCode}</TableCell>
+                                        <TableCell align='center'>{row.internalCode}</TableCell>
+                                        <TableCell align='center'>{row.manufacturerCode}</TableCell>
+                                        <TableCell align='center'>
+                                            {row.manufacturerPrice}
+                                        </TableCell>
                                         <TableCell align='center' sx={{ display: 'flex' }}>
                                             <IconButton
                                                 color='primary'
                                                 aria-label='edit'
                                                 onClick={() => {
-                                                    push(`/dashboard/customers/${row.id}/edit`);
+                                                    push(`/dashboard/inventory/${row.id}/edit`);
                                                 }}
                                             >
                                                 <EditIcon />
@@ -335,7 +335,7 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
                                             <IconButton
                                                 color='warning'
                                                 aria-label='edit'
-                                                onClick={() => deleteCustomer(row.id, row.name)}
+                                                onClick={() => deleteInventory(row.id, row.name)}
                                             >
                                                 <DeleteIcon />
                                             </IconButton>
@@ -373,4 +373,4 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
     );
 };
 
-export default CustomersTable;
+export default InventoryTable;

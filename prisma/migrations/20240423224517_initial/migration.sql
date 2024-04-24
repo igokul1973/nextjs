@@ -139,6 +139,9 @@ CREATE TABLE "individual_emails" (
 CREATE TABLE "countries" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "name" VARCHAR(255) NOT NULL,
+    "abbreviation" VARCHAR(255),
+    "locale" VARCHAR(6) NOT NULL,
+    "phoneCode" SMALLINT NOT NULL,
 
     CONSTRAINT "countries_pkey" PRIMARY KEY ("id")
 );

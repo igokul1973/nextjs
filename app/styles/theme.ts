@@ -3,7 +3,6 @@ import { roboto } from './fonts';
 
 declare module '@mui/material/styles' {
     interface Components {
-        MainMenuFrameComponent: unknown;
         GameButtonComponent: unknown;
     }
 }

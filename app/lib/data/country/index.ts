@@ -5,12 +5,8 @@ import { Prisma } from '@prisma/client';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import {
-    ICreateCountryState,
-    TGetCountryPayload,
-    getCountriesSelect,
-    getQueryFilterWhereClause
-} from './types';
+import { TCountry } from '../../types';
+import { ICreateCountryState, getQueryFilterWhereClause } from './types';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -24,12 +20,11 @@ const FormSchema = z.object({
 const CreateCountry = FormSchema.omit({ id: true });
 const UpdateCountry = FormSchema.omit({ id: true });
 
-export async function getCountryById(id: string): Promise<TGetCountryPayload | null> {
+export async function getCountryById(id: string): Promise<TCountry | null> {
     noStore();
     try {
         const country = await prisma.country.findFirst({
             relationLoadStrategy: 'query',
-            select: getCountriesSelect,
             where: {
                 id
             }
@@ -42,7 +37,7 @@ export async function getCountryById(id: string): Promise<TGetCountryPayload | n
     }
 }
 
-export async function getCountries(): Promise<TGetCountryPayload[]> {
+export async function getCountries(): Promise<TCountry[]> {
     noStore();
     try {
         const countries = await prisma.country.findMany({
@@ -65,7 +60,6 @@ export async function getFilteredCountries(query: string) {
             orderBy: {
                 name: 'asc'
             },
-            select: getCountriesSelect,
             where: getQueryFilterWhereClause(query)
         });
 

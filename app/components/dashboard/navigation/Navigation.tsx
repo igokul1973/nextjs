@@ -45,7 +45,7 @@ const Navigation: FC = () => {
     const theme = useTheme();
     const t = useI18n();
 
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
     const { provider } = useUser();
     const isProvider = !!provider;
 

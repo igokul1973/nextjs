@@ -19,7 +19,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
         const params = new URLSearchParams(searchParams || undefined);
         // When user types new/updates old query, the page
         // should always reset to 1.
-        params.set('page', '1');
+        params.set('page', '0');
 
         if (term) {
             params.set('query', term);

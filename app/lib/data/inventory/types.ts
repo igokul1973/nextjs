@@ -26,27 +26,42 @@ export const getQueryFilterWhereClause = (query: string): Prisma.inventoryWhereI
     OR: [
         {
             name: {
-                contains: query
+                contains: query,
+                mode: 'insensitive'
             }
         },
         {
             description: {
-                contains: query
+                contains: query,
+                mode: 'insensitive'
             }
         },
         {
             externalCode: {
-                contains: query
+                contains: query,
+                mode: 'insensitive'
             }
         },
         {
             internalCode: {
-                contains: query
+                contains: query,
+                mode: 'insensitive'
             }
         },
         {
             manufacturerCode: {
-                contains: query
+                contains: query,
+                mode: 'insensitive'
+            }
+        },
+        {
+            type: {
+                is: {
+                    type: {
+                        contains: query,
+                        mode: 'insensitive'
+                    }
+                }
             }
         }
     ]

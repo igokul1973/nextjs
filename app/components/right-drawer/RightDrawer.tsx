@@ -1,7 +1,7 @@
 'use client';
 
 import CloseButton from '@/app/components/buttons/close/CloseButton';
-import { useNavState } from '@/app/context/navigation/provider';
+import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -14,7 +14,7 @@ const drawerWidth = 550;
 const RightDrawer: FC = () => {
     const {
         state: { isOpen, childComponent: Component, title, icon: Icon }
-    } = useNavState();
+    } = useRightDrawerState();
 
     return (
         <StyledRightDrawer

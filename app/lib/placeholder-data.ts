@@ -9,10 +9,14 @@ import {
     PhoneTypeEnum,
     UserRoleEnum
 } from '@prisma/client';
+import { LocaleEnum } from './types.ts';
 
 const countries = [
     {
-        name: 'USA',
+        name: 'United States of America',
+        abbreviation: 'USA',
+        locale: LocaleEnum.en_US,
+        phoneCode: 1,
         localIdentifierNames: [
             {
                 name: 'Employer Identification Number',
@@ -28,6 +32,8 @@ const countries = [
     },
     {
         name: 'Sweden',
+        locale: LocaleEnum.sv_SE,
+        phoneCode: 46,
         localIdentifierNames: [
             {
                 name: 'Organisationsnummer',
@@ -40,7 +46,10 @@ const countries = [
         ]
     },
     {
-        name: 'Russia',
+        name: 'Russian Federation',
+        abbreviation: 'Russia',
+        locale: LocaleEnum.ru_RU,
+        phoneCode: 7,
         localIdentifierNames: [
             {
                 name: 'Основной государственный регистрационный номер',
@@ -133,11 +142,17 @@ const providerIndividual = {
         locality: 'Nashville',
         region: 'TN',
         postcode: '93029-8332',
-        country: 'USA'
+        country: countries[0].name
     },
     accountRelation: AccountRelationEnum.provider,
     emails: [{ email: 'tony@blair.us', type: EmailTypeEnum.main }],
-    phones: [{ countryCode: '1', number: '9392001921', type: PhoneTypeEnum.mobile }]
+    phones: [
+        {
+            countryCode: countries[0].phoneCode.toString(),
+            number: '9392001921',
+            type: PhoneTypeEnum.mobile
+        }
+    ]
 };
 
 const customerIndividuals = [
@@ -153,7 +168,7 @@ const customerIndividuals = [
             locality: 'Portland',
             region: 'OR',
             postcode: '98093-4332',
-            country: 'USA'
+            country: countries[0].name
         },
         accountRelation: AccountRelationEnum.customer,
         emails: [
@@ -161,8 +176,16 @@ const customerIndividuals = [
             { email: 'delba@work.com', type: EmailTypeEnum.work }
         ],
         phones: [
-            { countryCode: '1', number: '8373282731', type: PhoneTypeEnum.work },
-            { countryCode: '1', number: '9893627263', type: PhoneTypeEnum.home }
+            {
+                countryCode: countries[0].phoneCode.toString(),
+                number: '8373282731',
+                type: PhoneTypeEnum.work
+            },
+            {
+                countryCode: countries[0].phoneCode.toString(),
+                number: '9893627263',
+                type: PhoneTypeEnum.home
+            }
         ]
     },
     {
@@ -178,13 +201,21 @@ const customerIndividuals = [
             locality: 'Seattle',
             region: 'WA',
             postcode: '92023',
-            country: 'USA'
+            country: countries[0].name
         },
         accountRelation: AccountRelationEnum.customer,
         emails: [{ email: 'leerobh@gmail.com', type: EmailTypeEnum.main }],
         phones: [
-            { countryCode: '1', number: '3839292921', type: PhoneTypeEnum.work },
-            { countryCode: '1', number: '8386572928', type: PhoneTypeEnum.mobile }
+            {
+                countryCode: countries[0].phoneCode.toString(),
+                number: '3839292921',
+                type: PhoneTypeEnum.work
+            },
+            {
+                countryCode: countries[0].phoneCode.toString(),
+                number: '8386572928',
+                type: PhoneTypeEnum.mobile
+            }
         ]
     },
     {
@@ -199,13 +230,21 @@ const customerIndividuals = [
             locality: 'Seattle',
             region: 'WA',
             postcode: '92025',
-            country: 'USA'
+            country: countries[0].name
         },
         accountRelation: AccountRelationEnum.customer,
         emails: [{ email: 'hectorsmith11@gmail.com', type: EmailTypeEnum.main }],
         phones: [
-            { countryCode: '1', number: '9392029300', type: PhoneTypeEnum.work },
-            { countryCode: '1', number: '7476662827', type: PhoneTypeEnum.mobile }
+            {
+                countryCode: countries[0].phoneCode.toString(),
+                number: '9392029300',
+                type: PhoneTypeEnum.work
+            },
+            {
+                countryCode: countries[0].phoneCode.toString(),
+                number: '7476662827',
+                type: PhoneTypeEnum.mobile
+            }
         ]
     },
     {
@@ -220,11 +259,17 @@ const customerIndividuals = [
             locality: 'Stockholm',
             region: 'Stockholm Lan',
             postcode: '939900',
-            country: 'Sweden'
+            country: countries[1].name
         },
         accountRelation: AccountRelationEnum.customer,
         emails: [{ email: 'mara@gmail.com', type: EmailTypeEnum.other }],
-        phones: [{ countryCode: '1', number: '7476662827', type: PhoneTypeEnum.mobile }]
+        phones: [
+            {
+                countryCode: countries[1].phoneCode.toString(),
+                number: '7476662827',
+                type: PhoneTypeEnum.mobile
+            }
+        ]
     }
 ];
 
@@ -240,11 +285,17 @@ const providerOrganization = {
         addressLine2: '3 vaning',
         locality: 'Ekero',
         postcode: '930293',
-        country: 'Sweden'
+        country: countries[1].name
     },
     accountRelation: AccountRelationEnum.provider,
     emails: [{ email: 'main@sbrnordgrupp.se', type: EmailTypeEnum.main }],
-    phones: [{ countryCode: '46', number: '9392039921', type: PhoneTypeEnum.work }]
+    phones: [
+        {
+            countryCode: countries[1].phoneCode.toString(),
+            number: '9392039921',
+            type: PhoneTypeEnum.work
+        }
+    ]
 };
 
 const customerOrganizations = [
@@ -261,7 +312,7 @@ const customerOrganizations = [
             locality: 'New York',
             region: 'NY',
             postcode: '10023-4332',
-            country: 'USA'
+            country: countries[0].name
         },
         accountRelation: AccountRelationEnum.customer,
         emails: [
@@ -269,8 +320,16 @@ const customerOrganizations = [
             { email: 'invoicing@microsoft.com', type: EmailTypeEnum.invoicing }
         ],
         phones: [
-            { countryCode: '1', number: '3423238593', type: PhoneTypeEnum.work },
-            { countryCode: '22', number: '3428388784', type: PhoneTypeEnum.invoicing }
+            {
+                countryCode: countries[0].phoneCode.toString(),
+                number: '3423238593',
+                type: PhoneTypeEnum.work
+            },
+            {
+                countryCode: countries[0].phoneCode.toString(),
+                number: '3428388784',
+                type: PhoneTypeEnum.invoicing
+            }
         ]
     },
     {
@@ -286,7 +345,7 @@ const customerOrganizations = [
             locality: 'Boston',
             region: 'MA',
             postcode: '73882',
-            country: 'USA'
+            country: countries[0].name
         },
         accountRelation: AccountRelationEnum.customer,
         emails: [
@@ -294,8 +353,16 @@ const customerOrganizations = [
             { email: 'work@oracle.com', type: EmailTypeEnum.work }
         ],
         phones: [
-            { countryCode: '1', number: '7579998583', type: PhoneTypeEnum.work },
-            { countryCode: '1', number: '8384932811', type: PhoneTypeEnum.invoicing }
+            {
+                countryCode: countries[0].phoneCode.toString(),
+                number: '7579998583',
+                type: PhoneTypeEnum.work
+            },
+            {
+                countryCode: countries[0].phoneCode.toString(),
+                number: '8384932811',
+                type: PhoneTypeEnum.invoicing
+            }
         ]
     },
     {
@@ -312,11 +379,17 @@ const customerOrganizations = [
             locality: 'Round Rock',
             region: 'TX',
             postcode: '78928',
-            country: 'USA'
+            country: countries[0].name
         },
         accountRelation: AccountRelationEnum.customer,
         emails: [{ email: 'other@legman.com', type: EmailTypeEnum.other }],
-        phones: [{ countryCode: '1', number: '1234379990', type: PhoneTypeEnum.invoicing }]
+        phones: [
+            {
+                countryCode: countries[0].phoneCode.toString(),
+                number: '1234379990',
+                type: PhoneTypeEnum.invoicing
+            }
+        ]
     },
     {
         name: 'ABC Handlesbolag',
@@ -332,11 +405,17 @@ const customerOrganizations = [
             locality: 'Kopenhaveg',
             region: 'Stockholm lan',
             postcode: '789280',
-            country: 'Sweden'
+            country: countries[1].name
         },
         accountRelation: AccountRelationEnum.customer,
         emails: [{ email: 'other@abc.com', type: EmailTypeEnum.other }],
-        phones: [{ countryCode: '46', number: '9002932990', type: PhoneTypeEnum.mobile }]
+        phones: [
+            {
+                countryCode: countries[1].phoneCode.toString(),
+                number: '9002932990',
+                type: PhoneTypeEnum.mobile
+            }
+        ]
     },
     {
         name: 'ABC Actiebolag',
@@ -350,11 +429,17 @@ const customerOrganizations = [
             addressLine2: '3rd vaning',
             locality: 'Balsta',
             postcode: '940989',
-            country: 'Sweden'
+            country: countries[1].name
         },
         accountRelation: AccountRelationEnum.customer,
         emails: [{ email: 'other@abcactie.com', type: EmailTypeEnum.other }],
-        phones: [{ countryCode: '46', number: '9302223490', type: PhoneTypeEnum.mobile }]
+        phones: [
+            {
+                countryCode: countries[1].phoneCode.toString(),
+                number: '9302223490',
+                type: PhoneTypeEnum.mobile
+            }
+        ]
     },
     {
         name: 'Coolorobado AB',
@@ -367,11 +452,17 @@ const customerOrganizations = [
             addressLine1: '12 Morengen vagen',
             locality: 'Nyneshamn',
             postcode: '930290',
-            country: 'Sweden'
+            country: countries[1].name
         },
         accountRelation: AccountRelationEnum.customer,
         emails: [{ email: 'main@Coolorobado.com', type: EmailTypeEnum.main }],
-        phones: [{ countryCode: '46', number: '4334129333', type: PhoneTypeEnum.work }]
+        phones: [
+            {
+                countryCode: countries[1].phoneCode.toString(),
+                number: '4334129333',
+                type: PhoneTypeEnum.work
+            }
+        ]
     }
 ];
 

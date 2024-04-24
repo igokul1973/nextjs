@@ -11,6 +11,7 @@ const rightDrawerReducer = (
         case 'open':
             return {
                 ...state,
+
                 isOpen: true,
                 childComponent: action.payload.childComponent,
                 title: action.payload.title,
@@ -37,7 +38,7 @@ export const NavContext = createContext<
     | undefined
 >(undefined);
 
-const NavProvider: FC<PropsWithChildren> = ({ children }) => {
+const RightDrawerProvider: FC<PropsWithChildren> = ({ children }) => {
     const [state, dispatch] = useReducer(rightDrawerReducer, {
         isOpen: false,
         childComponent: null
@@ -46,7 +47,7 @@ const NavProvider: FC<PropsWithChildren> = ({ children }) => {
     return <NavContext.Provider value={value}>{children}</NavContext.Provider>;
 };
 
-export const useNavState = () => {
+export const useRightDrawerState = () => {
     const context = useContext(NavContext);
     if (context === undefined) {
         throw new Error('useNavState must be used within a NavProvider');
@@ -54,4 +55,4 @@ export const useNavState = () => {
     return context;
 };
 
-export default NavProvider;
+export default RightDrawerProvider;
