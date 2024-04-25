@@ -5,6 +5,7 @@ import {
     TGetUserWithRelationsPayload
 } from './data/user/types';
 import {
+    TDirtyFields,
     TEntities,
     TEntitiesWithNonNullableCustomer,
     TEntity,
@@ -264,3 +265,33 @@ export const deNullifyObject = <T extends Record<string, unknown>>(obj: T): TNul
 
     return denullifiedEntity;
 };
+
+export function getDirtyValues<T>(
+    dirtyFields: T | TDirtyFields<T>,
+    allValues: T
+): Partial<T> | undefined {
+    // If *any* item in an array was modified, the entire array must be submitted, because there's no way to indicate
+    // "placeholders" for unchanged elements. `dirtyFields` is `true` for leaves.
+    if ((Array.isArray(dirtyFields) && Array.isArray(allValues)) || dirtyFields === true) {
+        return allValues;
+    }
+
+    // Here, we have an object
+    if (
+        typeof dirtyFields === 'object' &&
+        typeof allValues === 'object' &&
+        dirtyFields !== null &&
+        allValues !== null
+    ) {
+        const transformedFields = Object.keys(dirtyFields).map((key) => {
+            if (!(key in allValues)) {
+                return [key, undefined];
+            }
+            const nestedDirtyFields = (dirtyFields as Record<string, unknown>)[key];
+            const nestedAllValues = (allValues as Record<string, unknown>)[key];
+            const result = getDirtyValues(nestedDirtyFields, nestedAllValues);
+            return [key, result];
+        });
+        return Object.fromEntries(transformedFields);
+    }
+}

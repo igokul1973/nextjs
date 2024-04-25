@@ -4,7 +4,7 @@ import { TEmail, TIndividualForm, TPhone } from '@/app/components/individuals/cr
 import { TOrganizationForm } from '@/app/components/organizations/create-form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields } from '@/app/lib/types';
-import { flattenCustomer, formatCurrency } from '@/app/lib/utils';
+import { flattenCustomer, formatCurrency, getDirtyValues } from '@/app/lib/utils';
 import {
     AccountRelationEnum,
     EmailTypeEnum,
@@ -165,7 +165,6 @@ export async function getFilteredCustomersCountByAccountId(accountId: string, qu
 }
 
 export async function createCustomer(formData: TIndividualForm | TOrganizationForm) {
-    // Creating customer in DB
     try {
         const {
             address,
@@ -258,39 +257,11 @@ export async function createCustomer(formData: TIndividualForm | TOrganizationFo
     }
 }
 
-function getDirtyValues<T>(dirtyFields: T | TDirtyFields<T>, allValues: T): Partial<T> | undefined {
-    // If *any* item in an array was modified, the entire array must be submitted, because there's no way to indicate
-    // "placeholders" for unchanged elements. `dirtyFields` is `true` for leaves.
-    if ((Array.isArray(dirtyFields) && Array.isArray(allValues)) || dirtyFields === true) {
-        return allValues;
-    }
-
-    // Here, we have an object
-    if (
-        typeof dirtyFields === 'object' &&
-        typeof allValues === 'object' &&
-        dirtyFields !== null &&
-        allValues !== null
-    ) {
-        const transformedFields = Object.keys(dirtyFields).map((key) => {
-            if (!(key in allValues)) {
-                return [key, undefined];
-            }
-            const nestedDirtyFields = (dirtyFields as Record<string, unknown>)[key];
-            const nestedAllValues = (allValues as Record<string, unknown>)[key];
-            const result = getDirtyValues(nestedDirtyFields, nestedAllValues);
-            return [key, result];
-        });
-        return Object.fromEntries(transformedFields);
-    }
-}
-
 export async function updateCustomer(
     formData: TIndividualForm | TOrganizationForm,
     dirtyFields: TDirtyFields<TIndividualForm | TOrganizationForm>,
     userId: string
 ) {
-    // Creating customer in DB
     try {
         const diff = getDirtyValues<TIndividualForm | TOrganizationForm>(dirtyFields, formData);
         const isIndividual = 'firstName' in formData;

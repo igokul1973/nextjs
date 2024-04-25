@@ -4,7 +4,7 @@ import { inventoryUpdateSchema } from './formSchema';
 
 export interface IProps {
     types: Pick<TInventoryType, 'id' | 'type'>[];
-    form?: TInventoryForm[];
+    form?: TInventoryForm;
 }
 
 export type TInventoryForm = z.infer<typeof inventoryUpdateSchema>;

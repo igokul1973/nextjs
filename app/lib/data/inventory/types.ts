@@ -2,7 +2,17 @@ import { Prisma } from '@prisma/client';
 
 export const getInventorySelect = {
     id: true,
-    name: true
+    name: true,
+    typeId: true,
+    accountId: true,
+    price: true,
+    description: true,
+    externalCode: true,
+    internalCode: true,
+    manufacturerCode: true,
+    manufacturerPrice: true,
+    createdBy: true,
+    updatedBy: true
 } satisfies Prisma.inventorySelect;
 
 export type TGetInventoryPayload = Prisma.inventoryGetPayload<{

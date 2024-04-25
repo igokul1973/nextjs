@@ -3,7 +3,7 @@
 import { StyledBox } from '@/app/[locale]/dashboard/inventory/create/styled';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { createCustomer, updateCustomer } from '@/app/lib/data/customer';
+import { createInventoryItem, updateInventoryItem } from '@/app/lib/data/inventory';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,15 +12,12 @@ import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FC, FormEventHandler } from 'react';
+import { FC } from 'react';
 import { useForm } from 'react-hook-form';
 import FormSelect from '../../form-select/FormSelect';
-import {
-    individualCreateSchema,
-    individualUpdateSchema
-} from '../../individuals/create-form/formSchema';
 import { TIndividualForm } from '../../individuals/create-form/types';
 import { getDefaultFormValues } from '../utils';
+import { inventoryCreateSchema, inventoryUpdateSchema } from './formSchema';
 import { StyledForm, StyledMenuItemBox } from './styled';
 import { IProps } from './types';
 
@@ -40,7 +37,7 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
         formState: { errors, isDirty, dirtyFields },
         control
     } = useForm({
-        resolver: zodResolver(form ? individualUpdateSchema : individualCreateSchema),
+        resolver: zodResolver(form ? inventoryUpdateSchema : inventoryCreateSchema),
         reValidateMode: 'onBlur',
         defaultValues: form || getDefaultFormValues(accountId, userId)
     });
@@ -55,25 +52,21 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
 
     const onSubmit = async (formData: TIndividualForm) => {
         try {
+            console.log('FormData:', formData);
             if (formData.id) {
-                await updateCustomer(formData, dirtyFields, userId);
-                openSnackbar('Successfully update customer.');
+                await updateInventoryItem(formData, dirtyFields, userId);
+                openSnackbar('Successfully updated inventory item.');
             } else {
-                await createCustomer(formData);
-                openSnackbar('Successfully created customer.');
+                await createInventoryItem(formData);
+                openSnackbar('Successfully created inventory item.');
             }
-            push('/dashboard/customers');
+            push('/dashboard/inventory');
         } catch (error) {
             openSnackbar(`Failed to create customer: ${error}`, 'error');
         }
     };
 
     const isSubmittable = !!isDirty;
-
-    const onInvalidPrice: FormEventHandler<HTMLInputElement> = (event) => {
-        const target = event.target as HTMLInputElement;
-        target.setCustomValidity(capitalize(t('please enter the price')));
-    };
 
     return (
         <StyledBox component='section'>
@@ -95,7 +88,7 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
                 </FormControl>
                 <FormSelect
                     fullWidth
-                    name={`type`}
+                    name={'typeId'}
                     label={capitalize(t('type'))}
                     placeholder={capitalize(t('select type'))}
                     control={control}
@@ -120,18 +113,26 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
                         inputProps={{
                             type: 'number',
                             inputMode: 'numeric',
-                            minLength: 1
+                            minLength: 1,
+                            step: '0.01'
                         }}
                         variant='outlined'
                         required
                         error={!!errors.price}
-                        onInvalid={onInvalidPrice}
-                        onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                         helperText={
                             !!errors.price &&
                             capitalize(t(errors.price.message as TSingleTranslationKeys))
                         }
-                        {...register('price')}
+                        {...register('price', {
+                            onChange: (e) => {
+                                const { value } = e.target as HTMLInputElement;
+                                // Masking the price to max 2 decimal places
+                                const isMatch = value.match(/(\d+\.\d{3,})/g);
+                                if (isMatch) {
+                                    e.target.value = value.slice(0, -1);
+                                }
+                            }
+                        })}
                     />
                 </FormControl>
                 <FormControl>
@@ -188,22 +189,32 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
                 </FormControl>
                 <FormControl fullWidth>
                     <TextField
-                        label={capitalize(t('manufacturer price'))}
+                        label={capitalize(t('manufacturerPrice'))}
                         inputProps={{
                             type: 'number',
                             inputMode: 'numeric',
-                            minLength: 1
+                            minLength: 1,
+                            step: '0.01'
                         }}
                         variant='outlined'
+                        required
                         error={!!errors.manufacturerPrice}
-                        onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                         helperText={
                             !!errors.manufacturerPrice &&
                             capitalize(
                                 t(errors.manufacturerPrice.message as TSingleTranslationKeys)
                             )
                         }
-                        {...register('manufacturerPrice')}
+                        {...register('manufacturerPrice', {
+                            onChange: (e) => {
+                                const { value } = e.target as HTMLInputElement;
+                                // Masking the manufacturerPrice to max 2 decimal places
+                                const isMatch = value.match(/(\d+\.\d{3,})/g);
+                                if (isMatch) {
+                                    e.target.value = value.slice(0, -1);
+                                }
+                            }
+                        })}
                     />
                 </FormControl>
                 <Box className='action-buttons'>

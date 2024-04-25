@@ -389,7 +389,7 @@ model invoice {
 model invoiceItem {
   id          String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   // Field from Inventory.name, may not match with inventory item
-  // with inventoryID in this table as the inventory name/price may change
+  // with inventoryID in this table as the inventory item data may change
   name        String     @map("name") @db.Text
   // Price is also from Inventory table, but may not match
   // with inventory item with inventoryId on record, as inventory prices

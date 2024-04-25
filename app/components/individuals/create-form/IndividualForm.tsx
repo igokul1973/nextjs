@@ -101,7 +101,7 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
         try {
             if (formData.id) {
                 await updateCustomer(formData, dirtyFields, userId);
-                openSnackbar('Successfully update customer.');
+                openSnackbar('Successfully updated customer.');
             } else {
                 await createCustomer(formData);
                 openSnackbar('Successfully created customer.');

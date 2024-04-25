@@ -1,29 +1,13 @@
 'use server';
 
+import { TInventoryForm } from '@/app/components/inventory/create-form/types';
 import prisma from '@/app/lib/prisma';
+import { TDirtyFields, TOrder } from '@/app/lib/types';
+import { formatCurrency, getDirtyValues } from '@/app/lib/utils';
 import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { z } from 'zod';
-import { TOrder } from '../../types';
-import { formatCurrency } from '../../utils';
-import {
-    ICreateInventoryItemState,
-    TGetInventoryPayload,
-    getInventorySelect,
-    getQueryFilterWhereClause
-} from './types';
-
-const ITEMS_PER_PAGE = 10;
-
-const FormSchema = z.object({
-    id: z.string(),
-    name: z.string()
-});
-
-const UpdateInventoryItem = FormSchema.omit({ id: true });
-const CreateInventoryItem = FormSchema.omit({ id: true });
+import { TGetInventoryPayload, getInventorySelect, getQueryFilterWhereClause } from './types';
 
 export async function getInventoryItemById(id: string): Promise<TGetInventoryPayload | null> {
     noStore();
@@ -36,7 +20,17 @@ export async function getInventoryItemById(id: string): Promise<TGetInventoryPay
             }
         });
 
-        return inventoryItem;
+        if (!inventoryItem) {
+            throw new Error('Inventory item not found');
+        }
+
+        const { price, manufacturerPrice, ...inventory } = inventoryItem;
+
+        return {
+            ...inventory,
+            price: price / 100,
+            manufacturerPrice: manufacturerPrice && manufacturerPrice / 100
+        };
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Failed to get inventoryItem.');
@@ -144,58 +138,46 @@ export async function getFilteredInventoryCount(accountId: string, query: string
     }
 }
 
-export async function createInventoryItem(
-    prevState: ICreateInventoryItemState,
-    formData: FormData
-): Promise<ICreateInventoryItemState> {
-    console.log('Form data: ', formData);
-    console.log('PrevState: ', prevState);
-    const rawFormData = Object.fromEntries(formData ? formData.entries() : []);
-    const dateISOString = new Date().toISOString();
-    rawFormData.date = dateISOString;
-    // Validate form using Zod
-    const validatedForm = CreateInventoryItem.safeParse(rawFormData);
-    if (!validatedForm.success) {
-        return {
-            errors: validatedForm.error.flatten().fieldErrors,
-            message: 'Missing fields, failed to create inventoryItem'
-        };
-    }
-    // Creating inventoryItem in DB
+export async function createInventoryItem(formData: TInventoryForm) {
     try {
-        console.log('Data: ', validatedForm.data);
-        // await prisma.inventory.create({ data });
-        console.log('Successfully created inventoryItem.');
+        const newInventoryItem = await prisma.inventory.create({
+            data: formData
+        });
+
+        console.log('Successfully created new inventory item: ', newInventoryItem);
+
+        revalidatePath('/dashboard/inventory');
+        return newInventoryItem;
     } catch (error) {
         console.error('Database Error:', error);
-        return {
-            message: 'Database Error: Failed to create inventoryItem.'
-        };
+        throw error;
     }
-    revalidatePath('/dashboard/inventory');
-    redirect('/dashboard/inventory');
 }
 
-export async function updateInventoryItem(id: string, formData: FormData) {
-    const rawFormData: Prisma.inventoryUpdateInput = Object.fromEntries(formData.entries());
+export async function updateInventoryItem(
+    formData: TInventoryForm,
+    dirtyFields: TDirtyFields<TInventoryForm>,
+    userId: string
+) {
+    const changedFields = getDirtyValues<TInventoryForm>(dirtyFields, formData);
+    const data = { ...changedFields, updatedBy: userId };
 
-    const data = UpdateInventoryItem.parse(rawFormData);
-
-    // Creating inventoryItem in DB
     try {
-        await prisma.inventory.update({
+        const updatedInventoryItem = await prisma.inventory.update({
             where: {
-                id
+                id: formData.id
             },
             data
         });
-        console.log('Successfully updated inventoryItem.');
+
+        console.log('Successfully updated customer with ID:', updatedInventoryItem.id);
+
+        revalidatePath('/dashboard/inventory');
+        return updatedInventoryItem;
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Failed to delete inventoryItem.');
     }
-    revalidatePath('/dashboard/inventory');
-    redirect('/dashboard/inventory');
 }
 
 export async function deleteInventoryItemById(id: string) {
