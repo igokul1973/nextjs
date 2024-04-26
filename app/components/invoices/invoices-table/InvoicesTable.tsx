@@ -1,7 +1,7 @@
 'use client';
 
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { deleteInventoryItemById } from '@/app/lib/data/inventory';
+import { deleteInvoiceById } from '@/app/lib/data/invoice';
 import { TOrder } from '@/app/lib/types';
 import { stringToBoolean } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
@@ -28,9 +28,10 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { alpha } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
+import { InvoiceStatusEnum } from '@prisma/client';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChangeEvent, FC, MouseEvent, useEffect, useState } from 'react';
-import { IInventoryTable } from '../types';
+import { IInvoiceTable } from '../types';
 import {
     DEFAULT_IS_DENSE,
     DEFAULT_ITEMS_PER_PAGE,
@@ -42,59 +43,38 @@ import { IEnhancedTableProps, IEnhancedTableToolbarProps, IHeadCell, IProps } fr
 
 const headCells: readonly IHeadCell[] = [
     {
-        id: 'name',
-        isNumeric: false,
+        id: 'number',
+        isNumeric: true,
         disablePadding: true,
-        label: 'name',
+        label: 'number',
         align: 'left'
     },
     {
-        id: 'description',
+        id: 'customerName',
         isNumeric: false,
         disablePadding: false,
-        label: 'description',
+        label: 'Customer name',
         align: 'left'
     },
     {
-        id: 'type',
+        id: 'amount',
         isNumeric: false,
         disablePadding: false,
-        label: 'type',
+        label: 'amount',
         align: 'center'
     },
     {
-        id: 'price',
+        id: 'status',
         isNumeric: false,
         disablePadding: false,
-        label: 'price',
+        label: 'status',
         align: 'center'
     },
     {
-        id: 'externalCode',
+        id: 'date',
         isNumeric: false,
         disablePadding: false,
-        label: 'external code',
-        align: 'center'
-    },
-    {
-        id: 'internalCode',
-        isNumeric: false,
-        disablePadding: false,
-        label: 'internal code',
-        align: 'center'
-    },
-    {
-        id: 'manufacturerCode',
-        isNumeric: false,
-        disablePadding: false,
-        label: 'manufacturer code',
-        align: 'center'
-    },
-    {
-        id: 'manufacturerPrice',
-        isNumeric: false,
-        disablePadding: false,
-        label: 'manufacturer price',
+        label: 'date',
         align: 'center'
     },
     {
@@ -110,7 +90,7 @@ const headCells: readonly IHeadCell[] = [
 function EnhancedTableHead(props: IEnhancedTableProps) {
     const t = useI18n();
     const { order, orderBy, onRequestSort } = props;
-    const createSortHandler = (property: keyof IInventoryTable) => (event: MouseEvent<unknown>) => {
+    const createSortHandler = (property: keyof IInvoiceTable) => (event: MouseEvent<unknown>) => {
         onRequestSort(event, property);
     };
 
@@ -122,21 +102,29 @@ function EnhancedTableHead(props: IEnhancedTableProps) {
                         key={headCell.id}
                         align={headCell.align}
                         padding={headCell.disablePadding ? 'none' : 'normal'}
-                        sortDirection={orderBy === headCell.id ? order : false}
+                        sortDirection={
+                            !headCell.disableSorting && orderBy === headCell.id ? order : false
+                        }
                         sx={{ whiteSpace: 'nowrap', color: 'green' }}
                     >
-                        <TableSortLabel
-                            active={orderBy === headCell.id}
-                            direction={orderBy === headCell.id ? order : 'asc'}
-                            onClick={createSortHandler(headCell.id)}
-                        >
-                            {capitalize(t(headCell.label as TSingleTranslationKeys))}
-                            {orderBy === headCell.id ? (
-                                <Box component='span' sx={visuallyHidden}>
-                                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                                </Box>
-                            ) : null}
-                        </TableSortLabel>
+                        {!headCell.disableSorting ? (
+                            <TableSortLabel
+                                active={orderBy === headCell.id}
+                                direction={orderBy === headCell.id ? order : 'asc'}
+                                onClick={createSortHandler(headCell.id)}
+                            >
+                                {capitalize(t(headCell.label as TSingleTranslationKeys))}
+                                {orderBy === headCell.id ? (
+                                    <Box component='span' sx={visuallyHidden}>
+                                        {order === 'desc'
+                                            ? 'sorted descending'
+                                            : 'sorted ascending'}
+                                    </Box>
+                                ) : null}
+                            </TableSortLabel>
+                        ) : (
+                            capitalize(t(headCell.label as TSingleTranslationKeys))
+                        )}
                     </TableCell>
                 ))}
             </TableRow>
@@ -160,7 +148,7 @@ function EnhancedTableToolbar(props: IEnhancedTableToolbarProps) {
             }}
         >
             <Typography sx={{ flex: '1 1 100%' }} variant='h6' id='tableTitle' component='div'>
-                {capitalize(t('inventory'))}
+                {capitalize(t('invoices'))}
             </Typography>
             <Tooltip title='Filter list'>
                 <IconButton>
@@ -171,10 +159,10 @@ function EnhancedTableToolbar(props: IEnhancedTableToolbarProps) {
     );
 }
 
-const InventoryTable: FC<IProps> = ({ inventory, count }) => {
+const InvoicesTable: FC<IProps> = ({ invoices, count }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
-    const [selected, setSelected] = useState<readonly IInventoryTable['id'][]>([]);
+    const [selected, setSelected] = useState<readonly IInvoiceTable['id'][]>([]);
 
     const { replace } = useRouter();
     const pathname = usePathname();
@@ -203,7 +191,7 @@ const InventoryTable: FC<IProps> = ({ inventory, count }) => {
     const pageNumber = parseInt(page, 10);
     const rowsPerPage = parseInt(itemsPerPageParam, 10);
 
-    const handleRequestSort = (event: MouseEvent<unknown>, property: keyof IInventoryTable) => {
+    const handleRequestSort = (event: MouseEvent<unknown>, property: keyof IInvoiceTable) => {
         const isAsc = orderBy === property && order === 'asc';
         const params = new URLSearchParams(searchParams || undefined);
         params.set('order', isAsc ? 'desc' : 'asc');
@@ -213,7 +201,7 @@ const InventoryTable: FC<IProps> = ({ inventory, count }) => {
 
     const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            const newSelected = inventory.map((n) => n.id);
+            const newSelected = invoices.map((n) => n.id);
             setSelected(newSelected);
             return;
         }
@@ -222,7 +210,7 @@ const InventoryTable: FC<IProps> = ({ inventory, count }) => {
 
     const handleClick = (event: MouseEvent<unknown>, id: string) => {
         const selectedIndex = selected.indexOf(id);
-        let newSelected: readonly IInventoryTable['id'][] = [];
+        let newSelected: readonly IInvoiceTable['id'][] = [];
 
         if (selectedIndex === -1) {
             newSelected = newSelected.concat(selected, id);
@@ -261,14 +249,14 @@ const InventoryTable: FC<IProps> = ({ inventory, count }) => {
     const isSelected = (id: string) => selected.indexOf(id) !== -1;
 
     // Avoid a layout jump when reaching the last page with empty rows.
-    const emptyRows = pageNumber > 0 ? Math.max(0, rowsPerPage - inventory.length) : 0;
+    const emptyRows = pageNumber > 0 ? Math.max(0, rowsPerPage - invoices.length) : 0;
 
-    const deleteInventory = async (id: string, name: string) => {
+    const deleteInvoice = async (id: string, number: string, status: InvoiceStatusEnum) => {
         try {
-            await deleteInventoryItemById(id);
-            openSnackbar(`Successfully deleted inventory with ID: ${id}`);
+            await deleteInvoiceById(id, status);
+            openSnackbar(`Successfully deleted invoice #: ${number}`);
         } catch (error) {
-            openSnackbar(`Could not delete inventory: ${name}: ${error}`, 'error');
+            openSnackbar(`Could not delete invoice #: ${number}: ${error}. `, 'error');
         }
     };
 
@@ -290,10 +278,10 @@ const InventoryTable: FC<IProps> = ({ inventory, count }) => {
                             orderBy={orderBy}
                             onSelectAllClick={handleSelectAllClick}
                             onRequestSort={handleRequestSort}
-                            rowCount={inventory.length}
+                            rowCount={invoices.length}
                         />
                         <TableBody>
-                            {inventory.map((row, index) => {
+                            {invoices.map((row, index) => {
                                 const isItemSelected = isSelected(row.id);
                                 const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -318,7 +306,7 @@ const InventoryTable: FC<IProps> = ({ inventory, count }) => {
                                                 maxWidth: '250px'
                                             }}
                                         >
-                                            {row.name}
+                                            {row.number}
                                         </TableCell>
                                         <TableCell
                                             align='left'
@@ -330,34 +318,47 @@ const InventoryTable: FC<IProps> = ({ inventory, count }) => {
                                                 whiteSpace: 'nowrap'
                                             }}
                                         >
-                                            {row.description}
+                                            {row.customerName}
                                         </TableCell>
-                                        <TableCell align='center'>{row.type.type}</TableCell>
-                                        <TableCell align='center'>{row.price}</TableCell>
-                                        <TableCell align='center'>{row.externalCode}</TableCell>
-                                        <TableCell align='center'>{row.internalCode}</TableCell>
-                                        <TableCell align='center'>{row.manufacturerCode}</TableCell>
-                                        <TableCell align='center'>
-                                            {row.manufacturerPrice}
-                                        </TableCell>
-                                        <TableCell align='center' sx={{ display: 'flex' }}>
-                                            <IconButton
-                                                color='primary'
-                                                aria-label='edit'
-                                                onClick={() => {
-                                                    push(`/dashboard/inventory/${row.id}/edit`);
-                                                }}
+                                        <TableCell align='center'>{row.amount}</TableCell>
+                                        <TableCell align='center'>{row.status}</TableCell>
+                                        <TableCell align='center'>{row.date}</TableCell>
+                                        {row.status !== InvoiceStatusEnum.paid ? (
+                                            <TableCell
+                                                align='center'
+                                                sx={{ display: 'flex', justifyContent: 'center' }}
                                             >
-                                                <EditIcon />
-                                            </IconButton>
-                                            <IconButton
-                                                color='warning'
-                                                aria-label='edit'
-                                                onClick={() => deleteInventory(row.id, row.name)}
+                                                <IconButton
+                                                    color='primary'
+                                                    aria-label='edit'
+                                                    onClick={() => {
+                                                        push(`/dashboard/inventory/${row.id}/edit`);
+                                                    }}
+                                                >
+                                                    <EditIcon />
+                                                </IconButton>
+                                                <IconButton
+                                                    color='warning'
+                                                    aria-label='edit'
+                                                    onClick={() =>
+                                                        deleteInvoice(
+                                                            row.id,
+                                                            row.number,
+                                                            row.status
+                                                        )
+                                                    }
+                                                >
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </TableCell>
+                                        ) : (
+                                            <TableCell
+                                                align='center'
+                                                sx={{ display: 'flex', justifyContent: 'center' }}
                                             >
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        </TableCell>
+                                                <Box sx={{ minHeight: '40px' }}></Box>
+                                            </TableCell>
+                                        )}
                                     </TableRow>
                                 );
                             })}
@@ -367,7 +368,7 @@ const InventoryTable: FC<IProps> = ({ inventory, count }) => {
                                         height: (isDense ? 53 : 73) * emptyRows
                                     }}
                                 >
-                                    <TableCell colSpan={9} />
+                                    <TableCell colSpan={6} />
                                 </TableRow>
                             )}
                         </TableBody>
@@ -391,4 +392,4 @@ const InventoryTable: FC<IProps> = ({ inventory, count }) => {
     );
 };
 
-export default InventoryTable;
+export default InvoicesTable;

@@ -17,6 +17,7 @@ export const enSingle = {
     no: 'no',
     type: 'type',
     close: 'close',
+    actions: 'actions',
     // Navigation
     home: 'home',
     dashboard: 'dashboard',
@@ -133,6 +134,8 @@ export const enSingle = {
     'delete customer': 'delete customer',
     'create inventory': 'create inventory',
     'create inventory item': 'create inventory item',
+    'create invoice': 'create invoice',
+    'dense padding': 'dense padding',
     // Reports
     collected: 'collected',
     pending: 'pending',

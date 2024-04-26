@@ -1,45 +1,62 @@
 import { CreateButton } from '@/app/components/buttons/create/CreateButton';
-import InvoicesTable from '@/app/components/invoices/InvoicesTable';
-import TableWrapper from '@/app/components/invoices/TableWrapper';
+import InvoicesTable from '@/app/components/invoices/invoices-table/InvoicesTable';
+import {
+    DEFAULT_ORDER,
+    DEFAULT_ORDER_BY
+} from '@/app/components/invoices/invoices-table/constants';
 import Search from '@/app/components/search';
+import {
+    getFilteredInvoicesByAccountId,
+    getFilteredInvoicesByAccountIdCount
+} from '@/app/lib/data/invoice';
 import { capitalize } from '@/app/lib/utils';
 import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
+import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { FC, Suspense } from 'react';
-import { StyledSectionBox, StyledToolsBox } from './styled';
+import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_PAGE_NUMBER } from './constants';
+import { StyledBox } from './styled';
 import { IProps } from './types';
 
 const Page: FC<IProps> = async ({ searchParams }) => {
     const session = await auth();
     if (!session) return <div>Not logged in</div>;
+    const accountId = session.user.accountId;
     const query = searchParams?.query || '';
+    const currentPage = Number(searchParams?.page) || DEFAULT_PAGE_NUMBER;
+    const itemsPerPage = Number(searchParams?.itemsPerPage) || DEFAULT_ITEMS_PER_PAGE;
+    const orderBy = searchParams?.orderBy || DEFAULT_ORDER_BY;
+    const order = searchParams?.order || DEFAULT_ORDER;
     const t = await getI18n();
 
-    // TODO: change to a paginated table
-    // const count = await fetchFilteredInvoicesCount(query);
-
-    // TODO:
-    // Resolve all problems with Invoices (list) page
-    // 1. Pagination
-    // 2. Filtering by date
-    // 3. Sorting by all columns
-    // 4. Add breadcrumbs everywhere
-    // Then, create View Invoice page
-    // Then, create Create Invoice page
-    // Then, create inventory page
+    const count = await getFilteredInvoicesByAccountIdCount(accountId, query);
+    const invoices = await getFilteredInvoicesByAccountId(
+        accountId,
+        query,
+        currentPage,
+        itemsPerPage,
+        orderBy,
+        order
+    );
 
     return (
-        <StyledSectionBox component='section'>
+        <StyledBox component='section' className='section'>
             <Typography variant='h1'>{capitalize(t('invoices'))}</Typography>
-            <StyledToolsBox component='div'>
-                <Search placeholder='Search invoices...' />
-                <CreateButton href='/dashboard/invoices/create' name='Create invoice' />
-            </StyledToolsBox>
-            <Suspense fallback={<InvoicesTable invoices={[]} />}>
-                <TableWrapper accountId={session.user.accountId} query={query} />
+            <Box component='section' className='tools'>
+                <Search placeholder={capitalize(t('search invoices'))} />
+                <CreateButton
+                    href='/dashboard/invoices/create'
+                    name={capitalize(t('create invoice'))}
+                />
+            </Box>
+            <Suspense
+                key={query + currentPage}
+                fallback={<InvoicesTable invoices={[]} count={0} />}
+            >
+                <InvoicesTable invoices={invoices} count={count} />
             </Suspense>
-        </StyledSectionBox>
+        </StyledBox>
     );
 };
 

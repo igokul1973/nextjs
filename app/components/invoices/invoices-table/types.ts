@@ -1,9 +1,9 @@
 import { TOrder } from '@/app/lib/types';
 import { ChangeEvent, MouseEvent } from 'react';
-import { IInventoryTable } from '../types';
+import { IInvoiceTable } from '../types';
 
 export interface IHeadCell {
-    id: keyof IInventoryTable;
+    id: keyof IInvoiceTable;
     label: string;
     isNumeric: boolean;
     align: 'left' | 'right' | 'center';
@@ -13,7 +13,7 @@ export interface IHeadCell {
 
 export interface IEnhancedTableProps {
     numSelected: number;
-    onRequestSort: (event: MouseEvent<unknown>, property: keyof IInventoryTable) => void;
+    onRequestSort: (event: MouseEvent<unknown>, property: keyof IInvoiceTable) => void;
     onSelectAllClick: (event: ChangeEvent<HTMLInputElement>) => void;
     order: TOrder;
     orderBy: string;
@@ -25,13 +25,19 @@ export interface IEnhancedTableToolbarProps {
 }
 
 export interface IProps {
-    inventory: IInventoryTable[];
+    invoices: IInvoiceTable[];
     count: number;
+}
+
+export interface IData {
+    name: string;
+    phone: number;
+    email: number;
 }
 
 // For old InventoryTable_old.tsx
 export interface ColumnData {
-    dataKey: keyof IInventoryTable;
+    dataKey: keyof IInvoiceTable;
     label: string;
     numeric?: boolean;
     width: number;

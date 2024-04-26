@@ -20,6 +20,7 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     no: 'nej',
     type: 'typ',
     close: 'stäng',
+    actions: 'åtgärder',
     // Navigation
     home: 'hem',
     dashboard: 'instrumentpanel',
@@ -136,6 +137,8 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'delete customer': 'ta bort kunden',
     'create inventory': 'skapa inventering',
     'create inventory item': 'skapa innehållsartikel',
+    'create invoice': 'skapa en faktura',
+    'dense padding': 'tät stoppning',
     // Reports
     collected: 'insamlad',
     pending: 'avvaktande',

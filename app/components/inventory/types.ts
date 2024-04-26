@@ -1,6 +1,6 @@
 import { TInventoryType } from '@/app/lib/types';
 
-export interface IInventory {
+export interface IInventoryTable {
     id: string;
     name: string;
     description: string | null;
@@ -10,4 +10,5 @@ export interface IInventory {
     internalCode: string | null;
     manufacturerCode: string | null;
     manufacturerPrice: string | null;
+    actions: string;
 }

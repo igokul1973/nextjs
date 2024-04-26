@@ -185,7 +185,6 @@ export async function deleteInventoryItemById(id: string) {
         throw Error('The id must be a valid UUID');
     }
 
-    // Creating customer in DB
     try {
         await prisma.inventory.delete({
             where: {

@@ -49,7 +49,10 @@ export default async function Page({ searchParams }: IProps) {
             <Typography variant='h1'>{capitalize(t('inventory'))}</Typography>
             <StyledToolsBox component='div'>
                 <Search placeholder='Search inventory...' />
-                <CreateButton href='/dashboard/inventory/create' name='Create inventory' />
+                <CreateButton
+                    href='/dashboard/inventory/create'
+                    name={capitalize(t('create inventory item'))}
+                />
             </StyledToolsBox>
             <Suspense
                 key={query + currentPage}

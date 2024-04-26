@@ -295,3 +295,8 @@ export function getDirtyValues<T>(
         return Object.fromEntries(transformedFields);
     }
 }
+
+export function stringToBoolean(str: string) {
+    // Ternary operator: condition ? true-value : false-value
+    return str.toLowerCase() === 'true' ? true : false;
+}

@@ -1,12 +1,19 @@
 'use server';
 
 import prisma from '@/app/lib/prisma';
-import { InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
+import { TOrder } from '../../types';
 import { flattenCustomer, formatCurrency } from '../../utils';
-import { ICreateInvoiceState, TGetInvoicePayload, getInvoiceSelect } from './types';
+import {
+    ICreateInvoiceState,
+    TGetInvoicePayload,
+    getInvoiceSelect,
+    getQueryFilterWhereClause,
+    invoicesInclude
+} from './types';
+import { InvoiceStatusEnum } from '@prisma/client';
 
 const FormSchema = z.object({
     id: z.string(),
@@ -28,7 +35,7 @@ const FormSchema = z.object({
 const UpdateInvoice = FormSchema.omit({ id: true });
 const CreateInvoice = FormSchema.omit({ id: true });
 
-export async function fetchLatestInvoices(): Promise<LatestInvoice[]> {
+export async function getLatestInvoices(): Promise<LatestInvoice[]> {
     try {
         noStore();
 
@@ -66,11 +73,11 @@ export async function fetchLatestInvoices(): Promise<LatestInvoice[]> {
         return [];
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to fetch the latest invoices.');
+        throw new Error('Failed to get the latest invoices.');
     }
 }
 
-export async function fetchInvoiceById(
+export async function getInvoiceById(
     id: string
 ): Promise<(TGetInvoicePayload & { amount: number }) | null> {
     noStore();
@@ -94,188 +101,32 @@ export async function fetchInvoiceById(
         return { ...invoice, amount: amount / 100 };
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to fetch invoice.');
+        throw new Error('Failed to get invoice.');
     }
 }
 
-export async function getFilteredInvoicesByAccountId(accountId: string, query: string) {
+export async function getFilteredInvoicesByAccountId(
+    accountId: string,
+    query: string,
+    currentPage: number,
+    itemsPerPage: number,
+    orderBy: string = 'number',
+    order: TOrder = 'asc'
+) {
     noStore();
+
+    const offset = currentPage * itemsPerPage;
 
     try {
         const rawInvoices = await prisma.invoice.findMany({
             relationLoadStrategy: 'join',
+            take: itemsPerPage,
+            skip: offset,
             orderBy: {
-                number: 'asc'
+                [orderBy]: order
             },
-            select: {
-                id: true,
-                date: true,
-                status: true,
-                number: true,
-                createdByUser: true,
-                customer: {
-                    select: {
-                        id: true,
-                        organization: {
-                            select: {
-                                id: true,
-                                name: true,
-                                emails: {
-                                    select: {
-                                        email: true
-                                    }
-                                }
-                            }
-                        },
-                        individual: {
-                            select: {
-                                id: true,
-                                firstName: true,
-                                lastName: true,
-                                middleName: true,
-                                emails: {
-                                    select: {
-                                        email: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                invoiceItems: {
-                    select: {
-                        id: true,
-                        name: true,
-                        price: true,
-                        quantity: true
-                    }
-                }
-            },
-            where: {
-                AND: [
-                    {
-                        customer: {
-                            organization: {
-                                accountId: {
-                                    equals: accountId
-                                }
-                            }
-                        }
-                    },
-                    {
-                        OR: [
-                            {
-                                createdByUser: {
-                                    email: {
-                                        contains: query
-                                    }
-                                }
-                            },
-                            {
-                                status: {
-                                    in: Object.values(InvoiceStatusEnum).filter((status) =>
-                                        status.includes(query)
-                                    )
-                                }
-                            },
-                            {
-                                customer: {
-                                    OR: [
-                                        {
-                                            organization: {
-                                                OR: [
-                                                    {
-                                                        name: {
-                                                            contains: query,
-                                                            mode: 'insensitive'
-                                                        }
-                                                    },
-                                                    {
-                                                        emails: {
-                                                            some: {
-                                                                email: {
-                                                                    contains: query,
-                                                                    mode: 'insensitive'
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                ]
-                                            }
-                                        },
-                                        {
-                                            individual: {
-                                                OR: [
-                                                    {
-                                                        firstName: {
-                                                            contains: query,
-                                                            mode: 'insensitive'
-                                                        }
-                                                    },
-                                                    {
-                                                        lastName: {
-                                                            contains: query,
-                                                            mode: 'insensitive'
-                                                        }
-                                                    },
-                                                    {
-                                                        middleName: {
-                                                            contains: query,
-                                                            mode: 'insensitive'
-                                                        }
-                                                    },
-                                                    {
-                                                        emails: {
-                                                            some: {
-                                                                email: {
-                                                                    contains: query,
-                                                                    mode: 'insensitive'
-                                                                }
-                                                            }
-                                                        }
-                                                    },
-                                                    {
-                                                        AND: [
-                                                            {
-                                                                firstName: {
-                                                                    contains: query.split(' ')[0],
-                                                                    mode: 'insensitive'
-                                                                }
-                                                            },
-                                                            {
-                                                                lastName: {
-                                                                    contains: query.split(' ')[1],
-                                                                    mode: 'insensitive'
-                                                                }
-                                                            }
-                                                        ]
-                                                    },
-                                                    {
-                                                        AND: [
-                                                            {
-                                                                firstName: {
-                                                                    contains: query.split(' ')[1],
-                                                                    mode: 'insensitive'
-                                                                }
-                                                            },
-                                                            {
-                                                                lastName: {
-                                                                    contains: query.split(' ')[0],
-                                                                    mode: 'insensitive'
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                ]
-                                            }
-                                        }
-                                    ]
-                                }
-                            }
-                        ]
-                    }
-                ]
-            }
+            include: invoicesInclude,
+            where: getQueryFilterWhereClause(accountId, query)
         });
         // Adding invoice amount
         const invoices = rawInvoices.map((invoice) => {
@@ -293,95 +144,25 @@ export async function getFilteredInvoicesByAccountId(accountId: string, query: s
         return invoices;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to fetch invoices.');
+        throw new Error('Failed to get invoices.');
     }
 }
 
-export async function getFilteredInvoicesCount(query: string) {
+export async function getFilteredInvoicesByAccountIdCount(accountId: string, query: string) {
     noStore();
+
     try {
-        const status = Object.values(InvoiceStatusEnum).find((s) => s.includes(query));
+        // const status = Object.values(InvoiceStatusEnum).find((s) => s.includes(query));
+
         const count = await prisma.invoice.count({
-            where: {
-                OR: [
-                    {
-                        status: {
-                            equals: status
-                        }
-                    },
-                    {
-                        customer: {
-                            organization: {
-                                OR: [
-                                    {
-                                        name: {
-                                            contains: query,
-                                            mode: 'insensitive'
-                                        }
-                                    },
-                                    {
-                                        emails: {
-                                            some: {
-                                                email: {
-                                                    contains: query,
-                                                    mode: 'insensitive'
-                                                }
-                                            }
-                                        }
-                                    }
-                                ]
-                            },
-                            individual: {
-                                OR: [
-                                    {
-                                        firstName: {
-                                            contains: query,
-                                            mode: 'insensitive'
-                                        }
-                                    },
-                                    {
-                                        lastName: {
-                                            contains: query,
-                                            mode: 'insensitive'
-                                        }
-                                    },
-                                    {
-                                        middleName: {
-                                            contains: query,
-                                            mode: 'insensitive'
-                                        }
-                                    },
-                                    {
-                                        emails: {
-                                            some: {
-                                                email: {
-                                                    contains: query,
-                                                    mode: 'insensitive'
-                                                }
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                ]
-            }
+            where: getQueryFilterWhereClause(accountId, query)
         });
 
         return count;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to fetch total number of invoices.');
+        throw new Error('Failed to get total number of invoices.');
     }
-}
-
-export async function deleteInvoiceById(id: string) {
-    return prisma.invoice.delete({
-        where: {
-            id
-        }
-    });
 }
 
 export async function createInvoice(
@@ -440,21 +221,30 @@ export async function updateInvoice(id: string, formData: FormData) {
     redirect('/dashboard/invoices');
 }
 
-export async function deleteInvoice(id: string): Promise<{ message: string }> {
+export async function deleteInvoiceById(
+    id: string,
+    status: InvoiceStatusEnum
+): Promise<{ message: string }> {
     if (!id) {
         throw Error('The id must be a valid UUID');
     }
+    if (status === InvoiceStatusEnum.paid) {
+        throw new Error(`The invoice with ID: ${id} has already been paid and cannot be deleted.`);
+    }
 
-    // Deleting invoice in DB
     try {
-        await deleteInvoiceById(id);
-        const successMessage = 'Successfully deleted invoice.';
+        await prisma.invoice.delete({
+            where: {
+                id
+            }
+        });
+        const successMessage = `Successfully deleted invoice with ID: ${id}.`;
         console.log(successMessage);
 
         revalidatePath('/dashboard/invoices');
         return { message: successMessage };
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Database Error: failed to delete Invoice.');
+        throw new Error(`Database Error: failed to delete invoice with ID: ${id}`);
     }
 }

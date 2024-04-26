@@ -29,6 +29,6 @@ export default async function Page() {
             </Breadcrumbs>
             <Form customers={customers} />
             <div>TBD</div>
-        </StyledBOx>
+        </StyledBox>
     );
 }

@@ -49,4 +49,5 @@ const Page: FC<IProps> = async ({ searchParams }) => {
         </StyledBox>
     );
 };
+
 export default Page;
