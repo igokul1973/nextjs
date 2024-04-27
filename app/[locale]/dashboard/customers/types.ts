@@ -1,5 +1,5 @@
-import { ISearchParams } from "@/app/lib/types";
+import { ISearchParams } from '@/app/lib/types';
 
 export interface IProps {
-    searchParams: ISearchParams;
+    searchParams: ISearchParams & { showOrg: string; showInd: string };
 }

@@ -9,6 +9,7 @@ const svPlural: Record<TPluralTranslationKeys, string> = {
 
 const svSingle: Record<TSingleTranslationKeys, string> = {
     create: 'skapa',
+    show: 'visa',
     add: 'lägg till',
     edit: 'redigera',
     delete: 'ta bort',
@@ -40,6 +41,7 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     // Organization
     'select customer type': 'valj kundtyp',
     organization: 'företag',
+    organizations: 'företag',
     name: 'namn',
     'organization name': 'företagnamn',
     'organization type': 'företagstyp',
@@ -47,6 +49,7 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'is charity': 'är en välgörenhetsorganisation',
     // Individual
     individual: 'enskild',
+    individuals: 'enskilda',
     'first name': 'fornamn',
     'last name': 'efternamn',
     'middle name': 'mellanamn',
@@ -139,6 +142,11 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'create inventory item': 'skapa innehållsartikel',
     'create invoice': 'skapa en faktura',
     'dense padding': 'tät stoppning',
+    // Tooltips
+    filter: 'filter',
+    'additional filter': 'yttre filter',
+    'click to see more filters': 'klicka för att se mer filter',
+    'filter list': 'filterlista',
     // Reports
     collected: 'insamlad',
     pending: 'avvaktande',
@@ -147,8 +155,9 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'total invoices': 'totala fakturor',
     'total customers': 'totala kunder',
     // Miscellaneous
+    search: 'sök',
     'search customers': 'sök kunder',
-    search: 'sök'
+    'by name, phone or email': 'sök på namn, telefon eller e-post'
 };
 
 const sv = {

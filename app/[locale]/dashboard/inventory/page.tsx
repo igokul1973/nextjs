@@ -1,11 +1,11 @@
-import { CreateButton } from '@/app/components/buttons/create/CreateButton';
-import InventoryTable from '@/app/components/inventory/inventory-table/InventoryTable';
 import {
     DEFAULT_ITEMS_PER_PAGE,
     DEFAULT_ORDER,
     DEFAULT_ORDER_BY,
     DEFAULT_PAGE_NUMBER
-} from '@/app/components/inventory/inventory-table/constants';
+} from '@/app/[locale]/dashboard/inventory/constants';
+import { CreateButton } from '@/app/components/buttons/create/CreateButton';
+import InventoryTable from '@/app/components/inventory/inventory-table/InventoryTable';
 import Search from '@/app/components/search';
 import {
     getFilteredInventoryByAccountId,

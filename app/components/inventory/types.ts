@@ -10,5 +10,5 @@ export interface IInventoryTable {
     internalCode: string | null;
     manufacturerCode: string | null;
     manufacturerPrice: string | null;
-    actions: string;
+    actions?: string;
 }

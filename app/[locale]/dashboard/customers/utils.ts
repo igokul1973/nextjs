@@ -2,9 +2,6 @@ import { AttributeTypeEnum } from '@/app/components/entity-attributes/partial-fo
 import { TAttribute, TEmail, TPhone } from '@/app/components/individuals/create-form/types';
 import { EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
 
-export const DEFAULT_ITEMS_PER_PAGE = 5;
-export const DEFAULT_PAGE_NUMBER = 0;
-
 export const getPhonesInitial = (userId: string) => {
     return [
         {

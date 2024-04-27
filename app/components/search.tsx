@@ -32,7 +32,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
     const debouncedHandleSearch = useDebounce<string>(handleSearch, 400);
 
     return (
-        <Box sx={{ width: '300px' }}>
+        <Box sx={{ width: '350px' }}>
             <TextField
                 fullWidth
                 label={capitalize(t('search'))}

@@ -30,14 +30,14 @@ import { alpha } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChangeEvent, FC, MouseEvent, useEffect, useState } from 'react';
-import { IInventoryTable } from '../types';
 import {
     DEFAULT_IS_DENSE,
     DEFAULT_ITEMS_PER_PAGE,
     DEFAULT_ORDER,
     DEFAULT_ORDER_BY,
     DEFAULT_PAGE_NUMBER
-} from './constants';
+} from '../../../[locale]/dashboard/inventory/constants';
+import { IInventoryTable } from '../types';
 import { IEnhancedTableProps, IEnhancedTableToolbarProps, IHeadCell, IProps } from './types';
 
 const headCells: readonly IHeadCell[] = [
@@ -125,18 +125,24 @@ function EnhancedTableHead(props: IEnhancedTableProps) {
                         sortDirection={orderBy === headCell.id ? order : false}
                         sx={{ whiteSpace: 'nowrap', color: 'green' }}
                     >
-                        <TableSortLabel
-                            active={orderBy === headCell.id}
-                            direction={orderBy === headCell.id ? order : 'asc'}
-                            onClick={createSortHandler(headCell.id)}
-                        >
-                            {capitalize(t(headCell.label as TSingleTranslationKeys))}
-                            {orderBy === headCell.id ? (
-                                <Box component='span' sx={visuallyHidden}>
-                                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                                </Box>
-                            ) : null}
-                        </TableSortLabel>
+                        {!headCell.disableSorting ? (
+                            <TableSortLabel
+                                active={orderBy === headCell.id}
+                                direction={orderBy === headCell.id ? order : 'asc'}
+                                onClick={createSortHandler(headCell.id)}
+                            >
+                                {capitalize(t(headCell.label as TSingleTranslationKeys))}
+                                {orderBy === headCell.id ? (
+                                    <Box component='span' sx={visuallyHidden}>
+                                        {order === 'desc'
+                                            ? 'sorted descending'
+                                            : 'sorted ascending'}
+                                    </Box>
+                                ) : null}
+                            </TableSortLabel>
+                        ) : (
+                            capitalize(t(headCell.label as TSingleTranslationKeys))
+                        )}
                     </TableCell>
                 ))}
             </TableRow>
@@ -340,7 +346,13 @@ const InventoryTable: FC<IProps> = ({ inventory, count }) => {
                                         <TableCell align='center'>
                                             {row.manufacturerPrice}
                                         </TableCell>
-                                        <TableCell align='center' sx={{ display: 'flex' }}>
+                                        <TableCell
+                                            align='center'
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'center'
+                                            }}
+                                        >
                                             <IconButton
                                                 color='primary'
                                                 aria-label='edit'

@@ -8,5 +8,5 @@ export interface IInvoiceTable {
     amount: string;
     status: InvoiceStatusEnum;
     date: string;
-    actions: string;
+    actions?: string;
 }

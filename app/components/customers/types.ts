@@ -3,7 +3,7 @@ import { TOrganizationForm } from '@/app/components/organizations/create-form/ty
 import { EntitiesEnum } from '@prisma/client';
 import { UseFormRegister } from 'react-hook-form';
 
-export interface ICustomer {
+export interface ICustomerTable {
     id: string;
     type: EntitiesEnum;
     name: string;
@@ -12,6 +12,7 @@ export interface ICustomer {
     totalPending: string;
     totalPaid: string;
     totalInvoices: number;
+    actions?: string;
 }
 
 export type TEntityForm = TIndividualForm | TOrganizationForm;

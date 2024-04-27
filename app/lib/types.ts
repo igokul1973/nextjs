@@ -146,4 +146,5 @@ export interface ISearchParams {
     itemsPerPage?: string;
     orderBy?: string;
     order: TOrder;
+    isDense?: string;
 }

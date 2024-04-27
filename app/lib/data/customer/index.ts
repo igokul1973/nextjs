@@ -3,7 +3,7 @@
 import { TEmail, TIndividualForm, TPhone } from '@/app/components/individuals/create-form/types';
 import { TOrganizationForm } from '@/app/components/organizations/create-form/types';
 import prisma from '@/app/lib/prisma';
-import { TDirtyFields } from '@/app/lib/types';
+import { TDirtyFields, TOrder } from '@/app/lib/types';
 import { flattenCustomer, formatCurrency, getDirtyValues } from '@/app/lib/utils';
 import {
     AccountRelationEnum,
@@ -89,30 +89,48 @@ export async function getFilteredCustomersByAccountId(
     accountId: string,
     query: string,
     currentPage: number,
-    itemsPerPage: number
+    itemsPerPage: number,
+    showOrg: boolean,
+    showInd: boolean,
+    orderBy: string = 'name',
+    order: TOrder = 'asc'
 ) {
     noStore();
+
     try {
         const offset = currentPage * itemsPerPage;
+        let orderByClause = { [orderBy]: order } as
+            | Prisma.customerOrderByWithRelationInput
+            | Prisma.customerOrderByWithRelationInput[];
+
+        switch (orderBy) {
+            case 'name':
+                orderByClause = [
+                    {
+                        organization: {
+                            name: order
+                        }
+                    },
+                    {
+                        individual: {
+                            lastName: order
+                        }
+                    }
+                ];
+                break;
+            default:
+                break;
+        }
+
+        const whereClause = getFilteredCustomersWhereClause(query, accountId, showOrg, showInd);
 
         const rawCustomers = await prisma.customer.findMany({
             relationLoadStrategy: 'join',
-            orderBy: [
-                {
-                    organization: {
-                        name: 'asc'
-                    }
-                },
-                {
-                    individual: {
-                        lastName: 'asc'
-                    }
-                }
-            ],
             take: itemsPerPage,
             skip: offset,
+            orderBy: orderByClause,
             select: getCustomersWithInvoicesSelect,
-            where: getFilteredCustomersWhereClause(query, accountId)
+            where: whereClause
         });
 
         // Preparing customer objejct
@@ -152,11 +170,16 @@ export async function getFilteredCustomersByAccountId(
     }
 }
 
-export async function getFilteredCustomersCountByAccountId(accountId: string, query: string) {
+export async function getFilteredCustomersCountByAccountId(
+    accountId: string,
+    query: string,
+    showOrg: boolean,
+    showInd: boolean
+) {
     noStore();
     try {
         return await prisma.customer.count({
-            where: getFilteredCustomersWhereClause(query, accountId)
+            where: getFilteredCustomersWhereClause(query, accountId, showOrg, showInd)
         });
     } catch (error) {
         console.error('Database Error:', error);

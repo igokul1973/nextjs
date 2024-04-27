@@ -63,32 +63,139 @@ export type TGetCustomerWithInvoicesPayload = Prisma.customerGetPayload<{
 
 export const getFilteredCustomersWhereClause = (
     query: string,
-    accountId: string
-): Prisma.customerWhereInput => ({
-    AND: [
-        {
-            OR: [
-                {
-                    organization: {
-                        account: {
-                            id: {
-                                equals: accountId
+    accountId: string,
+    showOrg: boolean,
+    showInd: boolean
+): Prisma.customerWhereInput => {
+    const whereClause: Prisma.customerWhereInput = {
+        AND: [
+            {
+                OR: [
+                    {
+                        organization: {
+                            account: {
+                                id: {
+                                    equals: accountId
+                                }
+                            }
+                        }
+                    },
+                    {
+                        individual: {
+                            account: {
+                                id: {
+                                    equals: accountId
+                                }
                             }
                         }
                     }
-                },
-                {
-                    individual: {
-                        account: {
-                            id: {
-                                equals: accountId
-                            }
+                ]
+            },
+            {
+                OR: [
+                    {
+                        organization: {
+                            OR: [
+                                {
+                                    name: {
+                                        contains: query,
+                                        mode: 'insensitive'
+                                    }
+                                },
+                                {
+                                    emails: {
+                                        some: {
+                                            email: {
+                                                contains: query,
+                                                mode: 'insensitive'
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    phones: {
+                                        some: {
+                                            countryCode: {
+                                                contains: query,
+                                                mode: 'insensitive'
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    phones: {
+                                        some: {
+                                            number: {
+                                                contains: query,
+                                                mode: 'insensitive'
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        individual: {
+                            OR: [
+                                {
+                                    firstName: {
+                                        contains: query,
+                                        mode: 'insensitive'
+                                    }
+                                },
+                                {
+                                    lastName: {
+                                        contains: query,
+                                        mode: 'insensitive'
+                                    }
+                                },
+                                {
+                                    middleName: {
+                                        contains: query,
+                                        mode: 'insensitive'
+                                    }
+                                },
+                                {
+                                    emails: {
+                                        some: {
+                                            email: {
+                                                contains: query,
+                                                mode: 'insensitive'
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    phones: {
+                                        some: {
+                                            countryCode: {
+                                                contains: query,
+                                                mode: 'insensitive'
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    phones: {
+                                        some: {
+                                            number: {
+                                                contains: query,
+                                                mode: 'insensitive'
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     }
-                }
-            ]
-        },
-        {
+                ]
+            }
+        ]
+    };
+
+    if (showOrg && showInd) {
+        (whereClause.AND as Prisma.customerWhereInput[]).push({
             OR: [
                 {
                     organization: {
@@ -101,106 +208,22 @@ export const getFilteredCustomersWhereClause = (
                     }
                 }
             ]
-        },
-        {
-            OR: [
-                {
-                    organization: {
-                        OR: [
-                            {
-                                name: {
-                                    contains: query,
-                                    mode: 'insensitive'
-                                }
-                            },
-                            {
-                                emails: {
-                                    some: {
-                                        email: {
-                                            contains: query,
-                                            mode: 'insensitive'
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                phones: {
-                                    some: {
-                                        countryCode: {
-                                            contains: query,
-                                            mode: 'insensitive'
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                phones: {
-                                    some: {
-                                        number: {
-                                            contains: query,
-                                            mode: 'insensitive'
-                                        }
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                },
-                {
-                    individual: {
-                        OR: [
-                            {
-                                firstName: {
-                                    contains: query,
-                                    mode: 'insensitive'
-                                }
-                            },
-                            {
-                                lastName: {
-                                    contains: query,
-                                    mode: 'insensitive'
-                                }
-                            },
-                            {
-                                middleName: {
-                                    contains: query,
-                                    mode: 'insensitive'
-                                }
-                            },
-                            {
-                                emails: {
-                                    some: {
-                                        email: {
-                                            contains: query,
-                                            mode: 'insensitive'
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                phones: {
-                                    some: {
-                                        countryCode: {
-                                            contains: query,
-                                            mode: 'insensitive'
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                phones: {
-                                    some: {
-                                        number: {
-                                            contains: query,
-                                            mode: 'insensitive'
-                                        }
-                                    }
-                                }
-                            }
-                        ]
-                    }
+        });
+    } else {
+        if (showOrg) {
+            (whereClause.AND as Prisma.customerWhereInput[]).push({
+                organization: {
+                    accountRelation: AccountRelationEnum.customer
                 }
-            ]
+            });
+        } else if (showInd) {
+            (whereClause.AND as Prisma.customerWhereInput[]).push({
+                individual: {
+                    accountRelation: AccountRelationEnum.customer
+                }
+            });
         }
-    ]
-});
+    }
+
+    return whereClause;
+};

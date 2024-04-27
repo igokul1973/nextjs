@@ -6,15 +6,20 @@ import {
     getFilteredCustomersByAccountId,
     getFilteredCustomersCountByAccountId
 } from '@/app/lib/data/customer';
-import { capitalize } from '@/app/lib/utils';
+import { capitalize, stringToBoolean } from '@/app/lib/utils';
 import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { FC, Suspense } from 'react';
+import {
+    DEFAULT_ITEMS_PER_PAGE,
+    DEFAULT_ORDER,
+    DEFAULT_ORDER_BY,
+    DEFAULT_PAGE_NUMBER
+} from './constants';
 import { StyledBox } from './styled';
 import { IProps } from './types';
-import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_PAGE_NUMBER } from './utils';
 
 const Page: FC<IProps> = async ({ searchParams }) => {
     const session = await auth();
@@ -23,22 +28,33 @@ const Page: FC<IProps> = async ({ searchParams }) => {
     const query = searchParams?.query || '';
     const currentPage = Number(searchParams?.page) || DEFAULT_PAGE_NUMBER;
     const itemsPerPage = Number(searchParams?.itemsPerPage) || DEFAULT_ITEMS_PER_PAGE;
+    const orderBy = searchParams?.orderBy || DEFAULT_ORDER_BY;
+    const order = searchParams?.order || DEFAULT_ORDER;
+    const showOrg = stringToBoolean(searchParams.showOrg || true.toString());
+    const showInd = stringToBoolean(searchParams.showInd || true.toString());
     const t = await getI18n();
 
-    const count = await getFilteredCustomersCountByAccountId(accountId, query);
+    const count = await getFilteredCustomersCountByAccountId(accountId, query, showOrg, showInd);
     const customers = await getFilteredCustomersByAccountId(
         accountId,
         query,
         currentPage,
-        itemsPerPage
+        itemsPerPage,
+        showOrg,
+        showInd,
+        orderBy,
+        order
     );
 
     return (
         <StyledBox component='section' className='section'>
             <Typography variant='h1'>{capitalize(t('customers'))}</Typography>
             <Box component='section' className='tools'>
-                <Search placeholder={capitalize(t('search customers'))} />
-                <CreateButton href='/dashboard/customers/create' name='Create customer' />
+                <Search placeholder={capitalize(t('by name, phone or email'))} />
+                <CreateButton
+                    href='/dashboard/customers/create'
+                    name={capitalize(t('create customer'))}
+                />
             </Box>
             <Suspense
                 key={query + currentPage}

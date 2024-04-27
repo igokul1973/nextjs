@@ -1,12 +1,9 @@
 'use client';
 
-import {
-    DEFAULT_ITEMS_PER_PAGE,
-    DEFAULT_PAGE_NUMBER
-} from '@/app/[locale]/dashboard/customers/utils';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { deleteCustomerById } from '@/app/lib/data/customer';
 import { TOrder } from '@/app/lib/types';
+import { stringToBoolean } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -14,8 +11,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
+import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import Paper from '@mui/material/Paper';
 import Switch from '@mui/material/Switch';
 import Table from '@mui/material/Table';
@@ -32,33 +32,22 @@ import Typography from '@mui/material/Typography';
 import { alpha } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { ChangeEvent, FC, MouseEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, FC, MouseEvent, useEffect, useState } from 'react';
 import {
-    ICustomerTable,
+    DEFAULT_IS_DENSE,
+    DEFAULT_ITEMS_PER_PAGE,
+    DEFAULT_ORDER,
+    DEFAULT_ORDER_BY,
+    DEFAULT_PAGE_NUMBER
+} from '../../../[locale]/dashboard/customers/constants';
+import { ICustomerTable } from '../types';
+import {
     IEnhancedTableProps,
     IEnhancedTableToolbarProps,
     IHeadCell,
-    IProps
+    IProps,
+    ISelectedFilters
 } from './types';
-
-function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
-    if (b[orderBy] < a[orderBy]) {
-        return -1;
-    }
-    if (b[orderBy] > a[orderBy]) {
-        return 1;
-    }
-    return 0;
-}
-
-function getComparator<Key extends keyof ICustomerTable>(
-    order: TOrder,
-    orderBy: Key
-): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
-    return order === 'desc'
-        ? (a, b) => descendingComparator(a, b, orderBy)
-        : (a, b) => -descendingComparator(a, b, orderBy);
-}
 
 const headCells: readonly IHeadCell[] = [
     {
@@ -79,6 +68,7 @@ const headCells: readonly IHeadCell[] = [
         id: 'email',
         isNumeric: false,
         disablePadding: false,
+        disableSorting: true,
         label: 'email',
         align: 'center'
     },
@@ -86,7 +76,8 @@ const headCells: readonly IHeadCell[] = [
         id: 'phone',
         isNumeric: false,
         disablePadding: false,
-        label: 'email',
+        disableSorting: true,
+        label: 'phone',
         align: 'center'
     },
     {
@@ -109,6 +100,14 @@ const headCells: readonly IHeadCell[] = [
         disablePadding: false,
         label: 'total invoices',
         align: 'center'
+    },
+    {
+        id: 'actions',
+        isNumeric: false,
+        disablePadding: false,
+        disableSorting: true,
+        label: 'actions',
+        align: 'center'
     }
 ];
 
@@ -127,21 +126,29 @@ function EnhancedTableHead(props: IEnhancedTableProps) {
                         key={headCell.id}
                         align={headCell.align}
                         padding={headCell.disablePadding ? 'none' : 'normal'}
-                        sortDirection={orderBy === headCell.id ? order : false}
+                        sortDirection={
+                            !headCell.disableSorting && orderBy === headCell.id ? order : false
+                        }
                         sx={{ whiteSpace: 'nowrap', color: 'green' }}
                     >
-                        <TableSortLabel
-                            active={orderBy === headCell.id}
-                            direction={orderBy === headCell.id ? order : 'asc'}
-                            onClick={createSortHandler(headCell.id)}
-                        >
-                            {capitalize(t(headCell.label as TSingleTranslationKeys))}
-                            {orderBy === headCell.id ? (
-                                <Box component='span' sx={visuallyHidden}>
-                                    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                                </Box>
-                            ) : null}
-                        </TableSortLabel>
+                        {!headCell.disableSorting ? (
+                            <TableSortLabel
+                                active={orderBy === headCell.id}
+                                direction={orderBy === headCell.id ? order : 'asc'}
+                                onClick={createSortHandler(headCell.id)}
+                            >
+                                {capitalize(t(headCell.label as TSingleTranslationKeys))}
+                                {orderBy === headCell.id ? (
+                                    <Box component='span' sx={visuallyHidden}>
+                                        {order === 'desc'
+                                            ? 'sorted descending'
+                                            : 'sorted ascending'}
+                                    </Box>
+                                ) : null}
+                            </TableSortLabel>
+                        ) : (
+                            capitalize(t(headCell.label as TSingleTranslationKeys))
+                        )}
                     </TableCell>
                 ))}
             </TableRow>
@@ -149,9 +156,24 @@ function EnhancedTableHead(props: IEnhancedTableProps) {
     );
 }
 
-function EnhancedTableToolbar(props: IEnhancedTableToolbarProps) {
+const EnhancedTableToolbar: FC<IEnhancedTableToolbarProps> = ({
+    numSelected,
+    selectedFilters,
+    setSelectedFilters
+}) => {
     const t = useI18n();
-    const { numSelected } = props;
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const open = Boolean(anchorEl);
+    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const setFilters = (name: keyof ISelectedFilters, value: boolean) => {
+        setSelectedFilters({ ...selectedFilters, [name]: value });
+    };
 
     return (
         <Toolbar
@@ -167,45 +189,97 @@ function EnhancedTableToolbar(props: IEnhancedTableToolbarProps) {
             <Typography sx={{ flex: '1 1 100%' }} variant='h6' id='tableTitle' component='div'>
                 {capitalize(t('customers'))}
             </Typography>
-            <Tooltip title='Filter list'>
-                <IconButton>
+            <Tooltip title={capitalize(t('click to see more filters'))}>
+                <IconButton
+                    onClick={handleClick}
+                    color='warning'
+                    sx={{ display: 'flex', gap: 1, fontSize: 20 }}
+                >
                     <FilterListIcon />
+                    {capitalize(t('filter'))}
                 </IconButton>
             </Tooltip>
+            <Menu
+                id='basic-menu'
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                    'aria-labelledby': 'basic-button'
+                }}
+            >
+                <MenuItem onClick={handleClose}>{capitalize(t('show'))}:</MenuItem>
+                {['organizations', 'individuals'].map((key) => {
+                    return (
+                        <MenuItem key={key} onClick={handleClose}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        onChange={({ target: { checked } }) =>
+                                            setFilters(key, checked)
+                                        }
+                                        defaultChecked={selectedFilters[key]}
+                                    />
+                                }
+                                label={capitalize(t(key))}
+                            />
+                        </MenuItem>
+                    );
+                })}
+            </Menu>
         </Toolbar>
     );
-}
+};
 
 const CustomersTable: FC<IProps> = ({ customers, count }) => {
+    const t = useI18n();
     const { openSnackbar } = useSnackbar();
-    const [order, setOrder] = useState<TOrder>('asc');
-    const [orderBy, setOrderBy] = useState<keyof ICustomerTable>('name');
+    const { push } = useRouter();
     const [selected, setSelected] = useState<readonly ICustomerTable['id'][]>([]);
-    const [dense, setDense] = useState(true);
 
     const { replace } = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const pageParam = searchParams.get('page') ?? DEFAULT_PAGE_NUMBER.toString();
+    const page = searchParams.get('page') ?? DEFAULT_PAGE_NUMBER.toString();
     const itemsPerPageParam = searchParams.get('itemsPerPage') ?? DEFAULT_ITEMS_PER_PAGE.toString();
+    const order = (searchParams.get('order') ?? DEFAULT_ORDER) as TOrder;
+    const orderBy = searchParams.get('orderBy') ?? DEFAULT_ORDER_BY;
+    const showOrg = stringToBoolean(searchParams.get('showOrg') || true.toString());
+    const showInd = stringToBoolean(searchParams.get('showInd') || true.toString());
+    const isDense = stringToBoolean(searchParams.get('isDense') || DEFAULT_IS_DENSE.toString());
+    const selectedFilters = {
+        organizations: showOrg,
+        individuals: showInd
+    };
 
     useEffect(() => {
         // If no search params, set defaults
-        if (!searchParams.has('page') || !searchParams.get('itemsPerPage')) {
+        if (
+            !searchParams.has('page') ||
+            !searchParams.get('itemsPerPage') ||
+            !searchParams.get('isDense') ||
+            !searchParams.get('showOrg') ||
+            !searchParams.get('showInd')
+        ) {
             const params = new URLSearchParams(searchParams || undefined);
             params.set('itemsPerPage', itemsPerPageParam);
-            params.set('page', pageParam);
+            params.set('page', page);
+            params.set('isDense', isDense.toString());
+            params.set('showOrg', showOrg.toString());
+            params.set('showInd', showInd.toString());
             replace(`${pathname}?${params.toString()}`);
         }
-    }, [searchParams, replace, pathname, itemsPerPageParam, pageParam]);
+    }, [searchParams, replace, pathname, itemsPerPageParam, page, isDense, showOrg, showInd]);
 
-    const page = parseInt(pageParam, 10);
+    const pageNumber = parseInt(page, 10);
     const rowsPerPage = parseInt(itemsPerPageParam, 10);
 
     const handleRequestSort = (event: MouseEvent<unknown>, property: keyof ICustomerTable) => {
         const isAsc = orderBy === property && order === 'asc';
-        setOrder(isAsc ? 'desc' : 'asc');
-        setOrderBy(property);
+        const params = new URLSearchParams(searchParams || undefined);
+        params.set('order', isAsc ? 'desc' : 'asc');
+        params.set('orderBy', property);
+        replace(`${pathname}?${params.toString()}`);
     };
 
     const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
@@ -250,18 +324,15 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
     };
 
     const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setDense(event.target.checked);
+        const params = new URLSearchParams(searchParams || undefined);
+        params.set('isDense', event.target.checked.toString());
+        replace(`${pathname}?${params.toString()}`);
     };
 
     const isSelected = (id: string) => selected.indexOf(id) !== -1;
 
     // Avoid a layout jump when reaching the last page with empty rows.
-    const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - customers.length) : 0;
-
-    const visibleRows = useMemo(
-        () => customers.slice().sort(getComparator(order, orderBy)),
-        [customers, order, orderBy]
-    );
+    const emptyRows = pageNumber > 0 ? Math.max(0, rowsPerPage - customers.length) : 0;
 
     const deleteCustomer = async (id: string, name: string) => {
         try {
@@ -272,17 +343,26 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
         }
     };
 
-    const { push } = useRouter();
+    const setSelectedFilters = (filters: ISelectedFilters) => {
+        const params = new URLSearchParams(searchParams || undefined);
+        params.set('showOrg', filters.organizations.toString());
+        params.set('showInd', filters.individuals.toString());
+        replace(`${pathname}?${params.toString()}`);
+    };
 
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
-                <EnhancedTableToolbar numSelected={selected.length} />
+                <EnhancedTableToolbar
+                    numSelected={selected.length}
+                    selectedFilters={selectedFilters}
+                    setSelectedFilters={setSelectedFilters}
+                />
                 <TableContainer>
                     <Table
                         sx={{ minWidth: 750 }}
                         aria-labelledby='tableTitle'
-                        size={dense ? 'small' : 'medium'}
+                        size={isDense ? 'small' : 'medium'}
                     >
                         <EnhancedTableHead
                             numSelected={selected.length}
@@ -293,7 +373,7 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
                             rowCount={customers.length}
                         />
                         <TableBody>
-                            {visibleRows.map((row, index) => {
+                            {customers.map((row, index) => {
                                 const isItemSelected = isSelected(row.id);
                                 const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -316,13 +396,18 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
                                         >
                                             {row.name}
                                         </TableCell>
-                                        <TableCell align='center'>{row.type}</TableCell>
+                                        <TableCell align='center'>
+                                            {capitalize(t(row.type))}
+                                        </TableCell>
                                         <TableCell align='center'>{row.email}</TableCell>
                                         <TableCell align='center'>{row.phone}</TableCell>
                                         <TableCell align='center'>{row.totalPending}</TableCell>
                                         <TableCell align='center'>{row.totalPaid}</TableCell>
                                         <TableCell align='center'>{row.totalInvoices}</TableCell>
-                                        <TableCell align='center' sx={{ display: 'flex' }}>
+                                        <TableCell
+                                            align='center'
+                                            sx={{ display: 'flex', justifyContent: 'center' }}
+                                        >
                                             <IconButton
                                                 color='primary'
                                                 aria-label='edit'
@@ -346,7 +431,7 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
                             {emptyRows > 0 && (
                                 <TableRow
                                     style={{
-                                        height: (dense ? 33 : 53) * emptyRows
+                                        height: (isDense ? 53 : 73) * emptyRows
                                     }}
                                 >
                                     <TableCell colSpan={6} />
@@ -360,13 +445,13 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
                     component='div'
                     count={count}
                     rowsPerPage={rowsPerPage}
-                    page={page}
+                    page={pageNumber}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
             <FormControlLabel
-                control={<Switch checked={dense} onChange={handleChangeDense} />}
+                control={<Switch checked={isDense} onChange={handleChangeDense} />}
                 label='Dense padding'
             />
         </Box>

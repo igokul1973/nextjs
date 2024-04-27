@@ -6,6 +6,7 @@ export const enPlural = {
 
 export const enSingle = {
     create: 'create',
+    show: 'show',
     add: 'add',
     edit: 'edit',
     delete: 'delete',
@@ -37,6 +38,7 @@ export const enSingle = {
     // Organization
     'select customer type': 'select customer type',
     organization: 'organization',
+    organizations: 'organizations',
     name: 'name',
     'organization name': 'organization name',
     'organization type': 'organization type',
@@ -44,6 +46,7 @@ export const enSingle = {
     'is charity': 'is charity',
     // Individual
     individual: 'individual',
+    individuals: 'individuals',
     'first name': 'first name',
     'last name': 'last name',
     'middle name': 'middle name',
@@ -136,6 +139,11 @@ export const enSingle = {
     'create inventory item': 'create inventory item',
     'create invoice': 'create invoice',
     'dense padding': 'dense padding',
+    // Tooltips
+    filter: 'filter',
+    'additional filter': 'additional filter',
+    'click to see more filters': 'click to see more filters',
+    'filter list': 'filter list',
     // Reports
     collected: 'collected',
     pending: 'pending',
@@ -144,8 +152,9 @@ export const enSingle = {
     'total invoices': 'total invoices',
     'total customers': 'total customers',
     // Miscellaneous
+    search: 'search',
     'search customers': 'search customers',
-    search: 'search'
+    'by name, phone or email': 'by name, phone or email'
 };
 
 const en = {

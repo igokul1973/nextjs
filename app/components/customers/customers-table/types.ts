@@ -1,13 +1,14 @@
 import { TOrder } from '@/app/lib/types';
 import { ChangeEvent, MouseEvent } from 'react';
-import { ICustomer } from '../types';
+import { ICustomerTable } from '../types';
 
 export interface IHeadCell {
-    disablePadding: boolean;
     id: keyof ICustomerTable;
     label: string;
     isNumeric: boolean;
     align: 'left' | 'right' | 'center';
+    disablePadding: boolean;
+    disableSorting?: boolean;
 }
 
 export interface IEnhancedTableProps {
@@ -19,24 +20,25 @@ export interface IEnhancedTableProps {
     rowCount: number;
 }
 
-export interface IEnhancedTableToolbarProps {
-    numSelected: number;
+export interface ISelectedFilters extends Record<string, boolean> {
+    organizations: boolean;
+    individuals: boolean;
 }
 
-export interface ICustomerTable extends ICustomer {
-    totalPending: string;
-    totalPaid: string;
-    totalInvoices: number;
+export interface IEnhancedTableToolbarProps {
+    numSelected: number;
+    selectedFilters: ISelectedFilters;
+    setSelectedFilters: (filters: ISelectedFilters) => void;
 }
 
 export interface IProps {
-    customers: ICustomer[];
+    customers: ICustomerTable[];
     count: number;
 }
 
 // For old CustomersTable_old.tsx
 export interface ColumnData {
-    dataKey: keyof ICustomer;
+    dataKey: keyof ICustomerTable;
     label: string;
     numeric?: boolean;
     width: number;

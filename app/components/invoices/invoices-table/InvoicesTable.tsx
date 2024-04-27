@@ -302,8 +302,7 @@ const InvoicesTable: FC<IProps> = ({ invoices, count }) => {
                                             scope='row'
                                             padding='none'
                                             sx={{
-                                                width: '250px',
-                                                maxWidth: '250px'
+                                                maxWidth: '200px'
                                             }}
                                         >
                                             {row.number}
@@ -326,7 +325,9 @@ const InvoicesTable: FC<IProps> = ({ invoices, count }) => {
                                         {row.status !== InvoiceStatusEnum.paid ? (
                                             <TableCell
                                                 align='center'
-                                                sx={{ display: 'flex', justifyContent: 'center' }}
+                                                sx={{
+                                                    width: '125px'
+                                                }}
                                             >
                                                 <IconButton
                                                     color='primary'
