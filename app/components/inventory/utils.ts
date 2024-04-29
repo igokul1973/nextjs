@@ -1,4 +1,4 @@
-import { TInventoryForm } from './create-form/types';
+import { TInventoryForm } from './form/types';
 
 export const getDefaultFormValues = (accountId: string, userId: string): TInventoryForm => {
     return {

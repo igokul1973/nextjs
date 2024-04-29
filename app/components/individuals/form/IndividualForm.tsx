@@ -7,7 +7,7 @@ import {
 } from '@/app/[locale]/dashboard/customers/utils';
 import PartialAddressForm from '@/app/components/address/form/PartialAddressForm';
 import DateInput from '@/app/components/date-input/DateInput';
-import PartialEmailForm from '@/app/components/emails/partial-form/PartialEmailForm';
+import PartialEmailForm from '@/app/components/emails/form/PartialEmailForm';
 import PartialAttributeForm from '@/app/components/entity-attributes/partial-form/EntityAttributeForm';
 import { useData } from '@/app/context/data/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
@@ -30,13 +30,14 @@ import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { Control, useFieldArray, useForm } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
-import PartialPhoneForm from '../../phones/partial-form/PartialPhoneForm';
+import PartialPhoneForm from '../../phones/form/PartialPhoneForm';
 import { getDefaultFormValues } from '../utils';
 import { individualCreateSchema, individualUpdateSchema } from './formSchema';
 import { StyledForm } from './styled';
 import { IProps, TIndividualForm, TIndividualFormControl } from './types';
 
 const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, form }) => {
+    const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const { countries } = useData();
     const { user, account } = useUser();
@@ -58,7 +59,6 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
             getDefaultFormValues(accountId, userId, userAccountCountry.id, localIdentifierName.id)
     });
 
-    const t = useI18n();
     const phoneTypes = Object.values(PhoneTypeEnum);
     const emailTypes = Object.values(EmailTypeEnum);
 
@@ -182,7 +182,7 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
                         name='dob'
                         control={control as unknown as Control}
                         format='YYYY-MM-DD'
-                        helperText={capitalize(t('Enter the date of birth'))}
+                        helperText={capitalize(t('enter the date of birth'))}
                     />
                 </FormControl>
                 <Divider />

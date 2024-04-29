@@ -5,6 +5,8 @@ export const getInvoiceSelect = {
     id: true,
     number: true,
     date: true,
+    customerName: true,
+    customerEmail: true,
     customerId: true,
     status: true,
     invoiceItems: {

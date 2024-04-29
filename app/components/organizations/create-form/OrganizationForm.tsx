@@ -8,7 +8,7 @@ import {
 import PartialAddressForm from '@/app/components/address/form/PartialAddressForm';
 import PartialAttributeForm from '@/app/components/entity-attributes/partial-form/EntityAttributeForm';
 import { IProps, TOrganizationFormControl } from '@/app/components/organizations/create-form/types';
-import PartialPhoneForm from '@/app/components/phones/partial-form/PartialPhoneForm';
+import PartialPhoneForm from '@/app/components/phones/form/PartialPhoneForm';
 import { useData } from '@/app/context/data/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
@@ -29,7 +29,7 @@ import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
-import PartialEmailForm from '../../emails/partial-form/PartialEmailForm';
+import PartialEmailForm from '../../emails/form/PartialEmailForm';
 import FormSelect from '../../form-select/FormSelect';
 import { getDefaultFormValues } from '../utils';
 import { organizationCreateSchema, organizationUpdateSchema } from './formSchema';

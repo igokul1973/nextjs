@@ -1,4 +1,4 @@
-import InventoryForm from '@/app/components/inventory/create-form/InventoryForm';
+import InventoryForm from '@/app/components/inventory/form/InventoryForm';
 import Warning from '@/app/components/warning/Warning';
 import { getInventoryTypes } from '@/app/lib/data/inventory-type';
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';

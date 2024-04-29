@@ -3,8 +3,7 @@ import { TPluralTranslationKeys, TSingleTranslationKeys } from './types';
 const svPlural: Record<TPluralTranslationKeys, string> = {
     'must be digits#many': 'måste vara {count} siffror',
     'must be up to digits#many': 'måste vara upp till {count} siffror',
-    'must be at least characters#many':
-        'innehållsartikelnamnet kan inte vara mindre än {count} tecken'
+    'must be at least characters#many': 'kan inte vara mindre än {count} tecken'
 };
 
 const svSingle: Record<TSingleTranslationKeys, string> = {
@@ -22,10 +21,13 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     type: 'typ',
     close: 'stäng',
     actions: 'åtgärder',
+    date: 'datum',
     // Navigation
     home: 'hem',
     dashboard: 'instrumentpanel',
+    invoice: 'faktura',
     invoices: 'fakturor',
+    customer: 'kund',
     customers: 'kunder',
     inventory: 'inventering',
     account: 'kontot',
@@ -56,7 +58,7 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'full name': 'fullt namn',
     dob: 'fd',
     'date of birth': 'födelsedatum',
-    'Enter the date of birth': 'Ange födelsedatum',
+    'enter the date of birth': 'ange födelsedatum',
     description: 'beskrivning',
     // Address
     address: 'adress',
@@ -93,6 +95,11 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'add another email address': 'lägg till en annan e-postadress',
     'please enter the email address': 'var god ange e-postadress',
     'please enter the email type': 'var god ange e-posttyp',
+    // Attributes
+    'add another attribute': 'lägg till ett annat attribut',
+    'add attribute': 'lägg till en attribut',
+    text: 'text',
+    value: 'värde',
     // Inventory
     price: 'pris',
     'internal code': 'intern kod',
@@ -102,13 +109,31 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     miscellaneous: 'annan',
     product: 'produkt',
     service: 'tjänst',
-    // Attributes
-    'add another attribute': 'lägg till ett annat attribut',
-    'add attribute': 'lägg till en attribut',
-    text: 'text',
-    value: 'värde',
+    // Invoices
+    draft: 'utkast',
+    pending: 'avvaktande',
+    paid: 'betalat',
+    cancelled: 'avbruten',
+    'enter the invoice date': 'ange faktureringsdatum',
+    'select customer': 'valj en kund',
+    'purchase order numbers': 'kundordernummer',
+    'enter purchase order numbers': 'ange kundordernummer',
+
+    'enter manufacturer invoice numbers (you can enter multiple)':
+        'ange tillverkarefaktureringsnummer (du kan ange flera)',
+    'manufacturer invoice numbers': 'tillverkarefaktureringsnummer',
+    'enter manufacturer invoice numbers': 'ange tillverkarefaktureringsnummer',
+    'additional information': 'yterligare information',
+    'enter any additional information such as payment terms, etc.':
+        'ange eventuell ytterligare information såsom betalningsvillkor, osv.',
+    'payment information': 'betalningsinformation',
+    'enter payment information such as payment method and/or bank routing and account':
+        'ange betalningsinformation såsom betalningsmetod och/eller bankkonto',
+    'latest payment date': 'senaste betalningsdatum',
+    'enter the date the invoice must be paid by': 'ange det datum då fakturan ska betalas senast',
     // Errors
     'must be a number': 'måste vara ett nummer',
+    'must be a date': 'måste vara ett datum',
     'could not load data': 'kunde inte ladda data',
     'please enter at least one character': 'var god ange minst ett tecken',
     'please enter the name': 'var god ange namnet',
@@ -134,6 +159,7 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'please enter the attribute value': 'var god ange attributvärde',
     'please enter the inventory item name': 'var god ange innehållsartikelnamn',
     'please enter the inventory item type': 'var god ange innehållsartikeltyp',
+    'please enter the invoice number': 'var god ange fakturanummer',
     // Buttons
     'create customer': 'skapa en kund',
     'update customer': 'redigera kunden',

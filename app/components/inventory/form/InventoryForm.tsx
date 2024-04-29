@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { useForm } from 'react-hook-form';
 import FormSelect from '../../form-select/FormSelect';
-import { TIndividualForm } from '../../individuals/create-form/types';
+import { TIndividualForm } from '../../individuals/form/types';
 import { getDefaultFormValues } from '../utils';
 import { inventoryCreateSchema, inventoryUpdateSchema } from './formSchema';
 import { StyledForm, StyledMenuItemBox } from './styled';

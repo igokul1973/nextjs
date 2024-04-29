@@ -1,4 +1,4 @@
-import CustomerForm from '@/app/components/customers/create-form/CustomerForm';
+import CustomerForm from '@/app/components/customers/form/CustomerForm';
 import Warning from '@/app/components/warning/Warning';
 import { getLocalIdentifierNamesByCountryId } from '@/app/lib/data/local-identifier-name';
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';

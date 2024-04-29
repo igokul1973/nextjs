@@ -1,6 +1,6 @@
 'use server';
 
-import { TInventoryForm } from '@/app/components/inventory/create-form/types';
+import { TInventoryForm } from '@/app/components/inventory/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TOrder } from '@/app/lib/types';
 import { formatCurrency, getDirtyValues } from '@/app/lib/utils';

@@ -1,8 +1,5 @@
 import { TEntityFormRegister } from '@/app/components/customers/types';
-import {
-    TIndividualForm,
-    TIndividualFormControl
-} from '@/app/components/individuals/create-form/types';
+import { TIndividualForm, TIndividualFormControl } from '@/app/components/individuals/form/types';
 import {
     TOrganizationForm,
     TOrganizationFormControl

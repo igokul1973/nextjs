@@ -85,37 +85,31 @@ const theme = {
                     maxWidth: '400px'
                 }
             }
-        },
-        MuiFormHelperText: {
-            styleOverrides: {
-                root: {
-                    color: colors.error
-                }
-            }
-        },
-        GameButtonComponent: {
-            styleOverrides: {
-                root: {
-                    width: 200,
-                    height: 40,
-                    borderTop: `1px solid ${colors.lime_green}`,
-                    borderLeft: `1px solid ${colors.lime_green}`,
-                    background: colors.secondary,
-                    clipPath: `polygon(
-                        4% 0,
-                        100% 0,
-                        100% 80%,
-                        94% 100%,
-                        0 100%,
-                        0 20%
-                    )`,
-                    '&:hover': {
-                        border: 'none',
-                        background: colors.primary
-                    }
-                }
-            }
         }
+        /* Example of a custom component style overrides */
+        // GameButtonComponent: {
+        //     styleOverrides: {
+        //         root: {
+        //             width: 200,
+        //             height: 40,
+        //             borderTop: `1px solid ${colors.lime_green}`,
+        //             borderLeft: `1px solid ${colors.lime_green}`,
+        //             background: colors.secondary,
+        //             clipPath: `polygon(
+        //                 4% 0,
+        //                 100% 0,
+        //                 100% 80%,
+        //                 94% 100%,
+        //                 0 100%,
+        //                 0 20%
+        //             )`,
+        //             '&:hover': {
+        //                 border: 'none',
+        //                 background: colors.primary
+        //             }
+        //         }
+        //     }
+        // }
     }
 };
 

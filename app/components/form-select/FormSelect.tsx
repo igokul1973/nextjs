@@ -24,7 +24,7 @@ const FormSelect: FC<
                 )}
             />
 
-            {helperText && <FormHelperText>{helperText}</FormHelperText>}
+            {helperText && <FormHelperText error={error}>{helperText}</FormHelperText>}
         </FormControl>
     );
 };

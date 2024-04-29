@@ -1,5 +1,5 @@
-import IndividualForm from '@/app/components/individuals/create-form/IndividualForm';
-import { TAttribute, TIndividualForm } from '@/app/components/individuals/create-form/types';
+import IndividualForm from '@/app/components/individuals/form/IndividualForm';
+import { TAttribute, TIndividualForm } from '@/app/components/individuals/form/types';
 import OrganizationForm from '@/app/components/organizations/create-form/OrganizationForm';
 import { TOrganizationForm } from '@/app/components/organizations/create-form/types';
 import Warning from '@/app/components/warning/Warning';

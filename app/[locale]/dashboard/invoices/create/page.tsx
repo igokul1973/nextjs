@@ -1,4 +1,4 @@
-import Form from '@/app/components/invoices/create-form/Form';
+import InvoiceForm from '@/app/components/invoices/form/InvoiceForm';
 import { getCustomersByAccountId } from '@/app/lib/data/customer';
 import { auth } from '@/auth';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
@@ -27,8 +27,7 @@ export default async function Page() {
                 </Link>
                 <Typography color='text.primary'>Create Invoices</Typography>
             </Breadcrumbs>
-            <Form customers={customers} />
-            <div>TBD</div>
+            <InvoiceForm customers={customers} />
         </StyledBox>
     );
 }

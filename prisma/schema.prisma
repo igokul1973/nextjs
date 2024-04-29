@@ -335,9 +335,9 @@ model invoice {
   // Fixed fields at the moment of invoice creation/update
   // as customer or provider data may change over time.
   customerName               String            @map("customer_name") @db.VarChar(255)
-  customerAddressLine_1      String            @map("customer_address_line_1") @db.VarChar(255)
-  customerAddressLine_2      String?           @map("customer_address_line_2") @db.VarChar(255)
-  customerAddressLine_3      String?           @map("customer_address_line_3") @db.VarChar(255)
+  customerAddressLine1       String            @map("customer_address_line_1") @db.VarChar(255)
+  customerAddressLine2       String?           @map("customer_address_line_2") @db.VarChar(255)
+  customerAddressLine3       String?           @map("customer_address_line_3") @db.VarChar(255)
   customerLocality           String            @map("customer_locality") @db.VarChar(255)
   customerRegion             String?           @map("customer_region") @db.VarChar(255)
   customerPostalCode         String            @map("customer_postal_code") @db.VarChar(255)
@@ -356,24 +356,24 @@ model invoice {
   // For example, all/some invoice items were purchased from a certain
   // store/manufacturer which fulfilled the PO number.
   // Usually used for internal purposes.
-  purchaseOrderNumber        String?           @map("purchase_order_number") @db.VarChar(255)
+  purchaseOrderNumbers       String[]          @map("purchase_order_numbers") @db.VarChar(255)
   // Numbers related to Invoices issued by store/manufacturer, if any existed.
   // For example, all/some invoice items were purchased from a certain
-  // store/manufacturer which provided the invoice
+  // store/manufacturer which provided the invoice(s)
   // Usually used for internal purposes
-  manufacturerInvoiceNumbers String?           @map("manufacturer_invoice_number") @db.VarChar(255)
+  manufacturerInvoiceNumbers String[]          @map("manufacturer_invoice_numbers") @db.VarChar(255)
   // Irbitrary information provided to customer
   additionalInformation      String?           @map("additional_information") @db.Text
   payBy                      DateTime          @map("pay_by") @db.Timestamptz(3)
   paidOn                     DateTime?         @map("paid_on") @db.Timestamptz(3)
   // How to pay
-  billingInfo                String            @map("billing_info") @db.Text
+  paymentInfo                String            @map("payment_info") @db.Text
   // Any additional terms and conditions
   terms                      String?           @db.Text
   // Tax percentage (can be state sales tax in USA or VAT in Europe)
-  tax                        Int?              @db.Integer
+  tax                        Int               @default(0) @db.Integer
   // Discount percentage on whole invoice
-  discount                   Int?              @db.Integer
+  discount                   Int               @default(0) @db.Integer
   // Internal notes
   notes                      String?           @db.Text
   createdAt                  DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)

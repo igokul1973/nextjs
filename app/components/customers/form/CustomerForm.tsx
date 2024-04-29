@@ -12,10 +12,10 @@ import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { EntitiesEnum } from '@prisma/client';
 import { FC, useState } from 'react';
-import IndividualForm from '../../individuals/create-form/IndividualForm';
+import IndividualForm from '../../individuals/form/IndividualForm';
 import OrganizationForm from '../../organizations/create-form/OrganizationForm';
-import { ICustomerFormProps } from './types';
 import Warning from '../../warning/Warning';
+import { ICustomerFormProps } from './types';
 
 const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentifierNames }) => {
     const t = useI18n();

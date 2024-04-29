@@ -604,32 +604,32 @@ const invoices = [
     {
         date: '2022-12-06',
         status: InvoiceStatusEnum.paid,
-        purchaseOrderNumber: 'PO9982734',
+        purchaseOrderNumbers: ['PO9982734'],
         additionalInformation: 'Some additional information',
         payBy: '2022-12-30',
         paidOn: '2022-12-29',
-        billingInfo: 'This is a billing info',
+        paymentInfo: 'This is a payment info',
         tax: 20
     },
     {
         date: '2023-02-16',
         status: InvoiceStatusEnum.paid,
-        purchaseOrderNumber: 'PO289374',
+        purchaseOrderNumbers: ['PO289374'],
         additionalInformation: 'Some additional information',
-        manufacturerInvoiceNumbers: 'KK648929834-12',
+        manufacturerInvoiceNumbers: ['KK648929834-12'],
         payBy: '2023-03-12',
         paidOn: '2023-03-08',
-        billingInfo: 'This is a billing info',
+        paymentInfo: 'This is a payment info',
         tax: 20
     },
     {
         date: '2023-03-26',
         status: InvoiceStatusEnum.paid,
-        purchaseOrderNumber: 'PO392384',
+        purchaseOrderNumbers: ['PO392384', 'PO389180'],
         additionalInformation: 'Some additional information',
         payBy: '2023-04-15',
         paidOn: '2023-04-19',
-        billingInfo: 'This is a billing info',
+        paymentInfo: 'This is a payment info',
         notes: 'This company is sometimes overdue with its invoice payments',
         tax: 10,
         discount: 5
@@ -637,28 +637,28 @@ const invoices = [
     {
         date: '2023-05-11',
         status: InvoiceStatusEnum.pending,
-        purchaseOrderNumber: 'PO322384',
+        purchaseOrderNumbers: ['PO988984', 'PO389630'],
         payBy: '2023-06-11',
-        billingInfo: 'This is a billing info',
+        paymentInfo: 'This is a payment info',
         tax: 20
     },
     {
         date: '2023-05-11',
         status: InvoiceStatusEnum.pending,
-        purchaseOrderNumber: 'PO322384',
+        purchaseOrderNumbers: ['PO322384'],
         payBy: '2023-06-11',
-        billingInfo: 'This is a billing info',
+        paymentInfo: 'This is a payment info',
         tax: 10,
         discount: 5
     },
     {
         date: '2024-03-18',
         status: InvoiceStatusEnum.draft,
-        purchaseOrderNumber: 'PO392384',
+        purchaseOrderNumbers: ['PO392384'],
+        manufacturerInvoiceNumbers: ['TT683K9834'],
         additionalInformation: 'Some additional information',
-        manufacturerInvoiceNumbers: 'TT683K9834',
         payBy: '2024-04-15',
-        billingInfo: 'This is a billing info',
+        paymentInfo: 'This is a payment info',
         notes: 'Gotta check out if anything is wrong before moving status to pending',
         tax: 10,
         discount: 5
@@ -666,11 +666,11 @@ const invoices = [
     {
         date: '2024-04-01',
         status: InvoiceStatusEnum.draft,
-        purchaseOrderNumber: 'PO392384',
+        purchaseOrderNumbers: ['PO392384', 'POPR63K9834'],
+        manufacturerInvoiceNumbers: ['TT683K9834'],
         additionalInformation: 'Some additional information',
-        manufacturerInvoiceNumbers: 'TT683K9834',
         payBy: '2024-04-19',
-        billingInfo: 'This is a billing info for my company',
+        paymentInfo: 'This is a payment info for my company',
         tax: 10
     }
 ];

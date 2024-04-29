@@ -1,10 +1,12 @@
 'use server';
 
+import { TInvoiceForm } from '@/app/components/invoices/form/types';
 import prisma from '@/app/lib/prisma';
+import { InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { TOrder } from '../../types';
+import { TDirtyFields, TOrder } from '../../types';
 import { flattenCustomer, formatCurrency } from '../../utils';
 import {
     ICreateInvoiceState,
@@ -13,7 +15,6 @@ import {
     getQueryFilterWhereClause,
     invoicesInclude
 } from './types';
-import { InvoiceStatusEnum } from '@prisma/client';
 
 const FormSchema = z.object({
     id: z.string(),
@@ -39,38 +40,32 @@ export async function getLatestInvoices(): Promise<LatestInvoice[]> {
     try {
         noStore();
 
-        // const invoices = await prisma.invoice.findMany({
-        //     relationLoadStrategy: 'join',
-        //     select: {
-        //         id: true,
-        //         amount: true,
-        //         customer: {
-        //             select: {
-        //                 name: true,
-        //                 image_url: true,
-        //                 email: true
-        //             }
-        //         }
-        //     },
-        //     orderBy: {
-        //         date: 'desc'
-        //     },
-        //     take: 5
-        // });
+        const invoices = await prisma.invoice.findMany({
+            relationLoadStrategy: 'join',
+            select: getInvoiceSelect,
+            orderBy: {
+                date: 'desc'
+            },
+            take: 5
+        });
 
-        // const latestInvoices = invoices.map(
-        //     ({ id, amount, customer: { name, image_url, email } }) => ({
-        //         id,
-        //         amount: formatCurrency(amount),
-        //         name,
-        //         image_url,
-        //         email
-        //     })
-        // );
+        const latestInvoices = invoices.map((invoice) => {
+            const { number, date, invoiceItems, customerName, customerEmail } = invoice;
+            const amount = invoiceItems.reduce((acc, ii) => {
+                return acc + ii.quantity * ii.price;
+            }, 0);
+            return {
+                number,
+                date,
+                amount: formatCurrency(amount),
+                name: customerName,
+                email: customerEmail
+            };
+        });
 
-        // return latestInvoices;
+        return latestInvoices;
 
-        return [];
+        // return [];
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Failed to get the latest invoices.');
@@ -165,26 +160,14 @@ export async function getFilteredInvoicesByAccountIdCount(accountId: string, que
     }
 }
 
-export async function createInvoice(
-    prevState: ICreateInvoiceState,
-    formData: FormData
-): Promise<ICreateInvoiceState> {
-    console.log('Form data: ', formData);
-    console.log('PrevState: ', prevState);
-    const rawFormData = Object.fromEntries(formData ? formData.entries() : []);
-    const dateISOString = new Date().toISOString();
-    rawFormData.date = dateISOString;
-    // Validate form using Zod
-    const validatedForm = CreateInvoice.safeParse(rawFormData);
-    if (!validatedForm.success) {
-        return {
-            errors: validatedForm.error.flatten().fieldErrors,
-            message: 'Missing fields, failed to create invoice'
-        };
-    }
+export async function createInvoice(formData: TInvoiceForm): Promise<ICreateInvoiceState> {
     // Creating invoice in DB
     try {
-        console.log('Data: ', validatedForm.data);
+        const { invoiceItems, ...invoice } = formData;
+
+        console.log('Invoice items: ', invoiceItems);
+        console.log('Invoice: ', invoiceItems);
+
         // await prisma.invoices.create({ data });
         console.log('Successfully created invoice.');
     } catch (error) {
@@ -197,21 +180,19 @@ export async function createInvoice(
     redirect('/dashboard/invoices');
 }
 
-export async function updateInvoice(id: string, formData: FormData) {
-    const rawFormData = Object.fromEntries(formData.entries());
-    const dateISOString = new Date().toISOString();
-    rawFormData.date = dateISOString;
-
-    const data = UpdateInvoice.parse(rawFormData);
-
+export async function updateInvoice(
+    formData: TInvoiceForm,
+    dirtyFields: TDirtyFields<TInvoiceForm>,
+    userId: string
+) {
     // Creating invoice in DB
     try {
-        await prisma.invoice.update({
-            where: {
-                id
-            },
-            data
-        });
+        const { id, ...invoice } = formData;
+        // await prisma.invoice.update({ where: {
+        //         id
+        //     },
+        //     data
+        // });
         console.log('Successfully updated invoice.');
     } catch (error) {
         console.error('Database Error:', error);

@@ -6,7 +6,7 @@ import {
 } from '@/app/[locale]/dashboard/inventory/constants';
 import { CreateButton } from '@/app/components/buttons/create/CreateButton';
 import InventoryTable from '@/app/components/inventory/inventory-table/InventoryTable';
-import Search from '@/app/components/search';
+import Search from '@/app/components/search/search';
 import {
     getFilteredInventoryByAccountId,
     getFilteredInventoryCount

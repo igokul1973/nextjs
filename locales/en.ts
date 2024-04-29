@@ -19,10 +19,13 @@ export const enSingle = {
     type: 'type',
     close: 'close',
     actions: 'actions',
+    date: 'date',
     // Navigation
     home: 'home',
     dashboard: 'dashboard',
+    invoice: 'invoice',
     invoices: 'invoices',
+    customer: 'customer',
     customers: 'customers',
     inventory: 'inventory',
     account: 'account',
@@ -53,7 +56,7 @@ export const enSingle = {
     'full name': 'full name',
     dob: 'dob',
     'date of birth': 'date of birth',
-    'Enter the date of birth': 'Enter the date of birth',
+    'enter the date of birth': 'enter the date of birth',
     description: 'description',
     // Address
     address: 'address',
@@ -104,8 +107,30 @@ export const enSingle = {
     miscellaneous: 'miscellaneous',
     product: 'product',
     service: 'service',
+    // Invoices
+    draft: 'draft',
+    pending: 'pending',
+    paid: 'paid',
+    cancelled: 'cancelled',
+    'enter the invoice date': 'enter the invoice date',
+    'select customer': 'select customer',
+    'purchase order numbers': 'purchase order numbers',
+    'enter purchase order numbers': 'enter purchase order numbers',
+    'enter manufacturer invoice numbers (you can enter multiple)':
+        'enter manufacturer invoice numbers (you can enter multiple)',
+    'manufacturer invoice numbers': 'manufacturer invoice numbers',
+    'enter manufacturer invoice numbers': 'enter manufacturer invoice numbers',
+    'additional information': 'additional information',
+    'enter any additional information such as payment terms, etc.':
+        'enter any additional information such as payment terms, etc.',
+    'payment information': 'payment information',
+    'enter payment information such as payment method and/or bank routing and account':
+        'enter payment information such as payment method and/or bank routing and account',
+    'enter the date the invoice must be paid by': 'enter the date the invoice must be paid by',
+    'latest payment date': 'latest payment date',
     // Errors
     'must be a number': 'must be a number',
+    'must be a date': 'must be a date',
     'could not load data': 'could not load data',
     'please enter at least one character': 'please enter at least one character',
     'please enter the name': 'please enter the name',
@@ -131,6 +156,7 @@ export const enSingle = {
     'please enter the attribute value': 'please enter the attribute value',
     'please enter the inventory item name': 'please enter the inventory item name',
     'please enter the inventory item type': 'please enter the inventory item type',
+    'please enter the invoice number': 'please enter the invoice number',
     // Buttons
     'create customer': 'create customer',
     'update customer': 'update customer',
@@ -146,7 +172,6 @@ export const enSingle = {
     'filter list': 'filter list',
     // Reports
     collected: 'collected',
-    pending: 'pending',
     'paid invoices': 'paid invoices',
     'pending invoices': 'pending invoices',
     'total invoices': 'total invoices',

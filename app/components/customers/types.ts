@@ -1,4 +1,4 @@
-import { TIndividualForm } from '@/app/components/individuals/create-form/types';
+import { TIndividualForm } from '@/app/components/individuals/form/types';
 import { TOrganizationForm } from '@/app/components/organizations/create-form/types';
 import { EntitiesEnum } from '@prisma/client';
 import { UseFormRegister } from 'react-hook-form';

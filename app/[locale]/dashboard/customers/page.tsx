@@ -1,5 +1,5 @@
 import CustomersTable from '@/app/components/customers/customers-table/CustomersTable';
-import Search from '@/app/components/search';
+import Search from '@/app/components/search/search';
 // import { getFilteredCustomersCountByAccountId } from '@/app/lib/data/customers';
 import { CreateButton } from '@/app/components/buttons/create/CreateButton';
 import {
@@ -11,6 +11,7 @@ import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { redirect } from 'next/navigation';
 import { FC, Suspense } from 'react';
 import {
     DEFAULT_ITEMS_PER_PAGE,
@@ -23,8 +24,9 @@ import { IProps } from './types';
 
 const Page: FC<IProps> = async ({ searchParams }) => {
     const session = await auth();
-    if (!session) return <div>Not logged in</div>;
-    const accountId = session.user.accountId;
+    const sessionUser = session?.user;
+    if (!session || !sessionUser) redirect('/');
+    const accountId = sessionUser.accountId;
     const query = searchParams?.query || '';
     const currentPage = Number(searchParams?.page) || DEFAULT_PAGE_NUMBER;
     const itemsPerPage = Number(searchParams?.itemsPerPage) || DEFAULT_ITEMS_PER_PAGE;

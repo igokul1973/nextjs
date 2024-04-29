@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useDebounce } from '../lib/utils';
+import { useDebounce } from '../../lib/utils';
 
 export default function Search({ placeholder }: { placeholder: string }) {
     const searchParams = useSearchParams();

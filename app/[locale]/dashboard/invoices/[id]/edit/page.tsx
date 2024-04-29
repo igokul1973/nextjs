@@ -1,4 +1,4 @@
-import Form from '@/app/components/invoices/edit-form';
+import Form from '@/app/components/invoices/InvoiceForm';
 import { getCustomersByAccountId } from '@/app/lib/data/customer';
 import { fetchInvoiceById } from '@/app/lib/data/invoice';
 import { auth } from '@/auth';

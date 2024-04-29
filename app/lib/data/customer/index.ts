@@ -1,6 +1,6 @@
 'use server';
 
-import { TEmail, TIndividualForm, TPhone } from '@/app/components/individuals/create-form/types';
+import { TEmail, TIndividualForm, TPhone } from '@/app/components/individuals/form/types';
 import { TOrganizationForm } from '@/app/components/organizations/create-form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TOrder } from '@/app/lib/types';
@@ -46,13 +46,26 @@ export async function getCustomersByAccountId(accountId: string) {
             where: {
                 AND: [
                     {
-                        organization: {
-                            account: {
-                                id: {
-                                    equals: accountId
+                        OR: [
+                            {
+                                organization: {
+                                    account: {
+                                        id: {
+                                            equals: accountId
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                individual: {
+                                    account: {
+                                        id: {
+                                            equals: accountId
+                                        }
+                                    }
                                 }
                             }
-                        }
+                        ]
                     },
                     {
                         OR: [

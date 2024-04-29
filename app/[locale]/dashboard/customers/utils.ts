@@ -1,5 +1,5 @@
 import { AttributeTypeEnum } from '@/app/components/entity-attributes/partial-form/types';
-import { TAttribute, TEmail, TPhone } from '@/app/components/individuals/create-form/types';
+import { TAttribute, TEmail, TPhone } from '@/app/components/individuals/form/types';
 import { EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
 
 export const getPhonesInitial = (userId: string) => {
@@ -11,7 +11,7 @@ export const getPhonesInitial = (userId: string) => {
             type: PhoneTypeEnum.mobile,
             createdBy: userId,
             updatedBy: userId
-        } as unknown as TPhone
+        } as TPhone
     ];
 };
 
@@ -23,7 +23,7 @@ export const getEmailsInitial = (userId: string) => {
             type: EmailTypeEnum.main,
             createdBy: userId,
             updatedBy: userId
-        } as unknown as TEmail
+        } as TEmail
     ];
 };
 

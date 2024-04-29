@@ -4,7 +4,7 @@ import {
     DEFAULT_ORDER,
     DEFAULT_ORDER_BY
 } from '@/app/components/invoices/invoices-table/constants';
-import Search from '@/app/components/search';
+import Search from '@/app/components/search/search';
 import {
     getFilteredInvoicesByAccountId,
     getFilteredInvoicesByAccountIdCount
