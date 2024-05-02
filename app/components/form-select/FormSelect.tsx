@@ -1,4 +1,4 @@
-import { BaseTextFieldProps, InputLabel } from '@mui/material';
+import { BaseTextFieldProps, InputBaseProps, InputLabel } from '@mui/material';
 import FormControl, { FormControlProps } from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
 import Select from '@mui/material/Select';
@@ -6,8 +6,18 @@ import { FC, PropsWithChildren } from 'react';
 import { Controller, UseControllerProps } from 'react-hook-form';
 
 const FormSelect: FC<
-    BaseTextFieldProps & FormControlProps & UseControllerProps & PropsWithChildren
-> = ({ name, label, control, defaultValue, error, helperText, children, ...props }) => {
+    BaseTextFieldProps & InputBaseProps & FormControlProps & UseControllerProps & PropsWithChildren
+> = ({
+    name,
+    label,
+    control,
+    defaultValue,
+    error,
+    helperText,
+    children,
+    startAdornment,
+    ...props
+}) => {
     const labelId = `${name}-label`;
 
     return (
@@ -18,7 +28,13 @@ const FormSelect: FC<
                 control={control}
                 defaultValue={defaultValue}
                 render={({ field }) => (
-                    <Select labelId={labelId} label={label} error={error} {...field}>
+                    <Select
+                        labelId={labelId}
+                        label={label}
+                        error={error}
+                        startAdornment={startAdornment}
+                        {...field}
+                    >
                         {children}
                     </Select>
                 )}

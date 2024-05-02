@@ -10,8 +10,9 @@ export interface IProps {
     form?: TIndividualForm;
 }
 
-export type TIndividualForm = z.infer<typeof individualUpdateSchema>;
+export type TIndividualForm = z.input<typeof individualUpdateSchema>;
+export type TIndividualFormOutput = z.output<typeof individualUpdateSchema>;
 export type TIndividualFormControl = Control<TIndividualForm> & Control<FieldValues>;
-export type TPhone = TIndividualForm['phones'][number];
-export type TEmail = TIndividualForm['emails'][number];
-export type TAttribute = TIndividualForm['attributes'][number];
+export type TPhone = TIndividualFormOutput['phones'][number];
+export type TEmail = TIndividualFormOutput['emails'][number];
+export type TAttribute = TIndividualFormOutput['attributes'][number];

@@ -12,7 +12,7 @@ import PartialAttributeForm from '@/app/components/entity-attributes/partial-for
 import { useData } from '@/app/context/data/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { createCustomer, updateCustomer } from '@/app/lib/data/customer';
+import { createIndividualCustomer, updateCustomer } from '@/app/lib/data/customer';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -34,7 +34,7 @@ import PartialPhoneForm from '../../phones/form/PartialPhoneForm';
 import { getDefaultFormValues } from '../utils';
 import { individualCreateSchema, individualUpdateSchema } from './formSchema';
 import { StyledForm } from './styled';
-import { IProps, TIndividualForm, TIndividualFormControl } from './types';
+import { IProps, TIndividualForm, TIndividualFormControl, TIndividualFormOutput } from './types';
 
 const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, form }) => {
     const t = useI18n();
@@ -51,9 +51,9 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
         handleSubmit,
         formState: { errors, isDirty, dirtyFields },
         control
-    } = useForm({
+    } = useForm<TIndividualForm, unknown, TIndividualFormOutput>({
         resolver: zodResolver(form ? individualUpdateSchema : individualCreateSchema),
-        reValidateMode: 'onBlur',
+        reValidateMode: 'onChange',
         defaultValues:
             form ||
             getDefaultFormValues(accountId, userId, userAccountCountry.id, localIdentifierName.id)
@@ -97,13 +97,13 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
     //     console.error('Errors:', errors);
     // }, [errors, w, dirtyFields]);
 
-    const onSubmit = async (formData: TIndividualForm) => {
+    const onSubmit = async (formData: TIndividualFormOutput) => {
         try {
             if (formData.id) {
                 await updateCustomer(formData, dirtyFields, userId);
                 openSnackbar('Successfully updated customer.');
             } else {
-                await createCustomer(formData);
+                await createIndividualCustomer(formData);
                 openSnackbar('Successfully created customer.');
             }
             push('/dashboard/customers');

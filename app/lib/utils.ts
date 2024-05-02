@@ -1,4 +1,8 @@
+import { TSingleTranslationKeys } from '../../locales/types';
 import { AccountRelationEnum, EntitiesEnum } from '@prisma/client';
+import dayjs from 'dayjs';
+import { ChangeEvent } from 'react';
+import { z } from 'zod';
 import { TGetCustomerPayload, TGetCustomerWithInvoicesPayload } from './data/customer/types';
 import {
     TGetUserWithRelationsAndInventoryPayload,
@@ -300,3 +304,46 @@ export function stringToBoolean(str: string) {
     // Ternary operator: condition ? true-value : false-value
     return str.toLowerCase() === 'true' ? true : false;
 }
+
+export function isValidDate(
+    errorMessage: TSingleTranslationKeys = 'invalid date'
+): z.ZodType<Date> {
+    return z.custom(
+        (val) => {
+            return (
+                val instanceof Date ||
+                (typeof val === 'object' &&
+                    val !== null &&
+                    '$isDayjsObject' in val &&
+                    val['$isDayjsObject'] &&
+                    '$d' in val &&
+                    val.$d instanceof Date &&
+                    dayjs(val.$d).isValid())
+            );
+        },
+        { message: errorMessage }
+    );
+}
+
+export const mask2DecimalPlaces = (e: ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    // Masking the price to max 2 decimal places
+    const isMatch = value.match(/(\d+\.\d{3,})/g);
+    if (isMatch) {
+        e.target.value = value.slice(0, -1);
+    }
+};
+
+export const maskPercentage = (e: ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    const numericValue = parseFloat(value);
+    if (isNaN(numericValue)) {
+        return (e.target.value = '');
+    } else if (numericValue > 100) {
+        return (e.target.value = '100.00');
+    } else if (numericValue < 0) {
+        return (e.target.value = '0.00');
+    }
+    // Masking the price to max 2 decimal places
+    mask2DecimalPlaces(e);
+};

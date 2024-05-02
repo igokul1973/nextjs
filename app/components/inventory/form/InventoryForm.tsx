@@ -4,6 +4,7 @@ import { StyledBox } from '@/app/[locale]/dashboard/inventory/create/styled';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
 import { createInventoryItem, updateInventoryItem } from '@/app/lib/data/inventory';
+import { mask2DecimalPlaces } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,13 +14,13 @@ import FormControl from '@mui/material/FormControl';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FC } from 'react';
-import { useForm } from 'react-hook-form';
+import { Control, FieldValues, useForm } from 'react-hook-form';
 import FormSelect from '../../form-select/FormSelect';
 import { TIndividualForm } from '../../individuals/form/types';
 import { getDefaultFormValues } from '../utils';
 import { inventoryCreateSchema, inventoryUpdateSchema } from './formSchema';
 import { StyledForm, StyledMenuItemBox } from './styled';
-import { IProps } from './types';
+import { IProps, TInventoryForm } from './types';
 
 const InventoryForm: FC<IProps> = ({ types, form }) => {
     const t = useI18n();
@@ -36,9 +37,9 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
         handleSubmit,
         formState: { errors, isDirty, dirtyFields },
         control
-    } = useForm({
+    } = useForm<TInventoryForm>({
         resolver: zodResolver(form ? inventoryUpdateSchema : inventoryCreateSchema),
-        reValidateMode: 'onBlur',
+        reValidateMode: 'onChange',
         defaultValues: form || getDefaultFormValues(accountId, userId)
     });
 
@@ -50,9 +51,8 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
     //     console.error('Errors:', errors);
     // }, [errors, w, dirtyFields]);
 
-    const onSubmit = async (formData: TIndividualForm) => {
+    const onSubmit = async (formData: TInventoryForm) => {
         try {
-            console.log('FormData:', formData);
             if (formData.id) {
                 await updateInventoryItem(formData, dirtyFields, userId);
                 openSnackbar('Successfully updated inventory item.');
@@ -91,7 +91,7 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
                     name={'typeId'}
                     label={capitalize(t('type'))}
                     placeholder={capitalize(t('select type'))}
-                    control={control}
+                    control={control as unknown as Control<FieldValues>}
                     required
                     error={!!errors.typeId}
                     helperText={
@@ -124,14 +124,7 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
                             capitalize(t(errors.price.message as TSingleTranslationKeys))
                         }
                         {...register('price', {
-                            onChange: (e) => {
-                                const { value } = e.target as HTMLInputElement;
-                                // Masking the price to max 2 decimal places
-                                const isMatch = value.match(/(\d+\.\d{3,})/g);
-                                if (isMatch) {
-                                    e.target.value = value.slice(0, -1);
-                                }
-                            }
+                            onChange: mask2DecimalPlaces
                         })}
                     />
                 </FormControl>

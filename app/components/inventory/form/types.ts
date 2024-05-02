@@ -1,5 +1,6 @@
 import { TInventoryType } from '@/app/lib/types';
 import { Control, FieldValues } from 'react-hook-form';
+import { z } from 'zod';
 import { inventoryUpdateSchema } from './formSchema';
 
 export interface IProps {
@@ -7,5 +8,5 @@ export interface IProps {
     form?: TInventoryForm;
 }
 
-export type TInventoryForm = z.infer<typeof inventoryUpdateSchema>;
+export type TInventoryForm = z.input<typeof inventoryUpdateSchema>;
 export type TInventoryFormControl = Control<TInventoryForm> & Control<FieldValues>;

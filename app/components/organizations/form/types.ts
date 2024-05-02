@@ -10,8 +10,9 @@ export interface IProps {
     form?: TOrganizationForm;
 }
 
-export type TOrganizationForm = z.infer<typeof organizationUpdateSchema>;
+export type TOrganizationForm = z.input<typeof organizationUpdateSchema>;
+export type TOrganizationFormOutput = z.output<typeof organizationUpdateSchema>;
 export type TOrganizationFormControl = Control<TOrganizationForm> & Control<FieldValues>;
-export type TPhone = TOrganizationForm['phones'][number];
-export type TEmail = TOrganizationForm['emails'][number];
-export type TAttribute = TOrganizationForm['attributes'][number];
+export type TPhone = TOrganizationFormOutput['phones'][number];
+export type TEmail = TOrganizationFormOutput['emails'][number];
+export type TAttribute = TOrganizationFormOutput['attributes'][number];

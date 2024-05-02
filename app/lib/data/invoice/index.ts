@@ -1,13 +1,13 @@
 'use server';
 
-import { TInvoiceForm } from '@/app/components/invoices/form/types';
+import { TInvoiceForm, TInvoiceFormOutput } from '@/app/components/invoices/form/types';
 import prisma from '@/app/lib/prisma';
 import { InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { TDirtyFields, TOrder } from '../../types';
-import { flattenCustomer, formatCurrency } from '../../utils';
+import { flattenCustomer, formatCurrency, getDirtyValues } from '../../utils';
 import {
     ICreateInvoiceState,
     TGetInvoicePayload,
@@ -160,15 +160,21 @@ export async function getFilteredInvoicesByAccountIdCount(accountId: string, que
     }
 }
 
-export async function createInvoice(formData: TInvoiceForm): Promise<ICreateInvoiceState> {
+export async function createInvoice(formData: TInvoiceFormOutput): Promise<ICreateInvoiceState> {
     // Creating invoice in DB
     try {
-        const { invoiceItems, ...invoice } = formData;
+        const { invoiceItems, status, ...invoice } = formData;
 
         console.log('Invoice items: ', invoiceItems);
         console.log('Invoice: ', invoiceItems);
 
-        // await prisma.invoices.create({ data });
+        const data = {
+            status: status as InvoiceStatusEnum,
+            ...invoice,
+            invoiceItems: { create: invoiceItems }
+        };
+
+        await prisma.invoice.create({ data });
         console.log('Successfully created invoice.');
     } catch (error) {
         console.error('Database Error:', error);
@@ -185,9 +191,11 @@ export async function updateInvoice(
     dirtyFields: TDirtyFields<TInvoiceForm>,
     userId: string
 ) {
-    // Creating invoice in DB
+    const changedFields = getDirtyValues<TInvoiceForm>(dirtyFields, formData);
+    const data = { ...changedFields, updatedBy: userId };
+
     try {
-        const { id, ...invoice } = formData;
+        const { id, ...invoice } = data;
         // await prisma.invoice.update({ where: {
         //         id
         //     },

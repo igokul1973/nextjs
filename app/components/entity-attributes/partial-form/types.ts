@@ -3,7 +3,7 @@ import { TIndividualForm, TIndividualFormControl } from '@/app/components/indivi
 import {
     TOrganizationForm,
     TOrganizationFormControl
-} from '@/app/components/organizations/create-form/types';
+} from '@/app/components/organizations/form/types';
 import { FieldErrors, UseFieldArrayRemove } from 'react-hook-form';
 
 export enum AttributeTypeEnum {

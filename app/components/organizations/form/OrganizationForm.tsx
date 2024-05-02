@@ -7,12 +7,16 @@ import {
 } from '@/app/[locale]/dashboard/customers/utils';
 import PartialAddressForm from '@/app/components/address/form/PartialAddressForm';
 import PartialAttributeForm from '@/app/components/entity-attributes/partial-form/EntityAttributeForm';
-import { IProps, TOrganizationFormControl } from '@/app/components/organizations/create-form/types';
+import {
+    IProps,
+    TOrganizationFormControl,
+    TOrganizationFormOutput
+} from '@/app/components/organizations/form/types';
 import PartialPhoneForm from '@/app/components/phones/form/PartialPhoneForm';
 import { useData } from '@/app/context/data/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { createCustomer, updateCustomer } from '@/app/lib/data/customer';
+import { createOrganizationCustomer, updateCustomer } from '@/app/lib/data/customer';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -49,9 +53,9 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
         handleSubmit,
         formState: { errors, isDirty, dirtyFields },
         control
-    } = useForm({
+    } = useForm<TOrganizationForm, unknown, TOrganizationFormOutput>({
         resolver: zodResolver(form ? organizationUpdateSchema : organizationCreateSchema),
-        reValidateMode: 'onBlur',
+        reValidateMode: 'onChange',
         defaultValues:
             form ||
             getDefaultFormValues(account.id, userId, userAccountCountry.id, localIdentifierName.id)
@@ -95,13 +99,13 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
     //     console.error('Errors:', errors);
     // }, [errors, w]);
 
-    const onSubmit = async (formData: TOrganizationForm) => {
+    const onSubmit = async (formData: TOrganizationFormOutput) => {
         try {
             if (formData.id) {
                 await updateCustomer(formData, dirtyFields, userId);
                 openSnackbar('Successfully updated customer.');
             } else {
-                await createCustomer(formData);
+                await createOrganizationCustomer(formData);
                 openSnackbar('Successfully created customer.');
             }
             push('/dashboard/customers');

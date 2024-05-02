@@ -1,7 +1,7 @@
 import IndividualForm from '@/app/components/individuals/form/IndividualForm';
 import { TAttribute, TIndividualForm } from '@/app/components/individuals/form/types';
-import OrganizationForm from '@/app/components/organizations/create-form/OrganizationForm';
-import { TOrganizationForm } from '@/app/components/organizations/create-form/types';
+import OrganizationForm from '@/app/components/organizations/form/OrganizationForm';
+import { TOrganizationForm } from '@/app/components/organizations/form/types';
 import Warning from '@/app/components/warning/Warning';
 import { getCustomerById } from '@/app/lib/data/customer';
 import { getLocalIdentifierNamesByCountryId } from '@/app/lib/data/local-identifier-name';

@@ -13,7 +13,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { EntitiesEnum } from '@prisma/client';
 import { FC, useState } from 'react';
 import IndividualForm from '../../individuals/form/IndividualForm';
-import OrganizationForm from '../../organizations/create-form/OrganizationForm';
+import OrganizationForm from '../../organizations/form/OrganizationForm';
 import Warning from '../../warning/Warning';
 import { ICustomerFormProps } from './types';
 

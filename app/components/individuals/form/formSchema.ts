@@ -4,6 +4,7 @@ import {
     emailsFormSchema,
     phonesFormSchema
 } from '@/app/lib/data/common-form-schemas';
+import { isValidDate } from '@/app/lib/utils';
 import { z } from 'zod';
 
 const baseIndividualFormSchema = z.object({
@@ -26,7 +27,7 @@ const baseIndividualFormSchema = z.object({
     localIdentifierValue: z.string().optional().nullish(),
     accountRelation: z.string(),
     customerId: z.string().optional(),
-    dob: z.coerce.date().nullish().optional(),
+    dob: isValidDate('invalid date').nullish(),
     description: z.string().nullish().optional(),
     createdBy: z.string(),
     updatedBy: z.string()

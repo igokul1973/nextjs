@@ -282,7 +282,7 @@ CREATE TABLE "invoices" (
     "additional_information" TEXT,
     "pay_by" TIMESTAMPTZ(3) NOT NULL,
     "paid_on" TIMESTAMPTZ(3),
-    "payment_info" TEXT NOT NULL,
+    "payment_info" TEXT,
     "terms" TEXT,
     "tax" INTEGER NOT NULL DEFAULT 0,
     "discount" INTEGER NOT NULL DEFAULT 0,

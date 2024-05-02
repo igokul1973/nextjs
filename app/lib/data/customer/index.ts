@@ -1,7 +1,12 @@
 'use server';
 
-import { TEmail, TIndividualForm, TPhone } from '@/app/components/individuals/form/types';
-import { TOrganizationForm } from '@/app/components/organizations/create-form/types';
+import {
+    TEmail,
+    TIndividualForm,
+    TIndividualFormOutput,
+    TPhone
+} from '@/app/components/individuals/form/types';
+import { TOrganizationForm } from '@/app/components/organizations/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TOrder } from '@/app/lib/types';
 import { flattenCustomer, formatCurrency, getDirtyValues } from '@/app/lib/utils';
@@ -199,8 +204,7 @@ export async function getFilteredCustomersCountByAccountId(
         throw new Error('Failed to fetch customers count.');
     }
 }
-
-export async function createCustomer(formData: TIndividualForm | TOrganizationForm) {
+export async function createIndividualCustomer(formData: TIndividualFormOutput) {
     try {
         const {
             address,
@@ -244,30 +248,12 @@ export async function createCustomer(formData: TIndividualForm | TOrganizationFo
                 }
             }
         };
-        if ('typeId' in createEntityObject) {
-            const { typeId, ...createEntityObjectWithoutType } = createEntityObject;
 
-            const createEntityObjectWithType = {
-                ...createEntityObjectWithoutType,
-                type: {
-                    connect: {
-                        id: typeId
-                    }
-                }
-            };
-
-            data = {
-                organization: {
-                    create: createEntityObjectWithType
-                }
-            };
-        } else if ('firstName' in createEntityObject) {
-            data = {
-                individual: {
-                    create: createEntityObject
-                }
-            };
-        }
+        data = {
+            individual: {
+                create: createEntityObject
+            }
+        };
 
         if (!data) {
             throw new Error('Failed to create customer.');
@@ -283,7 +269,88 @@ export async function createCustomer(formData: TIndividualForm | TOrganizationFo
             }
         });
 
-        console.log('Successfully created new customer: ', newCustomer);
+        console.log('Successfully created new individual customer: ', newCustomer);
+
+        revalidatePath('/dashboard/customers');
+        return newCustomer;
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw error;
+    }
+}
+
+export async function createOrganizationCustomer(formData: TOrganizationForm) {
+    try {
+        const {
+            typeId,
+            address,
+            phones,
+            emails,
+            accountRelation,
+            localIdentifierNameId,
+            accountId,
+            ...entity
+        } = formData;
+
+        let data: Prisma.XOR<
+            Prisma.customerCreateInput,
+            Prisma.customerUncheckedCreateInput
+        > | null = null;
+
+        const createEntityObject = {
+            ...entity,
+            type: {
+                connect: {
+                    id: typeId
+                }
+            },
+            accountRelation: accountRelation as AccountRelationEnum,
+            account: {
+                connect: {
+                    id: accountId
+                }
+            },
+            localIdentifierName: {
+                connect: {
+                    id: localIdentifierNameId
+                }
+            },
+            address: {
+                create: address
+            },
+            phones: {
+                create: phones as unknown as Omit<TPhone, 'type'> & {
+                    type: PhoneTypeEnum;
+                }
+            },
+            emails: {
+                create: emails as unknown as Omit<TEmail, 'type'> & {
+                    type: EmailTypeEnum;
+                }
+            }
+        };
+
+        data = {
+            organization: {
+                create: createEntityObject
+            }
+        };
+
+        if (!data) {
+            throw new Error('Failed to create customer.');
+        }
+
+        const newCustomer = await prisma.customer.create({
+            data,
+            select: {
+                id: true,
+                isActive: true,
+                organization: true,
+                individual: true
+            }
+        });
+
+        console.log('Successfully created new organization customer: ', newCustomer);
 
         revalidatePath('/dashboard/customers');
         return newCustomer;

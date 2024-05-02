@@ -43,8 +43,13 @@ export type TDirtyFields<T> = {
         ? TDirtyFields<T[K]>
         : T[K] extends Array<Record<string, unknown>>
           ? TDirtyFields<T[K][number]>[]
-          : boolean | undefined;
+          : T[K] extends Array<string> | undefined
+            ? boolean[] | undefined
+            : boolean | undefined | TDirtyFields<T>;
 };
+
+const k = {} as TDirtyFields<TInvoiceForm>;
+const l = k.purchaseOrderNumbers;
 
 import { OverridableComponent } from '@mui/material/OverridableComponent';
 import { SvgIconTypeMap } from '@mui/material/SvgIcon';
@@ -67,6 +72,7 @@ import type {
     profile as TProfile,
     user as TUser
 } from '@prisma/client';
+import { TInvoiceForm } from '../components/invoices/form/types';
 import { TGetCustomerPayload } from './data/customer/types';
 
 export {

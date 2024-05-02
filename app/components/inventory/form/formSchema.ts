@@ -21,7 +21,16 @@ const baseInventoryFormSchema = z.object({
             invalid_type_error: 'must be a number'
         })
         .gte(0.01, { message: 'the price cannot be less than 0.01' })
-        .transform((val) => {
+        .nullable()
+        .transform((val, ctx) => {
+            if (val === null) {
+                ctx.addIssue({
+                    code: 'invalid_type',
+                    expected: 'number',
+                    received: 'null'
+                });
+                return z.NEVER;
+            }
             return Math.floor(val * 100);
         }),
     externalCode: z.string().optional(),
@@ -31,11 +40,17 @@ const baseInventoryFormSchema = z.object({
         .number()
         .gte(0.01, { message: 'the price cannot be less than 0.01' })
         .or(z.literal(''))
-        .optional()
-        .transform((val) => {
-            if (val) {
-                return Math.floor(val * 100);
+        .nullish()
+        .transform((val, ctx) => {
+            if (val === null) {
+                ctx.addIssue({
+                    code: 'invalid_type',
+                    expected: 'number',
+                    received: 'null'
+                });
+                return z.NEVER;
             }
+            return val && Math.floor(val * 100);
         }),
     createdBy: z.string(),
     updatedBy: z.string()

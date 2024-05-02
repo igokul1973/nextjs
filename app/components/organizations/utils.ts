@@ -4,7 +4,7 @@ import {
     getPhonesInitial
 } from '@/app/[locale]/dashboard/customers/utils';
 import { AccountRelationEnum } from '@prisma/client';
-import { TOrganizationForm } from './create-form/types';
+import { TOrganizationForm } from './form/types';
 
 export const getDefaultFormValues = (
     accountId: string,

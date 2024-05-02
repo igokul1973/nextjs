@@ -367,7 +367,7 @@ model invoice {
   payBy                      DateTime          @map("pay_by") @db.Timestamptz(3)
   paidOn                     DateTime?         @map("paid_on") @db.Timestamptz(3)
   // How to pay
-  paymentInfo                String            @map("payment_info") @db.Text
+  paymentInfo                String?           @map("payment_info") @db.Text
   // Any additional terms and conditions
   terms                      String?           @db.Text
   // Tax percentage (can be state sales tax in USA or VAT in Europe)

@@ -1,8 +1,9 @@
 'use server';
 
+import { DEFAULT_ITEMS_PER_PAGE } from '@/app/[locale]/dashboard/inventory/constants';
 import { TInventoryForm } from '@/app/components/inventory/form/types';
 import prisma from '@/app/lib/prisma';
-import { TDirtyFields, TOrder } from '@/app/lib/types';
+import { TDirtyFields, TInventory, TInventoryType, TOrder } from '@/app/lib/types';
 import { formatCurrency, getDirtyValues } from '@/app/lib/utils';
 import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
@@ -37,14 +38,14 @@ export async function getInventoryItemById(id: string): Promise<TGetInventoryPay
     }
 }
 
-export async function getFilteredInventoryByAccountId(
+export async function getFilteredInventoryByAccountIdRaw(
     accountId: string,
     query: string,
-    currentPage: number,
-    itemsPerPage: number,
+    currentPage: number = 0,
+    itemsPerPage: number = DEFAULT_ITEMS_PER_PAGE,
     orderBy: string = 'name',
     order: TOrder = 'asc'
-) {
+): Promise<(TInventory & { type: TInventoryType })[]> {
     noStore();
 
     const offset = currentPage * itemsPerPage;
@@ -66,26 +67,44 @@ export async function getFilteredInventoryByAccountId(
         | Prisma.inventoryOrderByWithRelationInput[] =
         orderBy === 'type' ? { type: { type: order } } : { [orderBy]: order };
 
+    return await prisma.inventory.findMany({
+        relationLoadStrategy: 'join',
+        take: itemsPerPage,
+        skip: offset,
+        orderBy: orderByClause,
+        include: {
+            type: true
+        },
+        where: {
+            AND: [
+                {
+                    accountId: {
+                        equals: accountId
+                    }
+                },
+                queryFilterWhereClause
+            ]
+        }
+    });
+}
+
+export async function getFilteredInventoryByAccountId(
+    accountId: string,
+    query: string,
+    currentPage: number = 0,
+    itemsPerPage: number = DEFAULT_ITEMS_PER_PAGE,
+    orderBy: string = 'name',
+    order: TOrder = 'asc'
+) {
     try {
-        const inventory = await prisma.inventory.findMany({
-            relationLoadStrategy: 'join',
-            take: itemsPerPage,
-            skip: offset,
-            orderBy: orderByClause,
-            include: {
-                type: true
-            },
-            where: {
-                AND: [
-                    {
-                        accountId: {
-                            equals: accountId
-                        }
-                    },
-                    queryFilterWhereClause
-                ]
-            }
-        });
+        const inventory = await getFilteredInventoryByAccountIdRaw(
+            accountId,
+            query,
+            currentPage,
+            itemsPerPage,
+            orderBy,
+            order
+        );
 
         return inventory.map((inventoryItem) => {
             return {
