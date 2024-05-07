@@ -17,7 +17,6 @@ import { useData } from '@/app/context/data/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
 import { createOrganizationCustomer, updateCustomer } from '@/app/lib/data/customer';
-import { anyTrue } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,7 +30,7 @@ import TextField from '@mui/material/TextField';
 import { EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import PartialEmailForm from '../../emails/form/PartialEmailForm';
@@ -40,6 +39,7 @@ import { getDefaultFormValues } from '../utils';
 import { organizationCreateSchema, organizationUpdateSchema } from './formSchema';
 import { StyledForm } from './styled';
 import { TOrganizationForm } from './types';
+import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 
 const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, form }) => {
     const { countries, organizationTypes } = useData();
@@ -93,6 +93,14 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
         control
     });
 
+    const [canFocus, setCanFocus] = useState(true);
+
+    const onError = () => {
+        setCanFocus(true);
+    };
+
+    useScrollToFormError(errors, canFocus, setCanFocus);
+
     // const w = watch();
 
     // useEffect(() => {
@@ -119,7 +127,7 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
     const isSubmittable = isDirty;
 
     return (
-        <StyledForm onSubmit={handleSubmit(onSubmit)} noValidate>
+        <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
             <FormControl>
                 <TextField
                     label={capitalize(t('organization name'))}

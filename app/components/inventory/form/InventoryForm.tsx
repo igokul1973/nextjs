@@ -4,6 +4,7 @@ import { StyledBox } from '@/app/[locale]/dashboard/inventory/create/styled';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
 import { createInventoryItem, updateInventoryItem } from '@/app/lib/data/inventory';
+import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { anyTrue, mask2DecimalPlaces } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
@@ -13,7 +14,7 @@ import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { Control, FieldValues, useForm } from 'react-hook-form';
 import FormSelect from '../../form-select/FormSelect';
 import { getDefaultFormValues } from '../utils';
@@ -50,6 +51,14 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
     //     console.error('Errors:', errors);
     // }, [errors, w, dirtyFields]);
 
+    const [canFocus, setCanFocus] = useState(true);
+
+    const onError = () => {
+        setCanFocus(true);
+    };
+
+    useScrollToFormError(errors, canFocus, setCanFocus);
+
     const onSubmit = async (formData: TInventoryFormOutput) => {
         try {
             if (formData.id) {
@@ -70,7 +79,7 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
     return (
         <StyledBox component='section'>
             {/* Inventory Name */}
-            <StyledForm onSubmit={handleSubmit(onSubmit)} noValidate>
+            <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
                 <FormControl>
                     <TextField
                         label={capitalize(t('name'))}

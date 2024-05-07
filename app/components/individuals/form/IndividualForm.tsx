@@ -13,6 +13,7 @@ import { useData } from '@/app/context/data/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
 import { createIndividualCustomer, updateCustomer } from '@/app/lib/data/customer';
+import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,7 +28,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FC, useEffect } from 'react';
+import { FC, useState } from 'react';
 import { Control, useFieldArray, useForm } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import PartialPhoneForm from '../../phones/form/PartialPhoneForm';
@@ -46,7 +47,7 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
     const { push } = useRouter();
 
     const {
-        watch,
+        // watch,
         register,
         handleSubmit,
         formState: { errors, isDirty, dirtyFields },
@@ -89,13 +90,21 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
         control
     });
 
-    const w = watch();
+    // const w = watch();
 
-    useEffect(() => {
-        console.log('DirtyFields:', dirtyFields);
-        console.log('Watch:', w);
-        console.error('Errors:', errors);
-    }, [errors, w, dirtyFields]);
+    // useEffect(() => {
+    //     console.log('DirtyFields:', dirtyFields);
+    //     console.log('Watch:', w);
+    //     console.error('Errors:', errors);
+    // }, [errors, w, dirtyFields]);
+
+    const [canFocus, setCanFocus] = useState(true);
+
+    const onError = () => {
+        setCanFocus(true);
+    };
+
+    useScrollToFormError(errors, canFocus, setCanFocus);
 
     const onSubmit = async (formData: TIndividualFormOutput) => {
         try {
@@ -119,7 +128,7 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <StyledForm onSubmit={handleSubmit(onSubmit)} noValidate>
+            <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
                 <FormControl>
                     <TextField
                         label={capitalize(t('first name'))}
