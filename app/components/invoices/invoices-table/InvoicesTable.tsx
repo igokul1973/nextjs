@@ -333,7 +333,7 @@ const InvoicesTable: FC<IProps> = ({ invoices, count }) => {
                                                     color='primary'
                                                     aria-label='edit'
                                                     onClick={() => {
-                                                        push(`/dashboard/inventory/${row.id}/edit`);
+                                                        push(`/dashboard/invoices/${row.id}/edit`);
                                                     }}
                                                 >
                                                     <EditIcon />

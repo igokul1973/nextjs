@@ -755,7 +755,7 @@ async function seedInvoices() {
                         customerAddressLine3: address.addressLine3,
                         customerLocality: address.locality,
                         customerRegion: address.region,
-                        customerPostalCode: address.postcode,
+                        customerPostCode: address.postcode,
                         customerCountry: address.country.name,
                         customerPhone,
                         customerEmail,

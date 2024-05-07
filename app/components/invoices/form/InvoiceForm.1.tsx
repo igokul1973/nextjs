@@ -25,7 +25,7 @@ import { invoiceCreateSchema, invoiceUpdateSchema } from './formSchema';
 import { StyledForm } from './styled';
 import { IProps, TInvoiceForm } from './types';
 
-export const InvoiceForm: FC<IProps> = ({ customers, form }) => {
+export const InvoiceForm: FC<IProps> = ({ customers, defaultValues: form }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const { user } = useUser();

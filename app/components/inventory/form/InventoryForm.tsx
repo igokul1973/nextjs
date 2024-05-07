@@ -4,7 +4,7 @@ import { StyledBox } from '@/app/[locale]/dashboard/inventory/create/styled';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
 import { createInventoryItem, updateInventoryItem } from '@/app/lib/data/inventory';
-import { mask2DecimalPlaces } from '@/app/lib/utils';
+import { anyTrue, mask2DecimalPlaces } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,11 +16,10 @@ import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { Control, FieldValues, useForm } from 'react-hook-form';
 import FormSelect from '../../form-select/FormSelect';
-import { TIndividualForm } from '../../individuals/form/types';
 import { getDefaultFormValues } from '../utils';
 import { inventoryCreateSchema, inventoryUpdateSchema } from './formSchema';
 import { StyledForm, StyledMenuItemBox } from './styled';
-import { IProps, TInventoryForm } from './types';
+import { IProps, TInventoryForm, TInventoryFormOutput } from './types';
 
 const InventoryForm: FC<IProps> = ({ types, form }) => {
     const t = useI18n();
@@ -35,9 +34,9 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
         // watch,
         register,
         handleSubmit,
-        formState: { errors, isDirty, dirtyFields },
+        formState: { errors, dirtyFields },
         control
-    } = useForm<TInventoryForm>({
+    } = useForm<TInventoryForm, unknown, TInventoryFormOutput>({
         resolver: zodResolver(form ? inventoryUpdateSchema : inventoryCreateSchema),
         reValidateMode: 'onChange',
         defaultValues: form || getDefaultFormValues(accountId, userId)
@@ -51,7 +50,7 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
     //     console.error('Errors:', errors);
     // }, [errors, w, dirtyFields]);
 
-    const onSubmit = async (formData: TInventoryForm) => {
+    const onSubmit = async (formData: TInventoryFormOutput) => {
         try {
             if (formData.id) {
                 await updateInventoryItem(formData, dirtyFields, userId);
@@ -66,7 +65,7 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
         }
     };
 
-    const isSubmittable = !!isDirty;
+    const isSubmittable = anyTrue(dirtyFields);
 
     return (
         <StyledBox component='section'>

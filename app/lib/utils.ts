@@ -1,8 +1,9 @@
-import { TSingleTranslationKeys } from '../../locales/types';
 import { AccountRelationEnum, EntitiesEnum } from '@prisma/client';
 import dayjs from 'dayjs';
 import { ChangeEvent } from 'react';
 import { z } from 'zod';
+import { TSingleTranslationKeys } from '../../locales/types';
+import { TCustomerOutput } from '../components/invoices/form/types';
 import { TGetCustomerPayload, TGetCustomerWithInvoicesPayload } from './data/customer/types';
 import {
     TGetUserWithRelationsAndInventoryPayload,
@@ -17,6 +18,8 @@ import {
     TIndividual,
     TOrgWithNonNullableCustomer
 } from './types';
+
+export const objectKeys = Object.keys as unknown as <T>(o: T) => (keyof T)[];
 
 export const formatCurrency = (amount: number) => {
     return (amount / 100).toLocaleString('en-US', {
@@ -93,38 +96,42 @@ export function getProviderName(
     return 'No provider name';
 }
 
-export type TFlattenedCustomer = {
-    id: string;
-    type: EntitiesEnum;
-    name: string;
-    email: string;
-    phone: string;
-};
-
 export function flattenCustomer(
     rawCustomer: TGetCustomerPayload | TGetCustomerWithInvoicesPayload
-): TFlattenedCustomer {
+): TCustomerOutput {
     const entity = rawCustomer.individual || rawCustomer.organization;
     if (!entity) {
         throw Error('The customer organization or individual is not found. Please add one first.');
     }
 
-    const name =
+    const customerName =
         'firstName' in entity
             ? getIndividualFullNameString(entity as unknown as TIndividual)
             : entity.name;
 
-    const type = 'firstName' in entity ? EntitiesEnum.individual : EntitiesEnum.organization;
+    const customerType =
+        'firstName' in entity ? EntitiesEnum.individual : EntitiesEnum.organization;
+    const customerAddress =
+        'firstName' in entity ? rawCustomer.individual?.address : rawCustomer.organization?.address;
+    if (!customerAddress) {
+        throw Error('Something is not right with the customer address.');
+    }
 
     return {
-        id: rawCustomer.id,
-        type,
-        name,
-        email: entity.emails && entity.emails.length ? entity.emails[0].email : 'no email provided',
-        phone:
-            entity.phones && entity.phones.length
-                ? `+${entity.phones[0].countryCode}-${entity.phones[0].number}`
-                : 'no phone provided'
+        customerId: rawCustomer.id,
+        customerName,
+        customerType,
+        customerAddressLine1: customerAddress.addressLine1,
+        customerAddressLine2: customerAddress.addressLine2,
+        customerAddressLine3: customerAddress.addressLine3,
+        customerLocality: customerAddress.locality,
+        customerRegion: customerAddress.region,
+        customerPostCode: customerAddress.postcode,
+        customerCountry: customerAddress.country.name,
+        customerPhone: entity.phones.length
+            ? `+${entity.phones[0].countryCode}-${entity.phones[0].number}`
+            : 'no phone provided',
+        customerEmail: entity.emails.length ? entity.emails[0].email : 'no email provided'
     };
 }
 
@@ -247,8 +254,10 @@ export const deNullifyObject = <T extends Record<string, unknown>>(obj: T): TNul
         for (const key in obj) {
             if (obj.hasOwnProperty(key)) {
                 if (obj[key] === null) {
+                    // Leaf with null value will be turned to undefined
                     denullifiedEntity = { ...denullifiedEntity, [key]: undefined };
                 } else if (Array.isArray(obj[key])) {
+                    // Array leaf
                     const a = obj[key] as unknown[];
                     const transformedArrayElements = a.map((item: unknown) => {
                         if (item === null) {
@@ -274,8 +283,9 @@ export function getDirtyValues<T>(
     dirtyFields: T | TDirtyFields<T>,
     allValues: T
 ): Partial<T> | undefined {
-    // If *any* item in an array was modified, the entire array must be submitted, because there's no way to indicate
-    // "placeholders" for unchanged elements. `dirtyFields` is `true` for leaves.
+    // If *any* item in an array was modified, the entire array must be submitted,
+    // because there's no way to indicate "placeholders" for unchanged elements.
+    // `dirtyFields` is `true` for leaves.
     if ((Array.isArray(dirtyFields) && Array.isArray(allValues)) || dirtyFields === true) {
         return allValues;
     }
@@ -287,16 +297,30 @@ export function getDirtyValues<T>(
         dirtyFields !== null &&
         allValues !== null
     ) {
-        const transformedFields = Object.keys(dirtyFields).map((key) => {
+        // const transformedFields = Object.keys(dirtyFields).map((key) => {
+        //     if (!(key in allValues)) {
+        //         return [key, undefined];
+        //     }
+        //     const nestedDirtyFields = (dirtyFields as Record<string, unknown>)[key];
+        //     const nestedAllValues = (allValues as Record<string, unknown>)[key];
+        //     const result = getDirtyValues(nestedDirtyFields, nestedAllValues);
+        //     return [key, result];
+        // });
+        const transformedFields = Object.keys(dirtyFields).reduce((acc, key) => {
             if (!(key in allValues)) {
-                return [key, undefined];
+                return acc;
             }
             const nestedDirtyFields = (dirtyFields as Record<string, unknown>)[key];
             const nestedAllValues = (allValues as Record<string, unknown>)[key];
             const result = getDirtyValues(nestedDirtyFields, nestedAllValues);
-            return [key, result];
-        });
-        return Object.fromEntries(transformedFields);
+            if (result === undefined) {
+                return acc;
+            }
+            return { ...acc, [key]: result };
+        }, {});
+
+        // return Object.fromEntries(transformedFields);
+        return Object.keys(transformedFields).length > 0 ? transformedFields : undefined;
     }
 }
 
@@ -305,25 +329,38 @@ export function stringToBoolean(str: string) {
     return str.toLowerCase() === 'true' ? true : false;
 }
 
-export function isValidDate(
-    errorMessage: TSingleTranslationKeys = 'invalid date'
-): z.ZodType<Date> {
+export function isDayJsDate(val: unknown) {
+    return (
+        typeof val === 'object' &&
+        val !== null &&
+        '$isDayjsObject' in val &&
+        val['$isDayjsObject'] &&
+        '$d' in val &&
+        val.$d instanceof Date &&
+        dayjs(val.$d).isValid()
+    );
+}
+
+export function isValidDate(errorMessage: TSingleTranslationKeys): z.ZodType<Date> {
+    debugger;
     return z.custom(
         (val) => {
-            return (
-                val instanceof Date ||
-                (typeof val === 'object' &&
-                    val !== null &&
-                    '$isDayjsObject' in val &&
-                    val['$isDayjsObject'] &&
-                    '$d' in val &&
-                    val.$d instanceof Date &&
-                    dayjs(val.$d).isValid())
-            );
+            return val instanceof Date || isDayJsDate(val);
         },
         { message: errorMessage }
     );
 }
+
+export const maskMax3Digits = (e: ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    // Masking the price to max 3 digits
+    // by finding input values that contain more
+    // than 3 digits and removing the last digit.
+    const isMatch = value.match(/(\d{4,})/g);
+    if (isMatch) {
+        e.target.value = value.slice(0, -1);
+    }
+};
 
 export const mask2DecimalPlaces = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -347,3 +384,252 @@ export const maskPercentage = (e: ChangeEvent<HTMLInputElement>) => {
     // Masking the price to max 2 decimal places
     mask2DecimalPlaces(e);
 };
+
+export const anyTrue = (
+    obj: Record<string, unknown> | Record<string, unknown>[] | boolean[]
+): boolean => {
+    if (Array.isArray(obj)) {
+        if (obj.length === 0) {
+            return false;
+        }
+        return obj.some((item) => {
+            if (typeof item === 'boolean') {
+                return item;
+            } else {
+                return anyTrue(item);
+            }
+        });
+    }
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            const value = obj[key];
+            if (value === true) {
+                return true;
+            } else if (typeof value === 'object' && value !== null) {
+                if (anyTrue(value as Record<string, unknown>)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+};
+
+/**
+ * Deep compares two objects to determine if they are equal
+ *
+ * @param obj1 - The first object to compare
+ * @param obj2 - The second object to compare
+ * @returns true if the objects are equal, false otherwise
+ */
+function deepCompareObjects(obj1: unknown, obj2: unknown): boolean {
+    // Check if the objects are the same type
+    if (typeof obj1 !== typeof obj2) {
+        return false;
+    }
+
+    // Check if the objects are arrays
+    if (Array.isArray(obj1) && Array.isArray(obj2)) {
+        if (obj1.length !== obj2.length) {
+            return false;
+        }
+        for (let i = 0; i < obj1.length; i++) {
+            if (!deepCompareObjects(obj1[i], obj2[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Check if the objects are objects
+    if (typeof obj1 === 'object' && obj1 !== null && typeof obj2 === 'object' && obj2 !== null) {
+        const keys1 = Object.keys(obj1);
+        const keys2 = Object.keys(obj2);
+        if (keys1.length !== keys2.length) {
+            return false;
+        }
+        for (const key of keys1) {
+            if (
+                !deepCompareObjects(
+                    (obj1 as Record<string, unknown>)[key] as unknown,
+                    (obj2 as Record<string, unknown>)[key]
+                )
+            ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Compare primitive values
+    return obj1 === obj2;
+}
+
+/**
+ * If the values contains null, undefined or an empty string, it will recursively
+ * populate it with the default value from `defaultValues` argument.
+ * Both argument must be objects with the same shape.
+ */
+export const populateForm = <R>(
+    defaultValues: Record<string, unknown>,
+    values: Record<string, unknown>
+): R => {
+    const populateArray = (
+        defaultValuesArray: unknown[],
+        valuesArray: unknown[] /* , accumulator: Record<string, unknown> = {}, key: string */
+    ): unknown[] => {
+        return valuesArray.map((item, index) => {
+            if (
+                typeof item === 'object' &&
+                item !== null &&
+                typeof defaultValuesArray[index] === 'object' &&
+                defaultValuesArray[index] !== null &&
+                !Array.isArray(item) &&
+                !Array.isArray(defaultValuesArray[index])
+            ) {
+                return populateForm(
+                    defaultValuesArray[index] as Record<string, unknown>,
+                    item as Record<string, unknown>
+                );
+            } else if (Array.isArray(item) && Array.isArray(defaultValuesArray[index])) {
+                return populateArray(defaultValuesArray[index] as unknown[], item as unknown[]);
+            } else if (item === null || item === undefined || item === '') {
+                // Small assumption that instead of null or undefined, it will be an empty string
+                return defaultValuesArray[index] || '';
+            } else {
+                return item;
+            }
+        });
+    };
+
+    const keys = Object.keys(defaultValues);
+
+    return keys.reduce(
+        (acc, key) => {
+            if (key in values) {
+                // If OBJECT
+                if (
+                    typeof values[key] === 'object' &&
+                    values[key] !== null &&
+                    typeof defaultValues[key] === 'object' &&
+                    defaultValues[key] !== null &&
+                    !Array.isArray(values[key]) &&
+                    !Array.isArray(defaultValues[key])
+                ) {
+                    if (Object.keys(values[key] as Record<string, unknown>).length > 0) {
+                        acc[key] = populateForm(
+                            defaultValues[key] as Record<string, unknown>,
+                            values[key] as Record<string, unknown>
+                        );
+                    } else {
+                        acc[key] = defaultValues[key];
+                    }
+                    return acc;
+                }
+
+                // If ARRAY
+                if (Array.isArray(values[key]) && Array.isArray(defaultValues[key])) {
+                    const defaultValuesArray = defaultValues[key] as unknown[];
+                    const valuesArray = values[key] as unknown[];
+                    acc[key] = !valuesArray.length
+                        ? defaultValuesArray
+                        : populateArray(defaultValuesArray, valuesArray);
+                    return acc;
+                }
+
+                // If EMPTY VALUE
+                if (values[key] === null || values[key] === undefined || values[key] === '') {
+                    acc[key] = defaultValues[key];
+                } else {
+                    // In all other cases
+                    acc[key] = values[key];
+                }
+                return acc;
+            }
+            acc[key] = defaultValues[key];
+            return acc;
+        },
+        {} as Record<string, unknown>
+    );
+};
+
+const defValues = {
+    name: 'test',
+    age: 20,
+    isGood: false,
+    address: {
+        street: 'test',
+        city: 'test',
+        state: 'test',
+        visits: [[1, 2, 3]]
+    },
+    phones: [
+        {
+            number: 'test',
+            type: 'test'
+        }
+    ],
+    emails: ['something', { nothing: 'special' }],
+    something: [false, 20],
+    foo: [true, 40],
+    mother: '',
+    father: null,
+    son: '',
+    daughter: 'nothing',
+    grandson: 'other'
+};
+
+const realValues = {
+    name: 'real',
+    age: 0,
+    isGood: true,
+    address: {
+        street: 'real',
+        city: 'real',
+        state: '',
+        visits: [[4, 5, 6]]
+    },
+    phones: [
+        {
+            number: 'real',
+            type: null
+        }
+    ],
+    emails: [],
+    something: [true, 20, 40],
+    foo: [],
+    mother: '',
+    father: null,
+    son: null,
+    daughter: 'something',
+    grandson: undefined
+};
+const expectedAnswer = {
+    name: 'real',
+    age: 0,
+    isGood: true,
+    address: {
+        street: 'real',
+        city: 'real',
+        state: 'test',
+        visits: [[4, 5, 6]]
+    },
+    phones: [
+        {
+            number: 'real',
+            type: 'test'
+        }
+    ],
+    emails: ['something', { nothing: 'special' }],
+    something: [true, 20, 40],
+    foo: [true, 40],
+    mother: '',
+    father: null,
+    son: '',
+    daughter: 'something',
+    grandson: 'other'
+};
+
+const f = populateForm(defValues, realValues);
+console.log(deepCompareObjects(f, expectedAnswer));
+console.log(f);

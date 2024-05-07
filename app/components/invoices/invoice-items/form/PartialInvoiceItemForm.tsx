@@ -71,6 +71,30 @@ const PartialInvoiceItemForm: FC<IProps> = ({
         }
     };
 
+    const matchInventory = (input: TInventory, value: string) => {
+        const lowerCaseValue = value.toLocaleLowerCase();
+        return (
+            input.id === lowerCaseValue ||
+            input.name.toLocaleLowerCase().includes(lowerCaseValue) ||
+            input.description?.toLocaleLowerCase().includes(lowerCaseValue) ||
+            input.internalCode?.toLocaleLowerCase().includes(lowerCaseValue) ||
+            input.manufacturerCode?.toLocaleLowerCase().includes(lowerCaseValue) ||
+            input.externalCode?.toLocaleLowerCase().includes(lowerCaseValue)
+        );
+    };
+
+    const getInventoryItemErrorMessage = (error: NonNullable<typeof inventoryItemError>) => {
+        if ('message' in error) {
+            return capitalize(t(error.message as TSingleTranslationKeys));
+        } else if ('id' in error && error.id) {
+            return capitalize(t(error.id.message as TSingleTranslationKeys));
+        } else if ('name' in error && error.name) {
+            return capitalize(t(error.name.message as TSingleTranslationKeys));
+        } else {
+            return '';
+        }
+    };
+
     return (
         <StyledBox>
             <Box>
@@ -87,28 +111,38 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                                             : null
                                     }
                                     options={inventory}
+                                    filterOptions={(options, value) => {
+                                        return options.filter((option) =>
+                                            matchInventory(option, value.inputValue)
+                                        );
+                                    }}
                                     onChange={(_, inventoryItem) => {
                                         setAdditionalValues(inventoryItem);
                                         onChange(inventoryItem);
                                     }}
                                     onInputChange={(_, value) => {
-                                        debouncedHandleGetInventory(value);
+                                        if (
+                                            !value ||
+                                            !inventory.find((ii) => matchInventory(ii, value))
+                                        ) {
+                                            console.log('Getting the inventory');
+                                            debouncedHandleGetInventory(value);
+                                        }
                                     }}
-                                    getOptionLabel={(option) => option.name}
+                                    getOptionLabel={(option) => {
+                                        return option.name;
+                                    }}
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
                                             error={!!inventoryItemError}
                                             helperText={
                                                 !!inventoryItemError &&
-                                                capitalize(
-                                                    t(
-                                                        inventoryItemError.message as TSingleTranslationKeys
-                                                    )
-                                                )
+                                                getInventoryItemErrorMessage(inventoryItemError)
                                             }
                                             label={capitalize(t('inventory item name'))}
                                             placeholder={capitalize(t('enter inventory item name'))}
+                                            inputRef={field.ref}
                                         />
                                     )}
                                     {...field}
@@ -130,6 +164,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                             inputMode: 'decimal'
                         }}
                         variant='outlined'
+                        required
                         disabled
                         error={!!priceError}
                         helperText={
@@ -149,7 +184,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                         label={capitalize(t('quantity'))}
                         inputProps={{
                             type: 'number',
-                            inputMode: 'numeric',
+                            inputMode: 'decimal',
                             minLength: 1,
                             step: '1'
                         }}
@@ -158,9 +193,12 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                         error={!!quantityError}
                         helperText={
                             !!quantityError &&
-                            capitalize(t(quantityError.message as TSingleTranslationKeys))
+                            capitalize(
+                                t(quantityError.message as TSingleTranslationKeys, { count: 0 })
+                            )
                         }
                         {...register(`invoiceItems.${index}.quantity`, {
+                            valueAsNumber: true,
                             onChange: mask2DecimalPlaces
                         })}
                     />

@@ -1,7 +1,7 @@
 'use server';
 
 import { DEFAULT_ITEMS_PER_PAGE } from '@/app/[locale]/dashboard/inventory/constants';
-import { TInventoryForm } from '@/app/components/inventory/form/types';
+import { TInventoryForm, TInventoryFormOutput } from '@/app/components/inventory/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TInventory, TInventoryType, TOrder } from '@/app/lib/types';
 import { formatCurrency, getDirtyValues } from '@/app/lib/utils';
@@ -157,19 +157,18 @@ export async function getFilteredInventoryCount(accountId: string, query: string
     }
 }
 
-export async function createInventoryItem(formData: TInventoryForm) {
+export async function createInventoryItem(formData: TInventoryFormOutput) {
     try {
         const newInventoryItem = await prisma.inventory.create({
             data: formData
         });
 
         console.log('Successfully created new inventory item: ', newInventoryItem);
-
         revalidatePath('/dashboard/inventory');
         return newInventoryItem;
     } catch (error) {
         console.error('Database Error:', error);
-        throw error;
+        throw new Error('Database Error: Failed to create inventory.');
     }
 }
 
@@ -179,6 +178,11 @@ export async function updateInventoryItem(
     userId: string
 ) {
     const changedFields = getDirtyValues<TInventoryForm>(dirtyFields, formData);
+
+    if (!changedFields) {
+        return null;
+    }
+
     const data = { ...changedFields, updatedBy: userId };
 
     try {

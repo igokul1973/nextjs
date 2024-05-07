@@ -26,6 +26,7 @@ export const getDefaultFormValues = (
         address: {
             addressLine1: '',
             addressLine2: '',
+            addressLine3: '',
             locality: '',
             region: '',
             postcode: '',

@@ -18,7 +18,9 @@ const baseOrganizationFormSchema = z.object({
     localIdentifierNameId: z.string().optional(),
     localIdentifierValue: z.string().nullish().optional(),
     accountRelation: z.string(),
-    customerId: z.string().optional(),
+    customerId: z.string({
+        required_error: 'please enter the customer ID'
+    }),
     typeId: z.string().optional(),
     description: z.string().nullish().optional(),
     isPrivate: z.boolean().optional(),

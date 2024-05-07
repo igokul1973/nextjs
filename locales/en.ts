@@ -1,7 +1,8 @@
 export const enPlural = {
     'must be digits#many': 'must be {count} digits',
     'must be up to digits#many': 'must be up to {count} digits',
-    'must be at least characters#many': 'must be at least {count} characters long'
+    'must be at least characters#many': 'must be at least {count} characters long',
+    'must be more than#many': 'must be more than {count}'
 };
 
 export const enSingle = {
@@ -142,6 +143,14 @@ export const enSingle = {
     'add invoice item': 'add invoice item',
     'add another invoice item': 'add another invoice item',
     'inventory item name': 'inventory objektnamn',
+    'your phone': 'your phone',
+    'select your phone': 'select your phone',
+    'select your phone (might be shown on the invoice)':
+        'select your phone (might be shown on the invoice)',
+    'your email': 'your email',
+    'select your email': 'select your email',
+    'select your email (might be shown on the invoice)':
+        'select your email (might be shown on the invoice)',
     // Errors
     'must be a number': 'must be a number',
     'must be a date': 'must be a date',
@@ -178,6 +187,7 @@ export const enSingle = {
     'the discount cannot be more than 100': 'the discount cannot be more than 100',
     'please select inventory item to get the price':
         'please select inventory item to get the price',
+    'please enter a customer': 'please enter a customer',
     // Buttons
     'create customer': 'create customer',
     'update customer': 'update customer',
@@ -185,6 +195,7 @@ export const enSingle = {
     'create inventory': 'create inventory',
     'create inventory item': 'create inventory item',
     'create invoice': 'create invoice',
+    'update invoice': 'update invoice',
     'dense padding': 'dense padding',
     // Tooltips
     filter: 'filter',

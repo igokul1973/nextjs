@@ -40,7 +40,7 @@ export type TOrder = 'asc' | 'desc';
 
 export type TDirtyFields<T> = {
     [K in keyof T]?: T[K] extends Record<string, unknown>
-        ? TDirtyFields<T[K]>
+        ? TDirtyFields<T[K]> | boolean
         : T[K] extends Array<Record<string, unknown>>
           ? TDirtyFields<T[K][number]>[]
           : T[K] extends Array<string> | undefined

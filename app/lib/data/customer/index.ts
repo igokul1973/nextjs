@@ -95,7 +95,7 @@ export async function getCustomersByAccountId(accountId: string) {
                 return flattenCustomer(c);
             })
             .sort((c1, c2) => {
-                return c1.name.localeCompare(c2.name);
+                return c1.customerName.localeCompare(c2.customerName);
             });
     } catch (err) {
         console.error('Database Error:', err);
@@ -108,8 +108,8 @@ export async function getFilteredCustomersByAccountId(
     query: string,
     currentPage: number,
     itemsPerPage: number,
-    showOrg: boolean,
-    showInd: boolean,
+    showOrg: boolean = true,
+    showInd: boolean = true,
     orderBy: string = 'name',
     order: TOrder = 'asc'
 ) {
@@ -275,7 +275,7 @@ export async function createIndividualCustomer(formData: TIndividualFormOutput) 
         return newCustomer;
     } catch (error) {
         console.error('Database Error:', error);
-        throw error;
+        throw new Error('Database Error: Failed to create individual customer.');
     }
 }
 
@@ -356,7 +356,7 @@ export async function createOrganizationCustomer(formData: TOrganizationForm) {
         return newCustomer;
     } catch (error) {
         console.error('Database Error:', error);
-        throw error;
+        throw new Error('Database Error: Failed to create individual customer.');
     }
 }
 
@@ -366,13 +366,17 @@ export async function updateCustomer(
     userId: string
 ) {
     try {
-        const diff = getDirtyValues<TIndividualForm | TOrganizationForm>(dirtyFields, formData);
-        const isIndividual = 'firstName' in formData;
-        const customerId = formData.customerId;
+        const changedFields = getDirtyValues<TIndividualForm | TOrganizationForm>(
+            dirtyFields,
+            formData
+        );
 
-        if (!diff) {
+        if (!changedFields) {
             return null;
         }
+
+        const isIndividual = 'firstName' in formData;
+        const customerId = formData.customerId;
 
         const {
             id,
@@ -383,7 +387,7 @@ export async function updateCustomer(
             localIdentifierNameId,
             accountRelation,
             ...entity
-        } = diff;
+        } = changedFields;
 
         const { countryId, ...addressWithoutCountryId } = address || {};
 
@@ -402,6 +406,8 @@ export async function updateCustomer(
         if (!isIndividual && 'typeId' in entity) {
             const { typeId, ...rest } = entity;
             entityWithoutTypeId = rest;
+        } else {
+            entityWithoutTypeId = entity;
         }
 
         const data = !isIndividual
@@ -516,7 +522,16 @@ export async function updateCustomer(
             where: {
                 id: customerId
             },
-            data
+            data,
+            include: {
+                organization: {
+                    include: {
+                        address: true,
+                        phones: true,
+                        emails: true
+                    }
+                }
+            }
         });
 
         console.log('Successfully updated customer with ID:', updatedCustomer.id);

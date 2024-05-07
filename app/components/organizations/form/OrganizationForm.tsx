@@ -17,6 +17,7 @@ import { useData } from '@/app/context/data/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
 import { createOrganizationCustomer, updateCustomer } from '@/app/lib/data/customer';
+import { anyTrue } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -110,11 +111,12 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
             }
             push('/dashboard/customers');
         } catch (error) {
-            openSnackbar(`Failed to create customer: ${error}`, 'error');
+            openSnackbar(error as string, 'error');
         }
     };
 
-    const isSubmittable = !!isDirty;
+    // const isSubmittable = anyTrue(dirtyFields);
+    const isSubmittable = isDirty;
 
     return (
         <StyledForm onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -289,7 +291,7 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
                         color='primary'
                         disabled={!isSubmittable}
                     >
-                        {capitalize(t('create customer'))}
+                        {capitalize(t(form ? 'update customer' : 'create customer'))}
                     </Button>
                 </Box>
             </Box>

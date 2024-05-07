@@ -8,27 +8,21 @@ export const addressFormSchema = z.object({
             invalid_type_error: 'please enter the street address'
         })
         .min(2, { message: 'please enter the street address' }),
-    addressLine2: z.string().nullish().optional(),
-    addressLine3: z.string().nullish().optional(),
+    addressLine2: z.string().nullish(),
+    addressLine3: z.string().nullish(),
     locality: z
         .string({
             required_error: 'please enter the city/village/locality',
             invalid_type_error: 'please enter the city/village/locality'
         })
         .min(2, { message: 'please enter the city/village/locality' }),
-    region: z
-        .string({
-            invalid_type_error: 'please enter the region/state'
-        })
-        .nullish()
-        .optional(),
+    region: z.string().nullish(),
     postcode: z
         .string({
             required_error: 'please enter the zip/postal code',
             invalid_type_error: 'please enter the zip/postal code'
         })
         .min(4, { message: 'please enter the zip/postal code' }),
-
     countryId: z
         .string({
             required_error: 'please enter the country',

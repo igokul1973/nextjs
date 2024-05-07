@@ -51,21 +51,21 @@ import {
 
 const headCells: readonly IHeadCell[] = [
     {
-        id: 'name',
+        id: 'customerId',
         isNumeric: false,
         disablePadding: true,
         label: 'name',
         align: 'left'
     },
     {
-        id: 'type',
+        id: 'customerType',
         isNumeric: false,
         disablePadding: false,
         label: 'type',
         align: 'center'
     },
     {
-        id: 'email',
+        id: 'customerEmail',
         isNumeric: false,
         disablePadding: false,
         disableSorting: true,
@@ -73,7 +73,7 @@ const headCells: readonly IHeadCell[] = [
         align: 'center'
     },
     {
-        id: 'phone',
+        id: 'customerPhone',
         isNumeric: false,
         disablePadding: false,
         disableSorting: true,
@@ -235,7 +235,7 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const { push } = useRouter();
-    const [selected, setSelected] = useState<readonly ICustomerTable['id'][]>([]);
+    const [selected, setSelected] = useState<readonly ICustomerTable['customerId'][]>([]);
 
     const { replace } = useRouter();
     const pathname = usePathname();
@@ -284,7 +284,7 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
 
     const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.checked) {
-            const newSelected = customers.map((n) => n.id);
+            const newSelected = customers.map((n) => n.customerId);
             setSelected(newSelected);
             return;
         }
@@ -293,7 +293,7 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
 
     const handleClick = (event: MouseEvent<unknown>, id: string) => {
         const selectedIndex = selected.indexOf(id);
-        let newSelected: readonly ICustomerTable['id'][] = [];
+        let newSelected: readonly ICustomerTable['customerId'][] = [];
 
         if (selectedIndex === -1) {
             newSelected = newSelected.concat(selected, id);
@@ -374,16 +374,16 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
                         />
                         <TableBody>
                             {customers.map((row, index) => {
-                                const isItemSelected = isSelected(row.id);
+                                const isItemSelected = isSelected(row.customerId);
                                 const labelId = `enhanced-table-checkbox-${index}`;
 
                                 return (
                                     <TableRow
                                         hover
-                                        onClick={(event) => handleClick(event, row.id)}
+                                        onClick={(event) => handleClick(event, row.customerId)}
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
-                                        key={row.id}
+                                        key={row.customerId}
                                         selected={isItemSelected}
                                         sx={{ cursor: 'pointer' }}
                                     >
@@ -394,13 +394,13 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
                                             scope='row'
                                             padding='none'
                                         >
-                                            {row.name}
+                                            {row.customerName}
                                         </TableCell>
                                         <TableCell align='center'>
-                                            {capitalize(t(row.type))}
+                                            {capitalize(t(row.customerType))}
                                         </TableCell>
-                                        <TableCell align='center'>{row.email}</TableCell>
-                                        <TableCell align='center'>{row.phone}</TableCell>
+                                        <TableCell align='center'>{row.customerEmail}</TableCell>
+                                        <TableCell align='center'>{row.customerPhone}</TableCell>
                                         <TableCell align='center'>{row.totalPending}</TableCell>
                                         <TableCell align='center'>{row.totalPaid}</TableCell>
                                         <TableCell align='center'>{row.totalInvoices}</TableCell>
@@ -412,7 +412,9 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
                                                 color='primary'
                                                 aria-label='edit'
                                                 onClick={() => {
-                                                    push(`/dashboard/customers/${row.id}/edit`);
+                                                    push(
+                                                        `/dashboard/customers/${row.customerId}/edit`
+                                                    );
                                                 }}
                                             >
                                                 <EditIcon />
@@ -420,7 +422,9 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
                                             <IconButton
                                                 color='warning'
                                                 aria-label='edit'
-                                                onClick={() => deleteCustomer(row.id, row.name)}
+                                                onClick={() =>
+                                                    deleteCustomer(row.customerId, row.customerName)
+                                                }
                                             >
                                                 <DeleteIcon />
                                             </IconButton>

@@ -9,7 +9,7 @@ const baseInventoryFormSchema = z.object({
             invalid_type_error: 'please enter the inventory name'
         })
         .min(1, { message: 'must be at least 1 character long' }),
-    description: z.string().optional(),
+    description: z.string().nullish(),
     typeId: z
         .string({
             required_error: 'please enter the inventory type',
@@ -33,13 +33,12 @@ const baseInventoryFormSchema = z.object({
             }
             return Math.floor(val * 100);
         }),
-    externalCode: z.string().optional(),
-    internalCode: z.string().optional(),
-    manufacturerCode: z.string().optional(),
+    externalCode: z.string().nullish(),
+    internalCode: z.string().nullish(),
+    manufacturerCode: z.string().nullish(),
     manufacturerPrice: z.coerce
         .number()
         .gte(0.01, { message: 'the price cannot be less than 0.01' })
-        .or(z.literal(''))
         .nullish()
         .transform((val, ctx) => {
             if (val === null) {

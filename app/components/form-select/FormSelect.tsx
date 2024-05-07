@@ -8,6 +8,7 @@ import { Controller, UseControllerProps } from 'react-hook-form';
 const FormSelect: FC<
     BaseTextFieldProps & InputBaseProps & FormControlProps & UseControllerProps & PropsWithChildren
 > = ({
+    onChange: onExternalChange,
     name,
     label,
     control,
@@ -27,8 +28,14 @@ const FormSelect: FC<
                 name={name}
                 control={control}
                 defaultValue={defaultValue}
-                render={({ field }) => (
+                render={({ field: { onChange, ...field } }) => (
                     <Select
+                        onChange={(e) => {
+                            if (onExternalChange) {
+                                onExternalChange(e.target.value);
+                            }
+                            onChange(e.target.value);
+                        }}
                         labelId={labelId}
                         label={label}
                         error={error}

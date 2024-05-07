@@ -4,11 +4,11 @@ import {
     emailsFormSchema,
     phonesFormSchema
 } from '@/app/lib/data/common-form-schemas';
-import { isValidDate } from '@/app/lib/utils';
+import { isDayJsDate, isValidDate } from '@/app/lib/utils';
 import { z } from 'zod';
 
 const baseIndividualFormSchema = z.object({
-    id: z.string().optional(),
+    id: z.string().nullish(),
     firstName: z
         .string({
             required_error: 'please enter the first name',
@@ -21,14 +21,23 @@ const baseIndividualFormSchema = z.object({
             invalid_type_error: 'please enter the last name'
         })
         .min(1, { message: 'please enter the last name' }),
-    middleName: z.string().optional().nullish(),
+    middleName: z.string().nullish(),
     accountId: z.string(),
-    localIdentifierNameId: z.string().optional(),
-    localIdentifierValue: z.string().optional().nullish(),
+    localIdentifierNameId: z.string().nullish(),
+    localIdentifierValue: z.string().nullish(),
     accountRelation: z.string(),
-    customerId: z.string().optional(),
-    dob: isValidDate('invalid date').nullish(),
-    description: z.string().nullish().optional(),
+    customerId: z.string({
+        required_error: 'please enter the customer ID'
+    }),
+    dob: isValidDate('invalid date')
+        .nullish()
+        .transform((val) => {
+            if (val && (val instanceof Date || isDayJsDate(val))) {
+                return new Date(val);
+            }
+            return val;
+        }),
+    description: z.string().nullish(),
     createdBy: z.string(),
     updatedBy: z.string()
 });

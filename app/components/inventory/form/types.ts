@@ -9,4 +9,5 @@ export interface IProps {
 }
 
 export type TInventoryForm = z.input<typeof inventoryUpdateSchema>;
+export type TInventoryFormOutput = z.output<typeof inventoryUpdateSchema>;
 export type TInventoryFormControl = Control<TInventoryForm> & Control<FieldValues>;

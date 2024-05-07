@@ -1,12 +1,14 @@
 import IndividualForm from '@/app/components/individuals/form/IndividualForm';
 import { TAttribute, TIndividualForm } from '@/app/components/individuals/form/types';
+import { getDefaultFormValues as getDefaultIndividualFormValues } from '@/app/components/individuals/utils';
 import OrganizationForm from '@/app/components/organizations/form/OrganizationForm';
 import { TOrganizationForm } from '@/app/components/organizations/form/types';
+import { getDefaultFormValues as getDefaultOrganizationFormValues } from '@/app/components/organizations/utils';
 import Warning from '@/app/components/warning/Warning';
 import { getCustomerById } from '@/app/lib/data/customer';
 import { getLocalIdentifierNamesByCountryId } from '@/app/lib/data/local-identifier-name';
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
-import { capitalize, deNullifyObject, getUserProvider, getUserProviderType } from '@/app/lib/utils';
+import { capitalize, getUserProvider, getUserProviderType, populateForm } from '@/app/lib/utils';
 import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
@@ -31,6 +33,8 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
     if (!dbUser) {
         redirect('/');
     }
+
+    const { id: accountId } = dbUser.account;
 
     const provider = getUserProvider(dbUser);
     const providerType = getUserProviderType(provider);
@@ -96,10 +100,26 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
         // Transforming JSON fields into array of objects
         attributes: attributesFields ? Object.values(attributesFields) : []
     };
-    // Since the DB returns null values where they can be empty,
-    // but the form expects undefined,
-    // we need to convert them to undefined where appropriate
-    const customerForm: TIndividualForm | TOrganizationForm = deNullifyObject<typeof form>(form);
+
+    const defaultForm = isIndividual
+        ? getDefaultIndividualFormValues(
+              accountId,
+              sessionUser.id,
+              userAccountCountry.id,
+              individualLocalIdentifierName.id
+          )
+        : getDefaultOrganizationFormValues(
+              accountId,
+              sessionUser.id,
+              userAccountCountry.id,
+              individualLocalIdentifierName.id
+          );
+
+    // Since the DB may return some empty (null, undefined) values or not return
+    // some keys at all, but the form expects certain values to be set
+    // in order to later calculate the dirty values, we need to convert them where
+    // appropriate to default values.
+    const customerForm = populateForm(defaultForm, form);
 
     return (
         <StyledBox component='main' className='wrapper'>

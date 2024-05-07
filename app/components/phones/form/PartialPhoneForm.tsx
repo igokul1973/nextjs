@@ -1,6 +1,7 @@
 'use client';
 
 import FormSelect from '@/app/components/form-select/FormSelect';
+import { maskMax3Digits } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -10,7 +11,6 @@ import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import { FormEvent, FormEventHandler } from 'react';
 import { FieldError } from 'react-hook-form';
 import { StyledBox, StyledMenuItemBox, StyledPhoneNumberBox } from './styled';
 import { IProps } from './types';
@@ -25,23 +25,6 @@ const PartialPhoneForm = <T,>({
     remove
 }: IProps<T>) => {
     const t = useI18n();
-
-    const onInvalidCountryCode: FormEventHandler<HTMLInputElement> = (event) => {
-        const target = event.target as HTMLInputElement;
-        target.setCustomValidity(capitalize(t('must be up to digits', { count: 3 })));
-    };
-
-    const onCountryCodeInput = (e: FormEvent<HTMLInputElement>) => {
-        const target = e.target as HTMLInputElement;
-        target.setCustomValidity('');
-        if (target.value.startsWith('+')) target.value = target.value.slice(1);
-        target.value = target.value !== '' ? `+${target.value}` : target.value;
-    };
-
-    const onInvalidNumber: FormEventHandler<HTMLInputElement> = (event) => {
-        const target = event.target as HTMLInputElement;
-        target.setCustomValidity(capitalize(t('please enter the phone number')));
-    };
 
     const typeError = errors.phones && (errors.phones[index]?.type as FieldError);
     const countryCodeError = errors.phones?.[index]?.countryCode;
@@ -79,20 +62,23 @@ const PartialPhoneForm = <T,>({
                         label={capitalize(t('country code'))}
                         autoComplete='tel-country-code'
                         inputProps={{
-                            type: 'tel',
+                            type: 'number',
                             inputMode: 'numeric',
                             maxLength: 4
                         }}
+                        InputProps={{
+                            startAdornment: '+'
+                        }}
                         variant='outlined'
                         required
-                        onInvalid={onInvalidCountryCode}
-                        onInput={onCountryCodeInput}
                         error={!!countryCodeError}
                         helperText={
                             !!countryCodeError &&
                             capitalize(t(countryCodeError.message as TSingleTranslationKeys))
                         }
-                        {...register(`phones.${index}.countryCode`)}
+                        {...register(`phones.${index}.countryCode`, {
+                            onChange: maskMax3Digits
+                        })}
                     />
                 </FormControl>
             </Box>
@@ -102,7 +88,7 @@ const PartialPhoneForm = <T,>({
                         label={capitalize(t('phones'))}
                         autoComplete='tel-national'
                         inputProps={{
-                            type: 'tel',
+                            type: 'number',
                             inputMode: 'numeric',
                             maxLength: 14,
                             minLength: 7
@@ -110,8 +96,6 @@ const PartialPhoneForm = <T,>({
                         variant='outlined'
                         required
                         error={!!numberError}
-                        onInvalid={onInvalidNumber}
-                        onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                         helperText={
                             !!numberError &&
                             capitalize(t(numberError.message as TSingleTranslationKeys))

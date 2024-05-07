@@ -3,7 +3,8 @@ import { TPluralTranslationKeys, TSingleTranslationKeys } from './types';
 const svPlural: Record<TPluralTranslationKeys, string> = {
     'must be digits#many': 'måste vara {count} siffror',
     'must be up to digits#many': 'måste vara upp till {count} siffror',
-    'must be at least characters#many': 'kan inte vara mindre än {count} tecken'
+    'must be at least characters#many': 'kan inte vara mindre än {count} tecken',
+    'must be more than#many': 'måste vara mer än {count}'
 };
 
 const svSingle: Record<TSingleTranslationKeys, string> = {
@@ -144,6 +145,15 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'add invoice item': 'lägg till ett faktureringsobjekt',
     'add another invoice item': 'lägg till ett annat faktureringsobjekt',
     'inventory item name': 'inventeringsobjectetsnamn',
+
+    'your phone': 'ditt telefon',
+    'select your phone': 'valj ditt telefon',
+    'select your phone (might be shown on the invoice)':
+        'valj ditt telefon (kan möjligen visas på fakturan)',
+    'your email': 'ditt e-post',
+    'select your email': 'valj ditt e-post',
+    'select your email (might be shown on the invoice)':
+        'valj ditt e-post (kan möjligen visas på fakturan)',
     // Errors
     'must be a number': 'måste vara ett nummer',
     'must be a date': 'måste vara ett datum',
@@ -180,6 +190,7 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'the discount cannot be more than 100': 'rabatten kan inte vara mer än 100',
     'please select inventory item to get the price':
         'val ett inventeringsobjectetsnamn för att fa priset',
+    'please enter a customer': 'var god ange en kund',
     // Buttons
     'create customer': 'skapa en kund',
     'update customer': 'redigera kunden',
@@ -187,6 +198,7 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'create inventory': 'skapa inventering',
     'create inventory item': 'skapa inventeringsobject',
     'create invoice': 'skapa en faktura',
+    'update invoice': 'redigera faktura',
     'dense padding': 'tät stoppning',
     // Tooltips
     filter: 'filter',

@@ -473,8 +473,8 @@ const inventory = [
         type: 'product',
         price: 1000,
         externalCode: 'RXF1TTS-D',
-        internalCode: 'LPMRF32-X',
-        manufacturerCode: 'TTS-LLMPD',
+        internalCode: 'LPMRF32-X1',
+        manufacturerCode: 'TTS-LLMPD1',
         manufacturerPrice: 800
     },
     {
@@ -482,9 +482,9 @@ const inventory = [
         description: 'Product 2 description',
         type: 'product',
         price: 800,
-        externalCode: 'RXF1TTS-D',
-        internalCode: 'LPMRF32-X',
-        manufacturerCode: 'TTS-LLMPD',
+        externalCode: 'RXF2TTS-D',
+        internalCode: 'LPMRF32-X2',
+        manufacturerCode: 'TTS-LLMPD2',
         manufacturerPrice: 700
     },
     {
@@ -492,9 +492,9 @@ const inventory = [
         description: 'Product 3 description',
         type: 'product',
         price: 5000,
-        externalCode: 'RXF1TTS-D',
-        internalCode: 'LPMRF32-X',
-        manufacturerCode: 'TTS-LLMPD',
+        externalCode: 'RXF3TTS-D',
+        internalCode: 'LPMRF32-X3',
+        manufacturerCode: 'TTS-LLMPD3',
         manufacturerPrice: 4000
     },
     {
@@ -502,9 +502,9 @@ const inventory = [
         description: 'Product 4 description',
         type: 'product',
         price: 800,
-        externalCode: 'RXF1TTS-D',
-        internalCode: 'LPMRF32-X',
-        manufacturerCode: 'TTS-LLMPD',
+        externalCode: 'RXF4TTS-D',
+        internalCode: 'LPMRF32-X4',
+        manufacturerCode: 'TTS-LLMPD4',
         manufacturerPrice: 700
     },
     {
@@ -512,9 +512,9 @@ const inventory = [
         description: 'Product 5 description',
         type: 'product',
         price: 8000,
-        externalCode: 'RXF1TTS-D',
-        internalCode: 'LPMRF32-X',
-        manufacturerCode: 'TTS-LLMPD',
+        externalCode: 'RXF5TTS-D',
+        internalCode: 'LPMRF32-X5',
+        manufacturerCode: 'TTS-LLMPD5',
         manufacturerPrice: 7000
     },
     {
@@ -523,9 +523,9 @@ const inventory = [
             'Product 6 description and this one is a pretty long one just in case I want to check how it will lay out',
         type: 'product',
         price: 1000,
-        externalCode: 'RXF1TTS-D',
-        internalCode: 'LPMRF32-X',
-        manufacturerCode: 'TTS-LLMPD',
+        externalCode: 'RXF6TTS-D',
+        internalCode: 'LPMRF32-X6',
+        manufacturerCode: 'TTS-LLMPD6',
         manufacturerPrice: 500
     },
     {
@@ -543,7 +543,7 @@ const inventory = [
             'Service 2 description and this one is a pretty long one just in case I want to check how it will lay out',
         type: 'service',
         price: 20000,
-        externalCode: 'KKF1TTS-D2',
+        externalCode: 'KKF2TTS-D2',
         internalCode: 'DDMRF32-2'
     },
     {
@@ -552,7 +552,7 @@ const inventory = [
             'Service 3 description and this one is a pretty long one just in case I want to check how it will lay out',
         type: 'service',
         price: 30000,
-        externalCode: 'KKF1TTS-D3',
+        externalCode: 'KKF3TTS-D3',
         internalCode: 'DDMRF32-3'
     },
     {
@@ -561,7 +561,7 @@ const inventory = [
             'Service 4 description and this one is a pretty long one just in case I want to check how it will lay out',
         type: 'service',
         price: 40000,
-        externalCode: 'KKF1TTS-D4',
+        externalCode: 'KKF4TTS-D4',
         internalCode: 'DDMRF32-4'
     },
     {
@@ -577,7 +577,7 @@ const inventory = [
         description: 'Service 6 description pretty short now',
         type: 'service',
         price: 60000,
-        externalCode: 'KKF1TTS-D6',
+        externalCode: 'KKF5TTS-D6',
         internalCode: 'DDMRF32-6'
     },
     {

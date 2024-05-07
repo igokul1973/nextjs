@@ -2,14 +2,18 @@
 
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
+import { getFilteredCustomersByAccountId } from '@/app/lib/data/customer';
 import { createInvoice, updateInvoice } from '@/app/lib/data/invoice';
-import { maskPercentage } from '@/app/lib/utils';
+import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
+import { anyTrue, maskPercentage, useDebounce } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
+import EmailIcon from '@mui/icons-material/AlternateEmail';
 import PercentIcon from '@mui/icons-material/Percent';
+import PhoneIcon from '@mui/icons-material/Phone';
 import CustomerIcon from '@mui/icons-material/Portrait';
-import { Chip, Divider, capitalize } from '@mui/material';
+import { Chip, Divider, InputAdornment, Tooltip, capitalize } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -21,7 +25,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { InvoiceStatusEnum } from '@prisma/client';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FC, memo, useEffect } from 'react';
+import { FC, memo, useState } from 'react';
 import {
     Control,
     Controller,
@@ -33,12 +37,20 @@ import {
 import DateInput from '../../date-input/DateInput';
 import FormSelect from '../../form-select/FormSelect';
 import PartialInvoiceItemForm from '../invoice-items/form/PartialInvoiceItemForm';
-import { getDefaultFormValues, getInoiceItemsInitial } from '../utils';
+import { getInoiceItemsInitial } from '../utils';
 import { invoiceCreateSchema, invoiceUpdateSchema } from './formSchema';
 import { StyledForm } from './styled';
-import { IProps, TInvoiceForm, TInvoiceFormOutput } from './types';
+import { IProps, TCustomerOutput, TInvoiceForm, TInvoiceFormOutput } from './types';
 
-const InvoiceForm: FC<IProps> = ({ customers, inventory, form }) => {
+const InvoiceForm: FC<IProps> = ({
+    customers: initialCustomers,
+    inventory,
+    accountId,
+    providerPhones,
+    providerEmails,
+    defaultValues,
+    isEdit
+}) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const { user, account } = useUser();
@@ -49,23 +61,24 @@ const InvoiceForm: FC<IProps> = ({ customers, inventory, form }) => {
         watch,
         register,
         handleSubmit,
-        formState: { errors, isDirty, dirtyFields, ...formState },
+        formState: { errors, dirtyFields, ...formState },
         control,
         setValue,
         ...methods
     } = useForm<TInvoiceForm, unknown, TInvoiceFormOutput>({
-        resolver: zodResolver(form ? invoiceUpdateSchema : invoiceCreateSchema),
+        resolver: zodResolver(isEdit ? invoiceUpdateSchema : invoiceCreateSchema),
         reValidateMode: 'onChange',
-        defaultValues: form || getDefaultFormValues(userId)
+        defaultValues,
+        shouldFocusError: false
     });
 
-    const w = watch();
+    // const w = watch();
 
-    useEffect(() => {
-        console.log('DirtyFields:', dirtyFields);
-        console.log('Watch:', w);
-        console.error('Errors:', errors);
-    }, [errors, w, dirtyFields]);
+    // useEffect(() => {
+    //     console.log('DirtyFields:', dirtyFields);
+    //     console.log('Watch:', w);
+    //     console.error('Errors:', errors);
+    // }, [errors, w, dirtyFields]);
 
     const {
         fields: invoiceItems,
@@ -78,7 +91,19 @@ const InvoiceForm: FC<IProps> = ({ customers, inventory, form }) => {
 
     const statuses = Object.values(InvoiceStatusEnum);
 
-    const isSubmittable = !!isDirty;
+    const isSubmittable = anyTrue(dirtyFields);
+
+    const [customers, setCustomers] = useState<TCustomerOutput[]>(initialCustomers);
+
+    const getCustomers = async (filter: string) => {
+        if (!filter) {
+            return setCustomers(initialCustomers);
+        }
+        const customers = await getFilteredCustomersByAccountId(accountId, filter, 0, 25);
+        setCustomers(customers);
+    };
+
+    const debouncedHandleGetCustomers = useDebounce<string>(getCustomers, 300);
 
     const onSubmit = async (formData: TInvoiceFormOutput) => {
         try {
@@ -89,14 +114,28 @@ const InvoiceForm: FC<IProps> = ({ customers, inventory, form }) => {
                 await createInvoice(formData);
                 openSnackbar('Successfully created invoice.');
             }
-            push('/dashboard/invoices');
+            // push('/dashboard/invoices');
         } catch (error) {
-            openSnackbar(`Failed to create customer: ${error}`, 'error');
+            openSnackbar(error as string, 'error');
         }
     };
 
+    const [canFocus, setCanFocus] = useState(true);
+
+    const onError = () => {
+        setCanFocus(true);
+    };
+
+    useScrollToFormError(errors, canFocus, setCanFocus);
+
+    const customerError = errors.customer;
+
     const CustomerAdornment = memo(function CustomerAdornment() {
-        return <CustomerIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />;
+        return (
+            <InputAdornment position='start'>
+                <CustomerIcon sx={{ color: 'action.active', mr: 1, my: 0.5 }} />
+            </InputAdornment>
+        );
     });
 
     return (
@@ -106,40 +145,71 @@ const InvoiceForm: FC<IProps> = ({ customers, inventory, form }) => {
             register={register}
             handleSubmit={handleSubmit}
             setValue={setValue}
-            formState={{ errors, isDirty, dirtyFields, ...formState }}
+            formState={{ errors, dirtyFields, ...formState }}
             {...methods}
         >
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <StyledForm onSubmit={handleSubmit(onSubmit)} noValidate>
-                    {/* Customer Name */}
-                    <FormSelect
-                        name='customerId'
-                        label={capitalize(t('customer'))}
-                        placeholder={capitalize(t('select customer'))}
-                        control={control as unknown as Control<FieldValues>}
-                        required
-                        startAdornment={<CustomerAdornment />}
-                        error={!!errors.customerId}
-                        helperText={
-                            !!errors.customerId &&
-                            capitalize(
-                                t(errors.customerId?.message as TSingleTranslationKeys, {
-                                    count: 1
-                                })
-                            )
-                        }
-                    >
-                        <MenuItem disabled>{capitalize(t('select customer'))}</MenuItem>
-                        {customers.map((customer) => {
-                            return (
-                                <MenuItem key={customer.id} value={customer.id}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        {capitalize(customer.name)}
-                                    </Box>
-                                </MenuItem>
-                            );
-                        })}
-                    </FormSelect>
+                <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
+                    {/* Customer */}
+
+                    <FormControl fullWidth>
+                        <Controller
+                            name='customer'
+                            control={control}
+                            render={({ field: { onChange, ref, value, ...field } }) => {
+                                return (
+                                    <Autocomplete
+                                        value={
+                                            value
+                                                ? customers.find(
+                                                      (option) =>
+                                                          option.customerId === value.customerId
+                                                  )
+                                                : null
+                                        }
+                                        options={customers}
+                                        onInputChange={(_, value) => {
+                                            if (
+                                                !value ||
+                                                !customers.find((c) =>
+                                                    c.customerName.includes(value)
+                                                )
+                                            ) {
+                                                debouncedHandleGetCustomers(value);
+                                            }
+                                        }}
+                                        getOptionLabel={(option) => option.customerName}
+                                        onChange={(_, b) => {
+                                            onChange(b);
+                                        }}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                InputProps={{
+                                                    ...params.InputProps,
+                                                    startAdornment: <CustomerAdornment />
+                                                }}
+                                                error={!!customerError}
+                                                helperText={
+                                                    !!customerError &&
+                                                    'message' in customerError &&
+                                                    capitalize(
+                                                        t(
+                                                            customerError.message as TSingleTranslationKeys
+                                                        )
+                                                    )
+                                                }
+                                                label={capitalize(t('customer'))}
+                                                placeholder={capitalize(t('select customer'))}
+                                                inputRef={ref}
+                                            />
+                                        )}
+                                        {...field}
+                                    />
+                                );
+                            }}
+                        />
+                    </FormControl>
 
                     {/* Invoice Amount */}
                     <FormControl>
@@ -197,16 +267,19 @@ const InvoiceForm: FC<IProps> = ({ customers, inventory, form }) => {
                     </FormSelect>
 
                     <Divider />
-                    {invoiceItems.map((invoiceItem, index) => (
-                        <PartialInvoiceItemForm
-                            key={index}
-                            count={invoiceItems.length}
-                            index={index}
-                            accountId={account.id}
-                            inventory={inventory}
-                            remove={removeInvoiceItem}
-                        />
-                    ))}
+
+                    {invoiceItems.map((invoiceItem, index) => {
+                        return (
+                            <PartialInvoiceItemForm
+                                key={invoiceItem.id}
+                                count={invoiceItems.length}
+                                index={index}
+                                accountId={account.id}
+                                inventory={inventory}
+                                remove={removeInvoiceItem}
+                            />
+                        );
+                    })}
 
                     <Button
                         variant='contained'
@@ -216,7 +289,105 @@ const InvoiceForm: FC<IProps> = ({ customers, inventory, form }) => {
                             ? capitalize(t('add another invoice item'))
                             : capitalize(t('add invoice item'))}
                     </Button>
+
                     <Divider />
+
+                    <FormControl>
+                        <DateInput
+                            label={capitalize(t('latest payment date'))}
+                            name='payBy'
+                            control={control as unknown as Control<FieldValues>}
+                            format='YYYY-MM-DD'
+                            helperText={capitalize(t('enter the date the invoice must be paid by'))}
+                        />
+                    </FormControl>
+
+                    <FormSelect
+                        name='providerPhone'
+                        label={capitalize(t('your phone'))}
+                        placeholder={capitalize(t('select your phone'))}
+                        control={control as unknown as Control<FieldValues>}
+                        required
+                        startAdornment={<PhoneIcon />}
+                        error={!!errors.providerPhone}
+                        helperText={
+                            !!errors.providerPhone &&
+                            capitalize(
+                                t(errors.providerPhone.message as TSingleTranslationKeys, {
+                                    count: 1
+                                })
+                            )
+                        }
+                    >
+                        <MenuItem disabled>{capitalize(t('select your phone'))}</MenuItem>
+                        {providerPhones.map((phone) => {
+                            return (
+                                <MenuItem
+                                    key={phone.id}
+                                    value={`+${phone.countryCode}-${phone.number}`}
+                                >
+                                    <Box
+                                        sx={{
+                                            marginLeft: 1,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 0.5
+                                        }}
+                                    >
+                                        +{phone.countryCode}-{phone.number}
+                                        <Box
+                                            component='span'
+                                            sx={{
+                                                color: 'text.secondary'
+                                            }}
+                                        >
+                                            ({t(phone.type)})
+                                        </Box>
+                                    </Box>
+                                </MenuItem>
+                            );
+                        })}
+                    </FormSelect>
+                    <FormSelect
+                        name='providerEmail'
+                        label={capitalize(t('your email'))}
+                        placeholder={capitalize(t('select your email'))}
+                        control={control as unknown as Control<FieldValues>}
+                        required
+                        startAdornment={<EmailIcon />}
+                        error={!!errors.providerEmail}
+                        helperText={
+                            !!errors.providerEmail &&
+                            capitalize(
+                                t(errors.providerEmail.message as TSingleTranslationKeys, {
+                                    count: 1
+                                })
+                            )
+                        }
+                    >
+                        <MenuItem disabled>{capitalize(t('select your email'))}</MenuItem>
+                        {providerEmails.map((email) => {
+                            return (
+                                <MenuItem key={email.id} value={email.email}>
+                                    <Tooltip title={capitalize(t('click to see more filters'))}>
+                                        <Box
+                                            sx={{
+                                                marginLeft: 1,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 0.5
+                                            }}
+                                        >
+                                            {email.email}
+                                            <Box component='span' sx={{ color: 'text.secondary' }}>
+                                                ({t(email.type)})
+                                            </Box>
+                                        </Box>
+                                    </Tooltip>
+                                </MenuItem>
+                            );
+                        })}
+                    </FormSelect>
                     <FormControl fullWidth>
                         <TextField
                             label={capitalize(t('discount'))}
@@ -293,17 +464,6 @@ const InvoiceForm: FC<IProps> = ({ customers, inventory, form }) => {
                             })}
                         />
                     </FormControl>
-
-                    <FormControl>
-                        <DateInput
-                            label={capitalize(t('latest payment date'))}
-                            name='payBy'
-                            control={control as unknown as Control<FieldValues>}
-                            format='YYYY-MM-DD'
-                            helperText={capitalize(t('enter the date the invoice must be paid by'))}
-                        />
-                    </FormControl>
-
                     <FormControl>
                         <TextField
                             multiline
@@ -504,7 +664,7 @@ const InvoiceForm: FC<IProps> = ({ customers, inventory, form }) => {
                             color='primary'
                             disabled={!isSubmittable}
                         >
-                            {capitalize(t(form ? 'update invoice' : 'create invoice'))}
+                            {capitalize(t(isEdit ? 'update invoice' : 'create invoice'))}
                         </Button>
                     </Box>
                 </StyledForm>

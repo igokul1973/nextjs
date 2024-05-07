@@ -1,42 +1,22 @@
 'use server';
 
-import { TInvoiceForm, TInvoiceFormOutput } from '@/app/components/invoices/form/types';
+import { TInvoiceFormOutput } from '@/app/components/invoices/form/types';
 import prisma from '@/app/lib/prisma';
 import { InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { z } from 'zod';
 import { TDirtyFields, TOrder } from '../../types';
 import { flattenCustomer, formatCurrency, getDirtyValues } from '../../utils';
-import {
-    ICreateInvoiceState,
-    TGetInvoicePayload,
-    getInvoiceSelect,
-    getQueryFilterWhereClause,
-    invoicesInclude
-} from './types';
+import { getInvoiceSelect, getQueryFilterWhereClause, invoicesInclude } from './types';
 
-const FormSchema = z.object({
-    id: z.string(),
-    customer_id: z.string({
-        invalid_type_error: 'Please select a customer'
-    }),
-    amount: z.coerce
-        .number()
-        .gt(0, { message: 'Please enter an amount greater than 0' })
-        .transform((val) => {
-            return Math.floor(val * 100);
-        }),
-    status: z.enum(['pending', 'paid'], {
-        invalid_type_error: 'Please select an invoice status'
-    }),
-    date: z.coerce.date()
-});
+export interface ILatestInvoice {
+    number: string;
+    date: Date;
+    amount: string;
+    name: string;
+    email: string;
+}
 
-const UpdateInvoice = FormSchema.omit({ id: true });
-const CreateInvoice = FormSchema.omit({ id: true });
-
-export async function getLatestInvoices(): Promise<LatestInvoice[]> {
+export async function getLatestInvoices(): Promise<ILatestInvoice[]> {
     try {
         noStore();
 
@@ -72,14 +52,12 @@ export async function getLatestInvoices(): Promise<LatestInvoice[]> {
     }
 }
 
-export async function getInvoiceById(
-    id: string
-): Promise<(TGetInvoicePayload & { amount: number }) | null> {
+export async function getInvoiceById(id: string) {
     noStore();
     try {
         const invoice = await prisma.invoice.findFirst({
             relationLoadStrategy: 'query',
-            select: getInvoiceSelect,
+            include: invoicesInclude,
             where: {
                 id
             }
@@ -89,11 +67,18 @@ export async function getInvoiceById(
             return null;
         }
 
+        const rawCustomer = { ...invoice.customer };
+        const customer = flattenCustomer(rawCustomer);
         const amount = invoice.invoiceItems.reduce((acc, ii) => {
             return acc + ii.quantity * ii.price;
         }, 0);
 
-        return { ...invoice, amount: amount / 100 };
+        return {
+            ...invoice,
+            amount: amount / 100,
+            customer,
+            date: invoice.date.toLocaleDateString()
+        };
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Failed to get invoice.');
@@ -160,42 +145,71 @@ export async function getFilteredInvoicesByAccountIdCount(accountId: string, que
     }
 }
 
-export async function createInvoice(formData: TInvoiceFormOutput): Promise<ICreateInvoiceState> {
+export async function createInvoice(formData: TInvoiceFormOutput): Promise<void> {
     // Creating invoice in DB
     try {
-        const { invoiceItems, status, ...invoice } = formData;
+        const { customer, ...data } = formData;
+        delete customer.customerType;
+        // const data = { ...invoice, ...customer };
 
-        console.log('Invoice items: ', invoiceItems);
-        console.log('Invoice: ', invoiceItems);
+        const { invoiceItems, status, ...partialInvoice } = data;
 
-        const data = {
+        const invoice = {
             status: status as InvoiceStatusEnum,
-            ...invoice,
-            invoiceItems: { create: invoiceItems }
+            invoiceItems: {
+                create: invoiceItems.map((ii) => {
+                    const { inventoryItem, ...item } = ii;
+                    return {
+                        ...item
+                    };
+                })
+            },
+            ...customer,
+            ...partialInvoice
         };
 
-        await prisma.invoice.create({ data });
-        console.log('Successfully created invoice.');
+        const d = await prisma.invoice.create({ data: invoice });
+        console.log('Successfully created invoice: ', d);
     } catch (error) {
         console.error('Database Error:', error);
-        return {
-            message: 'Database Error: Failed to create invoice.'
-        };
+        throw new Error('Database Error: Failed to create invoice.');
     }
-    revalidatePath('/dashboard/invoices');
-    redirect('/dashboard/invoices');
 }
 
 export async function updateInvoice(
-    formData: TInvoiceForm,
-    dirtyFields: TDirtyFields<TInvoiceForm>,
+    formData: TInvoiceFormOutput,
+    dirtyFields: TDirtyFields<TInvoiceFormOutput>,
     userId: string
 ) {
-    const changedFields = getDirtyValues<TInvoiceForm>(dirtyFields, formData);
+    const changedFields = getDirtyValues<TInvoiceFormOutput>(dirtyFields, formData);
+
+    if (!changedFields) {
+        return null;
+    }
+
     const data = { ...changedFields, updatedBy: userId };
+    debugger;
 
     try {
-        const { id, ...invoice } = data;
+        // const { customer, ...data } = formData;
+        // delete customer.customerType;
+        // const data = { ...invoice, ...customer };
+
+        // const { invoiceItems, status, ...partialInvoice } = data;
+
+        // const invoice = {
+        //     status: status as InvoiceStatusEnum,
+        //     invoiceItems: {
+        //         create: invoiceItems.map((ii) => {
+        //             const { inventoryItem, ...item } = ii;
+        //             return {
+        //                 ...item
+        //             };
+        //         })
+        //     },
+        //     ...customer,
+        //     ...partialInvoice
+        // };
         // await prisma.invoice.update({ where: {
         //         id
         //     },
@@ -207,7 +221,6 @@ export async function updateInvoice(
         throw new Error('Failed to delete invoice.');
     }
     revalidatePath('/dashboard/invoices');
-    redirect('/dashboard/invoices');
 }
 
 export async function deleteInvoiceById(

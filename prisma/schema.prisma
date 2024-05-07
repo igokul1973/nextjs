@@ -340,7 +340,7 @@ model invoice {
   customerAddressLine3       String?           @map("customer_address_line_3") @db.VarChar(255)
   customerLocality           String            @map("customer_locality") @db.VarChar(255)
   customerRegion             String?           @map("customer_region") @db.VarChar(255)
-  customerPostalCode         String            @map("customer_postal_code") @db.VarChar(255)
+  customerPostCode           String            @map("customer_post_code") @db.VarChar(255)
   customerCountry            String            @map("customer_country") @db.VarChar(255)
   customerPhone              String            @map("customer_phone") @db.VarChar(255)
   customerEmail              String            @map("customer_email") @db.VarChar(255)
@@ -387,27 +387,27 @@ model invoice {
 }
 
 model invoiceItem {
-  id          String     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   // Field from Inventory.name, may not match with inventory item
   // with inventoryID in this table as the inventory item data may change
-  name        String     @map("name") @db.Text
+  name        String    @map("name") @db.Text
   // Price is also from Inventory table, but may not match
   // with inventory item with inventoryId on record, as inventory prices
   // have a tendency to change over the time.
-  price       Int        @db.Integer
-  quantity    Int        @db.Integer
-  invoiceId   String     @map("invoice_id") @db.Uuid
-  invoice     invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  price       Int       @db.Integer
+  quantity    Int       @db.Integer
+  invoiceId   String    @map("invoice_id") @db.Uuid
+  invoice     invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   // Used strictly for archiving/analytics purposes.
   // The inventory data may change, so this field
   // only shows the original inventory item ID
   // and cannot be relied upon.
-  inventoryId String?    @map("inventory_id") @db.Uuid
-  inventory   inventory? @relation(fields: [inventoryId], references: [id], onDelete: Restrict)
-  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy   String     @map("created_by") @db.Uuid
-  updatedBy   String     @map("updated_by") @db.Uuid
+  inventoryId String    @map("inventory_id") @db.Uuid
+  inventory   inventory @relation(fields: [inventoryId], references: [id], onDelete: Restrict)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy   String    @map("created_by") @db.Uuid
+  updatedBy   String    @map("updated_by") @db.Uuid
 
   @@map("invoice_items")
 }

@@ -27,7 +27,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { Control, useFieldArray, useForm } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import PartialPhoneForm from '../../phones/form/PartialPhoneForm';
@@ -46,7 +46,7 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
     const { push } = useRouter();
 
     const {
-        // watch,
+        watch,
         register,
         handleSubmit,
         formState: { errors, isDirty, dirtyFields },
@@ -89,13 +89,13 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
         control
     });
 
-    // const w = watch();
+    const w = watch();
 
-    // useEffect(() => {
-    //     console.log('DirtyFields:', dirtyFields);
-    //     console.log('Watch:', w);
-    //     console.error('Errors:', errors);
-    // }, [errors, w, dirtyFields]);
+    useEffect(() => {
+        console.log('DirtyFields:', dirtyFields);
+        console.log('Watch:', w);
+        console.error('Errors:', errors);
+    }, [errors, w, dirtyFields]);
 
     const onSubmit = async (formData: TIndividualFormOutput) => {
         try {
@@ -108,11 +108,14 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
             }
             push('/dashboard/customers');
         } catch (error) {
-            openSnackbar(`Failed to create customer: ${error}`, 'error');
+            openSnackbar(error as string, 'error');
         }
     };
 
-    const isSubmittable = !!isDirty;
+    console.log('Form:', form);
+
+    // const isSubmittable = anyTrue(dirtyFields);
+    const isSubmittable = isDirty;
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>

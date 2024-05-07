@@ -4,11 +4,11 @@ import { EntitiesEnum } from '@prisma/client';
 import { UseFormRegister } from 'react-hook-form';
 
 export interface ICustomerTable {
-    id: string;
-    type: EntitiesEnum;
-    name: string;
-    email: string;
-    phone: string;
+    customerId: string;
+    customerType: EntitiesEnum;
+    customerName: string;
+    customerEmail: string;
+    customerPhone: string;
     totalPending: string;
     totalPaid: string;
     totalInvoices: number;

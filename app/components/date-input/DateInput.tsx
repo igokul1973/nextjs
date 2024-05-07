@@ -18,12 +18,13 @@ const DateInput: FC<
         <Controller
             name={name}
             control={control}
-            render={({ field: { value, ...field }, fieldState: { error } }) => {
+            render={({ field: { value, ref, ...field }, fieldState: { error } }) => {
                 return (
                     <DatePicker
                         label={label}
                         format={format}
                         value={dayjs(value)}
+                        inputRef={ref}
                         slotProps={{
                             textField: {
                                 required,
@@ -33,7 +34,8 @@ const DateInput: FC<
                                     : capitalize(t(helperText)),
                                 FormHelperTextProps: {
                                     error: !!error
-                                }
+                                },
+                                inputRef: ref
                             },
                             ...slotProps
                         }}
