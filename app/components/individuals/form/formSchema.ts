@@ -4,7 +4,8 @@ import {
     emailsFormSchema,
     phonesFormSchema
 } from '@/app/lib/data/common-form-schemas';
-import { isDayJsDate, isValidDate } from '@/app/lib/utils';
+import { isValidDate } from '@/app/lib/utils';
+import dayjs from 'dayjs';
 import { z } from 'zod';
 
 const baseIndividualFormSchema = z.object({
@@ -32,8 +33,8 @@ const baseIndividualFormSchema = z.object({
     dob: isValidDate('invalid date')
         .nullish()
         .transform((val) => {
-            if (val && (val instanceof Date || isDayJsDate(val))) {
-                return new Date(val);
+            if (dayjs.isDayjs(val)) {
+                return val.toDate();
             }
             return val;
         }),

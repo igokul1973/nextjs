@@ -17,6 +17,7 @@ import { useData } from '@/app/context/data/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
 import { createOrganizationCustomer, updateCustomer } from '@/app/lib/data/customer';
+import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,15 +36,13 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import PartialEmailForm from '../../emails/form/PartialEmailForm';
 import FormSelect from '../../form-select/FormSelect';
-import { getDefaultFormValues } from '../utils';
 import { organizationCreateSchema, organizationUpdateSchema } from './formSchema';
 import { StyledForm } from './styled';
 import { TOrganizationForm } from './types';
-import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 
-const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, form }) => {
+const OrganizationForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit }) => {
     const { countries, organizationTypes } = useData();
-    const { user, account } = useUser();
+    const { user } = useUser();
     const userId = user.id;
     const { openSnackbar } = useSnackbar();
     const { push } = useRouter();
@@ -55,11 +54,9 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
         formState: { errors, isDirty, dirtyFields },
         control
     } = useForm<TOrganizationForm, unknown, TOrganizationFormOutput>({
-        resolver: zodResolver(form ? organizationUpdateSchema : organizationCreateSchema),
+        resolver: zodResolver(isEdit ? organizationUpdateSchema : organizationCreateSchema),
         reValidateMode: 'onChange',
-        defaultValues:
-            form ||
-            getDefaultFormValues(account.id, userId, userAccountCountry.id, localIdentifierName.id)
+        defaultValues
     });
 
     const t = useI18n();
@@ -299,7 +296,7 @@ const OrganizationForm: FC<IProps> = ({ userAccountCountry, localIdentifierName,
                         color='primary'
                         disabled={!isSubmittable}
                     >
-                        {capitalize(t(form ? 'update customer' : 'create customer'))}
+                        {capitalize(t(isEdit ? 'update customer' : 'create customer'))}
                     </Button>
                 </Box>
             </Box>

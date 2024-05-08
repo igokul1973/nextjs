@@ -1,5 +1,5 @@
 import { AccountRelationEnum, EntitiesEnum } from '@prisma/client';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { ChangeEvent } from 'react';
 import { z } from 'zod';
 import { TSingleTranslationKeys } from '../../locales/types';
@@ -330,20 +330,13 @@ export function stringToBoolean(str: string) {
 }
 
 export function isDayJsDate(val: unknown) {
-    return (
-        typeof val === 'object' &&
-        val !== null &&
-        '$isDayjsObject' in val &&
-        val['$isDayjsObject'] &&
-        '$d' in val &&
-        val.$d instanceof Date &&
-        dayjs(val.$d).isValid()
-    );
+    return dayjs.isDayjs(val) && '$d' in val && val.$d instanceof Date && dayjs(val.$d).isValid();
 }
 
-export function isValidDate(errorMessage: TSingleTranslationKeys): z.ZodType<Date> {
-    debugger;
-    return z.custom(
+export function isValidDate(
+    errorMessage: TSingleTranslationKeys
+): z.ZodType<Date | dayjs.Dayjs, z.ZodTypeDef, Date | dayjs.Dayjs> {
+    return z.custom<Date | Dayjs>(
         (val) => {
             return val instanceof Date || isDayJsDate(val);
         },
@@ -466,18 +459,16 @@ function deepCompareObjects(obj1: unknown, obj2: unknown): boolean {
 }
 
 /**
- * If the values contains null, undefined or an empty string, it will recursively
- * populate it with the default value from `defaultValues` argument.
- * Both argument must be objects with the same shape.
+ * If the values argument contains null, undefined or an empty string,
+ * it will recursively populate it with the default value from
+ * `defaultValues` argument.
+ * Both argument must be objects of the same shape.
  */
-export const populateForm = <R>(
-    defaultValues: Record<string, unknown>,
+export const populateForm = <R extends Record<string, unknown>>(
+    defaultValues: R,
     values: Record<string, unknown>
 ): R => {
-    const populateArray = (
-        defaultValuesArray: unknown[],
-        valuesArray: unknown[] /* , accumulator: Record<string, unknown> = {}, key: string */
-    ): unknown[] => {
+    const populateArray = (defaultValuesArray: unknown[], valuesArray: unknown[]): unknown[] => {
         return valuesArray.map((item, index) => {
             if (
                 typeof item === 'object' &&
@@ -487,7 +478,7 @@ export const populateForm = <R>(
                 !Array.isArray(item) &&
                 !Array.isArray(defaultValuesArray[index])
             ) {
-                return populateForm(
+                return populateForm<Record<string, unknown>>(
                     defaultValuesArray[index] as Record<string, unknown>,
                     item as Record<string, unknown>
                 );
@@ -504,132 +495,48 @@ export const populateForm = <R>(
 
     const keys = Object.keys(defaultValues);
 
-    return keys.reduce(
-        (acc, key) => {
-            if (key in values) {
-                // If OBJECT
-                if (
-                    typeof values[key] === 'object' &&
-                    values[key] !== null &&
-                    typeof defaultValues[key] === 'object' &&
-                    defaultValues[key] !== null &&
-                    !Array.isArray(values[key]) &&
-                    !Array.isArray(defaultValues[key])
-                ) {
-                    if (Object.keys(values[key] as Record<string, unknown>).length > 0) {
-                        acc[key] = populateForm(
-                            defaultValues[key] as Record<string, unknown>,
-                            values[key] as Record<string, unknown>
-                        );
-                    } else {
-                        acc[key] = defaultValues[key];
-                    }
-                    return acc;
-                }
-
-                // If ARRAY
-                if (Array.isArray(values[key]) && Array.isArray(defaultValues[key])) {
-                    const defaultValuesArray = defaultValues[key] as unknown[];
-                    const valuesArray = values[key] as unknown[];
-                    acc[key] = !valuesArray.length
-                        ? defaultValuesArray
-                        : populateArray(defaultValuesArray, valuesArray);
-                    return acc;
-                }
-
-                // If EMPTY VALUE
-                if (values[key] === null || values[key] === undefined || values[key] === '') {
-                    acc[key] = defaultValues[key];
+    return keys.reduce<Record<string, unknown>>((acc, key) => {
+        if (key in values) {
+            // If OBJECT
+            if (
+                typeof values[key] === 'object' &&
+                values[key] !== null &&
+                typeof defaultValues[key] === 'object' &&
+                defaultValues[key] !== null &&
+                !Array.isArray(values[key]) &&
+                !Array.isArray(defaultValues[key])
+            ) {
+                if (Object.keys(values[key] as Record<string, unknown>).length > 0) {
+                    acc[key] = populateForm<Record<string, unknown>>(
+                        defaultValues[key] as Record<string, unknown>,
+                        values[key] as Record<string, unknown>
+                    );
                 } else {
-                    // In all other cases
-                    acc[key] = values[key];
+                    acc[key] = defaultValues[key];
                 }
                 return acc;
             }
-            acc[key] = defaultValues[key];
+
+            // If ARRAY
+            if (Array.isArray(values[key]) && Array.isArray(defaultValues[key])) {
+                const defaultValuesArray = defaultValues[key] as unknown[];
+                const valuesArray = values[key] as unknown[];
+                acc[key] = !valuesArray.length
+                    ? defaultValuesArray
+                    : populateArray(defaultValuesArray, valuesArray);
+                return acc;
+            }
+
+            // If EMPTY VALUE
+            if (values[key] === null || values[key] === undefined || values[key] === '') {
+                acc[key] = defaultValues[key];
+            } else {
+                // In all other cases
+                acc[key] = values[key];
+            }
             return acc;
-        },
-        {} as Record<string, unknown>
-    );
-};
-
-const defValues = {
-    name: 'test',
-    age: 20,
-    isGood: false,
-    address: {
-        street: 'test',
-        city: 'test',
-        state: 'test',
-        visits: [[1, 2, 3]]
-    },
-    phones: [
-        {
-            number: 'test',
-            type: 'test'
         }
-    ],
-    emails: ['something', { nothing: 'special' }],
-    something: [false, 20],
-    foo: [true, 40],
-    mother: '',
-    father: null,
-    son: '',
-    daughter: 'nothing',
-    grandson: 'other'
+        acc[key] = defaultValues[key];
+        return acc;
+    }, {}) as R;
 };
-
-const realValues = {
-    name: 'real',
-    age: 0,
-    isGood: true,
-    address: {
-        street: 'real',
-        city: 'real',
-        state: '',
-        visits: [[4, 5, 6]]
-    },
-    phones: [
-        {
-            number: 'real',
-            type: null
-        }
-    ],
-    emails: [],
-    something: [true, 20, 40],
-    foo: [],
-    mother: '',
-    father: null,
-    son: null,
-    daughter: 'something',
-    grandson: undefined
-};
-const expectedAnswer = {
-    name: 'real',
-    age: 0,
-    isGood: true,
-    address: {
-        street: 'real',
-        city: 'real',
-        state: 'test',
-        visits: [[4, 5, 6]]
-    },
-    phones: [
-        {
-            number: 'real',
-            type: 'test'
-        }
-    ],
-    emails: ['something', { nothing: 'special' }],
-    something: [true, 20, 40],
-    foo: [true, 40],
-    mother: '',
-    father: null,
-    son: '',
-    daughter: 'something',
-    grandson: 'other'
-};
-
-const f = populateForm(defValues, realValues);
-console.log(deepCompareObjects(f, expectedAnswer));
-console.log(f);

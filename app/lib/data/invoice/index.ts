@@ -188,7 +188,7 @@ export async function updateInvoice(
     }
 
     const data = { ...changedFields, updatedBy: userId };
-    debugger;
+    // debugger;
 
     try {
         // const { customer, ...data } = formData;

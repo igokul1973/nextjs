@@ -1,4 +1,5 @@
 import InventoryForm from '@/app/components/inventory/form/InventoryForm';
+import { TInventoryForm } from '@/app/components/inventory/form/types';
 import { getDefaultFormValues } from '@/app/components/inventory/utils';
 import Warning from '@/app/components/warning/Warning';
 import { getInventoryItemById } from '@/app/lib/data/inventory';
@@ -43,7 +44,10 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
     // some keys at all, but the form expects certain values to be set
     // in order to later calculate the dirty values, we need to convert them where
     // appropriate to default values.
-    const form = populateForm(getDefaultFormValues(accountId, sessionUser.id), inventoryItem);
+    const defaultValues = populateForm<TInventoryForm>(
+        getDefaultFormValues(accountId, sessionUser.id),
+        inventoryItem
+    );
 
     return (
         <StyledBox component='main'>
@@ -59,7 +63,7 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
                 </Link>
                 <Typography color='text.primary'>{capitalize(t('create inventory'))}</Typography>
             </Breadcrumbs>
-            <InventoryForm types={types} form={form} />
+            <InventoryForm types={types} defaultValues={defaultValues} isEdit={true} />
         </StyledBox>
     );
 };

@@ -1,4 +1,5 @@
-import { isDayJsDate, isValidDate } from '@/app/lib/utils';
+import { isValidDate } from '@/app/lib/utils';
+import dayjs from 'dayjs';
 import { z } from 'zod';
 
 const baseInvoiceFormSchema = z.object({
@@ -54,37 +55,70 @@ const baseInvoiceFormSchema = z.object({
         })
         .min(1, { message: 'must be at least characters#many' }),
 
-    date: isValidDate('invalid date').transform((val) => {
-        if (val instanceof Date || isDayJsDate(val)) {
-            return new Date(val);
-        }
-        return val;
-    }),
+    date: isValidDate('invalid date')
+        .nullable()
+        .refine(
+            (val) => {
+                return val !== null;
+            },
+            { message: 'invalid date' }
+        )
+        .transform((val) => {
+            // Removes null from return type
+            if (val === null) {
+                return z.NEVER;
+            }
+            // Transforms dayjs to Date because
+            // Next.js complains about the Dayjs object
+            // containing methods (being not a POJO)
+            if (dayjs.isDayjs(val)) {
+                return val.toDate();
+            }
+            return val;
+        }),
     status: z.string().min(1),
     providerPhone: z.string().min(1),
     providerEmail: z.string().min(1),
     purchaseOrderNumbers: z.array(z.string()).optional(),
     manufacturerInvoiceNumbers: z.array(z.string()).optional(),
     additionalInformation: z.string().optional(),
+    // This is an example of the Date picker
+    // field which can be null and is MANDATORY.
     payBy: isValidDate('invalid date')
         .nullable()
-        .transform((val, ctx) => {
+        .refine(
+            (val) => {
+                return val !== null;
+            },
+            { message: 'invalid date' }
+        )
+        .transform((val) => {
+            // Removes null from return type
             if (val === null) {
-                ctx.addIssue({
-                    code: 'invalid_type',
-                    expected: 'number',
-                    received: 'null'
-                });
                 return z.NEVER;
             }
-            return new Date(val);
+            // Transforms dayjs to Date because
+            // Next.js complains about the Dayjs object
+            // containing methods (being not a POJO)
+            if (dayjs.isDayjs(val)) {
+                return val.toDate();
+            }
+            return val;
         }),
     paymentInfo: z.string().optional(),
+    // This is an example of the Date picker
+    // field which can be null and is
+    // NOT MANDATORY. If the user enters invalid
+    // date, however, the 'invalid date' error
+    // will be shown.
     paidOn: isValidDate('invalid date')
         .nullish()
         .transform((val) => {
-            if (val && (val instanceof Date || isDayJsDate(val))) {
-                return new Date(val);
+            // Transforms dayjs to Date because
+            // Next.js complains about the Dayjs object
+            // containing methods (being not a POJO)
+            if (dayjs.isDayjs(val)) {
+                return val.toDate();
             }
             return val;
         }),

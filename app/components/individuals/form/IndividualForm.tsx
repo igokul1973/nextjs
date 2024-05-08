@@ -32,18 +32,16 @@ import { FC, useState } from 'react';
 import { Control, useFieldArray, useForm } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import PartialPhoneForm from '../../phones/form/PartialPhoneForm';
-import { getDefaultFormValues } from '../utils';
 import { individualCreateSchema, individualUpdateSchema } from './formSchema';
 import { StyledForm } from './styled';
 import { IProps, TIndividualForm, TIndividualFormControl, TIndividualFormOutput } from './types';
 
-const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, form }) => {
+const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const { countries } = useData();
-    const { user, account } = useUser();
+    const { user } = useUser();
     const userId = user.id;
-    const accountId = account.id;
     const { push } = useRouter();
 
     const {
@@ -53,11 +51,9 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
         formState: { errors, isDirty, dirtyFields },
         control
     } = useForm<TIndividualForm, unknown, TIndividualFormOutput>({
-        resolver: zodResolver(form ? individualUpdateSchema : individualCreateSchema),
+        resolver: zodResolver(isEdit ? individualUpdateSchema : individualCreateSchema),
         reValidateMode: 'onChange',
-        defaultValues:
-            form ||
-            getDefaultFormValues(accountId, userId, userAccountCountry.id, localIdentifierName.id)
+        defaultValues
     });
 
     const phoneTypes = Object.values(PhoneTypeEnum);
@@ -120,8 +116,6 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
             openSnackbar(error as string, 'error');
         }
     };
-
-    console.log('Form:', form);
 
     // const isSubmittable = anyTrue(dirtyFields);
     const isSubmittable = isDirty;
@@ -271,7 +265,7 @@ const IndividualForm: FC<IProps> = ({ userAccountCountry, localIdentifierName, f
                         color='primary'
                         disabled={!isSubmittable}
                     >
-                        {capitalize(t(form ? 'update customer' : 'create customer'))}
+                        {capitalize(t(isEdit ? 'update customer' : 'create customer'))}
                     </Button>
                 </Box>
             </StyledForm>

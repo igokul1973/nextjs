@@ -1,13 +1,12 @@
 import { TGetLocalIdentifierNamePayload } from '@/app/lib/data/local-identifier-name/types';
-import { TCountry } from '@/app/lib/types';
 import { Control, FieldValues } from 'react-hook-form';
 import { z } from 'zod';
 import { individualUpdateSchema } from './formSchema';
 
 export interface IProps {
-    userAccountCountry: TCountry;
     localIdentifierName: TGetLocalIdentifierNamePayload;
-    form?: TIndividualForm;
+    defaultValues: TIndividualForm;
+    isEdit: boolean;
 }
 
 export type TIndividualForm = z.input<typeof individualUpdateSchema>;

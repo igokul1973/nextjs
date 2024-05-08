@@ -1,6 +1,7 @@
 'use client';
 
 import { StyledBox } from '@/app/[locale]/dashboard/customers/create/styled';
+import { useUser } from '@/app/context/user/provider';
 import { useI18n } from '@/locales/client';
 import Business from '@mui/icons-material/Business';
 import Face from '@mui/icons-material/Face';
@@ -11,15 +12,27 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { EntitiesEnum } from '@prisma/client';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import IndividualForm from '../../individuals/form/IndividualForm';
+import { TIndividualForm } from '../../individuals/form/types';
+import { getDefaultFormValues as getDefaultIndividualFormValues } from '../../individuals/utils';
 import OrganizationForm from '../../organizations/form/OrganizationForm';
+import { TOrganizationForm } from '../../organizations/form/types';
+import { getDefaultFormValues as getDefaultOrganizationFormValues } from '../../organizations/utils';
 import Warning from '../../warning/Warning';
 import { ICustomerFormProps } from './types';
 
 const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentifierNames }) => {
     const t = useI18n();
+    const { user, account } = useUser();
     const [customerType, setCustomerType] = useState<EntitiesEnum | ''>('');
+
+    const [defaultIndividualValues, setDefaultIndividualValues] = useState<TIndividualForm | null>(
+        null
+    );
+    const [defaultOrganizationValues, setDefaultOrganizationValues] =
+        useState<TOrganizationForm | null>(null);
+
     const entities = Object.values(EntitiesEnum).map((entity) => {
         return {
             name: entity,
@@ -34,6 +47,37 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
     const organizationLocalIdentifierName = localIdentifierNames.find(
         (name) => name.type === EntitiesEnum.organization
     );
+
+    useEffect(() => {
+        if (customerType && individualLocalIdentifierName && organizationLocalIdentifierName) {
+            if (customerType !== EntitiesEnum.individual) {
+                const defaultValues = getDefaultIndividualFormValues(
+                    account.id,
+                    user.id,
+                    userAccountCountry.id,
+                    individualLocalIdentifierName.id
+                );
+                setDefaultOrganizationValues(null);
+                setDefaultIndividualValues(defaultValues);
+            } else {
+                const defaultValues = getDefaultOrganizationFormValues(
+                    account.id,
+                    user.id,
+                    userAccountCountry.id,
+                    organizationLocalIdentifierName.id
+                );
+                setDefaultIndividualValues(null);
+                setDefaultOrganizationValues(defaultValues);
+            }
+        }
+    }, [
+        account.id,
+        customerType,
+        individualLocalIdentifierName,
+        organizationLocalIdentifierName,
+        user.id,
+        userAccountCountry.id
+    ]);
 
     if (!individualLocalIdentifierName || !organizationLocalIdentifierName) {
         return (
@@ -74,15 +118,19 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
                     })}
                 </Select>
             </FormControl>
-            {customerType === EntitiesEnum.individual ? (
+            {customerType === EntitiesEnum.individual && defaultIndividualValues ? (
                 <IndividualForm
                     userAccountCountry={userAccountCountry}
                     localIdentifierName={individualLocalIdentifierName}
+                    defaultValues={defaultIndividualValues}
+                    isEdit={false}
                 />
-            ) : customerType === EntitiesEnum.organization ? (
+            ) : customerType === EntitiesEnum.organization && defaultOrganizationValues ? (
                 <OrganizationForm
                     userAccountCountry={userAccountCountry}
                     localIdentifierName={organizationLocalIdentifierName}
+                    defaultValues={defaultOrganizationValues}
+                    isEdit={false}
                 />
             ) : null}
         </StyledBox>

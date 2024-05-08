@@ -74,18 +74,18 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
     const rawCustomer = await getCustomerById(id);
 
     if (!rawCustomer) {
-        notFound();
+        return notFound();
     }
 
     const { individual, organization } = rawCustomer;
     const entity = individual || organization;
 
     if (!entity) {
-        notFound();
+        return notFound();
     }
 
     const isIndividual = 'firstName' in entity;
-    const { address, attributes, ...entityFields } = entity;
+    const { address, attributes, customerId, ...entityFields } = entity;
     const { country, ...addressFields } = address;
     // Transforming JSON fields into array-like object
     const attributesFields = attributes
@@ -119,7 +119,7 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
     // some keys at all, but the form expects certain values to be set
     // in order to later calculate the dirty values, we need to convert them where
     // appropriate to default values.
-    const customerForm = populateForm(defaultForm, form);
+    const customerForm = populateForm<TIndividualForm | TOrganizationForm>(defaultForm, form);
 
     return (
         <StyledBox component='main' className='wrapper'>

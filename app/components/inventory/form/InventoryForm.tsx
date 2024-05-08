@@ -17,18 +17,16 @@ import { useRouter } from 'next/navigation';
 import { FC, useState } from 'react';
 import { Control, FieldValues, useForm } from 'react-hook-form';
 import FormSelect from '../../form-select/FormSelect';
-import { getDefaultFormValues } from '../utils';
 import { inventoryCreateSchema, inventoryUpdateSchema } from './formSchema';
 import { StyledForm, StyledMenuItemBox } from './styled';
 import { IProps, TInventoryForm, TInventoryFormOutput } from './types';
 
-const InventoryForm: FC<IProps> = ({ types, form }) => {
+const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
     const t = useI18n();
 
     const { openSnackbar } = useSnackbar();
-    const { user, account } = useUser();
+    const { user } = useUser();
     const userId = user.id;
-    const accountId = account.id;
     const { push } = useRouter();
 
     const {
@@ -38,9 +36,9 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
         formState: { errors, dirtyFields },
         control
     } = useForm<TInventoryForm, unknown, TInventoryFormOutput>({
-        resolver: zodResolver(form ? inventoryUpdateSchema : inventoryCreateSchema),
+        resolver: zodResolver(isEdit ? inventoryUpdateSchema : inventoryCreateSchema),
         reValidateMode: 'onChange',
-        defaultValues: form || getDefaultFormValues(accountId, userId)
+        defaultValues
     });
 
     // const w = watch();
@@ -233,7 +231,7 @@ const InventoryForm: FC<IProps> = ({ types, form }) => {
                         color='primary'
                         disabled={!isSubmittable}
                     >
-                        {capitalize(t(form ? 'update inventory item' : 'create inventory item'))}
+                        {capitalize(t(isEdit ? 'update inventory item' : 'create inventory item'))}
                     </Button>
                 </Box>
             </StyledForm>

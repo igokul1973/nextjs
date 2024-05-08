@@ -1,4 +1,5 @@
 import InventoryForm from '@/app/components/inventory/form/InventoryForm';
+import { getDefaultFormValues } from '@/app/components/inventory/utils';
 import Warning from '@/app/components/warning/Warning';
 import { getInventoryTypes } from '@/app/lib/data/inventory-type';
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
@@ -29,6 +30,8 @@ const Page: FC = async () => {
     const types = await getInventoryTypes();
     const isDataLoaded = !!types.length;
 
+    const defaultValues = getDefaultFormValues(sessionUser.accountId, sessionUser.id);
+
     if (!isDataLoaded) {
         return <Warning variant='h4'>{capitalize(t('could not load data'))}</Warning>;
     }
@@ -47,7 +50,7 @@ const Page: FC = async () => {
                 </Link>
                 <Typography color='text.primary'>{capitalize(t('create inventory'))}</Typography>
             </Breadcrumbs>
-            <InventoryForm types={types} />
+            <InventoryForm types={types} defaultValues={defaultValues} isEdit={false} />
         </StyledBox>
     );
 };
