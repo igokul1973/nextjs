@@ -114,9 +114,11 @@ const InvoiceForm: FC<IProps> = ({
                 await createInvoice(formData);
                 openSnackbar('Successfully created invoice.');
             }
-            // push('/dashboard/invoices');
+            push('/dashboard/invoices');
         } catch (error) {
-            openSnackbar(error as string, 'error');
+            if (error instanceof Error) {
+                openSnackbar(error.message, 'error');
+            }
         }
     };
 

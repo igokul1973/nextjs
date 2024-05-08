@@ -1,7 +1,7 @@
 'use server';
 
 import { DEFAULT_ITEMS_PER_PAGE } from '@/app/[locale]/dashboard/inventory/constants';
-import { TInventoryForm, TInventoryFormOutput } from '@/app/components/inventory/form/types';
+import { TInventoryFormOutput } from '@/app/components/inventory/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TInventory, TInventoryType, TOrder } from '@/app/lib/types';
 import { formatCurrency, getDirtyValues } from '@/app/lib/utils';
@@ -173,11 +173,11 @@ export async function createInventoryItem(formData: TInventoryFormOutput) {
 }
 
 export async function updateInventoryItem(
-    formData: TInventoryForm,
-    dirtyFields: TDirtyFields<TInventoryForm>,
+    formData: TInventoryFormOutput,
+    dirtyFields: TDirtyFields<TInventoryFormOutput>,
     userId: string
 ) {
-    const changedFields = getDirtyValues<TInventoryForm>(dirtyFields, formData);
+    const changedFields = getDirtyValues<TInventoryFormOutput>(dirtyFields, formData);
 
     if (!changedFields) {
         return null;

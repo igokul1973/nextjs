@@ -85,7 +85,7 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
     }
 
     const isIndividual = 'firstName' in entity;
-    const { address, attributes, customerId, ...entityFields } = entity;
+    const { address, attributes, ...entityFields } = entity;
     const { country, ...addressFields } = address;
     // Transforming JSON fields into array-like object
     const attributesFields = attributes
@@ -119,7 +119,7 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
     // some keys at all, but the form expects certain values to be set
     // in order to later calculate the dirty values, we need to convert them where
     // appropriate to default values.
-    const customerForm = populateForm<TIndividualForm | TOrganizationForm>(defaultForm, form);
+    const defaultValues = populateForm<TIndividualForm | TOrganizationForm>(defaultForm, form);
 
     return (
         <StyledBox component='main' className='wrapper'>
@@ -137,15 +137,15 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
             </Breadcrumbs>
             {isIndividual ? (
                 <IndividualForm
-                    userAccountCountry={userAccountCountry}
                     localIdentifierName={individualLocalIdentifierName}
-                    form={customerForm as TIndividualForm}
+                    defaultValues={defaultValues as TIndividualForm}
+                    isEdit={true}
                 />
             ) : (
                 <OrganizationForm
-                    userAccountCountry={userAccountCountry}
                     localIdentifierName={organizationLocalIdentifierName}
-                    form={customerForm as TOrganizationForm}
+                    defaultValues={defaultValues as TOrganizationForm}
+                    isEdit={true}
                 />
             )}
         </StyledBox>

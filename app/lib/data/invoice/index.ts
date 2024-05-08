@@ -2,7 +2,7 @@
 
 import { TInvoiceFormOutput } from '@/app/components/invoices/form/types';
 import prisma from '@/app/lib/prisma';
-import { InvoiceStatusEnum } from '@prisma/client';
+import { InvoiceStatusEnum, Prisma } from '@prisma/client';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { TDirtyFields, TOrder } from '../../types';
 import { flattenCustomer, formatCurrency, getDirtyValues } from '../../utils';
@@ -170,9 +170,10 @@ export async function createInvoice(formData: TInvoiceFormOutput): Promise<void>
 
         const d = await prisma.invoice.create({ data: invoice });
         console.log('Successfully created invoice: ', d);
+        revalidatePath('/dashboard/invoices');
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Database Error: Failed to create invoice.');
+        throw new Error('Database Error: Failed to create the invoice.');
     }
 }
 
@@ -187,46 +188,69 @@ export async function updateInvoice(
         return null;
     }
 
-    const data = { ...changedFields, updatedBy: userId };
-    // debugger;
-
     try {
-        // const { customer, ...data } = formData;
-        // delete customer.customerType;
-        // const data = { ...invoice, ...customer };
+        const { customer, invoiceItems, status, ...partialChangedFields } = changedFields;
 
-        // const { invoiceItems, status, ...partialInvoice } = data;
+        let data: Prisma.XOR<Prisma.invoiceUpdateInput, Prisma.invoiceUncheckedUpdateInput> = {
+            ...partialChangedFields,
+            updatedBy: userId
+        };
 
-        // const invoice = {
-        //     status: status as InvoiceStatusEnum,
-        //     invoiceItems: {
-        //         create: invoiceItems.map((ii) => {
-        //             const { inventoryItem, ...item } = ii;
-        //             return {
-        //                 ...item
-        //             };
-        //         })
-        //     },
-        //     ...customer,
-        //     ...partialInvoice
-        // };
-        // await prisma.invoice.update({ where: {
-        //         id
-        //     },
-        //     data
-        // });
-        console.log('Successfully updated invoice.');
+        if (customer && Object.keys(customer).length > 0) {
+            delete customer.customerType;
+
+            data = { ...data, ...customer };
+        }
+
+        if (invoiceItems && invoiceItems.length > 0) {
+            // Stripping invoice item of id and adding updatedBy value
+            const preparedInvoiceItems = invoiceItems.map((ii) => {
+                const { id, inventoryItem, ...item } = ii;
+                return {
+                    ...item,
+                    updatedBy: userId
+                };
+            });
+            const invoiceItemsData = {
+                invoiceItems: {
+                    deleteMany: {
+                        invoiceId: formData.id
+                    },
+                    createMany: {
+                        data: preparedInvoiceItems
+                    }
+                }
+            };
+
+            data = {
+                ...data,
+                ...invoiceItemsData
+            };
+        }
+
+        if (status) {
+            data = {
+                ...data,
+                status: status as InvoiceStatusEnum
+            };
+        }
+
+        await prisma.invoice.update({
+            where: {
+                id: formData.id
+            },
+            data
+        });
+
+        console.log('Successfully updated invoice with ID:', formData.id);
+        revalidatePath('/dashboard/invoices');
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to delete invoice.');
+        throw new Error('Database Error: Failed to update the invoice.');
     }
-    revalidatePath('/dashboard/invoices');
 }
 
-export async function deleteInvoiceById(
-    id: string,
-    status: InvoiceStatusEnum
-): Promise<{ message: string }> {
+export async function deleteInvoiceById(id: string, status: InvoiceStatusEnum): Promise<void> {
     if (!id) {
         throw Error('The id must be a valid UUID');
     }
@@ -244,7 +268,6 @@ export async function deleteInvoiceById(
         console.log(successMessage);
 
         revalidatePath('/dashboard/invoices');
-        return { message: successMessage };
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error(`Database Error: failed to delete invoice with ID: ${id}`);

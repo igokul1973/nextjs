@@ -68,7 +68,9 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
             }
             push('/dashboard/inventory');
         } catch (error) {
-            openSnackbar(`Failed to create customer: ${error}`, 'error');
+            if (error instanceof Error) {
+                openSnackbar(error.message, 'error');
+            }
         }
     };
 

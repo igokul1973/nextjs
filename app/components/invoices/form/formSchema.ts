@@ -107,10 +107,9 @@ const baseInvoiceFormSchema = z.object({
         }),
     paymentInfo: z.string().optional(),
     // This is an example of the Date picker
-    // field which can be null and is
-    // NOT MANDATORY. If the user enters invalid
-    // date, however, the 'invalid date' error
-    // will be shown.
+    // field which can be null and is NOT MANDATORY.
+    // If the user enters invalid date, however,
+    // the 'invalid date' error will be shown.
     paidOn: isValidDate('invalid date')
         .nullish()
         .transform((val) => {
@@ -125,12 +124,27 @@ const baseInvoiceFormSchema = z.object({
     terms: z.string().optional(),
     // Tax percentage (can be state sales tax in USA or VAT in Europe), default is 0
     tax: z
-        .number()
+        .number({
+            invalid_type_error: 'the tax cannot be less than 0'
+        })
         .min(0, { message: 'the tax cannot be less than 0' })
-        .max(100, { message: 'the tax cannot be more than 100' }),
+        .max(100, { message: 'the tax cannot be more than 100' })
+        .transform((val, ctx) => {
+            if (val === null) {
+                ctx.addIssue({
+                    code: 'invalid_type',
+                    expected: 'number',
+                    received: 'null'
+                });
+                return z.NEVER;
+            }
+            return Math.floor(val * 100);
+        }),
     // Discount percentage on whole invoice, default is 0.
     discount: z
-        .number()
+        .number({
+            invalid_type_error: 'the discount cannot be less than 0'
+        })
         .min(0, { message: 'the discount cannot be less than 0' })
         .max(100, { message: 'the discount cannot be more than 100' }),
     notes: z.string().optional(),

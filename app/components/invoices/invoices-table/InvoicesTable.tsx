@@ -256,7 +256,9 @@ const InvoicesTable: FC<IProps> = ({ invoices, count }) => {
             await deleteInvoiceById(id, status);
             openSnackbar(`Successfully deleted invoice #: ${number}`);
         } catch (error) {
-            openSnackbar(`Could not delete invoice #: ${number}: ${error}. `, 'error');
+            if (error instanceof Error) {
+                openSnackbar(error.message, 'error');
+            }
         }
     };
 

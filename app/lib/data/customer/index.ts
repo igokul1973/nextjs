@@ -1,12 +1,10 @@
 'use server';
 
+import { TEmail, TIndividualFormOutput, TPhone } from '@/app/components/individuals/form/types';
 import {
-    TEmail,
-    TIndividualForm,
-    TIndividualFormOutput,
-    TPhone
-} from '@/app/components/individuals/form/types';
-import { TOrganizationForm } from '@/app/components/organizations/form/types';
+    TOrganizationForm,
+    TOrganizationFormOutput
+} from '@/app/components/organizations/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TOrder } from '@/app/lib/types';
 import { flattenCustomer, formatCurrency, getDirtyValues } from '@/app/lib/utils';
@@ -221,7 +219,7 @@ export async function createIndividualCustomer(formData: TIndividualFormOutput) 
             Prisma.customerUncheckedCreateInput
         > | null = null;
 
-        const createEntityObject = {
+        const createIndividualObject = {
             ...entity,
             accountRelation: accountRelation as AccountRelationEnum,
             account: {
@@ -251,7 +249,7 @@ export async function createIndividualCustomer(formData: TIndividualFormOutput) 
 
         data = {
             individual: {
-                create: createEntityObject
+                create: createIndividualObject
             }
         };
 
@@ -361,12 +359,12 @@ export async function createOrganizationCustomer(formData: TOrganizationForm) {
 }
 
 export async function updateCustomer(
-    formData: TIndividualForm | TOrganizationForm,
-    dirtyFields: TDirtyFields<TIndividualForm | TOrganizationForm>,
+    formData: TIndividualFormOutput | TOrganizationFormOutput,
+    dirtyFields: TDirtyFields<TIndividualFormOutput | TOrganizationFormOutput>,
     userId: string
 ) {
     try {
-        const changedFields = getDirtyValues<TIndividualForm | TOrganizationForm>(
+        const changedFields = getDirtyValues<TIndividualFormOutput | TOrganizationFormOutput>(
             dirtyFields,
             formData
         );
@@ -376,6 +374,7 @@ export async function updateCustomer(
         }
 
         const isIndividual = 'firstName' in formData;
+
         const customerId = formData.customerId;
 
         const {

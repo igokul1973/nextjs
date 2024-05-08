@@ -367,8 +367,8 @@ export const mask2DecimalPlaces = (e: ChangeEvent<HTMLInputElement>) => {
 export const maskPercentage = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     const numericValue = parseFloat(value);
-    if (isNaN(numericValue)) {
-        return (e.target.value = '');
+    if (isNaN(numericValue) || value === '') {
+        return (e.target.value = '0');
     } else if (numericValue > 100) {
         return (e.target.value = '100.00');
     } else if (numericValue < 0) {

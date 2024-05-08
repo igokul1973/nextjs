@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import { z } from 'zod';
 
 const baseIndividualFormSchema = z.object({
-    id: z.string().nullish(),
+    id: z.string(),
     firstName: z
         .string({
             required_error: 'please enter the first name',
@@ -24,7 +24,7 @@ const baseIndividualFormSchema = z.object({
         .min(1, { message: 'please enter the last name' }),
     middleName: z.string().nullish(),
     accountId: z.string(),
-    localIdentifierNameId: z.string().nullish(),
+    localIdentifierNameId: z.string(),
     localIdentifierValue: z.string().nullish(),
     accountRelation: z.string(),
     customerId: z.string({

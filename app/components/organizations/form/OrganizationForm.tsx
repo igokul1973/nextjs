@@ -116,7 +116,9 @@ const OrganizationForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEd
             }
             push('/dashboard/customers');
         } catch (error) {
-            openSnackbar(error as string, 'error');
+            if (error instanceof Error) {
+                openSnackbar(error.message, 'error');
+            }
         }
     };
 
