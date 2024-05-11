@@ -169,7 +169,9 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'please enter the country': 'var god ange landet',
     'please enter the company name': 'var god ange företagsnamn',
     'please enter the price': 'var god ange priset',
-    'the price cannot be less than 0.01': 'priset kan inte vara mindre än 0.01',
+    'price cannot be less than 0.01': 'priset kan inte vara mindre än 0.01',
+    'price cannot be more than 999 999 999 999.99':
+        'priset kan inte vara mer än 999 999 999 999.99',
     'the country code cannot be bigger than 999': 'landskoden kan inte vara mer än 999',
     'the phone number cannot have less than 8 digits':
         'telefonnumret kan inte ha mindre än 8 siffror',

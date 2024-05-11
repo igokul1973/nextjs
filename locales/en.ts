@@ -166,7 +166,8 @@ export const enSingle = {
     'please enter the country': 'please enter the country',
     'please enter the company name': 'please enter the company name',
     'please enter the price': 'please enter the price',
-    'the price cannot be less than 0.01': 'the price cannot be less than 0.01',
+    'price cannot be less than 0.01': 'price cannot be less than 0.01',
+    'price cannot be more than 999 999 999 999.99': 'price cannot be more than 999 999 999 999.99',
     'the country code cannot be bigger than 999': 'the country code cannot be bigger than 999',
     'the phone number cannot have less than 8 digits':
         'the phone number cannot have less than 8 digits',

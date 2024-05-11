@@ -1,3 +1,4 @@
+import { TInventory, TInventoryType } from '@/app/lib/types';
 import { Prisma } from '@prisma/client';
 
 export const getInventorySelect = {
@@ -15,9 +16,14 @@ export const getInventorySelect = {
     updatedBy: true
 } satisfies Prisma.inventorySelect;
 
-export type TGetInventoryPayload = Prisma.inventoryGetPayload<{
+export type TGetInventoryPayloadRaw = Prisma.inventoryGetPayload<{
     select: typeof getInventorySelect;
 }>;
+
+export type TGetInventoryPayload = Omit<TGetInventoryPayloadRaw, 'price' | 'manufacturerPrice'> & {
+    price: number;
+    manufacturerPrice: number | null;
+};
 
 export interface ICreateInventoryItemState {
     message?: string | null;
@@ -76,3 +82,9 @@ export const getQueryFilterWhereClause = (query: string): Prisma.inventoryWhereI
         }
     ]
 });
+
+export type TInventoryTransformed = Omit<TInventory, 'price' | 'manufacturerPrice'> & {
+    price: number;
+    manufacturerPrice: number | null;
+    type: TInventoryType;
+};

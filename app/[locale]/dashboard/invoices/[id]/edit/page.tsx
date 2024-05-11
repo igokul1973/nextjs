@@ -1,4 +1,5 @@
 import InvoiceForm from '@/app/components/invoices/form/InvoiceForm';
+import { TInvoiceForm } from '@/app/components/invoices/form/types';
 import { getDefaultFormValues } from '@/app/components/invoices/utils';
 import Warning from '@/app/components/warning/Warning';
 import { getCustomersByAccountId } from '@/app/lib/data/customer';
@@ -14,7 +15,6 @@ import Typography from '@mui/material/Typography';
 import NextLink from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { StyledBox } from '../../styled';
-import { TInvoiceForm } from '@/app/components/invoices/form/types';
 
 const Page = async ({ params: { id } }: { params: { id: string } }) => {
     const t = await getI18n();
@@ -47,7 +47,7 @@ const Page = async ({ params: { id } }: { params: { id: string } }) => {
     const invoicePromise = getInvoiceById(id);
     const customersPromise = getCustomersByAccountId(session.user.accountId);
     const inventoryPromise = getFilteredInventoryByAccountIdRaw(accountId, '', 0, 50);
-    const [invoice, customers, inventory] = await Promise.all([
+    const [invoice, customers, rawInventory] = await Promise.all([
         invoicePromise,
         customersPromise,
         inventoryPromise
@@ -56,6 +56,20 @@ const Page = async ({ params: { id } }: { params: { id: string } }) => {
     if (!invoice) {
         notFound();
     }
+
+    const inventory = rawInventory.map((rawInventoryItem) => {
+        const {
+            price: rawPrice,
+            manufacturerPrice: rawManufacturerPrice,
+            ...partialInventoryItem
+        } = rawInventoryItem;
+
+        return {
+            price: rawPrice / 100,
+            manufacturerPrice: rawManufacturerPrice === null ? null : rawManufacturerPrice / 100,
+            ...partialInventoryItem
+        };
+    });
 
     const {
         date,
@@ -74,13 +88,16 @@ const Page = async ({ params: { id } }: { params: { id: string } }) => {
         ...formRaw
     } = invoice;
 
-    const preparedInvoiceItems = invoiceItems.map((ii) => {
+    const preparedInvoiceItems = invoiceItems.map((invoiceItem) => {
+        const { price: rawPrice, ...partialInvoiceItem } = invoiceItem;
+
         return {
-            ...ii,
+            price: rawPrice / 100,
             inventoryItem: {
-                id: ii.inventoryId,
-                name: ii.name
-            }
+                id: partialInvoiceItem.inventoryId,
+                name: partialInvoiceItem.name
+            },
+            ...partialInvoiceItem
         };
     });
 

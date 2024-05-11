@@ -302,11 +302,11 @@ model inventory {
   type              inventoryType @relation(fields: [typeId], references: [id]) // service, product
   accountId         String        @map("account_id") @db.Uuid
   account           account       @relation(fields: [accountId], references: [id])
-  price             Int           @db.Integer
+  price             BigInt        @db.BigInt
   externalCode      String?       @map("external_code") @db.VarChar(255) // e.g. code from store invoice or receipt
   internalCode      String?       @map("internal_code") @db.VarChar(255) // e.g. code inside accounting software
   manufacturerCode  String?       @map("manufacturer_code") @db.VarChar(255) // e.g. code from store invoice or receipt
-  manufacturerPrice Int?          @db.Integer
+  manufacturerPrice BigInt?       @db.BigInt
   createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt         DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
   createdBy         String        @map("created_by") @db.Uuid
@@ -394,7 +394,7 @@ model invoiceItem {
   // Price is also from Inventory table, but may not match
   // with inventory item with inventoryId on record, as inventory prices
   // have a tendency to change over the time.
-  price       Int       @db.Integer
+  price       BigInt    @db.BigInt
   quantity    Int       @db.Integer
   invoiceId   String    @map("invoice_id") @db.Uuid
   invoice     invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: Cascade)

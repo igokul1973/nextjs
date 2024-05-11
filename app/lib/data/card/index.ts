@@ -29,7 +29,7 @@ export async function fetchCardData() {
         const totalPaidInvoicesNum = invoices.reduce((acc, i) => {
             const amount = i.invoiceItems.reduce((acc, ii) => {
                 if (i.status === InvoiceStatusEnum.paid) {
-                    return acc + ii.price;
+                    return acc + Number(ii.price);
                 }
                 return acc;
             }, 0);
@@ -39,7 +39,7 @@ export async function fetchCardData() {
         const totalPendingInvoicesNum = invoices.reduce((acc, i) => {
             const amount = i.invoiceItems.reduce((acc, ii) => {
                 if (i.status === InvoiceStatusEnum.pending) {
-                    return acc + ii.price;
+                    return acc + Number(ii.price);
                 }
                 return acc;
             }, 0);

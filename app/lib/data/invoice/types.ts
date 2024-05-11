@@ -1,4 +1,3 @@
-import { TCustomerOutput, TInvoiceFormOutput } from '@/app/components/invoices/form/types';
 import { InvoiceStatusEnum, Prisma } from '@prisma/client';
 import { includeEntityRelations } from '../user/types';
 
@@ -19,7 +18,11 @@ export const getInvoiceSelect = {
     }
 } satisfies Prisma.invoiceSelect;
 
-export type TGetInvoicePayload = Prisma.invoiceGetPayload<{ select: typeof getInvoiceSelect }>;
+export type TGetInvoicePayloadRaw = Prisma.invoiceGetPayload<{ select: typeof getInvoiceSelect }>;
+
+export type TGetInvoicePayload = Omit<TGetInvoicePayloadRaw, 'price'> & {
+    price: number;
+};
 
 export interface ICreateInvoiceState {
     message?: string | null;
@@ -48,6 +51,10 @@ export const invoicesInclude = {
         }
     }
 } satisfies Prisma.invoiceInclude;
+
+export type TGetInvoiceWithRelationsPayloadRaw = Prisma.invoiceGetPayload<{
+    include: typeof invoicesInclude;
+}>;
 
 export const getQueryFilterWhereClause = (
     accountId: string,

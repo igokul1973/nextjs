@@ -104,7 +104,7 @@ const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit
 
     const onSubmit = async (formData: TIndividualFormOutput) => {
         try {
-            if (formData.id) {
+            if (isEdit) {
                 await updateCustomer(formData, dirtyFields, userId);
                 openSnackbar('Successfully updated customer.');
             } else {

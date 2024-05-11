@@ -107,7 +107,7 @@ const InvoiceForm: FC<IProps> = ({
 
     const onSubmit = async (formData: TInvoiceFormOutput) => {
         try {
-            if (formData.id) {
+            if (isEdit) {
                 await updateInvoice(formData, dirtyFields, userId);
                 openSnackbar('Successfully updated invoice.');
             } else {

@@ -2,6 +2,7 @@ import { TInventoryForm } from './form/types';
 
 export const getDefaultFormValues = (accountId: string, userId: string): TInventoryForm => {
     return {
+        id: '',
         accountId: accountId,
         name: '',
         description: '',

@@ -188,7 +188,8 @@ const baseInvoiceItemFormSchema = z.array(
             .number({
                 invalid_type_error: 'please select inventory item to get the price'
             })
-            .gte(0.01, { message: 'please select inventory item to get the price' })
+            .gt(0, { message: 'please select inventory item to get the price' })
+            .lte(999999999999.99, { message: 'price cannot be more than 999 999 999 999.99' })
             .nullable()
             .transform((val, ctx) => {
                 if (val === null) {

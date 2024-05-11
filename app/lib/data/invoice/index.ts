@@ -6,7 +6,12 @@ import { InvoiceStatusEnum, Prisma } from '@prisma/client';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { TDirtyFields, TOrder } from '../../types';
 import { flattenCustomer, formatCurrency, getDirtyValues } from '../../utils';
-import { getInvoiceSelect, getQueryFilterWhereClause, invoicesInclude } from './types';
+import {
+    TGetInvoiceWithRelationsPayloadRaw,
+    getInvoiceSelect,
+    getQueryFilterWhereClause,
+    invoicesInclude
+} from './types';
 
 export interface ILatestInvoice {
     number: string;
@@ -32,7 +37,7 @@ export async function getLatestInvoices(): Promise<ILatestInvoice[]> {
         const latestInvoices = invoices.map((invoice) => {
             const { number, date, invoiceItems, customerName, customerEmail } = invoice;
             const amount = invoiceItems.reduce((acc, ii) => {
-                return acc + ii.quantity * ii.price;
+                return acc + ii.quantity * Number(ii.price);
             }, 0);
             return {
                 number,
@@ -52,6 +57,32 @@ export async function getLatestInvoices(): Promise<ILatestInvoice[]> {
     }
 }
 
+// FIXME: Continue here - need type fo the invoice
+const transformInvoice = (invoice: TGetInvoiceWithRelationsPayloadRaw) => {
+    const { invoiceItems: rawInvoiceItems, customer: rawCustomer, ...partialInvoice } = invoice;
+    const invoiceItems = rawInvoiceItems.map((ii) => {
+        return {
+            ...ii,
+            price: Number(ii.price)
+        };
+    });
+
+    const customer = flattenCustomer(rawCustomer);
+    const amount = formatCurrency(
+        invoiceItems.reduce((acc, ii) => {
+            return acc + ii.quantity * ii.price;
+        }, 0)
+    );
+
+    return {
+        ...partialInvoice,
+        amount,
+        customer,
+        invoiceItems,
+        date: invoice.date.toLocaleDateString()
+    };
+};
+
 export async function getInvoiceById(id: string) {
     noStore();
     try {
@@ -67,18 +98,7 @@ export async function getInvoiceById(id: string) {
             return null;
         }
 
-        const rawCustomer = { ...invoice.customer };
-        const customer = flattenCustomer(rawCustomer);
-        const amount = invoice.invoiceItems.reduce((acc, ii) => {
-            return acc + ii.quantity * ii.price;
-        }, 0);
-
-        return {
-            ...invoice,
-            amount: amount / 100,
-            customer,
-            date: invoice.date.toLocaleDateString()
-        };
+        return transformInvoice(invoice);
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Failed to get invoice.');
@@ -110,15 +130,7 @@ export async function getFilteredInvoicesByAccountId(
         });
         // Adding invoice amount
         const invoices = rawInvoices.map((invoice) => {
-            const rawCustomer = { ...invoice.customer };
-            const customer = flattenCustomer(rawCustomer);
-
-            const amount = formatCurrency(
-                invoice.invoiceItems.reduce((acc, ii) => {
-                    return acc + ii.quantity * ii.price;
-                }, 0)
-            );
-            return { ...invoice, amount, customer, date: invoice.date.toLocaleDateString() };
+            return transformInvoice(invoice);
         });
 
         return invoices;
@@ -146,11 +158,11 @@ export async function getFilteredInvoicesByAccountIdCount(accountId: string, que
 }
 
 export async function createInvoice(formData: TInvoiceFormOutput): Promise<void> {
-    // Creating invoice in DB
+    // FIXME: The phone on the create/update form does not get selected automatically
+    // and allows to save without selected phone - check it out, along with the email.
     try {
         const { customer, ...data } = formData;
         delete customer.customerType;
-        // const data = { ...invoice, ...customer };
 
         const { invoiceItems, status, ...partialInvoice } = data;
 

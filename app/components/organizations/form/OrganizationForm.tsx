@@ -107,7 +107,7 @@ const OrganizationForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEd
 
     const onSubmit = async (formData: TOrganizationFormOutput) => {
         try {
-            if (formData.id) {
+            if (isEdit) {
                 await updateCustomer(formData, dirtyFields, userId);
                 openSnackbar('Successfully updated customer.');
             } else {

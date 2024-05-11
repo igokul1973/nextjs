@@ -4,6 +4,7 @@ import prisma from '@/app/lib/prisma';
 import { TUser } from '@/app/lib/types';
 import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
+import { unstable_noStore as noStore } from 'next/cache';
 import { TGetUserPayload, TGetUserWithRelationsPayload, getUserWithRelations } from './types';
 
 export async function getUsersByEmail(email: string): Promise<TUser[]> {
@@ -20,6 +21,7 @@ export async function getUsersByEmail(email: string): Promise<TUser[]> {
 }
 
 export async function getUserByEmail(email: string): Promise<TGetUserPayload | null> {
+    noStore();
     try {
         const user = await prisma.user.findUnique({
             where: {
@@ -36,6 +38,8 @@ export async function getUserByEmail(email: string): Promise<TGetUserPayload | n
 export async function getUserWithRelationsByEmail(
     email: string
 ): Promise<TGetUserWithRelationsPayload | null> {
+    noStore();
+
     try {
         const user = await prisma.user.findUnique({
             include: getUserWithRelations,

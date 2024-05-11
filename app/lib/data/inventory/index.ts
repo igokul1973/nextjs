@@ -3,12 +3,17 @@
 import { DEFAULT_ITEMS_PER_PAGE } from '@/app/[locale]/dashboard/inventory/constants';
 import { TInventoryFormOutput } from '@/app/components/inventory/form/types';
 import prisma from '@/app/lib/prisma';
-import { TDirtyFields, TInventory, TInventoryType, TOrder } from '@/app/lib/types';
+import { TDirtyFields, TOrder } from '@/app/lib/types';
 import { formatCurrency, getDirtyValues } from '@/app/lib/utils';
 import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
-import { TGetInventoryPayload, getInventorySelect, getQueryFilterWhereClause } from './types';
+import {
+    TGetInventoryPayload,
+    TInventoryTransformed,
+    getInventorySelect,
+    getQueryFilterWhereClause
+} from './types';
 
 export async function getInventoryItemById(id: string): Promise<TGetInventoryPayload | null> {
     noStore();
@@ -29,8 +34,8 @@ export async function getInventoryItemById(id: string): Promise<TGetInventoryPay
 
         return {
             ...inventory,
-            price: price / 100,
-            manufacturerPrice: manufacturerPrice && manufacturerPrice / 100
+            price: Number(price),
+            manufacturerPrice: manufacturerPrice === null ? null : Number(manufacturerPrice)
         };
     } catch (error) {
         console.error('Database Error:', error);
@@ -45,7 +50,7 @@ export async function getFilteredInventoryByAccountIdRaw(
     itemsPerPage: number = DEFAULT_ITEMS_PER_PAGE,
     orderBy: string = 'name',
     order: TOrder = 'asc'
-): Promise<(TInventory & { type: TInventoryType })[]> {
+): Promise<TInventoryTransformed[]> {
     noStore();
 
     const offset = currentPage * itemsPerPage;
@@ -67,7 +72,7 @@ export async function getFilteredInventoryByAccountIdRaw(
         | Prisma.inventoryOrderByWithRelationInput[] =
         orderBy === 'type' ? { type: { type: order } } : { [orderBy]: order };
 
-    return await prisma.inventory.findMany({
+    const res = await prisma.inventory.findMany({
         relationLoadStrategy: 'join',
         take: itemsPerPage,
         skip: offset,
@@ -85,6 +90,14 @@ export async function getFilteredInventoryByAccountIdRaw(
                 queryFilterWhereClause
             ]
         }
+    });
+
+    return res.map(({ price, manufacturerPrice, ...inventoryItem }) => {
+        return {
+            ...inventoryItem,
+            price: Number(price),
+            manufacturerPrice: manufacturerPrice === null ? null : Number(manufacturerPrice)
+        };
     });
 }
 
@@ -165,7 +178,6 @@ export async function createInventoryItem(formData: TInventoryFormOutput) {
 
         console.log('Successfully created new inventory item: ', newInventoryItem);
         revalidatePath('/dashboard/inventory');
-        return newInventoryItem;
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Database Error: Failed to create inventory.');
@@ -186,20 +198,18 @@ export async function updateInventoryItem(
     const data = { ...changedFields, updatedBy: userId };
 
     try {
-        const updatedInventoryItem = await prisma.inventory.update({
+        await prisma.inventory.update({
             where: {
                 id: formData.id
             },
             data
         });
 
-        console.log('Successfully updated customer with ID:', updatedInventoryItem.id);
-
+        console.log('Successfully updated inventory item with ID:', formData.id);
         revalidatePath('/dashboard/inventory');
-        return updatedInventoryItem;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to delete inventoryItem.');
+        throw new Error('Failed to update inventoryItem.');
     }
 }
 

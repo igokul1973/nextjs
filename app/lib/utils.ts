@@ -355,13 +355,36 @@ export const maskMax3Digits = (e: ChangeEvent<HTMLInputElement>) => {
     }
 };
 
+/**
+ * The regular expression (\d{1,}(?=\D|$)) is used to match
+ * the whole part of the decimal number. It ensures that the
+ * whole part is followed by either a decimal point with 1 or 2
+ * digits, or the end of the string.
+ */
+function matchAndReplaceLongWholePart(e: ChangeEvent<HTMLInputElement>, maxLength: number) {
+    const { value } = e.target;
+    const regex = new RegExp(`(\\d{${maxLength + 1},})(\\.\\d{1,2}|$)`);
+    const match = value.match(regex);
+
+    if (match) {
+        const wholePart = match[1].slice(0, maxLength);
+        const remainingPart = match[2]; // .00 or .3
+        e.target.value = wholePart + remainingPart;
+    }
+}
+
 export const mask2DecimalPlaces = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    // Masking the price to max 2 decimal places
+    // Masking the value to max 2 decimal places
     const isMatch = value.match(/(\d+\.\d{3,})/g);
     if (isMatch) {
         e.target.value = value.slice(0, -1);
     }
+};
+
+export const maskPrice = (e: ChangeEvent<HTMLInputElement>) => {
+    mask2DecimalPlaces(e);
+    matchAndReplaceLongWholePart(e, 12);
 };
 
 export const maskPercentage = (e: ChangeEvent<HTMLInputElement>) => {

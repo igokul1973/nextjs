@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 const baseInventoryFormSchema = z.object({
-    id: z.string().optional(),
+    id: z.string(),
     accountId: z.string(),
     name: z
         .string({
@@ -20,7 +20,8 @@ const baseInventoryFormSchema = z.object({
         .number({
             invalid_type_error: 'must be a number'
         })
-        .gte(0.01, { message: 'the price cannot be less than 0.01' })
+        .gte(0.01, { message: 'price cannot be less than 0.01' })
+        .lte(999999999999.99, { message: 'price cannot be more than 999 999 999 999.99' })
         .nullable()
         .transform((val, ctx) => {
             if (val === null) {
@@ -37,8 +38,10 @@ const baseInventoryFormSchema = z.object({
     internalCode: z.string().nullish(),
     manufacturerCode: z.string().nullish(),
     manufacturerPrice: z.coerce
-        .number()
-        .gte(0.01, { message: 'the price cannot be less than 0.01' })
+        .number({
+            invalid_type_error: 'must be a number'
+        })
+        .lte(999999999999.99, { message: 'price cannot be more than 999 999 999 999.99' })
         .nullish()
         .transform((val, ctx) => {
             if (val === null) {

@@ -33,12 +33,25 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
     const { id: accountId } = dbUser.account;
 
     const types = await getInventoryTypes();
-    const inventoryItem = await getInventoryItemById(id);
-    const isDataLoaded = !!types.length && inventoryItem;
+    const rawInventoryItem = await getInventoryItemById(id);
+
+    const isDataLoaded = !!types.length && rawInventoryItem;
 
     if (!isDataLoaded) {
         return <Warning variant='h4'>{capitalize(t('could not load data'))}</Warning>;
     }
+
+    const {
+        price: rawPrice,
+        manufacturerPrice: rawManufacturerPrice,
+        ...partialInventoryItem
+    } = rawInventoryItem;
+
+    const inventoryItem = {
+        price: rawPrice / 100,
+        manufacturerPrice: rawManufacturerPrice === null ? null : rawManufacturerPrice / 100,
+        ...partialInventoryItem
+    };
 
     // Since the DB may return some empty (null, undefined) values or not return
     // some keys at all, but the form expects certain values to be set

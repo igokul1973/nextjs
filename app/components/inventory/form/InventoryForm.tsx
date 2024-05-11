@@ -5,7 +5,7 @@ import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
 import { createInventoryItem, updateInventoryItem } from '@/app/lib/data/inventory';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
-import { anyTrue, mask2DecimalPlaces } from '@/app/lib/utils';
+import { anyTrue, maskPrice } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKeys } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,7 +14,7 @@ import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Control, FieldValues, useForm } from 'react-hook-form';
 import FormSelect from '../../form-select/FormSelect';
 import { inventoryCreateSchema, inventoryUpdateSchema } from './formSchema';
@@ -30,7 +30,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
     const { push } = useRouter();
 
     const {
-        // watch,
+        watch,
         register,
         handleSubmit,
         formState: { errors, dirtyFields },
@@ -41,13 +41,13 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
         defaultValues
     });
 
-    // const w = watch();
+    const w = watch();
 
-    // useEffect(() => {
-    //     console.log('DirtyFields:', dirtyFields);
-    //     console.log('Watch:', w);
-    //     console.error('Errors:', errors);
-    // }, [errors, w, dirtyFields]);
+    useEffect(() => {
+        console.log('DirtyFields:', dirtyFields);
+        console.log('Watch:', w);
+        console.error('Errors:', errors);
+    }, [errors, w, dirtyFields]);
 
     const [canFocus, setCanFocus] = useState(true);
 
@@ -59,7 +59,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
 
     const onSubmit = async (formData: TInventoryFormOutput) => {
         try {
-            if (formData.id) {
+            if (isEdit) {
                 await updateInventoryItem(formData, dirtyFields, userId);
                 openSnackbar('Successfully updated inventory item.');
             } else {
@@ -132,7 +132,10 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                             capitalize(t(errors.price.message as TSingleTranslationKeys))
                         }
                         {...register('price', {
-                            onChange: mask2DecimalPlaces
+                            valueAsNumber: true,
+                            onChange: (e) => {
+                                maskPrice(e);
+                            }
                         })}
                     />
                 </FormControl>
@@ -207,13 +210,9 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                             )
                         }
                         {...register('manufacturerPrice', {
+                            valueAsNumber: true,
                             onChange: (e) => {
-                                const { value } = e.target as HTMLInputElement;
-                                // Masking the manufacturerPrice to max 2 decimal places
-                                const isMatch = value.match(/(\d+\.\d{3,})/g);
-                                if (isMatch) {
-                                    e.target.value = value.slice(0, -1);
-                                }
+                                maskPrice(e);
                             }
                         })}
                     />

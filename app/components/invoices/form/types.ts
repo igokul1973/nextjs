@@ -1,4 +1,4 @@
-import { TInventory, TInventoryType } from '@/app/lib/types';
+import { TInventoryTransformed } from '@/app/lib/data/inventory/types';
 import { Control, FieldValues } from 'react-hook-form';
 import { z } from 'zod';
 import { TEmail, TPhone } from '../../individuals/form/types';
@@ -6,7 +6,7 @@ import { invoiceUpdateSchema } from './formSchema';
 
 export interface IProps {
     customers: TCustomerOutput[];
-    inventory: (TInventory & { type: TInventoryType })[];
+    inventory: TInventoryTransformed[];
     accountId: string;
     providerPhones: TPhone[];
     providerEmails: TEmail[];

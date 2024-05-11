@@ -151,7 +151,21 @@ export async function getFilteredCustomersByAccountId(
 
         // Preparing customer objejct
         const customers = rawCustomers.map((rawCustomer) => {
-            const { totalPendingRaw, totalPaidRaw } = rawCustomer.invoices.reduce(
+            const { invoices: rawInvoices, ...partialCustomer } = rawCustomer;
+            const invoices = rawInvoices.map((rawInvoice) => {
+                const { invoiceItems: rawInvoiceItemss, ...partialInvoice } = rawInvoice;
+                const invoiceItems = rawInvoice.invoiceItems.map((ii) => {
+                    return {
+                        ...ii,
+                        price: Number(ii.price)
+                    };
+                });
+                return {
+                    ...partialInvoice,
+                    invoiceItems
+                };
+            });
+            const { totalPendingRaw, totalPaidRaw } = invoices.reduce(
                 ({ totalPendingRaw, totalPaidRaw }, i) => {
                     const invoiceTotal = i.invoiceItems.reduce((acc, ii) => {
                         return acc + ii.quantity * ii.price;
@@ -166,13 +180,14 @@ export async function getFilteredCustomersByAccountId(
                 { totalPendingRaw: 0, totalPaidRaw: 0 }
             );
 
-            const customer = flattenCustomer(rawCustomer);
+            const customer = flattenCustomer(partialCustomer);
 
             const totalPending = formatCurrency(totalPendingRaw ?? '0');
             const totalPaid = formatCurrency(totalPaidRaw ?? '0');
 
             return {
                 ...customer,
+                invoices,
                 totalPending,
                 totalPaid,
                 totalInvoices: rawCustomer._count.invoices

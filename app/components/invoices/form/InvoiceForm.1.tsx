@@ -20,12 +20,11 @@ import { FC, useEffect } from 'react';
 import { Control, useForm } from 'react-hook-form';
 import DateInput from '../../date-input/DateInput';
 import FormSelect from '../../form-select/FormSelect';
-import { getDefaultFormValues } from '../utils';
 import { invoiceCreateSchema, invoiceUpdateSchema } from './formSchema';
 import { StyledForm } from './styled';
-import { IProps, TInvoiceForm } from './types';
+import { IProps, TInvoiceFormOutput } from './types';
 
-export const InvoiceForm: FC<IProps> = ({ customers, defaultValues: form }) => {
+export const InvoiceForm: FC<IProps> = ({ customers, defaultValues, isEdit }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const { user } = useUser();
@@ -39,9 +38,9 @@ export const InvoiceForm: FC<IProps> = ({ customers, defaultValues: form }) => {
         formState: { errors, isDirty, dirtyFields },
         control
     } = useForm({
-        resolver: zodResolver(form ? invoiceUpdateSchema : invoiceCreateSchema),
+        resolver: zodResolver(isEdit ? invoiceUpdateSchema : invoiceCreateSchema),
         reValidateMode: 'onBlur',
-        defaultValues: form || getDefaultFormValues(userId)
+        defaultValues
     });
 
     const w = watch();
@@ -56,9 +55,9 @@ export const InvoiceForm: FC<IProps> = ({ customers, defaultValues: form }) => {
 
     const isSubmittable = !!isDirty;
 
-    const onSubmit = async (formData: TInvoiceForm) => {
+    const onSubmit = async (formData: TInvoiceFormOutput) => {
         try {
-            if (formData.id) {
+            if (isEdit) {
                 await updateInvoice(formData, dirtyFields, userId);
                 openSnackbar('Successfully updated customer.');
             } else {
@@ -70,8 +69,6 @@ export const InvoiceForm: FC<IProps> = ({ customers, defaultValues: form }) => {
             openSnackbar(`Failed to create customer: ${error}`, 'error');
         }
     };
-
-    const addCustomerData = () => {};
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -191,7 +188,7 @@ export const InvoiceForm: FC<IProps> = ({ customers, defaultValues: form }) => {
                         color='primary'
                         disabled={!isSubmittable}
                     >
-                        {capitalize(t(form ? 'update invoice' : 'create invoice'))}
+                        {capitalize(t(isEdit ? 'update invoice' : 'create invoice'))}
                     </Button>
                 </Box>
             </StyledForm>

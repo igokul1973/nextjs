@@ -171,9 +171,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                             !!priceError &&
                             capitalize(t(priceError.message as TSingleTranslationKeys))
                         }
-                        {...register(`invoiceItems.${index}.price`, {
-                            valueAsNumber: true
-                        })}
+                        {...register(`invoiceItems.${index}.price`)}
                     />
                 </FormControl>
             </Box>

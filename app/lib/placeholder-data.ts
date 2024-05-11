@@ -471,7 +471,7 @@ const inventory = [
         name: 'Product 1',
         description: 'Something 1 description',
         type: 'product',
-        price: 1000,
+        price: 1000, // Note, prices in db are saved in division units, such as cents
         externalCode: 'RXF1TTS-D',
         internalCode: 'LPMRF32-X1',
         manufacturerCode: 'TTS-LLMPD1',
