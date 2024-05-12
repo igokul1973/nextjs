@@ -1,10 +1,13 @@
+import { TGetUserWithRelationsPayload } from '@/app/lib/data/user/types';
+import { getProviderName } from '@/app/lib/utils';
 import { InvoiceStatusEnum } from '@prisma/client';
 import { TInvoiceForm, TInvoiceItem } from './form/types';
 
 export const getDefaultFormValues = (
     userId: string,
-    providerPhone: string,
-    providerEmail: string
+    provider:
+        | TGetUserWithRelationsPayload['account']['individuals'][number]
+        | TGetUserWithRelationsPayload['account']['organizations'][number]
 ): TInvoiceForm => {
     return {
         id: '',
@@ -12,8 +15,17 @@ export const getDefaultFormValues = (
         date: new Date(),
         status: InvoiceStatusEnum.draft,
         customer: null,
-        providerPhone,
-        providerEmail,
+        providerAvatar: null,
+        providerName: getProviderName(provider),
+        providerAddressLine1: provider.address.addressLine1,
+        providerAddressLine2: provider.address.addressLine2,
+        providerAddressLine3: provider.address.addressLine3,
+        providerLocality: provider.address.locality,
+        providerRegion: provider.address.region,
+        providerPostCode: provider.address.postcode,
+        providerCountry: provider.address.country.name,
+        providerPhone: provider.phones[0].number,
+        providerEmail: provider.emails[0].email,
         purchaseOrderNumbers: [],
         manufacturerInvoiceNumbers: [],
         additionalInformation: '',

@@ -164,6 +164,7 @@ CREATE TABLE "local_identifier_names" (
 -- CreateTable
 CREATE TABLE "individuals" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "avatar" BYTEA,
     "first_name" VARCHAR(255) NOT NULL,
     "last_name" VARCHAR(255) NOT NULL,
     "middle_name" VARCHAR(255),
@@ -187,6 +188,7 @@ CREATE TABLE "individuals" (
 -- CreateTable
 CREATE TABLE "organizations" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "avatar" BYTEA,
     "name" VARCHAR(255) NOT NULL,
     "description" TEXT,
     "is_private" BOOLEAN NOT NULL DEFAULT true,
@@ -273,9 +275,18 @@ CREATE TABLE "invoices" (
     "customer_country" VARCHAR(255) NOT NULL,
     "customer_phone" VARCHAR(255) NOT NULL,
     "customer_email" VARCHAR(255) NOT NULL,
+    "customer_id" UUID NOT NULL,
+    "provider_avatar" BYTEA,
+    "provider_name" VARCHAR(255) NOT NULL,
+    "provider_address_line_1" VARCHAR(255) NOT NULL,
+    "provider_address_line_2" VARCHAR(255),
+    "provider_address_line_3" VARCHAR(255),
+    "provider_locality" VARCHAR(255) NOT NULL,
+    "provider_region" VARCHAR(255),
+    "provider_post_code" VARCHAR(255) NOT NULL,
+    "provider_country" VARCHAR(255) NOT NULL,
     "provider_phone" VARCHAR(255) NOT NULL,
     "provider_email" VARCHAR(255) NOT NULL,
-    "customer_id" UUID NOT NULL,
     "status" "invoiceStatus" NOT NULL,
     "purchase_order_numbers" VARCHAR(255)[],
     "manufacturer_invoice_numbers" VARCHAR(255)[],

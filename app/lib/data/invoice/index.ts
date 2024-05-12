@@ -8,6 +8,7 @@ import { TDirtyFields, TOrder } from '../../types';
 import { flattenCustomer, formatCurrency, getDirtyValues } from '../../utils';
 import {
     TGetInvoiceWithRelationsPayloadRaw,
+    TTransformedInvoice,
     getInvoiceSelect,
     getQueryFilterWhereClause,
     invoicesInclude
@@ -58,7 +59,7 @@ export async function getLatestInvoices(): Promise<ILatestInvoice[]> {
 }
 
 // FIXME: Continue here - need type fo the invoice
-const transformInvoice = (invoice: TGetInvoiceWithRelationsPayloadRaw) => {
+const transformInvoice = (invoice: TGetInvoiceWithRelationsPayloadRaw): TTransformedInvoice => {
     const { invoiceItems: rawInvoiceItems, customer: rawCustomer, ...partialInvoice } = invoice;
     const invoiceItems = rawInvoiceItems.map((ii) => {
         return {
@@ -79,11 +80,13 @@ const transformInvoice = (invoice: TGetInvoiceWithRelationsPayloadRaw) => {
         amount,
         customer,
         invoiceItems,
-        date: invoice.date.toLocaleDateString()
+        date: invoice.date.toLocaleDateString(),
+        payBy: invoice.payBy.toLocaleDateString(),
+        paidOn: invoice.paidOn === null ? null : invoice.paidOn.toLocaleDateString()
     };
 };
 
-export async function getInvoiceById(id: string) {
+export async function getInvoiceById(id: string): Promise<TTransformedInvoice | null> {
     noStore();
     try {
         const invoice = await prisma.invoice.findFirst({

@@ -19,8 +19,8 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import {
     TGetCustomerPayload,
-    getCustomersSelect,
-    getCustomersWithInvoicesSelect,
+    getEntitySelect,
+    getEntityWithInvoicesSelect,
     getFilteredCustomersWhereClause
 } from './types';
 
@@ -28,7 +28,7 @@ export async function getCustomerById(id: string): Promise<TGetCustomerPayload |
     try {
         return await prisma.customer.findUnique({
             select: {
-                ...getCustomersSelect
+                ...getEntitySelect
             },
             where: {
                 id
@@ -45,7 +45,7 @@ export async function getCustomersByAccountId(accountId: string) {
     try {
         const customers = await prisma.customer.findMany({
             relationLoadStrategy: 'query',
-            select: getCustomersSelect,
+            select: getEntitySelect,
             where: {
                 AND: [
                     {
@@ -145,7 +145,7 @@ export async function getFilteredCustomersByAccountId(
             take: itemsPerPage,
             skip: offset,
             orderBy: orderByClause,
-            select: getCustomersWithInvoicesSelect,
+            select: getEntityWithInvoicesSelect,
             where: whereClause
         });
 

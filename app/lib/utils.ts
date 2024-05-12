@@ -146,8 +146,8 @@ export function flattenCustomer(
  * @return {TEntities<I, O> | undefined} The individual or organization provider entity, or undefined if no provider is found.
  */
 export function getUserProvider<
-    I = TGetCustomerPayload['individual'],
-    O = TGetCustomerPayload['organization']
+    I = TGetUserWithRelationsPayload['account']['individuals'][number],
+    O = TGetUserWithRelationsPayload['account']['organizations'][number]
 >(user: TGetUserWithRelationsPayload): TEntities<I, O> | undefined {
     const individualProvider = user.account.individuals?.find(
         (ind) => ind.accountRelation === AccountRelationEnum.provider

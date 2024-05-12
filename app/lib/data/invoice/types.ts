@@ -1,5 +1,6 @@
 import { InvoiceStatusEnum, Prisma } from '@prisma/client';
 import { includeEntityRelations } from '../user/types';
+import { TCustomerOutput } from '@/app/components/invoices/form/types';
 
 export const getInvoiceSelect = {
     id: true,
@@ -55,6 +56,31 @@ export const invoicesInclude = {
 export type TGetInvoiceWithRelationsPayloadRaw = Prisma.invoiceGetPayload<{
     include: typeof invoicesInclude;
 }>;
+
+interface IInvoiceItem {
+    price: number;
+    id: string;
+    name: string;
+    quantity: number;
+    invoiceId: string;
+    inventoryId: string;
+    createdAt: Date;
+    updatedAt: Date;
+    createdBy: string;
+    updatedBy: string;
+}
+
+export type TTransformedInvoice = Omit<
+    TGetInvoiceWithRelationsPayloadRaw,
+    'invoiceItems' | 'customer' | 'date' | 'paidOn' | 'payBy'
+> & {
+    invoiceItems: IInvoiceItem[];
+    customer: TCustomerOutput;
+    amount: string;
+    date: string;
+    payBy: string;
+    paidOn: string | null;
+};
 
 export const getQueryFilterWhereClause = (
     accountId: string,

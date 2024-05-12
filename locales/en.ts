@@ -151,6 +151,17 @@ export const enSingle = {
     'select your email': 'select your email',
     'select your email (might be shown on the invoice)':
         'select your email (might be shown on the invoice)',
+    'customer name': 'customer name',
+    'customer address': 'customer address',
+    'customer email': 'customer email',
+    'customer phone': 'customer phone',
+    title: 'title',
+    sum: 'sum',
+    quantity: 'quantity',
+    'sales tax': 'sales tax',
+    freight: 'freight',
+    delivery: 'delivery',
+    amount: 'amount',
     // Errors
     'must be a number': 'must be a number',
     'must be a date': 'must be a date',
@@ -197,6 +208,7 @@ export const enSingle = {
     'create inventory item': 'create inventory item',
     'create invoice': 'create invoice',
     'update invoice': 'update invoice',
+    'view invoice': 'view invoice',
     'dense padding': 'dense padding',
     // Tooltips
     filter: 'filter',

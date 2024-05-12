@@ -9,6 +9,7 @@ import { TSingleTranslationKeys } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import FilterListIcon from '@mui/icons-material/FilterList';
+import ViewIcon from '@mui/icons-material/Visibility';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -328,9 +329,18 @@ const InvoicesTable: FC<IProps> = ({ invoices, count }) => {
                                             <TableCell
                                                 align='center'
                                                 sx={{
-                                                    width: '125px'
+                                                    width: '175px'
                                                 }}
                                             >
+                                                <IconButton
+                                                    color='primary'
+                                                    aria-label='edit'
+                                                    onClick={() => {
+                                                        push(`/dashboard/invoices/${row.id}/view`);
+                                                    }}
+                                                >
+                                                    <ViewIcon />
+                                                </IconButton>
                                                 <IconButton
                                                     color='primary'
                                                     aria-label='edit'

@@ -30,7 +30,6 @@
     },
     "include": [
         "next-env.d.ts",
-        "react-hook-form.d.ts",
         "**/*.ts",
         "**/*.tsx",
         ".next/types/**/*.ts",

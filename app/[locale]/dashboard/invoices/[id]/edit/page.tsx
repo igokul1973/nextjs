@@ -14,9 +14,11 @@ import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import NextLink from 'next/link';
 import { notFound, redirect } from 'next/navigation';
+import { FC } from 'react';
 import { StyledBox } from '../../styled';
+import { IProps } from './types';
 
-const Page = async ({ params: { id } }: { params: { id: string } }) => {
+const Page: FC<IProps> = async ({ params: { id } }) => {
     const t = await getI18n();
 
     const session = await auth();

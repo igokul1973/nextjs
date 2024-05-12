@@ -28,6 +28,7 @@ import {
     getEntityFirstEmailString,
     getEntityFirstPhoneString,
     getEntityName,
+    getProviderName,
     getUserCustomersPerEntity,
     getUserProvider
 } from '../app/lib/utils.ts';
@@ -716,7 +717,20 @@ async function seedInvoices() {
                 }
                 const address = customer.address;
                 const customerPhone = getEntityFirstPhoneString(customer);
+
                 const customerEmail = getEntityFirstEmailString(customer);
+                // Provider info has to be remembered on the invoice
+                // as providers tend to change names, addresses, etc.
+                const providerAvatar = concreteProvider.avatar;
+                const providerName = getProviderName(concreteProvider);
+                const providerAddressLine1 = concreteProvider.address.addressLine1;
+                const providerAddressLine2 = concreteProvider.address.addressLine2;
+                const providerAddressLine3 = concreteProvider.address.addressLine3;
+                const providerLocality = concreteProvider.address.locality;
+                const providerRegion = concreteProvider.address.region;
+                const providerPostCode = concreteProvider.address.postcode;
+                const providerCountry = concreteProvider.address.country.name;
+
                 const providerPhone = getEntityFirstPhoneString(
                     concreteProvider as unknown as TEntity
                 );
@@ -759,6 +773,15 @@ async function seedInvoices() {
                         customerCountry: address.country.name,
                         customerPhone,
                         customerEmail,
+                        providerAvatar,
+                        providerName,
+                        providerAddressLine1,
+                        providerAddressLine2,
+                        providerAddressLine3,
+                        providerLocality,
+                        providerRegion,
+                        providerPostCode,
+                        providerCountry,
                         providerPhone,
                         providerEmail,
                         createdAt: date,

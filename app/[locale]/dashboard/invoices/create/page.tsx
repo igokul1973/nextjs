@@ -46,14 +46,7 @@ export default async function Page() {
     const inventoryPromise = getFilteredInventoryByAccountIdRaw(accountId, '', 0, 50);
     const [customers, inventory] = await Promise.all([customersPromise, inventoryPromise]);
 
-    const firstProviderPhone = userAccountProvider.phones[0];
-    const firstProviderEmail = userAccountProvider.emails[0];
-
-    const defaultValues = getDefaultFormValues(
-        sessionUser.id,
-        `${firstProviderPhone.countryCode}-${firstProviderPhone.number}`,
-        firstProviderEmail.email
-    );
+    const defaultValues = getDefaultFormValues(sessionUser.id, userAccountProvider);
 
     return (
         <StyledBox component='section'>

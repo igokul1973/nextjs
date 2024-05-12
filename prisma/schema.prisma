@@ -215,6 +215,7 @@ model localIdentifierName {
 // Individuals (both clients and service providers)
 model individual {
   id                    String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  avatar                Bytes?              @db.ByteA()
   firstName             String              @map("first_name") @db.VarChar(255)
   lastName              String              @map("last_name") @db.VarChar(255)
   middleName            String?             @map("middle_name") @db.VarChar(255)
@@ -244,6 +245,7 @@ model individual {
 // Organizations (both clients and service providers)
 model organization {
   id                    String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  avatar                Bytes?              @db.ByteA()
   name                  String              @db.VarChar(255)
   description           String?             @db.Text
   isPrivate             Boolean             @default(true) @map("is_private") @db.Boolean // as opposed to government
@@ -344,11 +346,19 @@ model invoice {
   customerCountry            String            @map("customer_country") @db.VarChar(255)
   customerPhone              String            @map("customer_phone") @db.VarChar(255)
   customerEmail              String            @map("customer_email") @db.VarChar(255)
-  providerPhone              String            @map("provider_phone") @db.VarChar(255)
-  providerEmail              String            @map("provider_email") @db.VarChar(255)
-  // Customer id
   customerId                 String            @map("customer_id") @db.Uuid
   customer                   customer          @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  providerAvatar             Bytes?            @map("provider_avatar") @db.ByteA()
+  providerName               String            @map("provider_name") @db.VarChar(255)
+  providerAddressLine1       String            @map("provider_address_line_1") @db.VarChar(255)
+  providerAddressLine2       String?           @map("provider_address_line_2") @db.VarChar(255)
+  providerAddressLine3       String?           @map("provider_address_line_3") @db.VarChar(255)
+  providerLocality           String            @map("provider_locality") @db.VarChar(255)
+  providerRegion             String?           @map("provider_region") @db.VarChar(255)
+  providerPostCode           String            @map("provider_post_code") @db.VarChar(255)
+  providerCountry            String            @map("provider_country") @db.VarChar(255)
+  providerPhone              String            @map("provider_phone") @db.VarChar(255)
+  providerEmail              String            @map("provider_email") @db.VarChar(255)
   status                     InvoiceStatusEnum
   // Inventory items with fixed name, price and other info
   invoiceItems               invoiceItem[]
