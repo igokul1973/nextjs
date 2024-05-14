@@ -42,7 +42,9 @@ import { TOrganizationForm } from './types';
 
 const OrganizationForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit }) => {
     const { countries, organizationTypes } = useData();
-    const { user } = useUser();
+    const {
+        state: { user }
+    } = useUser();
     const userId = user.id;
     const { openSnackbar } = useSnackbar();
     const { push } = useRouter();

@@ -4,7 +4,7 @@ import { exec } from 'child_process';
 import dotenv from 'dotenv';
 import { readFile, readdirSync, writeFile } from 'fs';
 import path from 'path';
-import { TGetCustomerPayload } from '../app/lib/data/customer/types.ts';
+import { TCustomerPayload } from '../app/lib/data/customer/types.ts';
 import {
     TGetUserWithRelationsAndInventoryPayload,
     getUserWithRelationsAndInventory
@@ -695,7 +695,7 @@ async function seedInvoices() {
 
     const createCustomerInvoiceData = (
         user: TGetUserWithRelationsAndInventoryPayload,
-        provider: TEntities<TGetCustomerPayload['individual'], TGetCustomerPayload['organization']>,
+        provider: TEntities<TCustomerPayload['individual'], TCustomerPayload['organization']>,
         customers: TEntityWithNonNullableCustomer[]
     ) => {
         const concreteProvider = provider.individual ?? provider.organization;
@@ -721,7 +721,7 @@ async function seedInvoices() {
                 const customerEmail = getEntityFirstEmailString(customer);
                 // Provider info has to be remembered on the invoice
                 // as providers tend to change names, addresses, etc.
-                const providerAvatar = concreteProvider.avatar;
+                const providerLogo = concreteProvider.logo;
                 const providerName = getProviderName(concreteProvider);
                 const providerAddressLine1 = concreteProvider.address.addressLine1;
                 const providerAddressLine2 = concreteProvider.address.addressLine2;
@@ -773,7 +773,7 @@ async function seedInvoices() {
                         customerCountry: address.country.name,
                         customerPhone,
                         customerEmail,
-                        providerAvatar,
+                        providerLogo,
                         providerName,
                         providerAddressLine1,
                         providerAddressLine2,

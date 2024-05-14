@@ -71,7 +71,7 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
         );
     }
 
-    const rawCustomer = await getCustomerById(id);
+    const rawCustomer = await getCustomerById(id, accountId);
 
     if (!rawCustomer) {
         return notFound();

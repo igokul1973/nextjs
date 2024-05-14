@@ -46,6 +46,7 @@ const InvoiceForm: FC<IProps> = ({
     customers: initialCustomers,
     inventory,
     accountId,
+    locale,
     providerPhones,
     providerEmails,
     defaultValues,
@@ -53,7 +54,9 @@ const InvoiceForm: FC<IProps> = ({
 }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
-    const { user, account } = useUser();
+    const {
+        state: { user, account }
+    } = useUser();
     const userId = user.id;
     const { push } = useRouter();
 

@@ -24,7 +24,9 @@ import { ICustomerFormProps } from './types';
 
 const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentifierNames }) => {
     const t = useI18n();
-    const { user, account } = useUser();
+    const {
+        state: { user, account }
+    } = useUser();
     const [customerType, setCustomerType] = useState<EntitiesEnum | ''>('');
 
     const [defaultIndividualValues, setDefaultIndividualValues] = useState<TIndividualForm | null>(

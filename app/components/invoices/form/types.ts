@@ -8,6 +8,7 @@ export interface IProps {
     customers: TCustomerOutput[];
     inventory: TInventoryTransformed[];
     accountId: string;
+    locale: string;
     providerPhones: TPhone[];
     providerEmails: TEmail[];
     defaultValues: TInvoiceForm;

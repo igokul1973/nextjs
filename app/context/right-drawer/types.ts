@@ -4,6 +4,7 @@ import { FC } from 'react';
 export interface IRightDrawerState {
     isOpen: boolean;
     childComponent: FC | null;
+    data?: Record<string, unknown>;
     title?: string;
     icon?: TMuiIcon;
 }

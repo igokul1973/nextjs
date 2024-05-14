@@ -2,6 +2,7 @@
 
 import ColorModeContext from '@/app/context/color-mode/provider';
 import { useUser } from '@/app/context/user/provider';
+import { getProviderName } from '@/app/lib/utils';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -15,13 +16,14 @@ import LanguageSwitcher from '../../language-switcher/LanguageSwitcher';
 import AvatarMenu from '../avatar-menu/AvatarMenu';
 import { StyledAppBar } from './styled';
 import { IProps } from './types';
-import { getProviderName } from '@/app/lib/utils';
 
 export const AppBar: FC<IProps> = ({ isOpen, handleDrawerToggle }) => {
     const theme = useTheme();
     const { toggleColorMode } = useContext(ColorModeContext);
 
-    const { provider } = useUser();
+    const {
+        state: { provider }
+    } = useUser();
 
     const providerName = getProviderName(provider);
 

@@ -5,6 +5,7 @@ import RightDrawerProvider from '@/app/context/right-drawer/provider';
 import { SnackbarProvider } from '@/app/context/snackbar/provider';
 import UserProvider from '@/app/context/user/provider';
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
+import { TEntity } from '@/app/lib/types';
 import { getUserProvider, getUserProviderType } from '@/app/lib/utils';
 import { auth } from '@/auth';
 import { I18nProviderClient } from '@/locales/client';
@@ -13,7 +14,6 @@ import { redirect } from 'next/navigation';
 import { FC } from 'react';
 import Navigation from '../../components/dashboard/navigation/Navigation';
 import { TProps } from './types';
-import { TEntity } from '@/app/lib/types';
 
 const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
     const session = await auth();
@@ -49,6 +49,7 @@ const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
                         <SnackbarProvider>
                             <Navigation />
                             <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
+                                {/* This header is for purposes of pushing the content down */}
                                 <DrawerHeader />
                                 {children}
                                 <RightDrawer />

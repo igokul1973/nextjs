@@ -1,6 +1,6 @@
 'use client';
 
-import CloseButton from '@/app/components/buttons/close/CloseButton';
+import CloseRightDrawerButton from '@/app/components/buttons/close/CloseButton';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -9,7 +9,7 @@ import { FC } from 'react';
 import { DrawerHeader } from '../dashboard/navigation/styled';
 import { StyledRightDrawer } from './styled';
 
-const drawerWidth = 550;
+const drawerWidth = 600;
 
 const RightDrawer: FC = () => {
     const {
@@ -29,7 +29,7 @@ const RightDrawer: FC = () => {
         >
             <DrawerHeader />
             <Box className='drawer-content'>
-                <CloseButton className='close-button' />
+                <CloseRightDrawerButton className='close-button' />
                 {(Icon || title) && (
                     <Box className='drawer-heading'>
                         {Icon && <Icon color='primary' fontSize='large' />}

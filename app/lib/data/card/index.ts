@@ -26,7 +26,7 @@ export async function fetchCardData() {
             }
         });
 
-        const totalPaidInvoicesNum = invoices.reduce((acc, i) => {
+        const totalPaidInvoices = invoices.reduce((acc, i) => {
             const amount = i.invoiceItems.reduce((acc, ii) => {
                 if (i.status === InvoiceStatusEnum.paid) {
                     return acc + Number(ii.price);
@@ -36,7 +36,7 @@ export async function fetchCardData() {
             return acc + amount;
         }, 0);
 
-        const totalPendingInvoicesNum = invoices.reduce((acc, i) => {
+        const totalPendingInvoices = invoices.reduce((acc, i) => {
             const amount = i.invoiceItems.reduce((acc, ii) => {
                 if (i.status === InvoiceStatusEnum.pending) {
                     return acc + Number(ii.price);
@@ -59,8 +59,6 @@ export async function fetchCardData() {
 
         const numberOfInvoices = Number(data[0] ?? '0');
         const numberOfCustomers = Number(data[1] ?? '0');
-        const totalPaidInvoices = formatCurrency(totalPaidInvoicesNum ?? '0');
-        const totalPendingInvoices = formatCurrency(totalPendingInvoicesNum ?? '0');
 
         return {
             numberOfCustomers,

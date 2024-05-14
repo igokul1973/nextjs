@@ -73,7 +73,7 @@ import type {
     user as TUser
 } from '@prisma/client';
 import { TInvoiceForm } from '../components/invoices/form/types';
-import { TGetCustomerPayload } from './data/customer/types';
+import { TCustomerPayload } from './data/customer/types';
 
 export {
     TAccount,
@@ -113,7 +113,7 @@ export type TEntityPropsDiff = {
     dob?: string;
 };
 
-export type TEntity = (TGetCustomerPayload['organization'] | TGetCustomerPayload['individual']) &
+export type TEntity = (TCustomerPayload['organization'] | TCustomerPayload['individual']) &
     TEntityPropsDiff;
 
 export type TEntities<I, O> = {
@@ -128,14 +128,14 @@ export type TEntityWithNonNullableCustomer = (
     TEntityPropsDiff;
 
 export type TIndWithNonNullableCustomer = Omit<
-    Exclude<TGetCustomerPayload['individual'], null>,
+    Exclude<TCustomerPayload['individual'], null>,
     'customer'
 > & {
     customer: TCustomer;
 };
 
 export type TOrgWithNonNullableCustomer = Omit<
-    Exclude<TGetCustomerPayload['organization'], null>,
+    Exclude<TCustomerPayload['organization'], null>,
     'customer'
 > & {
     customer: TCustomer;

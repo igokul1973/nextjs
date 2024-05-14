@@ -12,7 +12,7 @@ export const includeEntityRelations = {
     customer: true
 } satisfies Prisma.organizationInclude;
 
-export const getCustomersSelect = {
+export const customerSelect = {
     id: true,
     individual: {
         include: includeEntityRelations
@@ -25,7 +25,7 @@ export const getCustomersSelect = {
     }
 } satisfies Prisma.customerSelect;
 
-export const getCustomersWithInvoicesSelect = {
+export const customerWithInvoicesSelect = {
     id: true,
     individual: {
         include: includeEntityRelations
@@ -53,12 +53,12 @@ export const getCustomersWithInvoicesSelect = {
     }
 } satisfies Prisma.customerSelect;
 
-export type TGetCustomerPayload = Prisma.customerGetPayload<{
-    select: typeof getCustomersSelect;
+export type TCustomerPayload = Prisma.customerGetPayload<{
+    select: typeof customerSelect;
 }>;
 
-export type TGetCustomerWithInvoicesPayload = Prisma.customerGetPayload<{
-    select: typeof getCustomersWithInvoicesSelect;
+export type TCustomerWithInvoicesPayload = Prisma.customerGetPayload<{
+    select: typeof customerWithInvoicesSelect;
 }>;
 
 export const getFilteredCustomersWhereClause = (

@@ -7,15 +7,18 @@ import {
 import { CreateButton } from '@/app/components/buttons/create/CreateButton';
 import InventoryTable from '@/app/components/inventory/inventory-table/InventoryTable';
 import Search from '@/app/components/search/search';
+import Warning from '@/app/components/warning/Warning';
 import {
-    getFilteredInventoryByAccountId,
+    getFilteredInventoryByAccountIdRaw,
     getFilteredInventoryCount
 } from '@/app/lib/data/inventory';
+import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
 import { ISearchParams } from '@/app/lib/types';
-import { capitalize } from '@/app/lib/utils';
+import { capitalize, formatCurrency, getUserProvider, getUserProviderType } from '@/app/lib/utils';
 import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
 import Typography from '@mui/material/Typography';
+import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { StyledSectionBox, StyledToolsBox } from './styled';
 
@@ -24,18 +27,41 @@ interface IProps {
 }
 
 export default async function Page({ searchParams }: IProps) {
+    const t = await getI18n();
+
     const session = await auth();
-    if (!session) return <div>Not logged in</div>;
-    const accountId = session.user.accountId;
+    const sessionUser = session?.user;
+    if (!session || !sessionUser) redirect('/');
+
+    const dbUser = await getUserWithRelationsByEmail(sessionUser.email);
+
+    if (!dbUser) {
+        redirect('/');
+    }
+
+    const provider = getUserProvider(dbUser);
+    const providerType = getUserProviderType(provider);
+
+    const userAccountProvider = provider && providerType && provider[providerType];
+    const userAccountCountry = userAccountProvider && userAccountProvider.address?.country;
+
+    if (!userAccountCountry) {
+        return (
+            <Warning variant='h4'>
+                Before viewing inventory please register yourself as a Provider.
+            </Warning>
+        );
+    }
+
+    const accountId = sessionUser.accountId;
     const query = searchParams?.query || '';
     const currentPage = Number(searchParams?.page) || DEFAULT_PAGE_NUMBER;
     const itemsPerPage = Number(searchParams?.itemsPerPage) || DEFAULT_ITEMS_PER_PAGE;
     const orderBy = searchParams?.orderBy || DEFAULT_ORDER_BY;
     const order = searchParams?.order || DEFAULT_ORDER;
-    const t = await getI18n();
 
     const count = await getFilteredInventoryCount(accountId, query);
-    const inventory = await getFilteredInventoryByAccountId(
+    const rawInventory = await getFilteredInventoryByAccountIdRaw(
         accountId,
         query,
         currentPage,
@@ -43,6 +69,16 @@ export default async function Page({ searchParams }: IProps) {
         orderBy,
         order
     );
+
+    const inventory = rawInventory.map((inventoryItem) => {
+        return {
+            ...inventoryItem,
+            price: formatCurrency(inventoryItem.price, userAccountCountry.locale),
+            manufacturerPrice: inventoryItem.manufacturerPrice
+                ? formatCurrency(inventoryItem.manufacturerPrice, userAccountCountry.locale)
+                : ''
+        };
+    });
 
     return (
         <StyledSectionBox component='section'>

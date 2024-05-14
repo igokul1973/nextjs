@@ -9,8 +9,23 @@ export const StyledInvoice = styled(Box, {
     flex-direction: column;
     row-gap: 3rem;
     border: 1px solid lightgray;
-    min-height: 1000px;
-    padding: 5rem;
+    width: 100%;
+    aspect-ratio: 8.286 / 11.693; // letterhead size (for now)
+    padding: 6vw;
+    font-size: 1.2vw;
+    th,
+    td {
+        padding: 0.5vw;
+    }
+    h2 {
+        font-size: 3vw;
+    }
+    h3 {
+        font-size: 2.2vw;
+    }
+    h5 {
+        font-size: 1.4vw;
+    }
 `;
 
 export const StyledHeader = styled(Box, {
@@ -20,6 +35,7 @@ export const StyledHeader = styled(Box, {
     display: flex;
     alignitems: center;
     gap: 1rem;
+    font-size: 1.2vw;
 `;
 
 export const StyledInvoiceInfo = styled(Box, {
@@ -82,7 +98,11 @@ export const StyledFooter = styled(Box, {
     name: 'Styled Footer',
     slot: 'Root'
 })`
+    margin-top: auto;
+    padding-top: 1rem;
     display: flex;
     alignitems: center;
+    justify-content: space-between;
     gap: 1rem;
+    border-top: 1px solid lightgray;
 `;

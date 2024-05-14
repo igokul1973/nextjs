@@ -8,3 +8,8 @@ export interface IUserState {
     provider?: TEntity | null;
     providerType?: EntitiesEnum;
 }
+
+export interface IUserAction {
+    type: 'update' | 'setProfile';
+    payload: Partial<IUserState>;
+}

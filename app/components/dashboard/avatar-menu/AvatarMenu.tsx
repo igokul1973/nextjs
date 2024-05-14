@@ -22,7 +22,9 @@ import { TComponentName } from './types';
 
 const AvatarMenu: FC = () => {
     const t = useI18n();
-    const { profile: userProfile } = useUser();
+    const {
+        state: { profile: userProfile }
+    } = useUser();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const { dispatch } = useRightDrawerState();
     const open = Boolean(anchorEl);
@@ -39,7 +41,7 @@ const AvatarMenu: FC = () => {
             type: 'open',
             payload: {
                 childComponent: component,
-                title,
+                title: capitalize(t(title)),
                 icon
             }
         });
@@ -50,6 +52,9 @@ const AvatarMenu: FC = () => {
         return logOut();
     };
 
+    // FIXME: if there is no user profile, a system must be
+    // devised to create one, by probably redirecting to a
+    // registration page.
     const userInitials =
         capitalize(userProfile?.firstName.slice(0, 1)) +
         capitalize(userProfile?.lastName.slice(0, 1));

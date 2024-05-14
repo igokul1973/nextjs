@@ -4,7 +4,7 @@ import { DEFAULT_ITEMS_PER_PAGE } from '@/app/[locale]/dashboard/inventory/const
 import { TInventoryFormOutput } from '@/app/components/inventory/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TOrder } from '@/app/lib/types';
-import { formatCurrency, getDirtyValues } from '@/app/lib/utils';
+import { getDirtyValues } from '@/app/lib/utils';
 import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
@@ -15,19 +15,24 @@ import {
     getQueryFilterWhereClause
 } from './types';
 
-export async function getInventoryItemById(id: string): Promise<TGetInventoryPayload | null> {
+export async function getInventoryItemById(
+    id: string,
+    accountId: string,
+    isSuperAdmin = false
+): Promise<TGetInventoryPayload | null> {
     noStore();
     try {
         const inventoryItem = await prisma.inventory.findFirst({
             relationLoadStrategy: 'query',
             select: getInventorySelect,
             where: {
-                id
+                id,
+                accountId: !isSuperAdmin ? { equals: accountId } : undefined
             }
         });
 
         if (!inventoryItem) {
-            throw new Error('Inventory item not found');
+            return null;
         }
 
         const { price, manufacturerPrice, ...inventory } = inventoryItem;
@@ -99,39 +104,6 @@ export async function getFilteredInventoryByAccountIdRaw(
             manufacturerPrice: manufacturerPrice === null ? null : Number(manufacturerPrice)
         };
     });
-}
-
-export async function getFilteredInventoryByAccountId(
-    accountId: string,
-    query: string,
-    currentPage: number = 0,
-    itemsPerPage: number = DEFAULT_ITEMS_PER_PAGE,
-    orderBy: string = 'name',
-    order: TOrder = 'asc'
-) {
-    try {
-        const inventory = await getFilteredInventoryByAccountIdRaw(
-            accountId,
-            query,
-            currentPage,
-            itemsPerPage,
-            orderBy,
-            order
-        );
-
-        return inventory.map((inventoryItem) => {
-            return {
-                ...inventoryItem,
-                price: formatCurrency(inventoryItem.price),
-                manufacturerPrice: inventoryItem.manufacturerPrice
-                    ? formatCurrency(inventoryItem.manufacturerPrice)
-                    : ''
-            };
-        });
-    } catch (error) {
-        console.error('Database Error:', error);
-        throw new Error('Failed to get inventory.');
-    }
 }
 
 export async function getFilteredInventoryCount(accountId: string, query: string) {
@@ -209,7 +181,7 @@ export async function updateInventoryItem(
         revalidatePath('/dashboard/inventory');
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to update inventoryItem.');
+        throw new Error('Failed to update inventory item.');
     }
 }
 

@@ -47,6 +47,7 @@ CREATE TABLE "users" (
 -- CreateTable
 CREATE TABLE "profiles" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "avatar" BYTEA,
     "first_name" VARCHAR(255) NOT NULL,
     "last_name" VARCHAR(255) NOT NULL,
     "middle_name" VARCHAR(255),
@@ -164,7 +165,7 @@ CREATE TABLE "local_identifier_names" (
 -- CreateTable
 CREATE TABLE "individuals" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
-    "avatar" BYTEA,
+    "logo" BYTEA,
     "first_name" VARCHAR(255) NOT NULL,
     "last_name" VARCHAR(255) NOT NULL,
     "middle_name" VARCHAR(255),
@@ -188,7 +189,7 @@ CREATE TABLE "individuals" (
 -- CreateTable
 CREATE TABLE "organizations" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
-    "avatar" BYTEA,
+    "logo" BYTEA,
     "name" VARCHAR(255) NOT NULL,
     "description" TEXT,
     "is_private" BOOLEAN NOT NULL DEFAULT true,
@@ -276,7 +277,7 @@ CREATE TABLE "invoices" (
     "customer_phone" VARCHAR(255) NOT NULL,
     "customer_email" VARCHAR(255) NOT NULL,
     "customer_id" UUID NOT NULL,
-    "provider_avatar" BYTEA,
+    "provider_logo" BYTEA,
     "provider_name" VARCHAR(255) NOT NULL,
     "provider_address_line_1" VARCHAR(255) NOT NULL,
     "provider_address_line_2" VARCHAR(255),

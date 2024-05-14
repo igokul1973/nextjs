@@ -25,7 +25,9 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
     const t = useI18n();
 
     const { openSnackbar } = useSnackbar();
-    const { user } = useUser();
+    const {
+        state: { user }
+    } = useUser();
     const userId = user.id;
     const { push } = useRouter();
 

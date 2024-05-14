@@ -12,7 +12,7 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import NextLink from 'next/link';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { FC } from 'react';
 import { StyledBox } from './styled';
 import { IProps } from './types';
@@ -32,12 +32,16 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
 
     const { id: accountId } = dbUser.account;
 
-    const types = await getInventoryTypes();
-    const rawInventoryItem = await getInventoryItemById(id);
+    const inventoryPromise = getInventoryItemById(id, accountId);
+    const typesPromise = getInventoryTypes();
 
-    const isDataLoaded = !!types.length && rawInventoryItem;
+    const [rawInventoryItem, types] = await Promise.all([inventoryPromise, typesPromise]);
 
-    if (!isDataLoaded) {
+    if (!rawInventoryItem) {
+        return notFound();
+    }
+
+    if (!types.length) {
         return <Warning variant='h4'>{capitalize(t('could not load data'))}</Warning>;
     }
 

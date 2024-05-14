@@ -1,10 +1,11 @@
 import Account from '@/app/components/account/Account';
+import Profile from '@/app/components/profile/Profile';
+import ProfileForm from '@/app/components/profile/form/ProfileForm';
 import Settings from '@/app/components/settings/Settings';
 import AccountIcon from '@mui/icons-material/AccountCircleOutlined';
 import ProfileIcon from '@mui/icons-material/PersonOutlineOutlined';
 import SettingsIconOutlined from '@mui/icons-material/SettingsOutlined';
 import { TComponents } from './types';
-import Profile from '@/app/components/profile/Profile';
 
 export const components: TComponents = {
     account: {
@@ -16,6 +17,11 @@ export const components: TComponents = {
         title: 'user profile',
         icon: ProfileIcon,
         component: Profile
+    },
+    updateProfile: {
+        title: 'update user profile',
+        icon: ProfileIcon,
+        component: ProfileForm
     },
     settings: {
         title: 'account settings',

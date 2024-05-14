@@ -22,7 +22,7 @@ export interface ILatestInvoice {
     email: string;
 }
 
-export async function getLatestInvoices(): Promise<ILatestInvoice[]> {
+export async function getLatestInvoices(locale: string): Promise<ILatestInvoice[]> {
     try {
         noStore();
 
@@ -43,7 +43,7 @@ export async function getLatestInvoices(): Promise<ILatestInvoice[]> {
             return {
                 number,
                 date,
-                amount: formatCurrency(amount),
+                amount: formatCurrency(amount, locale),
                 name: customerName,
                 email: customerEmail
             };
@@ -69,31 +69,40 @@ const transformInvoice = (invoice: TGetInvoiceWithRelationsPayloadRaw): TTransfo
     });
 
     const customer = flattenCustomer(rawCustomer);
-    const amount = formatCurrency(
-        invoiceItems.reduce((acc, ii) => {
-            return acc + ii.quantity * ii.price;
-        }, 0)
-    );
-
+    const amount = invoiceItems.reduce((acc, ii) => {
+        return acc + ii.quantity * ii.price;
+    }, 0);
     return {
         ...partialInvoice,
         amount,
         customer,
-        invoiceItems,
-        date: invoice.date.toLocaleDateString(),
-        payBy: invoice.payBy.toLocaleDateString(),
-        paidOn: invoice.paidOn === null ? null : invoice.paidOn.toLocaleDateString()
+        invoiceItems
     };
 };
 
-export async function getInvoiceById(id: string): Promise<TTransformedInvoice | null> {
+export async function getInvoiceById(
+    id: string,
+    accountId: string,
+    isAdmin = false
+): Promise<TTransformedInvoice | null> {
     noStore();
     try {
         const invoice = await prisma.invoice.findFirst({
             relationLoadStrategy: 'query',
             include: invoicesInclude,
             where: {
-                id
+                id,
+                createdByUser: !isAdmin
+                    ? {
+                          is: {
+                              account: {
+                                  is: {
+                                      id: accountId
+                                  }
+                              }
+                          }
+                      }
+                    : undefined
             }
         });
 

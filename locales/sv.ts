@@ -4,7 +4,9 @@ const svPlural: Record<TPluralTranslationKeys, string> = {
     'must be digits#many': 'måste vara {count} siffror',
     'must be up to digits#many': 'måste vara upp till {count} siffror',
     'must be at least characters#many': 'kan inte vara mindre än {count} tecken',
-    'must be more than#many': 'måste vara mer än {count}'
+    'must be more than#many': 'måste vara mer än {count}',
+    'file size must be less than kb#many': 'file size must be less than {count} KB',
+    'file size must be less than mb#many': 'file size must be less than {count} MB'
 };
 
 const svSingle: Record<TSingleTranslationKeys, string> = {
@@ -96,6 +98,7 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'add another email address': 'lägg till en annan e-postadress',
     'please enter the email address': 'var god ange e-postadress',
     'please enter the email type': 'var god ange e-posttyp',
+    'please enter the user ID': 'var god ange användar-ID',
     // Attributes
     'add another attribute': 'lägg till ett annat attribut',
     'add attribute': 'lägg till en attribut',
@@ -204,6 +207,8 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'please select inventory item to get the price':
         'val ett inventeringsobjectetsnamn för att fa priset',
     'please enter a customer': 'var god ange en kund',
+    'file must be a PNG, JPG, JPEG, WEBP, or SVG image':
+        'filen måste vara en PNG, JPG, JPEG, WEBP, eller SVG bild',
     // Buttons
     'create customer': 'skapa en kund',
     'update customer': 'redigera kunden',
@@ -213,6 +218,9 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'create invoice': 'skapa en faktura',
     'update invoice': 'redigera faktura',
     'view invoice': 'visa faktura',
+    'update profile': 'redigera användarprofil',
+    'update user profile': 'redigera användarprofil',
+    'update account': 'redigera konto',
     'dense padding': 'tät stoppning',
     // Tooltips
     filter: 'filter',

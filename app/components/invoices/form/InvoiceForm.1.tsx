@@ -27,7 +27,9 @@ import { IProps, TInvoiceFormOutput } from './types';
 export const InvoiceForm: FC<IProps> = ({ customers, defaultValues, isEdit }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
-    const { user } = useUser();
+    const {
+        state: { user }
+    } = useUser();
     const userId = user.id;
     const { push } = useRouter();
 

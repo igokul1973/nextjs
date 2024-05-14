@@ -2,7 +2,9 @@ export const enPlural = {
     'must be digits#many': 'must be {count} digits',
     'must be up to digits#many': 'must be up to {count} digits',
     'must be at least characters#many': 'must be at least {count} characters long',
-    'must be more than#many': 'must be more than {count}'
+    'must be more than#many': 'must be more than {count} ',
+    'file size must be less than kb#many': 'filen måste vara mindre än {count} KB',
+    'file size must be less than mb#many': 'filen måste vara mindre än {count} MB'
 };
 
 export const enSingle = {
@@ -94,6 +96,7 @@ export const enSingle = {
     'add another email address': 'add another email address',
     'please enter the email address': 'please enter the email address',
     'please enter the email type': 'please enter the email type',
+    'please enter the user ID': 'please enter the user ID',
     // Attributes
     'add another attribute': 'add another attribute',
     'add attribute': 'add attribute',
@@ -200,6 +203,8 @@ export const enSingle = {
     'please select inventory item to get the price':
         'please select inventory item to get the price',
     'please enter a customer': 'please enter a customer',
+    'file must be a PNG, JPG, JPEG, WEBP, or SVG image':
+        'file must be a PNG, JPG, JPEG, WEBP, or SVG image',
     // Buttons
     'create customer': 'create customer',
     'update customer': 'update customer',
@@ -209,6 +214,9 @@ export const enSingle = {
     'create invoice': 'create invoice',
     'update invoice': 'update invoice',
     'view invoice': 'view invoice',
+    'update profile': 'update profile',
+    'update user profile': 'update user profile',
+    'update account': 'update account',
     'dense padding': 'dense padding',
     // Tooltips
     filter: 'filter',

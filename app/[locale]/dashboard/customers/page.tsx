@@ -2,15 +2,24 @@ import CustomersTable from '@/app/components/customers/customers-table/Customers
 import Search from '@/app/components/search/search';
 // import { getFilteredCustomersCountByAccountId } from '@/app/lib/data/customers';
 import { CreateButton } from '@/app/components/buttons/create/CreateButton';
+import Warning from '@/app/components/warning/Warning';
 import {
     getFilteredCustomersByAccountId,
     getFilteredCustomersCountByAccountId
 } from '@/app/lib/data/customer';
-import { capitalize, stringToBoolean } from '@/app/lib/utils';
+import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
+import {
+    capitalize,
+    formatCurrency,
+    getUserProvider,
+    getUserProviderType,
+    stringToBoolean
+} from '@/app/lib/utils';
 import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { EntitiesEnum } from '@prisma/client';
 import { redirect } from 'next/navigation';
 import { FC, Suspense } from 'react';
 import {
@@ -23,9 +32,32 @@ import { StyledBox } from './styled';
 import { IProps } from './types';
 
 const Page: FC<IProps> = async ({ searchParams }) => {
+    const t = await getI18n();
+
     const session = await auth();
     const sessionUser = session?.user;
     if (!session || !sessionUser) redirect('/');
+
+    const dbUser = await getUserWithRelationsByEmail(sessionUser.email);
+
+    if (!dbUser) {
+        redirect('/');
+    }
+
+    const provider = getUserProvider(dbUser);
+    const providerType = getUserProviderType(provider);
+
+    const userAccountProvider = provider && providerType && provider[providerType];
+    const userAccountCountry = userAccountProvider && userAccountProvider.address?.country;
+
+    if (!userAccountCountry) {
+        return (
+            <Warning variant='h4'>
+                Before creating invoices please register yourself as a Provider.
+            </Warning>
+        );
+    }
+
     const accountId = sessionUser.accountId;
     const query = searchParams?.query || '';
     const currentPage = Number(searchParams?.page) || DEFAULT_PAGE_NUMBER;
@@ -34,10 +66,9 @@ const Page: FC<IProps> = async ({ searchParams }) => {
     const order = searchParams?.order || DEFAULT_ORDER;
     const showOrg = stringToBoolean(searchParams.showOrg || true.toString());
     const showInd = stringToBoolean(searchParams.showInd || true.toString());
-    const t = await getI18n();
 
     const count = await getFilteredCustomersCountByAccountId(accountId, query, showOrg, showInd);
-    const customers = await getFilteredCustomersByAccountId(
+    const rawCustomers = await getFilteredCustomersByAccountId(
         accountId,
         query,
         currentPage,
@@ -47,6 +78,15 @@ const Page: FC<IProps> = async ({ searchParams }) => {
         orderBy,
         order
     );
+
+    const customers = rawCustomers.map((c) => {
+        return {
+            ...c,
+            totalPaid: formatCurrency(c.totalPaid, userAccountCountry.locale),
+            totalPending: formatCurrency(c.totalPending, userAccountCountry.locale),
+            customerType: c.customerType as EntitiesEnum
+        };
+    });
 
     return (
         <StyledBox component='section' className='section'>

@@ -5,15 +5,18 @@ import {
     DEFAULT_ORDER_BY
 } from '@/app/components/invoices/invoices-table/constants';
 import Search from '@/app/components/search/search';
+import Warning from '@/app/components/warning/Warning';
 import {
     getFilteredInvoicesByAccountId,
     getFilteredInvoicesByAccountIdCount
 } from '@/app/lib/data/invoice';
-import { capitalize } from '@/app/lib/utils';
+import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
+import { capitalize, getUserProvider, getUserProviderType } from '@/app/lib/utils';
 import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import { redirect } from 'next/navigation';
 import { FC, Suspense } from 'react';
 import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_PAGE_NUMBER } from './constants';
 import { StyledBox } from './styled';
@@ -21,7 +24,15 @@ import { IProps } from './types';
 
 const Page: FC<IProps> = async ({ searchParams }) => {
     const session = await auth();
-    if (!session) return <div>Not logged in</div>;
+    const sessionUser = session?.user;
+    if (!session || !sessionUser) redirect('/');
+
+    const dbUser = await getUserWithRelationsByEmail(sessionUser.email);
+
+    if (!dbUser) {
+        redirect('/');
+    }
+
     const accountId = session.user.accountId;
     const query = searchParams?.query || '';
     const currentPage = Number(searchParams?.page) || DEFAULT_PAGE_NUMBER;
@@ -31,7 +42,7 @@ const Page: FC<IProps> = async ({ searchParams }) => {
     const t = await getI18n();
 
     const count = await getFilteredInvoicesByAccountIdCount(accountId, query);
-    const invoices = await getFilteredInvoicesByAccountId(
+    const rawInvoices = await getFilteredInvoicesByAccountId(
         accountId,
         query,
         currentPage,
@@ -39,6 +50,28 @@ const Page: FC<IProps> = async ({ searchParams }) => {
         orderBy,
         order
     );
+
+    const provider = getUserProvider(dbUser);
+    const providerType = getUserProviderType(provider);
+    const userAccountProvider = provider && providerType && provider[providerType];
+    const userAccountCountry = userAccountProvider?.address?.country;
+
+    if (!userAccountCountry) {
+        return (
+            <Warning variant='h4'>
+                Before listing invoices please register yourself as a Provider.
+            </Warning>
+        );
+    }
+
+    const invoices = rawInvoices.map((invoice) => {
+        return {
+            ...invoice,
+            date: invoice.date.toLocaleDateString(userAccountCountry.locale),
+            payBy: invoice.payBy.toLocaleDateString(userAccountCountry.locale),
+            paidOn: invoice.paidOn?.toLocaleDateString(userAccountCountry.locale)
+        };
+    });
 
     return (
         <StyledBox component='section' className='section'>

@@ -1,14 +1,21 @@
+import { ThemeOptions } from '@mui/material';
 import { colors } from './colors';
 import { roboto } from './fonts';
 
 declare module '@mui/material/styles' {
     interface Components {
-        GameButtonComponent: unknown;
+        GameButtonComponent?: unknown;
+    }
+}
+
+declare module '@mui/material/TableCell' {
+    interface TableCellProps {
+        isScaledInvoice?: boolean;
     }
 }
 
 // The theme will be created in the ThemeRegistry.tsx
-const theme = {
+const theme: ThemeOptions = {
     palette: {
         primary: {
             main: colors.primary
@@ -83,6 +90,18 @@ const theme = {
                     backgroundColor: colors.info,
                     color: 'black',
                     maxWidth: '400px'
+                }
+            }
+        },
+        MuiTableCell: {
+            styleOverrides: {
+                root: ({ isScaledInvoice }) => {
+                    return {
+                        ...(isScaledInvoice && {
+                            fontSize: 'inherit',
+                            padding: 'inherit'
+                        })
+                    };
                 }
             }
         }

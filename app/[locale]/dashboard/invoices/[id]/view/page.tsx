@@ -1,10 +1,10 @@
 import InvoiceView from '@/app/components/invoice-view/InvoiceView';
+import Warning from '@/app/components/warning/Warning';
 import { getInvoiceById } from '@/app/lib/data/invoice';
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
-import { capitalize } from '@/app/lib/utils';
+import { capitalize, getUserProvider, getUserProviderType } from '@/app/lib/utils';
 import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
-import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
@@ -27,11 +27,34 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
         redirect('/');
     }
 
-    const invoice = await getInvoiceById(id);
+    const provider = getUserProvider(dbUser);
+    const providerType = getUserProviderType(provider);
+    const userAccountProvider = provider && providerType && provider[providerType];
+    const userAccountCountry = userAccountProvider?.address?.country;
 
-    if (!invoice) {
+    if (!userAccountCountry) {
+        return (
+            <Warning variant='h4'>
+                Before listing invoices please register yourself as a Provider.
+            </Warning>
+        );
+    }
+
+    const rawInvoice = await getInvoiceById(id, dbUser.account.id);
+
+    if (!rawInvoice) {
         notFound();
     }
+
+    const invoice = {
+        ...rawInvoice,
+        date: rawInvoice.date.toLocaleDateString(userAccountCountry.locale),
+        payBy: rawInvoice.payBy.toLocaleDateString(userAccountCountry.locale),
+        paidOn:
+            rawInvoice.paidOn === null
+                ? null
+                : rawInvoice.paidOn.toLocaleDateString(userAccountCountry.locale)
+    };
 
     return (
         <StyledBox component='section'>
@@ -49,7 +72,7 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
                 </Link>
                 <Typography color='text.primary'>{capitalize(t('view invoice'))}</Typography>
             </Breadcrumbs>
-            <InvoiceView invoice={invoice} />
+            <InvoiceView invoice={invoice} locale={userAccountCountry.locale} />
         </StyledBox>
     );
 };

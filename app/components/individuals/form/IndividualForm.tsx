@@ -40,7 +40,9 @@ const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const { countries } = useData();
-    const { user } = useUser();
+    const {
+        state: { user }
+    } = useUser();
     const userId = user.id;
     const { push } = useRouter();
 

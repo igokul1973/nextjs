@@ -77,7 +77,7 @@ const baseInvoiceFormSchema = z.object({
             return val;
         }),
     status: z.string().min(1),
-    providerAvatar: z.string().nullish(),
+    providerLogo: z.string().nullish(),
     providerName: z.string().min(1),
     providerAddressLine1: z.string().min(1),
     providerAddressLine2: z.string().nullish(),

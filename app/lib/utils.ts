@@ -4,7 +4,7 @@ import { ChangeEvent } from 'react';
 import { z } from 'zod';
 import { TSingleTranslationKeys } from '../../locales/types';
 import { TCustomerOutput } from '../components/invoices/form/types';
-import { TGetCustomerPayload, TGetCustomerWithInvoicesPayload } from './data/customer/types';
+import { TCustomerPayload, TCustomerWithInvoicesPayload } from './data/customer/types';
 import {
     TGetUserWithRelationsAndInventoryPayload,
     TGetUserWithRelationsPayload
@@ -19,12 +19,21 @@ import {
     TOrgWithNonNullableCustomer
 } from './types';
 
+const localeToCurrencyCode: Record<string, string> = {
+    'en-US': 'USD',
+    'en-GB': 'GBP',
+    'sv-SE': 'SEK',
+    'ru-RU': 'RUB'
+    // Add more mappings here...
+};
+
 export const objectKeys = Object.keys as unknown as <T>(o: T) => (keyof T)[];
 
-export const formatCurrency = (amount: number) => {
-    return (amount / 100).toLocaleString('en-US', {
+export const formatCurrency = (amount: number, locale: string) => {
+    const currrencyCode = localeToCurrencyCode[locale];
+    return (amount / 100).toLocaleString(locale, {
         style: 'currency',
-        currency: 'USD'
+        currency: currrencyCode
     });
 };
 
@@ -83,7 +92,7 @@ export function getIndividualFullNameString(
 }
 
 export function getProviderName(
-    provider?: TGetCustomerPayload['individual'] | TGetCustomerPayload['organization']
+    provider?: TCustomerPayload['individual'] | TCustomerPayload['organization']
 ): string {
     if (!provider) {
         return 'No provider name';
@@ -97,7 +106,7 @@ export function getProviderName(
 }
 
 export function flattenCustomer(
-    rawCustomer: TGetCustomerPayload | TGetCustomerWithInvoicesPayload
+    rawCustomer: TCustomerPayload | TCustomerWithInvoicesPayload
 ): TCustomerOutput {
     const entity = rawCustomer.individual || rawCustomer.organization;
     if (!entity) {
@@ -181,14 +190,12 @@ export function getUserProviderType(
           : undefined;
 }
 
-const isIndHasCustomer = (
-    o: TGetCustomerPayload['individual']
-): o is TIndWithNonNullableCustomer => {
+const isIndHasCustomer = (o: TCustomerPayload['individual']): o is TIndWithNonNullableCustomer => {
     return !!o?.customer;
 };
 
 const isOrgHasCustomer = (
-    o: TGetCustomerPayload['organization']
+    o: TCustomerPayload['organization']
 ): o is TOrgWithNonNullableCustomer => {
     return !!o?.customer;
 };

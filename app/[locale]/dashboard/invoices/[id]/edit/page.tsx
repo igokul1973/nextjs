@@ -36,9 +36,9 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
     const providerType = getUserProviderType(provider);
 
     const userAccountProvider = provider && providerType && provider[providerType];
-    const isDataLoaded = !!userAccountProvider;
+    const userAccountCountry = userAccountProvider && userAccountProvider.address?.country;
 
-    if (!isDataLoaded) {
+    if (!userAccountCountry) {
         return (
             <Warning variant='h4'>
                 Before creating invoices please register yourself as a Provider.
@@ -46,7 +46,7 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
         );
     }
 
-    const invoicePromise = getInvoiceById(id);
+    const invoicePromise = getInvoiceById(id, dbUser.account.id);
     const customersPromise = getCustomersByAccountId(session.user.accountId);
     const inventoryPromise = getFilteredInventoryByAccountIdRaw(accountId, '', 0, 50);
     const [invoice, customers, rawInventory] = await Promise.all([
@@ -119,19 +119,12 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
 
     const form = { ...formRaw, customer, date: new Date(date), invoiceItems: preparedInvoiceItems };
 
-    const firstProviderPhone = userAccountProvider.phones[0];
-    const firstProviderEmail = userAccountProvider.emails[0];
-
     // Since the DB may return some empty (null, undefined) values or not return
     // some keys at all, but the form expects certain values to be set
     // in order to later calculate the dirty values, we need to convert them where
     // appropriate to default values.
     const defaultValues = populateForm<TInvoiceForm>(
-        getDefaultFormValues(
-            sessionUser.id,
-            `${firstProviderPhone.countryCode}-${firstProviderPhone.number}`,
-            firstProviderEmail.email
-        ),
+        getDefaultFormValues(sessionUser.id, userAccountProvider),
         form
     );
 
@@ -153,6 +146,7 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
                 customers={customers}
                 inventory={inventory}
                 accountId={accountId}
+                locale={userAccountCountry.locale}
                 providerPhones={userAccountProvider.phones}
                 providerEmails={userAccountProvider.emails}
                 defaultValues={defaultValues}

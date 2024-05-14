@@ -8,6 +8,6 @@ export interface IComponent {
     component: FC;
 }
 
-export type TComponentName = Extract<TSingleTranslationKeys, 'account' | 'profile' | 'settings'>;
+export type TComponentName = 'account' | 'profile' | 'settings' | 'updateProfile';
 
 export type TComponents = Record<TComponentName, IComponent>;

@@ -4,13 +4,9 @@ import { useI18n } from '@/locales/client';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
 import { FC } from 'react';
+import CustomerTable from './CustomerTable';
 import InvoiceItemsTable from './InvoiceItemsTable';
 import {
     StyledAdditionalInfo,
@@ -23,7 +19,7 @@ import {
 } from './styled';
 import { IProps } from './types';
 
-const InvoiceView: FC<IProps> = ({ invoice }) => {
+const InvoiceView: FC<IProps> = ({ invoice, locale }) => {
     const t = useI18n();
     const { customer, invoiceItems } = invoice;
     return (
@@ -42,58 +38,12 @@ const InvoiceView: FC<IProps> = ({ invoice }) => {
                     </Typography>
                 </StyledInvoiceInfo>
                 <StyledCustomerInfo component='section' className='customer-info'>
-                    <TableContainer>
-                        <Table size='small' sx={{ minWidth: 400 }} aria-label='spanning table'>
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell>{capitalize(t('customer name'))}:</TableCell>
-                                    <TableCell align='left'>{customer.customerName}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>{capitalize(t('customer address'))}:</TableCell>
-                                    <TableCell align='left'>
-                                        <Box>{customer.customerAddressLine1}</Box>
-                                        {customer.customerAddressLine2 && (
-                                            <Box>{customer.customerAddressLine2}</Box>
-                                        )}
-                                        {customer.customerAddressLine3 && (
-                                            <Box>{customer.customerAddressLine3}</Box>
-                                        )}
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                flexDirection: 'row',
-                                                gap: '0.5rem'
-                                                // justifyContent: 'end'
-                                            }}
-                                        >
-                                            <Box component='span'>{customer.customerLocality}</Box>
-                                            {customer.customerRegion && (
-                                                <Box component='span'>
-                                                    {customer.customerRegion}
-                                                </Box>
-                                            )}
-                                            <Box component='span'>{customer.customerPostCode}</Box>
-                                        </Box>
-                                        <Box>{customer.customerCountry}</Box>
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>{capitalize(t('customer email'))}:</TableCell>
-                                    <TableCell align='left'>{customer.customerEmail}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>{capitalize(t('customer phone'))}:</TableCell>
-                                    <TableCell align='left'>{customer.customerPhone}</TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                    <CustomerTable customer={customer} />
                     {/* <Debug debugObject={invoice.customer} /> */}
                 </StyledCustomerInfo>
             </Box>
             <StyledInvoiceItems component='section' className='invoice-items'>
-                <InvoiceItemsTable invoiceItems={invoiceItems} />
+                <InvoiceItemsTable invoiceItems={invoiceItems} tax={invoice.tax} locale={locale} />
             </StyledInvoiceItems>
             {invoice.additionalInformation && (
                 <StyledAdditionalInfo component='section' className='invoice-additional-info'>
@@ -102,8 +52,33 @@ const InvoiceView: FC<IProps> = ({ invoice }) => {
                 </StyledAdditionalInfo>
             )}
             <StyledFooter component='section' className='provider-info'>
-                <Box>{invoice.providerEmail}</Box>
-                <Box>{invoice.providerName}</Box>
+                <Box>
+                    <Box>{capitalize(t('provider address'))}:</Box>
+                    <Box>
+                        <Box>{invoice.providerName}</Box>
+                        <Box>{invoice.providerAddressLine1}</Box>
+                        {invoice.providerAddressLine2 && <Box>{invoice.providerAddressLine2}</Box>}
+                        {invoice.providerAddressLine3 && <Box>{invoice.providerAddressLine3}</Box>}
+                        <Box>
+                            {invoice.providerLocality}{' '}
+                            {invoice.providerRegion && `${invoice.providerRegion} `}
+                            {invoice.providerPostCode}
+                        </Box>
+                        <Box>{invoice.providerCountry}</Box>
+                    </Box>
+                </Box>
+                <Box>
+                    <Box>{capitalize(t('provider email'))}:</Box>
+                    <Box>{invoice.providerEmail}</Box>
+                </Box>
+                <Box>
+                    <Box>{capitalize(t('provider phone'))}:</Box>
+                    <Box>{invoice.providerPhone}</Box>
+                </Box>
+                <Box>
+                    <Box>{capitalize(t('Payment info'))}:</Box>
+                    <Box>{invoice.paymentInfo}</Box>
+                </Box>
             </StyledFooter>
             {/* <Debug debugObject={invoice} /> */}
         </StyledInvoice>

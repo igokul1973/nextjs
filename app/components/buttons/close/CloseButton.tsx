@@ -6,7 +6,7 @@ import { FC } from 'react';
 import { StyledCloseButton } from './styled';
 import { IProps } from './types';
 
-const CloseButton: FC<IProps> = ({ className }) => {
+const CloseRightDrawerButton: FC<IProps> = ({ className }) => {
     const { dispatch } = useRightDrawerState();
     return (
         <StyledCloseButton
@@ -18,4 +18,4 @@ const CloseButton: FC<IProps> = ({ className }) => {
     );
 };
 
-export default CloseButton;
+export default CloseRightDrawerButton;

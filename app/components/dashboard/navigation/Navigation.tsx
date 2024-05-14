@@ -46,7 +46,9 @@ const Navigation: FC = () => {
     const t = useI18n();
 
     const [isOpen, setIsOpen] = useState(false);
-    const { provider } = useUser();
+    const {
+        state: { provider }
+    } = useUser();
     const isProvider = !!provider;
 
     const handleDrawerToggle = (isOpen: boolean) => {

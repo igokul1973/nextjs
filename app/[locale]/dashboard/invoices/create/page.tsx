@@ -32,9 +32,9 @@ export default async function Page() {
     const providerType = getUserProviderType(provider);
 
     const userAccountProvider = provider && providerType && provider[providerType];
-    const isDataLoaded = !!userAccountProvider;
+    const userAccountCountry = userAccountProvider && userAccountProvider.address?.country;
 
-    if (!isDataLoaded) {
+    if (!userAccountCountry) {
         return (
             <Warning variant='h4'>
                 Before creating invoices please register yourself as a Provider.
@@ -66,6 +66,7 @@ export default async function Page() {
                 customers={customers}
                 inventory={inventory}
                 accountId={accountId}
+                locale={userAccountCountry.locale}
                 providerPhones={userAccountProvider.phones}
                 providerEmails={userAccountProvider.emails}
                 defaultValues={defaultValues}

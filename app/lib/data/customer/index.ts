@@ -7,7 +7,7 @@ import {
 } from '@/app/components/organizations/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TOrder } from '@/app/lib/types';
-import { flattenCustomer, formatCurrency, getDirtyValues } from '@/app/lib/utils';
+import { flattenCustomer, getDirtyValues } from '@/app/lib/utils';
 import {
     AccountRelationEnum,
     EmailTypeEnum,
@@ -18,20 +18,46 @@ import {
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import {
-    TGetCustomerPayload,
-    getEntitySelect,
-    getEntityWithInvoicesSelect,
+    TCustomerPayload,
+    customerSelect,
+    customerWithInvoicesSelect,
     getFilteredCustomersWhereClause
 } from './types';
 
-export async function getCustomerById(id: string): Promise<TGetCustomerPayload | null> {
+export async function getCustomerById(
+    id: string,
+    accountId: string,
+    isSuperAdmin = false
+): Promise<TCustomerPayload | null> {
     try {
         return await prisma.customer.findUnique({
             select: {
-                ...getEntitySelect
+                ...customerSelect
             },
             where: {
-                id
+                id,
+                OR: !isSuperAdmin
+                    ? [
+                          {
+                              organization: {
+                                  is: {
+                                      accountId: {
+                                          equals: accountId
+                                      }
+                                  }
+                              }
+                          },
+                          {
+                              individual: {
+                                  is: {
+                                      accountId: {
+                                          equals: accountId
+                                      }
+                                  }
+                              }
+                          }
+                      ]
+                    : undefined
             }
         });
     } catch (err) {
@@ -45,7 +71,7 @@ export async function getCustomersByAccountId(accountId: string) {
     try {
         const customers = await prisma.customer.findMany({
             relationLoadStrategy: 'query',
-            select: getEntitySelect,
+            select: customerSelect,
             where: {
                 AND: [
                     {
@@ -145,7 +171,7 @@ export async function getFilteredCustomersByAccountId(
             take: itemsPerPage,
             skip: offset,
             orderBy: orderByClause,
-            select: getEntityWithInvoicesSelect,
+            select: customerWithInvoicesSelect,
             where: whereClause
         });
 
@@ -165,25 +191,22 @@ export async function getFilteredCustomersByAccountId(
                     invoiceItems
                 };
             });
-            const { totalPendingRaw, totalPaidRaw } = invoices.reduce(
-                ({ totalPendingRaw, totalPaidRaw }, i) => {
+            const { totalPending, totalPaid } = invoices.reduce(
+                ({ totalPending, totalPaid }, i) => {
                     const invoiceTotal = i.invoiceItems.reduce((acc, ii) => {
                         return acc + ii.quantity * ii.price;
                     }, 0);
                     if (i.status === InvoiceStatusEnum.pending) {
-                        return { totalPendingRaw: totalPendingRaw + invoiceTotal, totalPaidRaw };
+                        return { totalPending: totalPending + invoiceTotal, totalPaid };
                     } else if (i.status === InvoiceStatusEnum.paid) {
-                        return { totalPendingRaw, totalPaidRaw: totalPaidRaw + invoiceTotal };
+                        return { totalPending, totalPaid: totalPaid + invoiceTotal };
                     }
-                    return { totalPendingRaw, totalPaidRaw };
+                    return { totalPending, totalPaid };
                 },
-                { totalPendingRaw: 0, totalPaidRaw: 0 }
+                { totalPending: 0, totalPaid: 0 }
             );
 
             const customer = flattenCustomer(partialCustomer);
-
-            const totalPending = formatCurrency(totalPendingRaw ?? '0');
-            const totalPaid = formatCurrency(totalPaidRaw ?? '0');
 
             return {
                 ...customer,
