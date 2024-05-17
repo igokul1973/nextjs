@@ -11,7 +11,7 @@ import {
     getFilteredInvoicesByAccountIdCount
 } from '@/app/lib/data/invoice';
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
-import { capitalize, getUserProvider, getUserProviderType } from '@/app/lib/utils';
+import { capitalize, formatCurrency, getUserProvider, getUserProviderType } from '@/app/lib/utils';
 import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
 import Box from '@mui/material/Box';
@@ -41,8 +41,8 @@ const Page: FC<IProps> = async ({ searchParams }) => {
     const order = searchParams?.order || DEFAULT_ORDER;
     const t = await getI18n();
 
-    const count = await getFilteredInvoicesByAccountIdCount(accountId, query);
-    const rawInvoices = await getFilteredInvoicesByAccountId(
+    const countPromise = await getFilteredInvoicesByAccountIdCount(accountId, query);
+    const rawInvoicesPromise = await getFilteredInvoicesByAccountId(
         accountId,
         query,
         currentPage,
@@ -50,6 +50,8 @@ const Page: FC<IProps> = async ({ searchParams }) => {
         orderBy,
         order
     );
+
+    const [count, rawInvoices] = await Promise.all([countPromise, rawInvoicesPromise]);
 
     const provider = getUserProvider(dbUser);
     const providerType = getUserProviderType(provider);
@@ -67,6 +69,7 @@ const Page: FC<IProps> = async ({ searchParams }) => {
     const invoices = rawInvoices.map((invoice) => {
         return {
             ...invoice,
+            amount: formatCurrency(invoice.amount, userAccountCountry.locale),
             date: invoice.date.toLocaleDateString(userAccountCountry.locale),
             payBy: invoice.payBy.toLocaleDateString(userAccountCountry.locale),
             paidOn: invoice.paidOn?.toLocaleDateString(userAccountCountry.locale)

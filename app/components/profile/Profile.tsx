@@ -5,11 +5,18 @@ import Warning from '@/app/components/warning/Warning';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useUser } from '@/app/context/user/provider';
 import { useI18n } from '@/locales/client';
-import { capitalize } from '@mui/material';
+import { Box, capitalize } from '@mui/material';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import Image from 'next/image';
 import { FC } from 'react';
-import { StyledProfile, StyledProfileAttribute, StyledProfileWrapper } from './styled';
+import {
+    StyledProfile,
+    StyledProfileAttribute,
+    StyledProfileAttributeAlignTop,
+    StyledProfileWrapper
+} from './styled';
+import { useAvatar } from '@/app/lib/hooks/useAvatar';
 
 const Profile: FC = () => {
     const {
@@ -34,19 +41,22 @@ const Profile: FC = () => {
         });
     };
 
+    const [avatarUrl] = useAvatar(profile);
+
     return (
         <StyledProfileWrapper component='article'>
             <Button type='button' variant='outlined' onClick={onUpdateProfile}>
                 {capitalize(t('update profile'))}
             </Button>
             <StyledProfile>
-                {profile?.avatar && (
-                    <StyledProfileAttribute>
-                        <Typography variant='h6'>{capitalize(t('first name'))}:</Typography>
-                        <Typography variant='body1'>{profile?.avatar}</Typography>
-                    </StyledProfileAttribute>
+                {avatarUrl && (
+                    <StyledProfileAttributeAlignTop>
+                        <Typography variant='h6'>{capitalize(t('avatar'))}:</Typography>
+                        <Box sx={{ width: '100px', position: 'relative', aspectRatio: '1/1' }}>
+                            <Image src={avatarUrl} fill alt='Picture of the author' />
+                        </Box>
+                    </StyledProfileAttributeAlignTop>
                 )}
-
                 <StyledProfileAttribute>
                     <Typography variant='h6'>{capitalize(t('first name'))}:</Typography>
                     <Typography variant='body1'>{profile?.firstName}</Typography>

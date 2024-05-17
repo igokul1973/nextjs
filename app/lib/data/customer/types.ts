@@ -1,6 +1,7 @@
 import { AccountRelationEnum, Prisma } from '@prisma/client';
 
 export const includeEntityRelations = {
+    logo: true,
     localIdentifierName: true,
     address: {
         include: {

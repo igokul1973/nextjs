@@ -70,6 +70,24 @@ model account {
   @@map("accounts")
 }
 
+model file {
+  id           String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name         String        @db.VarChar(255)
+  size         Int           @db.Integer
+  type         String        @db.VarChar(255)
+  data         Bytes         @db.ByteA()
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy    String        @map("created_by") @db.Uuid
+  updatedBy    String        @map("updated_by") @db.Uuid
+  profile      profile?
+  invoice      invoice?
+  organization organization?
+  individual   individual?
+
+  @@map("files")
+}
+
 model user {
   id              String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   email           String       @unique
@@ -91,7 +109,8 @@ model user {
 
 model profile {
   id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  avatar     Bytes?   @db.ByteA()
+  avatarId   String?  @unique @map("avatar_id") @db.Uuid
+  avatar     file?    @relation(fields: [avatarId], references: [id])
   firstName  String   @map("first_name") @db.VarChar(255)
   lastName   String   @map("last_name") @db.VarChar(255)
   middleName String?  @map("middle_name") @db.VarChar(255)
@@ -216,7 +235,8 @@ model localIdentifierName {
 // Individuals (both clients and service providers)
 model individual {
   id                    String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  logo                  Bytes?              @db.ByteA()
+  logoId                String?             @unique @map("logo_id") @db.Uuid
+  logo                  file?               @relation(fields: [logoId], references: [id])
   firstName             String              @map("first_name") @db.VarChar(255)
   lastName              String              @map("last_name") @db.VarChar(255)
   middleName            String?             @map("middle_name") @db.VarChar(255)
@@ -246,7 +266,8 @@ model individual {
 // Organizations (both clients and service providers)
 model organization {
   id                    String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  logo                  Bytes?              @db.ByteA()
+  logoId                String?             @unique @map("logo_id") @db.Uuid
+  logo                  file?               @relation(fields: [logoId], references: [id])
   name                  String              @db.VarChar(255)
   description           String?             @db.Text
   isPrivate             Boolean             @default(true) @map("is_private") @db.Boolean // as opposed to government
@@ -349,7 +370,8 @@ model invoice {
   customerEmail              String            @map("customer_email") @db.VarChar(255)
   customerId                 String            @map("customer_id") @db.Uuid
   customer                   customer          @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  providerLogo               Bytes?            @map("provider_logo") @db.ByteA()
+  providerLogoId             String?           @unique @map("provider_logo_id") @db.Uuid
+  providerLogo               file?             @relation(fields: [providerLogoId], references: [id])
   providerName               String            @map("provider_name") @db.VarChar(255)
   providerAddressLine1       String            @map("provider_address_line_1") @db.VarChar(255)
   providerAddressLine2       String?           @map("provider_address_line_2") @db.VarChar(255)
@@ -393,8 +415,6 @@ model invoice {
   updatedBy                  String            @map("updated_by") @db.Uuid
   createdByUser              user              @relation("CreatedInvoices", fields: [createdBy], references: [id])
   updatedByUser              user              @relation("UpdatedInvoices", fields: [updatedBy], references: [id])
-
-  @@map("invoices")
 }
 
 model invoiceItem {

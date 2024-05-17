@@ -14,50 +14,6 @@ import {
     invoicesInclude
 } from './types';
 
-export interface ILatestInvoice {
-    number: string;
-    date: Date;
-    amount: string;
-    name: string;
-    email: string;
-}
-
-export async function getLatestInvoices(locale: string): Promise<ILatestInvoice[]> {
-    try {
-        noStore();
-
-        const invoices = await prisma.invoice.findMany({
-            relationLoadStrategy: 'join',
-            select: getInvoiceSelect,
-            orderBy: {
-                date: 'desc'
-            },
-            take: 5
-        });
-
-        const latestInvoices = invoices.map((invoice) => {
-            const { number, date, invoiceItems, customerName, customerEmail } = invoice;
-            const amount = invoiceItems.reduce((acc, ii) => {
-                return acc + ii.quantity * Number(ii.price);
-            }, 0);
-            return {
-                number,
-                date,
-                amount: formatCurrency(amount, locale),
-                name: customerName,
-                email: customerEmail
-            };
-        });
-
-        return latestInvoices;
-
-        // return [];
-    } catch (error) {
-        console.error('Database Error:', error);
-        throw new Error('Failed to get the latest invoices.');
-    }
-}
-
 // FIXME: Continue here - need type fo the invoice
 const transformInvoice = (invoice: TGetInvoiceWithRelationsPayloadRaw): TTransformedInvoice => {
     const { invoiceItems: rawInvoiceItems, customer: rawCustomer, ...partialInvoice } = invoice;

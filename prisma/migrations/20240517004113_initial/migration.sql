@@ -29,6 +29,21 @@ CREATE TABLE "accounts" (
 );
 
 -- CreateTable
+CREATE TABLE "files" (
+    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "name" VARCHAR(255) NOT NULL,
+    "size" INTEGER NOT NULL,
+    "type" VARCHAR(255) NOT NULL,
+    "data" BYTEA NOT NULL,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(3) NOT NULL,
+    "created_by" UUID NOT NULL,
+    "updated_by" UUID NOT NULL,
+
+    CONSTRAINT "files_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "users" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "email" TEXT NOT NULL,
@@ -47,7 +62,7 @@ CREATE TABLE "users" (
 -- CreateTable
 CREATE TABLE "profiles" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
-    "avatar" BYTEA,
+    "avatar_id" UUID,
     "first_name" VARCHAR(255) NOT NULL,
     "last_name" VARCHAR(255) NOT NULL,
     "middle_name" VARCHAR(255),
@@ -165,7 +180,7 @@ CREATE TABLE "local_identifier_names" (
 -- CreateTable
 CREATE TABLE "individuals" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
-    "logo" BYTEA,
+    "logo_id" UUID,
     "first_name" VARCHAR(255) NOT NULL,
     "last_name" VARCHAR(255) NOT NULL,
     "middle_name" VARCHAR(255),
@@ -189,7 +204,7 @@ CREATE TABLE "individuals" (
 -- CreateTable
 CREATE TABLE "organizations" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
-    "logo" BYTEA,
+    "logo_id" UUID,
     "name" VARCHAR(255) NOT NULL,
     "description" TEXT,
     "is_private" BOOLEAN NOT NULL DEFAULT true,
@@ -262,7 +277,7 @@ CREATE TABLE "customers" (
 );
 
 -- CreateTable
-CREATE TABLE "invoices" (
+CREATE TABLE "invoice" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "number" TEXT NOT NULL,
     "date" TIMESTAMPTZ(3) NOT NULL,
@@ -277,7 +292,7 @@ CREATE TABLE "invoices" (
     "customer_phone" VARCHAR(255) NOT NULL,
     "customer_email" VARCHAR(255) NOT NULL,
     "customer_id" UUID NOT NULL,
-    "provider_logo" BYTEA,
+    "provider_logo_id" UUID,
     "provider_name" VARCHAR(255) NOT NULL,
     "provider_address_line_1" VARCHAR(255) NOT NULL,
     "provider_address_line_2" VARCHAR(255),
@@ -304,7 +319,7 @@ CREATE TABLE "invoices" (
     "created_by" UUID NOT NULL,
     "updated_by" UUID NOT NULL,
 
-    CONSTRAINT "invoices_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "invoice_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -330,13 +345,22 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 CREATE UNIQUE INDEX "users_phone_key" ON "users"("phone");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "profiles_avatar_id_key" ON "profiles"("avatar_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "profiles_user_id_key" ON "profiles"("user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "local_identifier_names_name_country_id_key" ON "local_identifier_names"("name", "country_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "individuals_logo_id_key" ON "individuals"("logo_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "individuals_customer_id_key" ON "individuals"("customer_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "organizations_logo_id_key" ON "organizations"("logo_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "organizations_customer_id_key" ON "organizations"("customer_id");
@@ -344,8 +368,14 @@ CREATE UNIQUE INDEX "organizations_customer_id_key" ON "organizations"("customer
 -- CreateIndex
 CREATE UNIQUE INDEX "inventory_type_type_key" ON "inventory_type"("type");
 
+-- CreateIndex
+CREATE UNIQUE INDEX "invoice_provider_logo_id_key" ON "invoice"("provider_logo_id");
+
 -- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "profiles" ADD CONSTRAINT "profiles_avatar_id_fkey" FOREIGN KEY ("avatar_id") REFERENCES "files"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "profiles" ADD CONSTRAINT "profiles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -369,6 +399,9 @@ ALTER TABLE "individual_emails" ADD CONSTRAINT "individual_emails_individual_id_
 ALTER TABLE "local_identifier_names" ADD CONSTRAINT "local_identifier_names_country_id_fkey" FOREIGN KEY ("country_id") REFERENCES "countries"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "individuals" ADD CONSTRAINT "individuals_logo_id_fkey" FOREIGN KEY ("logo_id") REFERENCES "files"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "individuals" ADD CONSTRAINT "individuals_local_identifier_name_id_fkey" FOREIGN KEY ("local_identifier_name_id") REFERENCES "local_identifier_names"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -379,6 +412,9 @@ ALTER TABLE "individuals" ADD CONSTRAINT "individuals_account_id_fkey" FOREIGN K
 
 -- AddForeignKey
 ALTER TABLE "individuals" ADD CONSTRAINT "individuals_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "customers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "organizations" ADD CONSTRAINT "organizations_logo_id_fkey" FOREIGN KEY ("logo_id") REFERENCES "files"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "organizations" ADD CONSTRAINT "organizations_type_id_fkey" FOREIGN KEY ("type_id") REFERENCES "organization_types"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -402,16 +438,19 @@ ALTER TABLE "inventory" ADD CONSTRAINT "inventory_type_id_fkey" FOREIGN KEY ("ty
 ALTER TABLE "inventory" ADD CONSTRAINT "inventory_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "invoices" ADD CONSTRAINT "invoices_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "customers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "invoice" ADD CONSTRAINT "invoice_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "customers"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "invoices" ADD CONSTRAINT "invoices_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "invoice" ADD CONSTRAINT "invoice_provider_logo_id_fkey" FOREIGN KEY ("provider_logo_id") REFERENCES "files"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "invoices" ADD CONSTRAINT "invoices_updated_by_fkey" FOREIGN KEY ("updated_by") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "invoice" ADD CONSTRAINT "invoice_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "invoice_items" ADD CONSTRAINT "invoice_items_invoice_id_fkey" FOREIGN KEY ("invoice_id") REFERENCES "invoices"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "invoice" ADD CONSTRAINT "invoice_updated_by_fkey" FOREIGN KEY ("updated_by") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "invoice_items" ADD CONSTRAINT "invoice_items_invoice_id_fkey" FOREIGN KEY ("invoice_id") REFERENCES "invoice"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "invoice_items" ADD CONSTRAINT "invoice_items_inventory_id_fkey" FOREIGN KEY ("inventory_id") REFERENCES "inventory"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

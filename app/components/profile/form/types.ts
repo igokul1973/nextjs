@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { profileUpdateSchema } from './formSchema';
 import { TProfile } from '@/app/lib/types';
+import { profileUpdateSchema } from './formSchema';
 
 export interface IProps {
     profile?: TProfile;

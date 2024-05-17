@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 
 export const includeEntityRelations = {
+    logo: true,
     localIdentifierName: true,
     address: {
         include: {
@@ -13,7 +14,11 @@ export const includeEntityRelations = {
 } satisfies Prisma.organizationInclude;
 
 export const getUserWithRelations = {
-    profile: true,
+    profile: {
+        include: {
+            avatar: true
+        }
+    },
     account: {
         include: {
             organizations: {
@@ -30,7 +35,11 @@ export const getUserWithRelations = {
 } satisfies Prisma.userInclude;
 
 export const getUserWithRelationsAndInventory = {
-    profile: true,
+    profile: {
+        include: {
+            avatar: true
+        }
+    },
     account: {
         include: {
             organizations: {

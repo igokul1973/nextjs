@@ -11,7 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
-import { FC, useContext } from 'react';
+import { FC, useContext, useEffect, useState } from 'react';
 import LanguageSwitcher from '../../language-switcher/LanguageSwitcher';
 import AvatarMenu from '../avatar-menu/AvatarMenu';
 import { StyledAppBar } from './styled';
@@ -22,7 +22,7 @@ export const AppBar: FC<IProps> = ({ isOpen, handleDrawerToggle }) => {
     const { toggleColorMode } = useContext(ColorModeContext);
 
     const {
-        state: { provider }
+        state: { provider, profile }
     } = useUser();
 
     const providerName = getProviderName(provider);

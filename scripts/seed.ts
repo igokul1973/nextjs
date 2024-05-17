@@ -722,6 +722,11 @@ async function seedInvoices() {
                 // Provider info has to be remembered on the invoice
                 // as providers tend to change names, addresses, etc.
                 const providerLogo = concreteProvider.logo;
+                let providerLogoData: Omit<NonNullable<typeof providerLogo>, 'id'> | undefined;
+                if (providerLogo) {
+                    const { id, ...rest } = providerLogo;
+                    providerLogoData = rest;
+                }
                 const providerName = getProviderName(concreteProvider);
                 const providerAddressLine1 = concreteProvider.address.addressLine1;
                 const providerAddressLine2 = concreteProvider.address.addressLine2;
@@ -773,7 +778,9 @@ async function seedInvoices() {
                         customerCountry: address.country.name,
                         customerPhone,
                         customerEmail,
-                        providerLogo,
+                        providerLogo: {
+                            create: providerLogoData
+                        },
                         providerName,
                         providerAddressLine1,
                         providerAddressLine2,

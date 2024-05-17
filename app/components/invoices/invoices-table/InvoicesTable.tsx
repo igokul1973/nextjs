@@ -135,7 +135,7 @@ function EnhancedTableHead(props: IEnhancedTableProps) {
 
 function EnhancedTableToolbar(props: IEnhancedTableToolbarProps) {
     const t = useI18n();
-    const { numSelected } = props;
+    const { numSelected, tableName } = props;
 
     return (
         <Toolbar
@@ -149,7 +149,7 @@ function EnhancedTableToolbar(props: IEnhancedTableToolbarProps) {
             }}
         >
             <Typography sx={{ flex: '1 1 100%' }} variant='h6' id='tableTitle' component='div'>
-                {capitalize(t('invoices'))}
+                {capitalize(t(tableName || 'invoices'))}
             </Typography>
             <Tooltip title='Filter list'>
                 <IconButton>
@@ -160,7 +160,7 @@ function EnhancedTableToolbar(props: IEnhancedTableToolbarProps) {
     );
 }
 
-const InvoicesTable: FC<IProps> = ({ invoices, count }) => {
+const InvoicesTable: FC<IProps> = ({ invoices, count, tableName }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const [selected, setSelected] = useState<readonly IInvoiceTable['id'][]>([]);
@@ -268,7 +268,7 @@ const InvoicesTable: FC<IProps> = ({ invoices, count }) => {
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
-                <EnhancedTableToolbar numSelected={selected.length} />
+                <EnhancedTableToolbar numSelected={selected.length} tableName={tableName} />
                 <TableContainer>
                     <Table
                         sx={{ minWidth: 750 }}

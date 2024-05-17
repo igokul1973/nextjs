@@ -1,6 +1,11 @@
+// import { File } from '@web-std/file';
 import { z } from 'zod';
 
-export const MAX_UPLOAD_SIZE = 1024 * 300; // 300KB
+const validateBEFile = (file: object | undefined) => {
+    return !!file && 'lastModified' in file && 'name' in file && file instanceof Blob;
+};
+
+export const MAX_UPLOAD_SIZE = 1024 * 200; // 200KB
 export const ACCEPTED_FILE_TYPES = [
     'image/png',
     'image/jpeg',
@@ -9,17 +14,59 @@ export const ACCEPTED_FILE_TYPES = [
     'image/svg+xml'
 ];
 
-const baseProfileFormSchema = z.object({
+const fileSchema = z
+    .instanceof(typeof File === 'undefined' ? Blob : File)
+    .refine((file) => {
+        if (!file) {
+            return true;
+        } else if (
+            (typeof File !== 'undefined' && !(file instanceof File)) ||
+            (typeof File === 'undefined' && !validateBEFile(file))
+        ) {
+            return false;
+        }
+        return file.size <= MAX_UPLOAD_SIZE;
+    }, 'file size must be less than kb#many')
+    .refine((file) => {
+        if (!file) {
+            return true;
+        } else if (
+            (typeof File !== 'undefined' && !(file instanceof File)) ||
+            (typeof File === 'undefined' && !validateBEFile(file))
+        ) {
+            return false;
+        }
+        return ACCEPTED_FILE_TYPES.includes(file.type);
+    }, 'file must be a PNG, JPG, JPEG, WEBP, or SVG image')
+    .transform((val, ctx) => {
+        if (
+            (val !== null && typeof File !== 'undefined' && !(val instanceof File)) ||
+            (typeof File === 'undefined' && !validateBEFile(val))
+        ) {
+            ctx.addIssue({
+                code: 'invalid_type',
+                expected: 'object',
+                received: typeof val
+            });
+            return z.NEVER;
+        }
+        return val;
+    });
+
+export const avatarUpdateSchema = z.object({
     id: z.string(),
-    avatar: z
-        .instanceof(File)
-        .optional()
-        .refine((file) => {
-            return !file || file.size <= MAX_UPLOAD_SIZE;
-        }, 'file size must be less than kb#many')
-        .refine((file) => {
-            return !!file && ACCEPTED_FILE_TYPES.includes(file.type);
-        }, 'file must be a PNG, JPG, JPEG, WEBP, or SVG image'),
+    name: z.string().min(5),
+    size: z.coerce.number().gt(0),
+    type: z.string().min(1),
+    data: fileSchema,
+    createdBy: z.string(),
+    updatedBy: z.string()
+});
+
+export const avatarCreateSchema = avatarUpdateSchema.omit({ id: true });
+
+const profileUpdateSchemaRaw = z.object({
+    id: z.string(),
     firstName: z
         .string({
             required_error: 'please enter the first name',
@@ -41,6 +88,14 @@ const baseProfileFormSchema = z.object({
     updatedBy: z.string()
 });
 
-export const profileCreateSchema = baseProfileFormSchema.omit({ id: true });
+export const profileUpdateSchema = profileUpdateSchemaRaw.extend({
+    avatar: avatarUpdateSchema.nullable()
+});
 
-export const profileUpdateSchema = baseProfileFormSchema;
+export const profileUpdateSchemaEmptyAvatar = profileUpdateSchemaRaw.extend({
+    avatar: avatarCreateSchema.nullable()
+});
+
+export const profileCreateSchema = profileUpdateSchema.omit({ id: true }).extend({
+    avatar: avatarCreateSchema.nullable()
+});

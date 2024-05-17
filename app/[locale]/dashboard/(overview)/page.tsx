@@ -1,16 +1,25 @@
 import DashboardCardWrapper from '@/app/components/dashboard/dashboard-card-wrapper/CardWrapper';
+import InvoicesTable from '@/app/components/invoices/invoices-table/InvoicesTable';
 import { CardsSkeleton, LatestInvoicesSkeleton } from '@/app/components/skeletons';
-import { capitalize, getUserProvider, getUserProviderType } from '@/app/lib/utils';
+import Warning from '@/app/components/warning/Warning';
+import {
+    getFilteredInvoicesByAccountId,
+    getFilteredInvoicesByAccountIdCount
+} from '@/app/lib/data/invoice';
+import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
+import { capitalize, formatCurrency, getUserProvider, getUserProviderType } from '@/app/lib/utils';
+import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
 import { Typography } from '@mui/material';
-import { FC, Suspense } from 'react';
-import { StyledSectionBox } from './styled';
-import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
-import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
-import Warning from '@/app/components/warning/Warning';
-import { getLatestInvoices } from '@/app/lib/data/invoice';
-import LatestInvoices from '@/app/components/dashboard/latest-invoices/latest-invoices';
+import { FC, Suspense } from 'react';
+import {
+    DEFAULT_ITEMS_PER_PAGE,
+    DEFAULT_ORDER,
+    DEFAULT_ORDER_BY,
+    DEFAULT_PAGE_NUMBER
+} from '../invoices/constants';
+import { StyledSectionBox } from './styled';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -42,7 +51,29 @@ const Page: FC = async () => {
         );
     }
 
-    const latestInvoices = await getLatestInvoices(userAccountCountry.locale);
+    const accountId = session.user.accountId;
+
+    const countPromise = await getFilteredInvoicesByAccountIdCount(accountId, '');
+    const latestInvoicesPromise = await getFilteredInvoicesByAccountId(
+        accountId,
+        '',
+        DEFAULT_PAGE_NUMBER,
+        DEFAULT_ITEMS_PER_PAGE,
+        DEFAULT_ORDER_BY,
+        DEFAULT_ORDER
+    );
+
+    const [count, latestInvoices] = await Promise.all([countPromise, latestInvoicesPromise]);
+
+    const invoices = latestInvoices.map((invoice) => {
+        return {
+            ...invoice,
+            amount: formatCurrency(invoice.amount, userAccountCountry.locale),
+            date: invoice.date.toLocaleDateString(userAccountCountry.locale),
+            payBy: invoice.payBy.toLocaleDateString(userAccountCountry.locale),
+            paidOn: invoice.paidOn?.toLocaleDateString(userAccountCountry.locale)
+        };
+    });
 
     return (
         <StyledSectionBox component='section'>
@@ -54,7 +85,8 @@ const Page: FC = async () => {
                     <RevenueChart />
                 </Suspense> */}
             <Suspense fallback={<LatestInvoicesSkeleton />}>
-                <LatestInvoices latestInvoices={latestInvoices} />
+                <InvoicesTable invoices={invoices} count={count} tableName='latest invoices' />
+                {/* <LatestInvoices latestInvoices={latestInvoices} /> */}
             </Suspense>
         </StyledSectionBox>
     );

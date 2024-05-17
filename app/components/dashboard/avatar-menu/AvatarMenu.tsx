@@ -3,6 +3,7 @@
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useUser } from '@/app/context/user/provider';
 import { logOut } from '@/app/lib/data/user';
+import { useAvatar } from '@/app/lib/hooks/useAvatar';
 import { useI18n } from '@/locales/client';
 import AccountIcon from '@mui/icons-material/AccountBalance';
 import Logout from '@mui/icons-material/Logout';
@@ -16,6 +17,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Tooltip from '@mui/material/Tooltip';
+import Image from 'next/image';
 import { FC, MouseEvent, useState } from 'react';
 import { components } from './constants';
 import { TComponentName } from './types';
@@ -28,6 +30,9 @@ const AvatarMenu: FC = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const { dispatch } = useRightDrawerState();
     const open = Boolean(anchorEl);
+
+    const [avatarUrl] = useAvatar(userProfile);
+
     const handleClick = (event: MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -69,7 +74,13 @@ const AvatarMenu: FC = () => {
                     aria-haspopup='true'
                     aria-expanded={open ? 'true' : undefined}
                 >
-                    <Avatar sx={{ width: 32, height: 32 }}>{userInitials}</Avatar>
+                    <Avatar sx={{ width: 32, height: 32 }}>
+                        {avatarUrl ? (
+                            <Image src={avatarUrl} fill alt='User avatar' />
+                        ) : (
+                            userInitials
+                        )}
+                    </Avatar>
                     {/* <Avatar sx={{ width: 32, height: 32 }}>M</Avatar> */}
                 </IconButton>
             </Tooltip>

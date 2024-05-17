@@ -5,8 +5,12 @@ const svPlural: Record<TPluralTranslationKeys, string> = {
     'must be up to digits#many': 'måste vara upp till {count} siffror',
     'must be at least characters#many': 'kan inte vara mindre än {count} tecken',
     'must be more than#many': 'måste vara mer än {count}',
-    'file size must be less than kb#many': 'file size must be less than {count} KB',
-    'file size must be less than mb#many': 'file size must be less than {count} MB'
+    'file size must be less than kb#many': 'filen måste vara mindre än {count} KB',
+    'file size must be less than mb#many': 'filen måste vara mindre än {count} MB',
+    'square picture (png, jpg, jpeg, webp, or svg) with max file size: kb#many':
+        'fyrkantig bild (png, jpg, jpeg, webp, eller svg) med maximal filstorlek: {count} KB',
+    'square picture (png, jpg, jpeg, webp, or svg) with max file size mb#many':
+        'fyrkantig bild (png, jpg, jpeg, webp, eller svg) med maximal filstorlek: {count} MB'
 };
 
 const svSingle: Record<TSingleTranslationKeys, string> = {
@@ -30,6 +34,7 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     dashboard: 'instrumentpanel',
     invoice: 'faktura',
     invoices: 'fakturor',
+    'latest invoices': 'senaste fakturor',
     customer: 'kund',
     customers: 'kunder',
     inventory: 'inventering',
@@ -227,6 +232,8 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'additional filter': 'yttre filter',
     'click to see more filters': 'klicka för att se mer filter',
     'filter list': 'filterlista',
+    'click to change avatar': 'klicka för att byta avatar',
+    'click to delete avatar': 'klicka för att ta bort avatar',
     // Reports
     collected: 'insamlad',
     'paid invoices': 'betalade fakturor',

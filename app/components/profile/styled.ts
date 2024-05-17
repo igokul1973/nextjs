@@ -29,3 +29,12 @@ export const StyledProfileAttribute = styled(Box, {
     gap: 1rem;
     align-items: center;
 `;
+
+export const StyledProfileAttributeAlignTop = styled(Box, {
+    name: 'Styled Profile Attribute Align Top',
+    slot: 'Root'
+})`
+    display: flex;
+    gap: 1rem;
+    align-items: top;
+`;

@@ -8,11 +8,7 @@ const userStateReducer = (state: IUserState, action: IUserAction): IUserState =>
         case 'update':
             return {
                 ...state,
-                user: action.payload.user,
-                account: action.payload.account,
-                profile: action.payload.profile,
-                provider: action.payload.provider,
-                providerType: action.payload.providerType
+                ...action.payload
             };
         case 'setProfile':
             return {

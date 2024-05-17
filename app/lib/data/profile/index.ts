@@ -1,8 +1,13 @@
 'use server';
 
+import {
+    profileUpdateSchema,
+    profileUpdateSchemaEmptyAvatar
+} from '@/app/components/profile/form/formSchema';
 import { TProfileFormOutput } from '@/app/components/profile/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TProfile } from '@/app/lib/types';
+import { Prisma } from '@prisma/client';
 import { unstable_noStore as noStore } from 'next/cache';
 import { getDirtyValues } from '../../utils';
 
@@ -23,11 +28,10 @@ export async function getUserProfile(userId: string): Promise<TProfile | null> {
 
 export async function createProfile(formData: TProfileFormOutput) {
     try {
-        const newProfile = await prisma.profile.create({
-            data: formData
-        });
-
-        console.log('Successfully created new inventory item: ', newProfile);
+        // const newProfile = await prisma.profile.create({
+        //     data: formData
+        // });
+        // console.log('Successfully created new inventory item: ', newProfile);
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('Database Error: Failed to create inventory.');
@@ -35,27 +39,94 @@ export async function createProfile(formData: TProfileFormOutput) {
 }
 
 export async function updateProfile(
-    formData: TProfileFormOutput,
+    rawFormData: FormData,
     dirtyFields: TDirtyFields<TProfileFormOutput>,
-    userId: string
+    userId: string,
+    rawAvatarFormData?: FormData
 ) {
-    const changedFields = getDirtyValues<TProfileFormOutput>(dirtyFields, formData);
-
-    if (!changedFields) {
-        return null;
-    }
-
-    const data = { ...changedFields, updatedBy: userId };
-
     try {
+        const formData = Object.fromEntries(rawFormData.entries()) as unknown as TProfileFormOutput;
+        if (typeof formData.avatar === 'string' && formData.avatar === 'null') {
+            formData.avatar = null;
+        }
+
+        if (rawAvatarFormData && formData.avatar) {
+            const avatarFormData = Object.fromEntries(
+                rawAvatarFormData.entries()
+            ) as unknown as TProfileFormOutput['avatar'];
+            formData.avatar = avatarFormData;
+        }
+
+        const validationSchema = formData.avatar?.id
+            ? profileUpdateSchema
+            : profileUpdateSchemaEmptyAvatar;
+
+        const validatedFormData = validationSchema.safeParse(formData);
+
+        if (!validatedFormData.success) {
+            return null;
+        }
+
+        const { data: validatedData } = validatedFormData;
+
+        const changedFields = getDirtyValues<TProfileFormOutput>(dirtyFields, validatedData);
+
+        if (!changedFields) {
+            return null;
+        }
+
+        const avatarFile = changedFields.avatar?.data;
+        const avatarArrayBuffer = await avatarFile?.arrayBuffer();
+
+        const buffer = avatarArrayBuffer && Buffer.from(avatarArrayBuffer);
+
+        let avatarCreateOrUpdate: Prisma.fileUpdateOneWithoutProfileNestedInput | undefined =
+            undefined;
+
+        if (changedFields.avatar && buffer) {
+            if (changedFields.avatar.id) {
+                avatarCreateOrUpdate = {
+                    update: {
+                        data: {
+                            ...changedFields.avatar,
+                            data: buffer,
+                            updatedBy: userId
+                        }
+                    }
+                };
+            } else {
+                avatarCreateOrUpdate = {
+                    create: {
+                        ...changedFields.avatar,
+                        data: buffer,
+                        createdBy: userId,
+                        updatedBy: userId
+                    }
+                };
+            }
+        } else if (changedFields.avatar === null) {
+            avatarCreateOrUpdate = {
+                delete: true
+            };
+        }
+
+        const data: Prisma.profileUpdateInput = {
+            ...changedFields,
+            updatedBy: userId,
+            avatar: avatarCreateOrUpdate
+        };
+
         const updatedProfile = await prisma.profile.update({
+            include: {
+                avatar: true
+            },
             where: {
-                id: formData.id
+                id: validatedData.id
             },
             data
         });
 
-        console.log('Successfully profile item with ID:', formData.id);
+        console.log('Successfully updated profile item with ID:', validatedData.id);
 
         return updatedProfile;
     } catch (error) {

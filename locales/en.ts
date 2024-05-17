@@ -4,7 +4,11 @@ export const enPlural = {
     'must be at least characters#many': 'must be at least {count} characters long',
     'must be more than#many': 'must be more than {count} ',
     'file size must be less than kb#many': 'filen måste vara mindre än {count} KB',
-    'file size must be less than mb#many': 'filen måste vara mindre än {count} MB'
+    'file size must be less than mb#many': 'filen måste vara mindre än {count} MB',
+    'square picture (png, jpg, jpeg, webp, or svg) with max file size: kb#many':
+        'square picture with max file size: {count} KB',
+    'square picture (png, jpg, jpeg, webp, or svg) with max file size mb#many':
+        'square picture with max file size: {count} MB'
 };
 
 export const enSingle = {
@@ -28,6 +32,7 @@ export const enSingle = {
     dashboard: 'dashboard',
     invoice: 'invoice',
     invoices: 'invoices',
+    'latest invoices': 'latest invoices',
     customer: 'customer',
     customers: 'customers',
     inventory: 'inventory',
@@ -223,6 +228,8 @@ export const enSingle = {
     'additional filter': 'additional filter',
     'click to see more filters': 'click to see more filters',
     'filter list': 'filter list',
+    'click to change avatar': 'click to change avatar',
+    'click to delete avatar': 'click to delete avatar',
     // Reports
     collected: 'collected',
     'paid invoices': 'paid invoices',
