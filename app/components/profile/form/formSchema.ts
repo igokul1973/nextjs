@@ -64,7 +64,7 @@ export const avatarUpdateSchema = z.object({
 
 export const avatarCreateSchema = avatarUpdateSchema.omit({ id: true });
 
-const profileUpdateSchemaRaw = z.object({
+const baseProfileSchema = z.object({
     id: z.string(),
     firstName: z
         .string({
@@ -87,14 +87,14 @@ const profileUpdateSchemaRaw = z.object({
     updatedBy: z.string()
 });
 
-export const profileUpdateSchema = profileUpdateSchemaRaw.extend({
-    avatar: avatarUpdateSchema.nullable()
-});
-
-export const profileUpdateSchemaEmptyAvatar = profileUpdateSchemaRaw.extend({
+export const profileCreateSchema = baseProfileSchema.omit({ id: true }).extend({
     avatar: avatarCreateSchema.nullable()
 });
 
-export const profileCreateSchema = profileUpdateSchema.omit({ id: true }).extend({
+export const profileUpdateSchema = baseProfileSchema.extend({
+    avatar: avatarUpdateSchema.nullable()
+});
+
+export const profileUpdateSchemaEmptyAvatar = baseProfileSchema.extend({
     avatar: avatarCreateSchema.nullable()
 });

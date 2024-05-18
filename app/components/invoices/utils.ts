@@ -15,7 +15,6 @@ export const getDefaultFormValues = (
         date: new Date(),
         status: InvoiceStatusEnum.draft,
         customer: null,
-        providerLogo: null,
         providerName: getProviderName(provider),
         providerAddressLine1: provider.address.addressLine1,
         providerAddressLine2: provider.address.addressLine2,

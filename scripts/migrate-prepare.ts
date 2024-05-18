@@ -1,5 +1,5 @@
-import prisma from '../app/lib/prisma.ts';
 import { exec } from 'child_process';
+import prisma from '../app/lib/prisma.ts';
 
 async function deleteAllTables() {
     return prisma.$queryRaw`

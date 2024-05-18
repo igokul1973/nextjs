@@ -1,6 +1,6 @@
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
 import { auth } from '@/auth';
-import { AccountRelationEnum, EntitiesEnum } from '@prisma/client';
+import { EntitiesEnum } from '@prisma/client';
 import dayjs, { Dayjs } from 'dayjs';
 import { redirect } from 'next/navigation';
 import { ChangeEvent } from 'react';
@@ -9,19 +9,21 @@ import { TSingleTranslationKey } from '../../locales/types';
 import { TCustomerOutput } from '../components/invoices/form/types';
 import { IUserState } from '../context/user/types';
 import { TCustomerPayload, TCustomerWithInvoicesPayload } from './data/customer/types';
-import {
-    TGetUserWithRelationsAndInventoryPayload,
-    TGetUserWithRelationsPayload
-} from './data/user/types';
-import {
-    TDirtyFields,
-    TEntities,
-    TEntitiesWithNonNullableCustomer,
-    TEntity,
-    TIndWithNonNullableCustomer,
-    TIndividual,
-    TOrgWithNonNullableCustomer
-} from './types';
+import { TGetUserWithRelationsPayload } from './data/user/types';
+import { TDirtyFields, TEntities, TIndividual } from './types';
+import { getIndividualFullNameString, getUserProvider } from './commonUtils.ts';
+
+export {
+    getEntityFirstEmailString,
+    getEntityFirstPhoneString,
+    getEntityName,
+    getIndividualFullNameString,
+    getProviderName,
+    getUserCustomersPerEntity,
+    getUserProvider,
+    isIndHasCustomer,
+    isOrgHasCustomer
+} from './commonUtils.ts';
 
 const localeToCurrencyCode: Record<string, string> = {
     'en-US': 'USD',
@@ -89,24 +91,6 @@ export function useDebounce<T>(f: (...args: T[]) => unknown, ms: number = 500) {
     };
 }
 
-export function getIndividualFullNameString(
-    individual: Pick<TIndividual, 'firstName' | 'middleName' | 'lastName'>
-): string {
-    return `${individual.firstName}${individual.middleName ? ' ' + individual.middleName : ''} ${individual.lastName}`;
-}
-
-export function getProviderName(provider?: TEntity | null): string {
-    if (!provider) {
-        return 'No provider name';
-    }
-    if ('name' in provider && provider.name) {
-        return provider.name;
-    } else if ('firstName' in provider && provider.firstName) {
-        return getIndividualFullNameString(provider as TIndividual);
-    }
-    return 'No provider name';
-}
-
 export function flattenCustomer(
     rawCustomer: TCustomerPayload | TCustomerWithInvoicesPayload
 ): TCustomerOutput {
@@ -146,34 +130,6 @@ export function flattenCustomer(
     };
 }
 
-/**
- * Generates the user provider based on the input user payload.
- *
- * NOTE: Returning undefined if no provider is found.
- * Should work fornew users who cannot
- * have a provider until they add one.
- *
- * @param {TGetUserWithRelationsPayload | TUserWithRelations} user - The user payload or user with relations object.
- * @return {TEntities<I, O> | undefined} The individual or organization provider entity, or undefined if no provider is found.
- */
-export function getUserProvider<
-    I = TGetUserWithRelationsPayload['account']['individuals'][number],
-    O = TGetUserWithRelationsPayload['account']['organizations'][number]
->(user: TGetUserWithRelationsPayload): TEntities<I, O> | undefined {
-    const individualProvider = user.account.individuals?.find(
-        (ind) => ind.accountRelation === AccountRelationEnum.provider
-    );
-    if (individualProvider) {
-        return { individual: individualProvider } as TEntities<I, O>;
-    }
-    const organizationProvider = user.account.organizations?.find(
-        (org) => org.accountRelation === AccountRelationEnum.provider
-    );
-    return organizationProvider
-        ? ({ organization: organizationProvider } as TEntities<I, O>)
-        : undefined;
-}
-
 export function getUserProviderType(
     provider:
         | TEntities<
@@ -191,62 +147,6 @@ export function getUserProviderType(
           ? EntitiesEnum.organization
           : undefined;
 }
-
-const isIndHasCustomer = (o: TCustomerPayload['individual']): o is TIndWithNonNullableCustomer => {
-    return !!o?.customer;
-};
-
-const isOrgHasCustomer = (
-    o: TCustomerPayload['organization']
-): o is TOrgWithNonNullableCustomer => {
-    return !!o?.customer;
-};
-
-/**
- * Generate a list of individual and organization customers associated
- * with a user's account and return them as an object with corresponding
- * lists.
- *
- * @param {TUserWithRelations} user - The user object with relations.
- * @return {TEntitiesWithNonNullableCustomer} An object containing lists of individual and organization customers.
- */
-export function getUserCustomersPerEntity(
-    user: TGetUserWithRelationsAndInventoryPayload
-): TEntitiesWithNonNullableCustomer {
-    const indCustomers = user.account.individuals.filter(isIndHasCustomer);
-    const orgCustomers = user.account.organizations.filter(isOrgHasCustomer);
-
-    return { indCustomers, orgCustomers };
-}
-
-export const getEntityName = (entity: TEntity) => {
-    let name = entity.name;
-    if (!name && entity.firstName && entity.lastName) {
-        const individual = entity as TIndividual;
-        name = getIndividualFullNameString(individual);
-    }
-    return name;
-};
-
-export const getEntityFirstEmailString = (entity: TEntity) => {
-    const email = entity?.emails[0].email;
-    if (!email) {
-        throw Error('The provider does not have associated email. Please seed one first.');
-    }
-    return email;
-};
-
-export const getEntityFirstPhoneString = (entity: TEntity) => {
-    const countryCode = entity?.phones[0].countryCode;
-    if (!countryCode) {
-        throw Error('The provider does not have associated country code. Please seed one first.');
-    }
-    const phoneNumber = entity?.phones[0].number;
-    if (!phoneNumber) {
-        throw Error('The provider does not have associated phone number. Please seed one first.');
-    }
-    return `+${countryCode}-${phoneNumber}`;
-};
 
 export const capitalize = (str: string): string => {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -306,15 +206,6 @@ export function getDirtyValues<T>(
         dirtyFields !== null &&
         allValues !== null
     ) {
-        // const transformedFields = Object.keys(dirtyFields).map((key) => {
-        //     if (!(key in allValues)) {
-        //         return [key, undefined];
-        //     }
-        //     const nestedDirtyFields = (dirtyFields as Record<string, unknown>)[key];
-        //     const nestedAllValues = (allValues as Record<string, unknown>)[key];
-        //     const result = getDirtyValues(nestedDirtyFields, nestedAllValues);
-        //     return [key, result];
-        // });
         const transformedFields = Object.keys(dirtyFields).reduce((acc, key) => {
             if (!(key in allValues)) {
                 return acc;
@@ -328,7 +219,6 @@ export function getDirtyValues<T>(
             return { ...acc, [key]: result };
         }, {});
 
-        // return Object.fromEntries(transformedFields);
         return Object.keys(transformedFields).length > 0 ? transformedFields : undefined;
     }
 }

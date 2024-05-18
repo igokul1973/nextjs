@@ -17,7 +17,7 @@ export interface ICreateOrganizationTypeState {
 }
 
 export const getQueryFilterWhereClause = (query: string): Prisma.organizationTypeWhereInput => ({
-    name: {
+    type: {
         contains: query
     }
 });

@@ -4,8 +4,8 @@ import { TInvoiceFormOutput } from '@/app/components/invoices/form/types';
 import prisma from '@/app/lib/prisma';
 import { InvoiceStatusEnum, Prisma } from '@prisma/client';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
-import { TDirtyFields, TOrder } from '../../types';
-import { flattenCustomer, getDirtyValues } from '../../utils';
+import { TDirtyFields, TFile, TOrder } from '../../types';
+import { flattenCustomer, getDirtyValues, getUser } from '../../utils';
 import {
     TGetInvoiceWithRelationsPayloadRaw,
     TTransformedInvoice,
@@ -125,15 +125,32 @@ export async function getFilteredInvoicesByAccountIdCount(accountId: string, que
 }
 
 export async function createInvoice(formData: TInvoiceFormOutput): Promise<void> {
-    // FIXME: The phone on the create/update form does not get selected automatically
-    // and allows to save without selected phone - check it out, along with the email.
     try {
-        const { customer, ...data } = formData;
-        delete customer.customerType;
+        const { provider } = await getUser();
+        const { customer: rawCustomer, createdBy, updatedBy, ...invoice } = formData;
+        const { customerId, customerType, ...customer } = rawCustomer;
 
-        const { invoiceItems, status, ...partialInvoice } = data;
+        let providerLogo: Omit<TFile, 'id' | 'createdAt' | 'updatedAt'> | undefined = undefined;
 
-        const invoice = {
+        if (provider?.logo) {
+            const {
+                id,
+                createdBy: createdByLogo,
+                updatedBy: updatedByLogo,
+                createdAt,
+                updatedAt,
+                ...logo
+            } = provider.logo;
+            providerLogo = {
+                ...logo,
+                createdBy: createdBy,
+                updatedBy: updatedBy
+            };
+        }
+
+        const { invoiceItems, status, ...partialInvoice } = invoice;
+
+        const data: Prisma.invoiceCreateInput = {
             status: status as InvoiceStatusEnum,
             invoiceItems: {
                 create: invoiceItems.map((ii) => {
@@ -143,11 +160,29 @@ export async function createInvoice(formData: TInvoiceFormOutput): Promise<void>
                     };
                 })
             },
+            createdByUser: {
+                connect: {
+                    id: createdBy
+                }
+            },
+            updatedByUser: {
+                connect: {
+                    id: createdBy
+                }
+            },
+            providerLogo: providerLogo && {
+                create: providerLogo
+            },
             ...customer,
+            customer: {
+                connect: {
+                    id: customerId
+                }
+            },
             ...partialInvoice
         };
 
-        const d = await prisma.invoice.create({ data: invoice });
+        const d = await prisma.invoice.create({ data });
         console.log('Successfully created invoice: ', d);
         revalidatePath('/dashboard/invoices');
     } catch (error) {
@@ -161,24 +196,60 @@ export async function updateInvoice(
     dirtyFields: TDirtyFields<TInvoiceFormOutput>,
     userId: string
 ) {
-    const changedFields = getDirtyValues<TInvoiceFormOutput>(dirtyFields, formData);
-
-    if (!changedFields) {
-        return null;
-    }
-
     try {
-        const { customer, invoiceItems, status, ...partialChangedFields } = changedFields;
+        const changedFields = getDirtyValues<TInvoiceFormOutput>(dirtyFields, formData);
 
-        let data: Prisma.XOR<Prisma.invoiceUpdateInput, Prisma.invoiceUncheckedUpdateInput> = {
+        if (!changedFields) {
+            return null;
+        }
+
+        const { provider } = await getUser();
+
+        let providerLogo: Omit<TFile, 'id' | 'createdAt' | 'updatedAt'> | undefined = undefined;
+
+        if (!provider) {
+            throw new Error('No provider was found, redirecting...', { cause: 'NO_PROVIDER' });
+        } else if (provider.logo) {
+            const {
+                id,
+                createdBy: createdByLogo,
+                updatedBy: updatedByLogo,
+                createdAt,
+                updatedAt,
+                ...logo
+            } = provider.logo;
+
+            providerLogo = {
+                ...logo,
+                createdBy: userId,
+                updatedBy: userId
+            };
+        }
+
+        const {
+            customer: rawCustomer,
+            invoiceItems,
+            status,
+            ...partialChangedFields
+        } = changedFields;
+
+        let data: Prisma.invoiceUpdateInput = {
             ...partialChangedFields,
-            updatedBy: userId
+            providerLogo: {
+                delete: true,
+                create: providerLogo
+            },
+            updatedByUser: {
+                connect: {
+                    id: userId
+                }
+            }
         };
 
-        if (customer && Object.keys(customer).length > 0) {
-            delete customer.customerType;
+        if (rawCustomer && Object.keys(rawCustomer).length > 0) {
+            const { customerId, customerType, ...customer } = rawCustomer;
 
-            data = { ...data, ...customer };
+            data = { ...data, ...customer, customer: { connect: { id: customerId } } };
         }
 
         if (invoiceItems && invoiceItems.length > 0) {

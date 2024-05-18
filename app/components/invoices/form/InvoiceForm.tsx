@@ -120,6 +120,10 @@ const InvoiceForm: FC<IProps> = ({
         } catch (error) {
             if (error instanceof Error) {
                 openSnackbar(error.message, 'error');
+                if (error.cause === 'NO_PROVIDER') {
+                    // FIXME: Gotta redirect to create provider page
+                    push('/dashboard');
+                }
             }
         }
     };

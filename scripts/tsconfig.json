@@ -1,5 +1,8 @@
 {
     "transpileOnly": true,
+    "ts-node": {
+        "esm": true
+    },
     "compilerOptions": {
         "target": "ESNext",
         "lib": [
@@ -32,5 +35,5 @@
         ".vscode/*/*",
         ".history/*"
     ],
-    "esm": true // <--- this is the most important part
+    "esm": true // <--- this is the most important part,
 }

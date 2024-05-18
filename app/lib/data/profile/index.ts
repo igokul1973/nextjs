@@ -4,7 +4,10 @@ import {
     profileUpdateSchema,
     profileUpdateSchemaEmptyAvatar
 } from '@/app/components/profile/form/formSchema';
-import { TProfileFormOutput } from '@/app/components/profile/form/types';
+import {
+    TProfileFormOutput,
+    TProfileFormOutputEmptyAvatar
+} from '@/app/components/profile/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TProfile } from '@/app/lib/types';
 import { Prisma } from '@prisma/client';
@@ -70,7 +73,10 @@ export async function updateProfile(
 
         const { data: validatedData } = validatedFormData;
 
-        const changedFields = getDirtyValues<TProfileFormOutput>(dirtyFields, validatedData);
+        const changedFields = getDirtyValues<TProfileFormOutput | TProfileFormOutputEmptyAvatar>(
+            dirtyFields,
+            validatedData
+        );
 
         if (!changedFields) {
             return null;
@@ -85,7 +91,7 @@ export async function updateProfile(
             undefined;
 
         if (changedFields.avatar && buffer) {
-            if (changedFields.avatar.id) {
+            if ('id' in changedFields.avatar && changedFields.avatar.id) {
                 avatarCreateOrUpdate = {
                     update: {
                         data: {

@@ -77,7 +77,6 @@ const baseInvoiceFormSchema = z.object({
             return val;
         }),
     status: z.string().min(1),
-    providerLogo: z.string().nullish(),
     providerName: z.string().min(1),
     providerAddressLine1: z.string().min(1),
     providerAddressLine2: z.string().nullish(),
@@ -246,5 +245,9 @@ export const invoiceCreateSchema = baseInvoiceFormSchema.omit({ id: true }).exte
 });
 
 export const invoiceUpdateSchema = baseInvoiceFormSchema.extend({
+    invoiceItems: baseInvoiceItemFormSchema
+});
+
+export const invoiceUpdateSchemaEmptyLogo = baseInvoiceFormSchema.extend({
     invoiceItems: baseInvoiceItemFormSchema
 });

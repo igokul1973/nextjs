@@ -4,6 +4,14 @@ import { exec } from 'child_process';
 import dotenv from 'dotenv';
 import { readFile, readdirSync, writeFile } from 'fs';
 import path from 'path';
+import {
+    getEntityFirstEmailString,
+    getEntityFirstPhoneString,
+    getEntityName,
+    getProviderName,
+    getUserCustomersPerEntity,
+    getUserProvider
+} from '../app/lib/commonUtils.ts';
 import { TCustomerPayload } from '../app/lib/data/customer/types.ts';
 import {
     TGetUserWithRelationsAndInventoryPayload,
@@ -24,14 +32,6 @@ import {
 } from '../app/lib/placeholder-data.ts';
 import prisma from '../app/lib/prisma.ts';
 import { TEntities, TEntity, TEntityWithNonNullableCustomer } from '../app/lib/types';
-import {
-    getEntityFirstEmailString,
-    getEntityFirstPhoneString,
-    getEntityName,
-    getProviderName,
-    getUserCustomersPerEntity,
-    getUserProvider
-} from '../app/lib/utils.ts';
 import { seedSuperuser } from './seedSuperuser.ts';
 
 dotenv.config();
