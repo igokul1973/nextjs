@@ -7,6 +7,7 @@ export interface IProps {
     localIdentifierName: TGetLocalIdentifierNamePayload;
     defaultValues: TIndividualForm;
     isEdit: boolean;
+    isCustomer: boolean;
 }
 
 export type TIndividualForm = z.input<typeof individualUpdateSchema>;

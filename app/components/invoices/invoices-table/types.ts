@@ -1,5 +1,5 @@
 import { TOrder } from '@/app/lib/types';
-import { TSingleTranslationKeys } from '@/locales/types';
+import { TSingleTranslationKey } from '@/locales/types';
 import { ChangeEvent, MouseEvent } from 'react';
 import { IInvoiceTable } from '../types';
 
@@ -23,13 +23,13 @@ export interface IEnhancedTableProps {
 
 export interface IEnhancedTableToolbarProps {
     numSelected: number;
-    tableName?: TSingleTranslationKeys;
+    tableName?: TSingleTranslationKey;
 }
 
 export interface IProps {
     invoices: IInvoiceTable[];
     count: number;
-    tableName?: TSingleTranslationKeys;
+    tableName?: TSingleTranslationKey;
 }
 
 export interface IData {

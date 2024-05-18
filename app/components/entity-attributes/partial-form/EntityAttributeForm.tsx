@@ -1,7 +1,7 @@
 'use client';
 
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKeys } from '@/locales/types';
+import { TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
@@ -45,7 +45,7 @@ const PartialAttributeForm = <T,>({ register, control, errors, index, remove }: 
                     required
                     error={!!typeError}
                     helperText={
-                        !!typeError && capitalize(t(typeError?.message as TSingleTranslationKeys))
+                        !!typeError && capitalize(t(typeError?.message as TSingleTranslationKey))
                     }
                 >
                     {types.map((type, index) => {
@@ -74,7 +74,7 @@ const PartialAttributeForm = <T,>({ register, control, errors, index, remove }: 
                         onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                         helperText={
                             !!nameError &&
-                            capitalize(t(nameError?.message as TSingleTranslationKeys))
+                            capitalize(t(nameError?.message as TSingleTranslationKey))
                         }
                         {...register(`attributes.${index}.name`)}
                     />
@@ -97,7 +97,7 @@ const PartialAttributeForm = <T,>({ register, control, errors, index, remove }: 
                         onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
                         helperText={
                             !!valueError &&
-                            capitalize(t(valueError?.message as TSingleTranslationKeys))
+                            capitalize(t(valueError?.message as TSingleTranslationKey))
                         }
                         {...register(`attributes.${index}.value`)}
                     />

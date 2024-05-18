@@ -5,7 +5,11 @@ export const includeEntityRelations = {
     localIdentifierName: true,
     address: {
         include: {
-            country: true
+            country: {
+                include: {
+                    localIdentifierNames: true
+                }
+            }
         }
     },
     emails: true,

@@ -5,16 +5,19 @@ import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 import { DrawerHeader } from '../dashboard/navigation/styled';
 import { StyledRightDrawer } from './styled';
 
 const drawerWidth = 600;
 
-const RightDrawer: FC = () => {
+const RightDrawer: FC<PropsWithChildren> = ({ children }) => {
     const {
         state: { isOpen, childComponent: Component, title, icon: Icon }
     } = useRightDrawerState();
+
+    // TODO: Remove later
+    console.log(Component);
 
     return (
         <StyledRightDrawer
@@ -40,7 +43,8 @@ const RightDrawer: FC = () => {
                         )}
                     </Box>
                 )}
-                {Component && <Component />}
+                {children}
+                {/* {Component && <Component />} */}
             </Box>
         </StyledRightDrawer>
     );

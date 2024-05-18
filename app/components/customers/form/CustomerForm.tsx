@@ -122,17 +122,17 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
             </FormControl>
             {customerType === EntitiesEnum.individual && defaultIndividualValues ? (
                 <IndividualForm
-                    userAccountCountry={userAccountCountry}
                     localIdentifierName={individualLocalIdentifierName}
                     defaultValues={defaultIndividualValues}
                     isEdit={false}
+                    isCustomer
                 />
             ) : customerType === EntitiesEnum.organization && defaultOrganizationValues ? (
                 <OrganizationForm
-                    userAccountCountry={userAccountCountry}
                     localIdentifierName={organizationLocalIdentifierName}
                     defaultValues={defaultOrganizationValues}
                     isEdit={false}
+                    isCustomer
                 />
             ) : null}
         </StyledBox>

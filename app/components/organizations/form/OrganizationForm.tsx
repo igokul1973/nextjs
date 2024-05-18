@@ -19,7 +19,7 @@ import { useUser } from '@/app/context/user/provider';
 import { createOrganizationCustomer, updateCustomer } from '@/app/lib/data/customer';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKeys } from '@/locales/types';
+import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Divider, MenuItem, capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -40,7 +40,12 @@ import { organizationCreateSchema, organizationUpdateSchema } from './formSchema
 import { StyledForm } from './styled';
 import { TOrganizationForm } from './types';
 
-const OrganizationForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit }) => {
+const OrganizationForm: FC<IProps> = ({
+    localIdentifierName,
+    defaultValues,
+    isEdit,
+    isCustomer
+}) => {
     const { countries, organizationTypes } = useData();
     const {
         state: { user }
@@ -124,8 +129,15 @@ const OrganizationForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEd
         }
     };
 
-    // const isSubmittable = anyTrue(dirtyFields);
     const isSubmittable = isDirty;
+
+    const submitBtnText: TSingleTranslationKey = isEdit
+        ? isCustomer
+            ? 'update customer'
+            : 'update provider'
+        : isCustomer
+          ? 'create customer'
+          : 'create provider';
 
     return (
         <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
@@ -138,7 +150,7 @@ const OrganizationForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEd
                     error={!!errors.name}
                     helperText={
                         !!errors.name &&
-                        capitalize(t(errors.name?.message as TSingleTranslationKeys))
+                        capitalize(t(errors.name?.message as TSingleTranslationKey))
                     }
                     {...register('name')}
                 />
@@ -300,7 +312,7 @@ const OrganizationForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEd
                         color='primary'
                         disabled={!isSubmittable}
                     >
-                        {capitalize(t(isEdit ? 'update customer' : 'create customer'))}
+                        {capitalize(t(submitBtnText))}
                     </Button>
                 </Box>
             </Box>

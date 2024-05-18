@@ -1,8 +1,8 @@
 import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory';
-import { TInventory } from '@/app/lib/types';
+import { TInventoryTransformed } from '@/app/lib/data/inventory/types';
 import { mask2DecimalPlaces, useDebounce } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKeys } from '@/locales/types';
+import { TPluralTranslationKey, TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { capitalize } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -31,7 +31,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
         formState: { errors }
     } = useFormContext<TInvoiceForm>();
 
-    const [inventory, setInventory] = useState<TInventory[]>(initialInventory);
+    const [inventory, setInventory] = useState<TInventoryTransformed[]>(initialInventory);
 
     const inventoryItemError = errors.invoiceItems?.[index]?.inventoryItem;
     const priceError = errors.invoiceItems?.[index]?.price;
@@ -47,7 +47,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
 
     const debouncedHandleGetInventory = useDebounce<string>(getInventory, 300);
 
-    const setAdditionalValues = (inventoryItem: TInventory | null) => {
+    const setAdditionalValues = (inventoryItem: TInventoryTransformed | null) => {
         if (inventoryItem) {
             setValue(`invoiceItems.${index}.name`, inventoryItem.name, {
                 shouldValidate: true
@@ -71,7 +71,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
         }
     };
 
-    const matchInventory = (input: TInventory, value: string) => {
+    const matchInventory = (input: TInventoryTransformed, value: string) => {
         const lowerCaseValue = value.toLocaleLowerCase();
         return (
             input.id === lowerCaseValue ||
@@ -85,11 +85,11 @@ const PartialInvoiceItemForm: FC<IProps> = ({
 
     const getInventoryItemErrorMessage = (error: NonNullable<typeof inventoryItemError>) => {
         if ('message' in error) {
-            return capitalize(t(error.message as TSingleTranslationKeys));
+            return capitalize(t(error.message as TSingleTranslationKey));
         } else if ('id' in error && error.id) {
-            return capitalize(t(error.id.message as TSingleTranslationKeys));
+            return capitalize(t(error.id.message as TSingleTranslationKey));
         } else if ('name' in error && error.name) {
-            return capitalize(t(error.name.message as TSingleTranslationKeys));
+            return capitalize(t(error.name.message as TSingleTranslationKey));
         } else {
             return '';
         }
@@ -169,7 +169,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                         error={!!priceError}
                         helperText={
                             !!priceError &&
-                            capitalize(t(priceError.message as TSingleTranslationKeys))
+                            capitalize(t(priceError.message as TSingleTranslationKey))
                         }
                         {...register(`invoiceItems.${index}.price`)}
                     />
@@ -192,7 +192,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                         helperText={
                             !!quantityError &&
                             capitalize(
-                                t(quantityError.message as TSingleTranslationKeys, { count: 0 })
+                                t(quantityError.message as TPluralTranslationKey, { count: 0 })
                             )
                         }
                         {...register(`invoiceItems.${index}.quantity`, {

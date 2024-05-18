@@ -1,9 +1,13 @@
+import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
+import { auth } from '@/auth';
 import { AccountRelationEnum, EntitiesEnum } from '@prisma/client';
 import dayjs, { Dayjs } from 'dayjs';
+import { redirect } from 'next/navigation';
 import { ChangeEvent } from 'react';
 import { z } from 'zod';
-import { TSingleTranslationKeys } from '../../locales/types';
+import { TSingleTranslationKey } from '../../locales/types';
 import { TCustomerOutput } from '../components/invoices/form/types';
+import { IUserState } from '../context/user/types';
 import { TCustomerPayload, TCustomerWithInvoicesPayload } from './data/customer/types';
 import {
     TGetUserWithRelationsAndInventoryPayload,
@@ -91,16 +95,14 @@ export function getIndividualFullNameString(
     return `${individual.firstName}${individual.middleName ? ' ' + individual.middleName : ''} ${individual.lastName}`;
 }
 
-export function getProviderName(
-    provider?: TCustomerPayload['individual'] | TCustomerPayload['organization']
-): string {
+export function getProviderName(provider?: TEntity | null): string {
     if (!provider) {
         return 'No provider name';
     }
-    if ('name' in provider) {
+    if ('name' in provider && provider.name) {
         return provider.name;
-    } else if ('firstName' in provider) {
-        return getIndividualFullNameString(provider);
+    } else if ('firstName' in provider && provider.firstName) {
+        return getIndividualFullNameString(provider as TIndividual);
     }
     return 'No provider name';
 }
@@ -341,7 +343,7 @@ export function isDayJsDate(val: unknown) {
 }
 
 export function isValidDate(
-    errorMessage: TSingleTranslationKeys
+    errorMessage: TSingleTranslationKey
 ): z.ZodType<Date | dayjs.Dayjs, z.ZodTypeDef, Date | dayjs.Dayjs> {
     return z.custom<Date | Dayjs>(
         (val) => {
@@ -445,48 +447,48 @@ export const anyTrue = (
  * @param obj2 - The second object to compare
  * @returns true if the objects are equal, false otherwise
  */
-function deepCompareObjects(obj1: unknown, obj2: unknown): boolean {
-    // Check if the objects are the same type
-    if (typeof obj1 !== typeof obj2) {
-        return false;
-    }
+// function deepCompareObjects(obj1: unknown, obj2: unknown): boolean {
+//     // Check if the objects are the same type
+//     if (typeof obj1 !== typeof obj2) {
+//         return false;
+//     }
 
-    // Check if the objects are arrays
-    if (Array.isArray(obj1) && Array.isArray(obj2)) {
-        if (obj1.length !== obj2.length) {
-            return false;
-        }
-        for (let i = 0; i < obj1.length; i++) {
-            if (!deepCompareObjects(obj1[i], obj2[i])) {
-                return false;
-            }
-        }
-        return true;
-    }
+//     // Check if the objects are arrays
+//     if (Array.isArray(obj1) && Array.isArray(obj2)) {
+//         if (obj1.length !== obj2.length) {
+//             return false;
+//         }
+//         for (let i = 0; i < obj1.length; i++) {
+//             if (!deepCompareObjects(obj1[i], obj2[i])) {
+//                 return false;
+//             }
+//         }
+//         return true;
+//     }
 
-    // Check if the objects are objects
-    if (typeof obj1 === 'object' && obj1 !== null && typeof obj2 === 'object' && obj2 !== null) {
-        const keys1 = Object.keys(obj1);
-        const keys2 = Object.keys(obj2);
-        if (keys1.length !== keys2.length) {
-            return false;
-        }
-        for (const key of keys1) {
-            if (
-                !deepCompareObjects(
-                    (obj1 as Record<string, unknown>)[key] as unknown,
-                    (obj2 as Record<string, unknown>)[key]
-                )
-            ) {
-                return false;
-            }
-        }
-        return true;
-    }
+//     // Check if the objects are objects
+//     if (typeof obj1 === 'object' && obj1 !== null && typeof obj2 === 'object' && obj2 !== null) {
+//         const keys1 = Object.keys(obj1);
+//         const keys2 = Object.keys(obj2);
+//         if (keys1.length !== keys2.length) {
+//             return false;
+//         }
+//         for (const key of keys1) {
+//             if (
+//                 !deepCompareObjects(
+//                     (obj1 as Record<string, unknown>)[key] as unknown,
+//                     (obj2 as Record<string, unknown>)[key]
+//                 )
+//             ) {
+//                 return false;
+//             }
+//         }
+//         return true;
+//     }
 
-    // Compare primitive values
-    return obj1 === obj2;
-}
+//     // Compare primitive values
+//     return obj1 === obj2;
+// }
 
 /**
  * If the values argument contains null, undefined or an empty string,
@@ -569,4 +571,31 @@ export const populateForm = <R extends Record<string, unknown>>(
         acc[key] = defaultValues[key];
         return acc;
     }, {}) as R;
+};
+
+export const getUser = async () => {
+    const session = await auth();
+    const sessionUser = session?.user;
+    if (!session || !sessionUser) redirect('/');
+
+    const dbUser = await getUserWithRelationsByEmail(sessionUser.email);
+
+    if (!dbUser) {
+        redirect('/');
+    }
+
+    const provider = getUserProvider(dbUser);
+    const providerType = getUserProviderType(provider);
+
+    const userAccountProvider = provider && providerType && provider[providerType];
+
+    const userState: IUserState = {
+        user: dbUser,
+        account: dbUser.account,
+        profile: dbUser.profile,
+        provider: userAccountProvider,
+        providerType
+    };
+
+    return userState;
 };

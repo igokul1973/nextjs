@@ -15,7 +15,7 @@ import { useUser } from '@/app/context/user/provider';
 import { createIndividualCustomer, updateCustomer } from '@/app/lib/data/customer';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKeys } from '@/locales/types';
+import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -36,7 +36,7 @@ import { individualCreateSchema, individualUpdateSchema } from './formSchema';
 import { StyledForm } from './styled';
 import { IProps, TIndividualForm, TIndividualFormControl, TIndividualFormOutput } from './types';
 
-const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit }) => {
+const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit, isCustomer }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const { countries } = useData();
@@ -45,6 +45,9 @@ const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit
     } = useUser();
     const userId = user.id;
     const { push } = useRouter();
+
+    // TODO: take care of this...
+    console.log(isCustomer);
 
     const {
         // watch,
@@ -136,7 +139,7 @@ const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit
                         required
                         helperText={
                             !!errors.firstName &&
-                            capitalize(t(errors.firstName?.message as TSingleTranslationKeys))
+                            capitalize(t(errors.firstName?.message as TSingleTranslationKey))
                         }
                         {...register('firstName')}
                     />
@@ -150,7 +153,7 @@ const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit
                         error={!!errors.lastName}
                         helperText={
                             !!errors.lastName &&
-                            capitalize(t(errors.lastName?.message as TSingleTranslationKeys))
+                            capitalize(t(errors.lastName?.message as TSingleTranslationKey))
                         }
                         {...register('lastName')}
                     />

@@ -12,8 +12,6 @@ import {
     getQueryFilterWhereClause
 } from './types';
 
-const ITEMS_PER_PAGE = 10;
-
 const FormSchema = z.object({
     id: z.string(),
     name: z.string({

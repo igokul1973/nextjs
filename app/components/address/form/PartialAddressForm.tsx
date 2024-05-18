@@ -1,7 +1,7 @@
 'use client';
 
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKeys } from '@/locales/types';
+import { TSingleTranslationKey } from '@/locales/types';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
@@ -30,7 +30,7 @@ const PartialAddressForm = <T,>({ register, countries, control, errors }: IProps
                     error={!!addressLine1Error}
                     helperText={
                         !!addressLine1Error &&
-                        capitalize(t(addressLine1Error?.message as TSingleTranslationKeys))
+                        capitalize(t(addressLine1Error?.message as TSingleTranslationKey))
                     }
                     {...register('address.addressLine1')}
                 />
@@ -63,7 +63,7 @@ const PartialAddressForm = <T,>({ register, countries, control, errors }: IProps
                     error={!!localityError}
                     helperText={
                         !!localityError &&
-                        capitalize(t(localityError?.message as TSingleTranslationKeys))
+                        capitalize(t(localityError?.message as TSingleTranslationKey))
                     }
                     {...register('address.locality')}
                 />
@@ -87,7 +87,7 @@ const PartialAddressForm = <T,>({ register, countries, control, errors }: IProps
                     error={!!postCodeError}
                     helperText={
                         !!postCodeError &&
-                        capitalize(t(postCodeError?.message as TSingleTranslationKeys))
+                        capitalize(t(postCodeError?.message as TSingleTranslationKey))
                     }
                     {...register('address.postcode')}
                 />
@@ -101,7 +101,7 @@ const PartialAddressForm = <T,>({ register, countries, control, errors }: IProps
                 error={!!countryIdError}
                 helperText={
                     !!countryIdError &&
-                    capitalize(t(countryIdError?.message as TSingleTranslationKeys))
+                    capitalize(t(countryIdError?.message as TSingleTranslationKey))
                 }
             >
                 {countries.map((country) => {

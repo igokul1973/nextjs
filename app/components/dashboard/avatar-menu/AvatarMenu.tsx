@@ -61,8 +61,8 @@ const AvatarMenu: FC = () => {
     // devised to create one, by probably redirecting to a
     // registration page.
     const userInitials =
-        capitalize(userProfile?.firstName.slice(0, 1)) +
-        capitalize(userProfile?.lastName.slice(0, 1));
+        capitalize(userProfile?.firstName.slice(0, 1) || '') +
+        capitalize(userProfile?.lastName.slice(0, 1) || '');
 
     return (
         <>

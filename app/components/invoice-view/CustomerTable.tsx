@@ -1,49 +1,13 @@
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKeys } from '@/locales/types';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
-import TableCell, { TableCellProps } from '@mui/material/TableCell';
+import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import { FC } from 'react';
 import { ICustomerTableProps } from './types';
-
-const TAX_RATE = 0.07;
-
-function ccyFormat(num: number) {
-    return `${num.toFixed(2)}`;
-}
-
-interface Row {
-    desc: string;
-    qty: number;
-    unit: number;
-    price: number;
-}
-
-const headerRowCells: {
-    title: Partial<TSingleTranslationKeys>;
-    alignment: TableCellProps['align'];
-}[] = [
-    {
-        title: 'name',
-        alignment: 'inherit'
-    },
-    {
-        title: 'quantity',
-        alignment: 'right'
-    },
-    {
-        title: 'price',
-        alignment: 'right'
-    },
-    {
-        title: 'sum',
-        alignment: 'right'
-    }
-];
 
 const CustomerTable: FC<ICustomerTableProps> = ({ customer }) => {
     const t = useI18n();

@@ -1,7 +1,6 @@
 'use server';
 
 import prisma from '@/app/lib/prisma';
-import { formatCurrency } from '@/app/lib/utils';
 import { InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore } from 'next/cache';
 

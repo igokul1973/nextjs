@@ -9,7 +9,7 @@ import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { TDirtyFields } from '@/app/lib/types';
 import { populateForm } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKeys } from '@/locales/types';
+import { TPluralTranslationKey, TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FileUploadOutlined } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -19,9 +19,7 @@ import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { ChangeEvent, FC, useEffect, useState } from 'react';
+import { ChangeEvent, FC, useState } from 'react';
 import { Controller, FieldError, useForm } from 'react-hook-form';
 import Warning from '../../warning/Warning';
 import {
@@ -42,10 +40,6 @@ const ProfileForm: FC<IProps> = () => {
     } = useUser();
     const { dispatch: rightDrawerDispatch } = useRightDrawerState();
 
-    if (!rawProfile) {
-        return <Warning>{capitalize(t('please create user profile first'))}</Warning>;
-    }
-
     // FIXME: isEdit === true for now...
     const isEdit = true;
 
@@ -53,19 +47,18 @@ const ProfileForm: FC<IProps> = () => {
     // if (isEdit) {
 
     // }
-    const avatarFile =
-        rawProfile.avatar === null
-            ? null
-            : new File([rawProfile.avatar.data], rawProfile.avatar.name, {
-                  type: rawProfile.avatar.type
-              });
+    const avatarFile = !rawProfile?.avatar
+        ? null
+        : new File([rawProfile?.avatar.data], rawProfile?.avatar.name, {
+              type: rawProfile?.avatar.type
+          });
 
     const profile = {
         ...rawProfile,
         avatar:
-            rawProfile.avatar === null || avatarFile === null
+            rawProfile?.avatar === null || avatarFile === null
                 ? null
-                : { ...rawProfile.avatar, data: avatarFile }
+                : { ...rawProfile?.avatar, data: avatarFile }
     };
 
     const defaultValues = populateForm<TProfileForm>(getDefaultValues(user.id), profile);
@@ -76,7 +69,6 @@ const ProfileForm: FC<IProps> = () => {
         handleSubmit,
         control,
         setValue,
-        resetField,
         formState: { errors, isDirty, dirtyFields }
     } = useForm<TProfileForm, unknown, TProfileFormOutput>({
         resolver: zodResolver(
@@ -101,11 +93,15 @@ const ProfileForm: FC<IProps> = () => {
 
     const [canFocus, setCanFocus] = useState(true);
 
+    useScrollToFormError(errors, canFocus, setCanFocus);
+
+    if (!rawProfile) {
+        return <Warning>{capitalize(t('please create user profile first'))}</Warning>;
+    }
+
     const onError = () => {
         setCanFocus(true);
     };
-
-    useScrollToFormError(errors, canFocus, setCanFocus);
 
     const goBack = () => {
         const { component, title, icon } = components.profile;
@@ -158,7 +154,6 @@ const ProfileForm: FC<IProps> = () => {
         }
     };
 
-    // const isSubmittable = anyTrue(dirtyFields);
     const isSubmittable = isDirty;
 
     const deleteAvatar = () => {
@@ -197,139 +192,132 @@ const ProfileForm: FC<IProps> = () => {
     const avatarError = errors.avatar;
     const getAvatarErrorMessage = (error: NonNullable<typeof avatarError>) => {
         if ('message' in error) {
-            return capitalize(t(error.message as TSingleTranslationKeys));
+            return capitalize(t(error.message as TSingleTranslationKey));
         } else if ('id' in error && error.id) {
-            return capitalize(t(error.id.message as TSingleTranslationKeys));
+            return capitalize(t(error.id.message as TSingleTranslationKey));
         } else if ('name' in error && error.name) {
-            return capitalize(t(error.name.message as TSingleTranslationKeys));
+            return capitalize(t(error.name.message as TSingleTranslationKey));
         } else if ('size' in error && error.size) {
-            return capitalize(t(error.size.message as TSingleTranslationKeys));
+            return capitalize(t(error.size.message as TSingleTranslationKey));
         } else if ('type' in error && error.type) {
-            return capitalize(t((error.type as FieldError).message as TSingleTranslationKeys));
+            return capitalize(t((error.type as FieldError).message as TSingleTranslationKey));
         } else if ('data' in error && error.data) {
-            return capitalize(t(error.data.message as TSingleTranslationKeys, { count: 200 }));
+            return capitalize(t(error.data.message as TPluralTranslationKey, { count: 200 }));
         } else {
             return '';
         }
     };
 
     return (
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
-                <FormControl>
-                    <TextField
-                        label={capitalize(t('first name'))}
-                        placeholder={capitalize(t('first name'))}
-                        variant='outlined'
-                        error={!!errors.firstName}
-                        required
-                        helperText={
-                            !!errors.firstName &&
-                            capitalize(t(errors.firstName?.message as TSingleTranslationKeys))
-                        }
-                        {...register('firstName')}
-                    />
-                </FormControl>
-                <FormControl>
-                    <TextField
-                        label={capitalize(t('last name'))}
-                        variant='outlined'
-                        placeholder={capitalize(t('last name'))}
-                        required
-                        error={!!errors.lastName}
-                        helperText={
-                            !!errors.lastName &&
-                            capitalize(t(errors.lastName?.message as TSingleTranslationKeys))
-                        }
-                        {...register('lastName')}
-                    />
-                </FormControl>
-                <FormControl>
-                    <TextField
-                        label={capitalize(t('middle name'))}
-                        placeholder={capitalize(t('middle name'))}
-                        variant='outlined'
-                        {...register('middleName')}
-                    />
-                </FormControl>
-                <FormControl variant='filled'>
-                    <Controller
-                        name='avatar'
-                        control={control}
-                        render={({ field: { value, onChange, ...field } }) => {
-                            return (
-                                <TextField
-                                    variant='outlined'
-                                    label={capitalize(t('avatar'))}
-                                    placeholder={capitalize(
-                                        t('click icon to the right to upload avatar')
-                                    )}
-                                    type='text'
-                                    // value={(a && a.length && a[0].name) || ''}
-                                    value={value && 'name' in value ? value.name : ''}
-                                    error={!!avatarError}
-                                    helperText={
-                                        !!avatarError
-                                            ? getAvatarErrorMessage(avatarError)
-                                            : capitalize(
-                                                  t(
-                                                      'square picture (png, jpg, jpeg, webp, or svg) with max file size: kb#many',
-                                                      {
-                                                          count: 200
-                                                      }
-                                                  )
+        <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
+            <FormControl>
+                <TextField
+                    label={capitalize(t('first name'))}
+                    placeholder={capitalize(t('first name'))}
+                    variant='outlined'
+                    error={!!errors.firstName}
+                    required
+                    helperText={
+                        !!errors.firstName &&
+                        capitalize(t(errors.firstName?.message as TSingleTranslationKey))
+                    }
+                    {...register('firstName')}
+                />
+            </FormControl>
+            <FormControl>
+                <TextField
+                    label={capitalize(t('last name'))}
+                    variant='outlined'
+                    placeholder={capitalize(t('last name'))}
+                    required
+                    error={!!errors.lastName}
+                    helperText={
+                        !!errors.lastName &&
+                        capitalize(t(errors.lastName?.message as TSingleTranslationKey))
+                    }
+                    {...register('lastName')}
+                />
+            </FormControl>
+            <FormControl>
+                <TextField
+                    label={capitalize(t('middle name'))}
+                    placeholder={capitalize(t('middle name'))}
+                    variant='outlined'
+                    {...register('middleName')}
+                />
+            </FormControl>
+            <FormControl variant='filled'>
+                <Controller
+                    name='avatar'
+                    control={control}
+                    render={({ field: { value, onChange, ...field } }) => {
+                        return (
+                            <TextField
+                                variant='outlined'
+                                label={capitalize(t('avatar'))}
+                                placeholder={capitalize(
+                                    t('click icon to the right to upload avatar')
+                                )}
+                                type='text'
+                                // value={(a && a.length && a[0].name) || ''}
+                                value={value && 'name' in value ? value.name : ''}
+                                error={!!avatarError}
+                                helperText={
+                                    !!avatarError
+                                        ? getAvatarErrorMessage(avatarError)
+                                        : capitalize(
+                                              t(
+                                                  'square picture (png, jpg, jpeg, webp, or svg) with max file size: kb',
+                                                  {
+                                                      count: 200
+                                                  }
                                               )
-                                    }
-                                    InputProps={{
-                                        endAdornment: (
-                                            <>
-                                                <Tooltip
-                                                    title={capitalize(t('click to change avatar'))}
+                                          )
+                                }
+                                InputProps={{
+                                    endAdornment: (
+                                        <>
+                                            <Tooltip
+                                                title={capitalize(t('click to change avatar'))}
+                                            >
+                                                <IconButton component='label'>
+                                                    <FileUploadOutlined color='info' />
+                                                    <input
+                                                        style={{ display: 'none' }}
+                                                        type='file'
+                                                        hidden
+                                                        onChange={handleChangeAvatar}
+                                                    />
+                                                </IconButton>
+                                            </Tooltip>
+                                            <Tooltip
+                                                title={capitalize(t('click to delete avatar'))}
+                                            >
+                                                <IconButton
+                                                    component='button'
+                                                    onClick={deleteAvatar}
                                                 >
-                                                    <IconButton component='label'>
-                                                        <FileUploadOutlined color='info' />
-                                                        <input
-                                                            style={{ display: 'none' }}
-                                                            type='file'
-                                                            hidden
-                                                            onChange={handleChangeAvatar}
-                                                        />
-                                                    </IconButton>
-                                                </Tooltip>
-                                                <Tooltip
-                                                    title={capitalize(t('click to delete avatar'))}
-                                                >
-                                                    <IconButton
-                                                        component='button'
-                                                        onClick={deleteAvatar}
-                                                    >
-                                                        <DeleteIcon color='warning' />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </>
-                                        )
-                                    }}
-                                    {...field}
-                                />
-                            );
-                        }}
-                    />
-                </FormControl>
-                <Box className='action-buttons'>
-                    <Button type='button' onClick={goBack} variant='outlined' color='warning'>
-                        {capitalize(t('cancel'))}
-                    </Button>
-                    <Button
-                        type='submit'
-                        variant='contained'
-                        color='primary'
-                        disabled={!isSubmittable}
-                    >
-                        {capitalize(t(isEdit ? 'update profile' : 'create profile'))}
-                    </Button>
-                </Box>
-            </StyledForm>
-        </LocalizationProvider>
+                                                    <DeleteIcon color='warning' />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </>
+                                    )
+                                }}
+                                {...field}
+                            />
+                        );
+                    }}
+                />
+            </FormControl>
+            <Box className='action-buttons'>
+                <Button type='button' onClick={goBack} variant='outlined' color='warning'>
+                    {capitalize(t('cancel'))}
+                </Button>
+                <Button type='submit' variant='contained' color='primary' disabled={!isSubmittable}>
+                    {capitalize(t(isEdit ? 'update profile' : 'create profile'))}
+                </Button>
+            </Box>
+        </StyledForm>
     );
 };
 

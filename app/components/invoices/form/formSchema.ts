@@ -53,7 +53,7 @@ const baseInvoiceFormSchema = z.object({
             required_error: 'please enter the invoice number',
             invalid_type_error: 'please enter the invoice number'
         })
-        .min(1, { message: 'must be at least characters#many' }),
+        .min(1, { message: 'must be at least characters' }),
 
     date: isValidDate('invalid date')
         .nullable()
@@ -160,84 +160,86 @@ const baseInvoiceFormSchema = z.object({
     createdBy: z.string(),
     updatedBy: z.string()
 });
-const baseInvoiceItemFormSchema = z.array(
-    z.object({
-        id: z.string(),
-        name: z.string().min(1, { message: 'please select inventory item to get the id' }),
-        inventoryItem: z
-            .object(
-                {
-                    id: z.string(),
-                    name: z.string({
-                        required_error: 'please select inventory item to get the name'
-                    }),
-                    description: z.string().nullish(),
-                    internalCode: z.string().nullish(),
-                    externalCode: z.string().nullish(),
-                    manufacturerCode: z.string().nullish()
-                },
-                {
-                    required_error: 'please enter the inventory item name',
-                    invalid_type_error: 'please enter the inventory item name'
-                }
-            )
-            .nullable()
-            .transform((val, ctx) => {
-                if (val === null) {
-                    ctx.addIssue({
-                        code: 'invalid_type',
-                        expected: 'object',
-                        received: 'null'
-                    });
-                    return z.NEVER;
-                }
-                return val;
-            }),
-        price: z
-            .number({
-                invalid_type_error: 'please select inventory item to get the price'
-            })
-            .gt(0, { message: 'please select inventory item to get the price' })
-            .lte(999999999999.99, { message: 'price cannot be more than 999 999 999 999.99' })
-            .nullable()
-            .transform((val, ctx) => {
-                if (val === null) {
-                    ctx.addIssue({
-                        code: 'invalid_type',
-                        expected: 'number',
-                        received: 'null'
-                    });
-                    return z.NEVER;
-                }
-                return Math.floor(val * 100);
-            }),
-        quantity: z.coerce
-            .number({
-                invalid_type_error: 'must be more than#many'
-            })
-            .gt(0, { message: 'must be more than#many' })
-            .nullable()
-            .transform((val, ctx) => {
-                if (val === null) {
-                    ctx.addIssue({
-                        code: 'invalid_type',
-                        expected: 'number',
-                        received: 'null'
-                    });
-                    return z.NEVER;
-                }
-                return val;
-            }),
-        inventoryId: z
-            .string({
-                required_error: 'please select inventory item to get the id',
-                invalid_type_error: 'please select inventory item to get the id'
-            })
-            .min(1, { message: 'please select inventory item to get the id' }),
-        createdBy: z.string(),
-        updatedBy: z.string()
-    })
-);
+const baseInvoiceItemFormSchema = z
+    .array(
+        z.object({
+            id: z.string(),
+            name: z.string().min(1, { message: 'please select inventory item to get the id' }),
+            inventoryItem: z
+                .object(
+                    {
+                        id: z.string(),
+                        name: z.string({
+                            required_error: 'please select inventory item to get the name'
+                        }),
+                        description: z.string().nullish(),
+                        internalCode: z.string().nullish(),
+                        externalCode: z.string().nullish(),
+                        manufacturerCode: z.string().nullish()
+                    },
+                    {
+                        required_error: 'please enter the inventory item name',
+                        invalid_type_error: 'please enter the inventory item name'
+                    }
+                )
+                .nullable()
+                .transform((val, ctx) => {
+                    if (val === null) {
+                        ctx.addIssue({
+                            code: 'invalid_type',
+                            expected: 'object',
+                            received: 'null'
+                        });
+                        return z.NEVER;
+                    }
+                    return val;
+                }),
+            price: z
+                .number({
+                    invalid_type_error: 'please select inventory item to get the price'
+                })
+                .gt(0, { message: 'please select inventory item to get the price' })
+                .lte(999999999999.99, { message: 'price cannot be more than 999 999 999 999.99' })
+                .nullable()
+                .transform((val, ctx) => {
+                    if (val === null) {
+                        ctx.addIssue({
+                            code: 'invalid_type',
+                            expected: 'number',
+                            received: 'null'
+                        });
+                        return z.NEVER;
+                    }
+                    return Math.floor(val * 100);
+                }),
+            quantity: z.coerce
+                .number({
+                    invalid_type_error: 'must be more than#many'
+                })
+                .gt(0, { message: 'must be more than#many' })
+                .nullable()
+                .transform((val, ctx) => {
+                    if (val === null) {
+                        ctx.addIssue({
+                            code: 'invalid_type',
+                            expected: 'number',
+                            received: 'null'
+                        });
+                        return z.NEVER;
+                    }
+                    return val;
+                }),
+            inventoryId: z
+                .string({
+                    required_error: 'please select inventory item to get the id',
+                    invalid_type_error: 'please select inventory item to get the id'
+                })
+                .min(1, { message: 'please select inventory item to get the id' }),
+            createdBy: z.string(),
+            updatedBy: z.string()
+        })
+    )
+    .min(1, 'please enter at least one invoice item');
 
 export const invoiceCreateSchema = baseInvoiceFormSchema.omit({ id: true }).extend({
     invoiceItems: baseInvoiceItemFormSchema.element.omit({ id: true }).array()

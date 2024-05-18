@@ -1,6 +1,6 @@
 import { formatCurrency } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKeys } from '@/locales/types';
+import { TSingleTranslationKey } from '@/locales/types';
 import { capitalize } from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -11,21 +11,8 @@ import TableRow from '@mui/material/TableRow';
 import { FC } from 'react';
 import { IInvoiceItemsTableProps } from './types';
 
-const TAX_RATE = 0.07;
-
-function ccyFormat(num: number) {
-    return `${num.toFixed(2)}`;
-}
-
-interface Row {
-    desc: string;
-    qty: number;
-    unit: number;
-    price: number;
-}
-
 const headerRowCells: {
-    title: Partial<TSingleTranslationKeys>;
+    title: Partial<TSingleTranslationKey>;
     alignment: TableCellProps['align'];
 }[] = [
     {

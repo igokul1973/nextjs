@@ -5,6 +5,7 @@ import Settings from '@/app/components/settings/Settings';
 import AccountIcon from '@mui/icons-material/AccountCircleOutlined';
 import ProfileIcon from '@mui/icons-material/PersonOutlineOutlined';
 import SettingsIconOutlined from '@mui/icons-material/SettingsOutlined';
+import ProviderForm from '../../account/form/AccountForm';
 import { TComponents } from './types';
 
 export const components: TComponents = {
@@ -12,6 +13,11 @@ export const components: TComponents = {
         title: 'account',
         icon: AccountIcon,
         component: Account
+    },
+    updateProvider: {
+        title: 'update provider',
+        icon: AccountIcon,
+        component: ProviderForm
     },
     profile: {
         title: 'user profile',

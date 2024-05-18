@@ -76,7 +76,7 @@ const InvoiceView: FC<IProps> = ({ invoice, locale }) => {
                     <Box>{invoice.providerPhone}</Box>
                 </Box>
                 <Box>
-                    <Box>{capitalize(t('Payment info'))}:</Box>
+                    <Box>{capitalize(t('payment info'))}:</Box>
                     <Box>{invoice.paymentInfo}</Box>
                 </Box>
             </StyledFooter>

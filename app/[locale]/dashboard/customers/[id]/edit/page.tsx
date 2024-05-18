@@ -112,7 +112,7 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
               accountId,
               sessionUser.id,
               userAccountCountry.id,
-              individualLocalIdentifierName.id
+              organizationLocalIdentifierName.id
           );
 
     // Since the DB may return some empty (null, undefined) values or not return
@@ -139,13 +139,15 @@ const Page: FC<IProps> = async ({ params: { id } }) => {
                 <IndividualForm
                     localIdentifierName={individualLocalIdentifierName}
                     defaultValues={defaultValues as TIndividualForm}
-                    isEdit={true}
+                    isEdit
+                    isCustomer
                 />
             ) : (
                 <OrganizationForm
                     localIdentifierName={organizationLocalIdentifierName}
                     defaultValues={defaultValues as TOrganizationForm}
-                    isEdit={true}
+                    isEdit
+                    isCustomer
                 />
             )}
         </StyledBox>

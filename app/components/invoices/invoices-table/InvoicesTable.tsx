@@ -5,7 +5,7 @@ import { deleteInvoiceById } from '@/app/lib/data/invoice';
 import { TOrder } from '@/app/lib/types';
 import { stringToBoolean } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKeys } from '@/locales/types';
+import { TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -114,7 +114,7 @@ function EnhancedTableHead(props: IEnhancedTableProps) {
                                 direction={orderBy === headCell.id ? order : 'asc'}
                                 onClick={createSortHandler(headCell.id)}
                             >
-                                {capitalize(t(headCell.label as TSingleTranslationKeys))}
+                                {capitalize(t(headCell.label as TSingleTranslationKey))}
                                 {orderBy === headCell.id ? (
                                     <Box component='span' sx={visuallyHidden}>
                                         {order === 'desc'
@@ -124,7 +124,7 @@ function EnhancedTableHead(props: IEnhancedTableProps) {
                                 ) : null}
                             </TableSortLabel>
                         ) : (
-                            capitalize(t(headCell.label as TSingleTranslationKeys))
+                            capitalize(t(headCell.label as TSingleTranslationKey))
                         )}
                     </TableCell>
                 ))}

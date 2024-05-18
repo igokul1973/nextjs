@@ -232,7 +232,7 @@ model localIdentifierName {
   @@map("local_identifier_names")
 }
 
-// Individuals (both clients and service providers)
+// Individuals (both customers and service providers)
 model individual {
   id                    String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   logoId                String?             @unique @map("logo_id") @db.Uuid
@@ -263,7 +263,7 @@ model individual {
   @@map("individuals")
 }
 
-// Organizations (both clients and service providers)
+// Organizations (both customers and service providers)
 model organization {
   id                    String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   logoId                String?             @unique @map("logo_id") @db.Uuid

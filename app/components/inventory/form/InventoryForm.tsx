@@ -7,7 +7,7 @@ import { createInventoryItem, updateInventoryItem } from '@/app/lib/data/invento
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { anyTrue, maskPrice } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKeys } from '@/locales/types';
+import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, MenuItem, TextField, capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -91,7 +91,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         required
                         helperText={
                             !!errors.name &&
-                            capitalize(t(errors.name?.message as TSingleTranslationKeys))
+                            capitalize(t(errors.name?.message as TSingleTranslationKey))
                         }
                         {...register('name')}
                     />
@@ -106,13 +106,15 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                     error={!!errors.typeId}
                     helperText={
                         !!errors.typeId &&
-                        capitalize(t(errors.typeId.message as TSingleTranslationKeys))
+                        capitalize(t(errors.typeId.message as TSingleTranslationKey))
                     }
                 >
                     {types.map((type) => {
                         return (
                             <MenuItem key={type.id} value={type.id}>
-                                <StyledMenuItemBox>{capitalize(t(type.type))}</StyledMenuItemBox>
+                                <StyledMenuItemBox>
+                                    {capitalize(t(type.type as TSingleTranslationKey))}
+                                </StyledMenuItemBox>
                             </MenuItem>
                         );
                     })}
@@ -131,7 +133,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         error={!!errors.price}
                         helperText={
                             !!errors.price &&
-                            capitalize(t(errors.price.message as TSingleTranslationKeys))
+                            capitalize(t(errors.price.message as TSingleTranslationKey))
                         }
                         {...register('price', {
                             valueAsNumber: true,
@@ -160,7 +162,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         error={!!errors.externalCode}
                         helperText={
                             !!errors.externalCode &&
-                            capitalize(t(errors.externalCode?.message as TSingleTranslationKeys))
+                            capitalize(t(errors.externalCode?.message as TSingleTranslationKey))
                         }
                         {...register('externalCode')}
                     />
@@ -173,7 +175,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         error={!!errors.internalCode}
                         helperText={
                             !!errors.internalCode &&
-                            capitalize(t(errors.internalCode?.message as TSingleTranslationKeys))
+                            capitalize(t(errors.internalCode?.message as TSingleTranslationKey))
                         }
                         {...register('internalCode')}
                     />
@@ -186,16 +188,14 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         error={!!errors.manufacturerCode}
                         helperText={
                             !!errors.manufacturerCode &&
-                            capitalize(
-                                t(errors.manufacturerCode?.message as TSingleTranslationKeys)
-                            )
+                            capitalize(t(errors.manufacturerCode?.message as TSingleTranslationKey))
                         }
                         {...register('manufacturerCode')}
                     />
                 </FormControl>
                 <FormControl fullWidth>
                     <TextField
-                        label={capitalize(t('manufacturerPrice'))}
+                        label={capitalize(t('manufacturer price'))}
                         inputProps={{
                             type: 'number',
                             inputMode: 'numeric',
@@ -207,9 +207,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         error={!!errors.manufacturerPrice}
                         helperText={
                             !!errors.manufacturerPrice &&
-                            capitalize(
-                                t(errors.manufacturerPrice.message as TSingleTranslationKeys)
-                            )
+                            capitalize(t(errors.manufacturerPrice.message as TSingleTranslationKey))
                         }
                         {...register('manufacturerPrice', {
                             valueAsNumber: true,

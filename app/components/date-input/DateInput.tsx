@@ -1,4 +1,5 @@
 import { useI18n } from '@/locales/client';
+import { TSingleTranslationKey } from '@/locales/types';
 import { BaseTextFieldProps, capitalize } from '@mui/material';
 import { DatePicker, DatePickerProps } from '@mui/x-date-pickers/DatePicker';
 import { BaseNonStaticPickerProps } from '@mui/x-date-pickers/internals';
@@ -30,8 +31,8 @@ const DateInput: FC<
                                 required,
                                 error: !!error,
                                 helperText: !!error
-                                    ? capitalize(t(error?.message))
-                                    : capitalize(t(helperText)),
+                                    ? capitalize(t(error?.message as TSingleTranslationKey))
+                                    : capitalize(t(helperText as TSingleTranslationKey)),
                                 FormHelperTextProps: {
                                     error: !!error
                                 },

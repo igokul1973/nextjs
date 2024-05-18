@@ -7,7 +7,7 @@ import { createInvoice, updateInvoice } from '@/app/lib/data/invoice';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { anyTrue, maskPercentage, useDebounce } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKeys } from '@/locales/types';
+import { TPluralTranslationKey, TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import EmailIcon from '@mui/icons-material/AlternateEmail';
 import PercentIcon from '@mui/icons-material/Percent';
@@ -46,7 +46,6 @@ const InvoiceForm: FC<IProps> = ({
     customers: initialCustomers,
     inventory,
     accountId,
-    locale,
     providerPhones,
     providerEmails,
     defaultValues,
@@ -200,7 +199,7 @@ const InvoiceForm: FC<IProps> = ({
                                                     'message' in customerError &&
                                                     capitalize(
                                                         t(
-                                                            customerError.message as TSingleTranslationKeys
+                                                            customerError.message as TSingleTranslationKey
                                                         )
                                                     )
                                                 }
@@ -227,7 +226,7 @@ const InvoiceForm: FC<IProps> = ({
                             helperText={
                                 !!errors.number &&
                                 capitalize(
-                                    t(errors.number?.message as TSingleTranslationKeys, {
+                                    t(errors.number?.message as TPluralTranslationKey, {
                                         count: 1
                                     })
                                 )
@@ -257,7 +256,7 @@ const InvoiceForm: FC<IProps> = ({
                         error={!!errors.status}
                         helperText={
                             !!errors.status &&
-                            capitalize(t(errors.status?.message as TSingleTranslationKeys))
+                            capitalize(t(errors.status?.message as TSingleTranslationKey))
                         }
                     >
                         {statuses.map((status) => {
@@ -317,11 +316,7 @@ const InvoiceForm: FC<IProps> = ({
                         error={!!errors.providerPhone}
                         helperText={
                             !!errors.providerPhone &&
-                            capitalize(
-                                t(errors.providerPhone.message as TSingleTranslationKeys, {
-                                    count: 1
-                                })
-                            )
+                            capitalize(t(errors.providerPhone.message as TSingleTranslationKey))
                         }
                     >
                         <MenuItem disabled>{capitalize(t('select your phone'))}</MenuItem>
@@ -346,7 +341,7 @@ const InvoiceForm: FC<IProps> = ({
                                                 color: 'text.secondary'
                                             }}
                                         >
-                                            ({t(phone.type)})
+                                            ({t(phone.type as TSingleTranslationKey)})
                                         </Box>
                                     </Box>
                                 </MenuItem>
@@ -363,11 +358,7 @@ const InvoiceForm: FC<IProps> = ({
                         error={!!errors.providerEmail}
                         helperText={
                             !!errors.providerEmail &&
-                            capitalize(
-                                t(errors.providerEmail.message as TSingleTranslationKeys, {
-                                    count: 1
-                                })
-                            )
+                            capitalize(t(errors.providerEmail.message as TSingleTranslationKey))
                         }
                     >
                         <MenuItem disabled>{capitalize(t('select your email'))}</MenuItem>
@@ -385,7 +376,7 @@ const InvoiceForm: FC<IProps> = ({
                                         >
                                             {email.email}
                                             <Box component='span' sx={{ color: 'text.secondary' }}>
-                                                ({t(email.type)})
+                                                ({t(email.type as TSingleTranslationKey)})
                                             </Box>
                                         </Box>
                                     </Tooltip>
@@ -395,7 +386,7 @@ const InvoiceForm: FC<IProps> = ({
                     </FormSelect>
                     <FormControl fullWidth>
                         <TextField
-                            label={capitalize(t('discount'))}
+                            label={capitalize(t('rebate/discount'))}
                             inputProps={{
                                 type: 'number',
                                 inputMode: 'decimal',
@@ -420,7 +411,7 @@ const InvoiceForm: FC<IProps> = ({
                             error={!!errors.discount}
                             helperText={
                                 !!errors.discount &&
-                                capitalize(t(errors.discount.message as TSingleTranslationKeys))
+                                capitalize(t(errors.discount.message as TSingleTranslationKey))
                             }
                             {...register('discount', {
                                 valueAsNumber: true,
@@ -458,7 +449,7 @@ const InvoiceForm: FC<IProps> = ({
                             error={!!errors.tax}
                             helperText={
                                 !!errors.tax &&
-                                capitalize(t(errors.tax.message as TSingleTranslationKeys))
+                                capitalize(t(errors.tax.message as TSingleTranslationKey))
                             }
                             {...register('tax', {
                                 valueAsNumber: true,
@@ -484,7 +475,7 @@ const InvoiceForm: FC<IProps> = ({
                             error={!!errors.paymentInfo}
                             helperText={
                                 !!errors.paymentInfo &&
-                                capitalize(t(errors.number?.message as TSingleTranslationKeys))
+                                capitalize(t(errors.number?.message as TSingleTranslationKey))
                             }
                             {...register('paymentInfo')}
                         />
@@ -494,13 +485,13 @@ const InvoiceForm: FC<IProps> = ({
                             multiline
                             minRows={2}
                             maxRows={5}
-                            label={capitalize(t('terms'))}
+                            label={capitalize(t('payment terms'))}
                             variant='outlined'
                             placeholder={capitalize(t('enter payment terms'))}
                             error={!!errors.additionalInformation}
                             helperText={
                                 !!errors.additionalInformation &&
-                                capitalize(t(errors.number?.message as TSingleTranslationKeys))
+                                capitalize(t(errors.number?.message as TSingleTranslationKey))
                             }
                             {...register('terms')}
                         />
@@ -519,7 +510,7 @@ const InvoiceForm: FC<IProps> = ({
                             error={!!errors.additionalInformation}
                             helperText={
                                 !!errors.additionalInformation &&
-                                capitalize(t(errors.number?.message as TSingleTranslationKeys))
+                                capitalize(t(errors.number?.message as TSingleTranslationKey))
                             }
                             {...register('additionalInformation')}
                         />
@@ -648,7 +639,7 @@ const InvoiceForm: FC<IProps> = ({
                             error={!!errors.additionalInformation}
                             helperText={
                                 !!errors.additionalInformation &&
-                                capitalize(t(errors.number?.message as TSingleTranslationKeys))
+                                capitalize(t(errors.number?.message as TSingleTranslationKey))
                             }
                             {...register('notes')}
                         />

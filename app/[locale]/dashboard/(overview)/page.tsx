@@ -13,12 +13,7 @@ import { getI18n } from '@/locales/server';
 import { Typography } from '@mui/material';
 import { redirect } from 'next/navigation';
 import { FC, Suspense } from 'react';
-import {
-    DEFAULT_ITEMS_PER_PAGE,
-    DEFAULT_ORDER,
-    DEFAULT_ORDER_BY,
-    DEFAULT_PAGE_NUMBER
-} from '../invoices/constants';
+import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_PAGE_NUMBER } from '../invoices/constants';
 import { StyledSectionBox } from './styled';
 
 export const dynamic = 'force-dynamic';
@@ -59,8 +54,8 @@ const Page: FC = async () => {
         '',
         DEFAULT_PAGE_NUMBER,
         DEFAULT_ITEMS_PER_PAGE,
-        DEFAULT_ORDER_BY,
-        DEFAULT_ORDER
+        'date',
+        'desc'
     );
 
     const [count, latestInvoices] = await Promise.all([countPromise, latestInvoicesPromise]);
@@ -86,7 +81,6 @@ const Page: FC = async () => {
                 </Suspense> */}
             <Suspense fallback={<LatestInvoicesSkeleton />}>
                 <InvoicesTable invoices={invoices} count={count} tableName='latest invoices' />
-                {/* <LatestInvoices latestInvoices={latestInvoices} /> */}
             </Suspense>
         </StyledSectionBox>
     );

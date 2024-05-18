@@ -28,6 +28,7 @@ export async function getUserProfile(userId: string): Promise<TProfile | null> {
 
 export async function createProfile(formData: TProfileFormOutput) {
     try {
+        console.log(formData);
         // const newProfile = await prisma.profile.create({
         //     data: formData
         // });

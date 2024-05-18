@@ -22,7 +22,7 @@ export default function LanguageSwitcher() {
         setAnchorEl(null);
     };
 
-    const onSwitchLocale = (lang: LocaleEnum) => {
+    const onSwitchLocale = (lang: LocaleEnum.en_US | LocaleEnum.sv_SE) => {
         changeLocale(lang);
         handleClose();
     };

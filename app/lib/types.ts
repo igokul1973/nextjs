@@ -48,9 +48,6 @@ export type TDirtyFields<T> = {
             : boolean | undefined | TDirtyFields<T>;
 };
 
-const k = {} as TDirtyFields<TInvoiceForm>;
-const l = k.purchaseOrderNumbers;
-
 import { OverridableComponent } from '@mui/material/OverridableComponent';
 import { SvgIconTypeMap } from '@mui/material/SvgIcon';
 import type {
@@ -72,7 +69,6 @@ import type {
     profile as TProfile,
     user as TUser
 } from '@prisma/client';
-import { TInvoiceForm } from '../components/invoices/form/types';
 import { TCustomerPayload } from './data/customer/types';
 
 export {
@@ -99,33 +95,26 @@ export type TMuiIcon = OverridableComponent<SvgIconTypeMap<object, 'svg'>> & {
     muiName: string;
 };
 
-export type TEntityPropsDiff = {
-    // Organization-related properties
-    name?: string;
-    typeId?: string;
-    isPrivate?: boolean;
-    isCharity?: boolean;
-    type?: TOrganizationType;
-    // Individual-related properties
-    firstName?: string;
-    lastName?: string;
-    middleName?: string;
-    dob?: string;
-};
+type Combine<A, B> = Partial<Omit<NonNullable<A>, keyof NonNullable<B>>> &
+    Partial<Omit<NonNullable<B>, keyof NonNullable<A>>> & {
+        [K in keyof NonNullable<A> & keyof NonNullable<B>]:
+            | NonNullable<A>[K]
+            | NonNullable<B>[K] extends Record<string, unknown>
+            ? Combine<NonNullable<A>[K], NonNullable<B>[K]>
+            : NonNullable<A>[K] | NonNullable<B>[K];
+    };
 
-export type TEntity = (TCustomerPayload['organization'] | TCustomerPayload['individual']) &
-    TEntityPropsDiff;
+export type TEntity = Combine<TCustomerPayload['organization'], TCustomerPayload['individual']>;
 
 export type TEntities<I, O> = {
     individual?: I;
     organization?: O;
 };
 
-export type TEntityWithNonNullableCustomer = (
-    | TIndWithNonNullableCustomer
-    | TOrgWithNonNullableCustomer
-) &
-    TEntityPropsDiff;
+export type TEntityWithNonNullableCustomer = Combine<
+    TIndWithNonNullableCustomer,
+    TOrgWithNonNullableCustomer
+>;
 
 export type TIndWithNonNullableCustomer = Omit<
     Exclude<TCustomerPayload['individual'], null>,

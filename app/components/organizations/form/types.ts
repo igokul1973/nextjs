@@ -7,6 +7,7 @@ export interface IProps {
     localIdentifierName: TGetLocalIdentifierNamePayload;
     defaultValues: TOrganizationForm;
     isEdit: boolean;
+    isCustomer: boolean;
 }
 
 export type TOrganizationForm = z.input<typeof organizationUpdateSchema>;

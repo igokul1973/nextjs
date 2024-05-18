@@ -1,6 +1,6 @@
-import { TPluralTranslationKeys, TSingleTranslationKeys } from './types';
+import { TPluralTranslationKeyRaw, TSingleTranslationKey } from './types';
 
-const svPlural: Record<TPluralTranslationKeys, string> = {
+const svPlural: Record<TPluralTranslationKeyRaw, string> = {
     'must be digits#many': 'måste vara {count} siffror',
     'must be up to digits#many': 'måste vara upp till {count} siffror',
     'must be at least characters#many': 'kan inte vara mindre än {count} tecken',
@@ -13,7 +13,7 @@ const svPlural: Record<TPluralTranslationKeys, string> = {
         'fyrkantig bild (png, jpg, jpeg, webp, eller svg) med maximal filstorlek: {count} MB'
 };
 
-const svSingle: Record<TSingleTranslationKeys, string> = {
+const svSingle: Record<TSingleTranslationKey, string> = {
     create: 'skapa',
     show: 'visa',
     add: 'lägg till',
@@ -31,9 +31,11 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     date: 'datum',
     // Navigation
     home: 'hem',
+    avatar: 'avatar',
     dashboard: 'instrumentpanel',
     invoice: 'faktura',
     invoices: 'fakturor',
+    status: 'status',
     'latest invoices': 'senaste fakturor',
     customer: 'kund',
     customers: 'kunder',
@@ -42,6 +44,10 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'my account': 'mitt konto',
     provider: 'leverantör',
     'provider type': 'leverantörstyp',
+    'provider address': 'leverantörsadress',
+    'provider email': 'leverantörens e-postadress',
+    'provider phone': 'leverantörens telefonnummer',
+    'payment info': 'betalningsinformation',
     profile: 'profil',
     'user profile': 'användarprofil',
     settings: 'inställningar',
@@ -49,7 +55,8 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'account id': 'kontoid',
     id: 'id',
     // Organization
-    'select customer type': 'valj kundtyp',
+    'select customer type': 'välj kundtyp',
+    'select type': 'välj typ',
     organization: 'företag',
     organizations: 'företag',
     name: 'namn',
@@ -124,14 +131,16 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     paid: 'betalat',
     cancelled: 'avbruten',
     tax: 'moms/VAT',
+    'payment terms': 'betalningsvillkor',
     'rebate/discount': 'rabatt/avdrag',
     notes: 'anteckningar',
     'enter tax': 'ange moms/VAT',
     'invoice number': 'faktureringsnummer',
     'invoice date': 'faktureringsdatum',
+    'enter the date the invoice have been paid on': 'ange datumet faktureringen har blivit betald',
     'enter the invoice number': 'ange faktureringsnummer',
     'enter the invoice date': 'ange faktureringsdatum',
-    'select customer': 'valj en kund',
+    'select customer': 'välj en kund',
     'purchase order numbers': 'kundordernummer',
     'enter purchase order numbers': 'ange kundordernummer',
     'enter manufacturer invoice numbers (you can enter multiple)':
@@ -155,13 +164,13 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'inventory item name': 'inventeringsobjectetsnamn',
 
     'your phone': 'ditt telefon',
-    'select your phone': 'valj ditt telefon',
+    'select your phone': 'välj ditt telefon',
     'select your phone (might be shown on the invoice)':
-        'valj ditt telefon (kan möjligen visas på fakturan)',
+        'välj ditt telefon (kan möjligen visas på fakturan)',
     'your email': 'ditt e-post',
-    'select your email': 'valj ditt e-post',
+    'select your email': 'välj ditt e-post',
     'select your email (might be shown on the invoice)':
-        'valj ditt e-post (kan möjligen visas på fakturan)',
+        'välj ditt e-post (kan möjligen visas på fakturan)',
     'customer name': 'kundnamn',
     'customer address': 'kundadress',
     'customer email': 'kundepostadress',
@@ -171,14 +180,19 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'sales tax': 'moms/VAT',
     delivery: 'leverans',
     freight: 'frakt',
+    subtotal: 'delsumma',
+    total: 'totalsumma',
     sum: 'belopp',
     amount: 'mängd',
+    'select invoice status': 'välj faktureringsstatus',
+    'enter inventory item name': 'ange inventeringsobjektnamn',
     // Errors
     'must be a number': 'måste vara ett nummer',
     'must be a date': 'måste vara ett datum',
     'could not load data': 'kunde inte ladda data',
     'please enter at least one character': 'var god ange minst ett tecken',
     'please enter the name': 'var god ange namnet',
+    'please at least one invoice item': 'var god ange minst ett faktureringsobjekt',
     'please enter the first name': 'var god ange förnamn',
     'please enter the last name': 'var god ange efternamn',
     'please enter the street address': 'var god ange gatuadress',
@@ -222,8 +236,12 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     'create inventory item': 'skapa inventeringsobject',
     'create invoice': 'skapa en faktura',
     'update invoice': 'redigera faktura',
+    'update inventory item': 'redigera inventeringsobject',
     'view invoice': 'visa faktura',
+    'create profile': 'skapa användarprofil',
     'update profile': 'redigera användarprofil',
+    'create provider': 'skapa en leverantör',
+    'update provider': 'redigera leverantör',
     'update user profile': 'redigera användarprofil',
     'update account': 'redigera konto',
     'dense padding': 'tät stoppning',
@@ -243,7 +261,11 @@ const svSingle: Record<TSingleTranslationKeys, string> = {
     // Miscellaneous
     search: 'sök',
     'search customers': 'sök kunder',
-    'by name, phone or email': 'sök på namn, telefon eller e-post'
+    'search invoices': 'sök fakturor',
+    'by name, phone or email': 'sök på namn, telefon eller e-post',
+    'please create provider first': 'var god skapa leverantören',
+    'please create user profile first': 'var god skapa användarprofil',
+    'click icon to the right to upload avatar': 'klicka på ikonen för att ladda upp avatar'
 };
 
 const sv = {

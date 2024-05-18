@@ -20,7 +20,6 @@ import { IProps } from './types';
 
 const Page: FC<IProps> = async ({ params: { id } }) => {
     const t = await getI18n();
-
     const session = await auth();
     const sessionUser = session?.user;
     if (!session || !sessionUser) redirect('/');

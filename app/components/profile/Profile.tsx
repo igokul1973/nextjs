@@ -4,6 +4,7 @@ import { components } from '@/app/components/dashboard/avatar-menu/constants';
 import Warning from '@/app/components/warning/Warning';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useUser } from '@/app/context/user/provider';
+import { useAvatar } from '@/app/lib/hooks/useAvatar';
 import { useI18n } from '@/locales/client';
 import { Box, capitalize } from '@mui/material';
 import Button from '@mui/material/Button';
@@ -16,7 +17,6 @@ import {
     StyledProfileAttributeAlignTop,
     StyledProfileWrapper
 } from './styled';
-import { useAvatar } from '@/app/lib/hooks/useAvatar';
 
 const Profile: FC = () => {
     const {
@@ -25,9 +25,6 @@ const Profile: FC = () => {
 
     const t = useI18n();
     const { dispatch } = useRightDrawerState();
-
-    if (!profile)
-        return <Warning variant='h4'>The user has no profile. Please create one.</Warning>;
 
     const onUpdateProfile = () => {
         const { component, title, icon } = components.updateProfile;
@@ -42,6 +39,9 @@ const Profile: FC = () => {
     };
 
     const [avatarUrl] = useAvatar(profile);
+
+    if (!profile)
+        return <Warning variant='h4'>The user has no profile. Please create one.</Warning>;
 
     return (
         <StyledProfileWrapper component='article'>
