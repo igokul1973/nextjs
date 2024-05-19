@@ -28,7 +28,7 @@ const FileInput: FC<IProps> = ({ inputName, label, user, maxFileSize }) => {
         });
     };
 
-    const handleChangeFile = (event: ChangeEvent<HTMLInputElement>): void => {
+    const handleFileChange = (event: ChangeEvent<HTMLInputElement>): void => {
         let file: TFile | null = null;
         if (event.target.files?.[0]) {
             const { name, size, type } = event.target.files[0];
@@ -76,14 +76,18 @@ const FileInput: FC<IProps> = ({ inputName, label, user, maxFileSize }) => {
     return (
         <FormControl variant='filled'>
             <Controller
-                name='avatar'
+                name={inputName}
                 control={control}
                 render={({ field: { value, onChange, ...field } }) => {
                     return (
                         <TextField
                             variant='outlined'
                             label={label}
-                            placeholder={capitalize(t('click icon to the right to upload avatar'))}
+                            placeholder={capitalize(
+                                t(
+                                    `click icon to the right to upload ${inputName}` as TSingleTranslationKey
+                                )
+                            )}
                             type='text'
                             // value={(a && a.length && a[0].name) || ''}
                             value={value && 'name' in value ? value.name : ''}
@@ -110,7 +114,7 @@ const FileInput: FC<IProps> = ({ inputName, label, user, maxFileSize }) => {
                                                     style={{ display: 'none' }}
                                                     type='file'
                                                     hidden
-                                                    onChange={handleChangeFile}
+                                                    onChange={handleFileChange}
                                                 />
                                             </IconButton>
                                         </Tooltip>

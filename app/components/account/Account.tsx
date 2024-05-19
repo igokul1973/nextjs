@@ -1,6 +1,6 @@
 'use client';
 
-import { capitalize, getUser } from '@/app/lib/utils';
+import { capitalize } from '@/app/lib/utils';
 // import { getI18n } from '@/locales/server';
 import Typography from '@mui/material/Typography';
 // import { setStaticParamsLocale } from 'next-international/server';
@@ -10,17 +10,22 @@ import { StyledProfile } from '../profile/styled';
 // import Warning from '../warning/Warning';
 import Provider from '@/app/components/provider/Provider';
 import Warning from '@/app/components/warning/Warning';
+import { useUser } from '@/app/context/user/provider';
 import { useI18n } from '@/locales/client';
 import UpdateProviderButton from './UpdateProviderButton';
 import { StyledAccountAttribute, StyledAccountWrapper } from './styled';
 import { IProps } from './types';
 
-const Account: FC<IProps> = async () => {
+const Account: FC<IProps> = () => {
     // setStaticParamsLocale(locale);
 
     // const t = await getI18n();
     const t = useI18n();
-    const { account, provider, providerType } = await getUser();
+    // const { account, provider, providerType } = await getUser();
+    const {
+        state: { account, provider, providerType }
+    } = useUser();
+
     console.log(account, provider, providerType);
 
     return (

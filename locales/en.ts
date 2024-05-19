@@ -261,7 +261,8 @@ export const enSingle = {
     'by name, phone or email': 'by name, phone or email',
     'please create provider first': 'please create provider first',
     'please create user profile first': 'please create user profile first',
-    'click icon to the right to upload avatar': 'click icon to the right to upload avatar'
+    'click icon to the right to upload avatar': 'click icon to the right to upload avatar',
+    'click icon to the right to upload logo': 'click icon to the right to upload logo'
 };
 
 const en = {

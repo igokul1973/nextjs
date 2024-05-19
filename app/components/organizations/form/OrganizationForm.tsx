@@ -37,7 +37,11 @@ import { useRouter } from 'next/navigation';
 import { FC, useState } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
-import { organizationCreateSchema, organizationUpdateSchema } from './formSchema';
+import {
+    organizationCreateSchema,
+    organizationUpdateSchema,
+    organizationUpdateSchemaEmptyLogo
+} from './formSchema';
 import { StyledForm } from './styled';
 import { TOrganizationForm } from './types';
 
@@ -63,7 +67,13 @@ const OrganizationForm: FC<IProps> = ({
         control,
         ...methods
     } = useForm<TOrganizationForm, unknown, TOrganizationFormOutput>({
-        resolver: zodResolver(isEdit ? organizationUpdateSchema : organizationCreateSchema),
+        resolver: zodResolver(
+            isEdit
+                ? defaultValues.logo
+                    ? organizationUpdateSchema
+                    : organizationUpdateSchemaEmptyLogo
+                : organizationCreateSchema
+        ),
         reValidateMode: 'onChange',
         defaultValues
     });

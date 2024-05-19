@@ -33,7 +33,11 @@ import { Control, FieldError, FormProvider, useFieldArray, useForm } from 'react
 import { TEntityFormRegister } from '../../customers/types';
 import FileInput from '../../file/FileInput';
 import PartialPhoneForm from '../../phones/form/PartialPhoneForm';
-import { individualCreateSchema, individualUpdateSchema } from './formSchema';
+import {
+    individualCreateSchema,
+    individualUpdateSchema,
+    individualUpdateSchemaEmptyLogo
+} from './formSchema';
 import { StyledForm } from './styled';
 import { IProps, TIndividualForm, TIndividualFormControl, TIndividualFormOutput } from './types';
 
@@ -58,7 +62,13 @@ const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit
         control,
         ...methods
     } = useForm<TIndividualForm, unknown, TIndividualFormOutput>({
-        resolver: zodResolver(isEdit ? individualUpdateSchema : individualCreateSchema),
+        resolver: zodResolver(
+            isEdit
+                ? defaultValues.logo
+                    ? individualUpdateSchema
+                    : individualUpdateSchemaEmptyLogo
+                : individualCreateSchema
+        ),
         reValidateMode: 'onChange',
         defaultValues
     });
