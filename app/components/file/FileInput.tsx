@@ -89,7 +89,6 @@ const FileInput: FC<IProps> = ({ inputName, label, user, maxFileSize }) => {
                                 )
                             )}
                             type='text'
-                            // value={(a && a.length && a[0].name) || ''}
                             value={value && 'name' in value ? value.name : ''}
                             error={!!fileError}
                             helperText={

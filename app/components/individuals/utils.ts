@@ -17,6 +17,7 @@ export const getDefaultFormValues = (
         accountRelation: AccountRelationEnum.customer,
         accountId: accountId,
         customerId: '',
+        logo: null,
         firstName: '',
         lastName: '',
         middleName: '',

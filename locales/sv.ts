@@ -32,6 +32,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     // Navigation
     home: 'hem',
     avatar: 'avatar',
+    logo: 'logo',
     dashboard: 'instrumentpanel',
     invoice: 'faktura',
     invoices: 'fakturor',

@@ -19,7 +19,7 @@ import PartialPhoneForm from '@/app/components/phones/form/PartialPhoneForm';
 import { useData } from '@/app/context/data/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { createOrganizationCustomer, updateCustomer } from '@/app/lib/data/customer';
+import { createOrganizationCustomer, updateOrganizationCustomer } from '@/app/lib/data/customer';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
@@ -47,7 +47,7 @@ import { TOrganizationForm } from './types';
 
 const OrganizationForm: FC<IProps> = ({
     localIdentifierName,
-    defaultValues,
+    rawDefaultValues,
     isEdit,
     isCustomer
 }) => {
@@ -58,6 +58,20 @@ const OrganizationForm: FC<IProps> = ({
     const userId = user.id;
     const { openSnackbar } = useSnackbar();
     const { push } = useRouter();
+
+    const logoFile = !rawDefaultValues.logo
+        ? null
+        : new File([rawDefaultValues.logo.data], rawDefaultValues.logo.name, {
+              type: rawDefaultValues.logo.type
+          });
+
+    const defaultValues = {
+        ...rawDefaultValues,
+        logo:
+            rawDefaultValues.logo === null || logoFile === null
+                ? null
+                : { ...rawDefaultValues.logo, data: logoFile }
+    };
 
     const {
         watch,
@@ -125,8 +139,26 @@ const OrganizationForm: FC<IProps> = ({
 
     const onSubmit = async (formData: TOrganizationFormOutput) => {
         try {
+            const { logo, ...formDataWithoutLogo } = formData;
+            let logoFormData: FormData | undefined = undefined;
+            if (logo) {
+                logoFormData = new FormData();
+                Object.entries(logo).forEach(([key, value]) => {
+                    (logoFormData as FormData).append(key, value as FormDataEntryValue);
+                });
+            }
             if (isEdit) {
-                await updateCustomer(formData, dirtyFields, userId);
+                const updatedCustomer = await updateOrganizationCustomer(
+                    formDataWithoutLogo,
+                    dirtyFields,
+                    userId,
+                    logoFormData
+                );
+
+                if (!updatedCustomer) {
+                    throw new Error('Could not update customer.');
+                }
+
                 openSnackbar('Successfully updated customer.');
             } else {
                 await createOrganizationCustomer(formData);
@@ -160,12 +192,14 @@ const OrganizationForm: FC<IProps> = ({
                 formState={{ errors, dirtyFields, isDirty, ...formState }}
                 {...methods}
             >
-                <FileInput
-                    inputName='logo'
-                    label={capitalize(t('logo'))}
-                    user={user}
-                    maxFileSize={200}
-                />
+                {!isCustomer && (
+                    <FileInput
+                        inputName='logo'
+                        label={capitalize(t('logo'))}
+                        user={user}
+                        maxFileSize={200}
+                    />
+                )}
                 <FormControl>
                     <TextField
                         label={capitalize(t('organization name'))}

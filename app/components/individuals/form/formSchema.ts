@@ -108,7 +108,7 @@ const baseIndividualFormSchema = z.object({
 });
 
 export const individualCreateSchema = baseIndividualFormSchema.omit({ id: true }).extend({
-    logo: logoCreateSchema,
+    logo: logoCreateSchema.nullable(),
     address: addressFormSchema.omit({ id: true }),
     phones: phonesFormSchema.element.omit({ id: true }).array(),
     emails: emailsFormSchema.element.omit({ id: true }).array(),
@@ -116,7 +116,7 @@ export const individualCreateSchema = baseIndividualFormSchema.omit({ id: true }
 });
 
 export const individualUpdateSchema = baseIndividualFormSchema.extend({
-    logo: logoUpdateSchema,
+    logo: logoUpdateSchema.nullable(),
     address: addressFormSchema,
     phones: phonesFormSchema,
     emails: emailsFormSchema,
@@ -124,7 +124,7 @@ export const individualUpdateSchema = baseIndividualFormSchema.extend({
 });
 
 export const individualUpdateSchemaEmptyLogo = baseIndividualFormSchema.extend({
-    logo: logoCreateSchema,
+    logo: logoCreateSchema.nullable(),
     address: addressFormSchema,
     phones: phonesFormSchema,
     emails: emailsFormSchema,

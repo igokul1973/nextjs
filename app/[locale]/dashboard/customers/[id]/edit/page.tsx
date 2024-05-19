@@ -141,14 +141,14 @@ const Page: FC<IProps> = async ({ params: { id, locale } }) => {
             {isIndividual ? (
                 <IndividualForm
                     localIdentifierName={individualLocalIdentifierName}
-                    defaultValues={defaultValues as TIndividualForm}
+                    rawDefaultValues={defaultValues as TIndividualForm}
                     isEdit
                     isCustomer
                 />
             ) : (
                 <OrganizationForm
                     localIdentifierName={organizationLocalIdentifierName}
-                    defaultValues={defaultValues as TOrganizationForm}
+                    rawDefaultValues={defaultValues as TOrganizationForm}
                     isEdit
                     isCustomer
                 />

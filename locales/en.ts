@@ -30,6 +30,7 @@ export const enSingle = {
     // Navigation
     home: 'home',
     avatar: 'avatar',
+    logo: 'logo',
     dashboard: 'dashboard',
     invoice: 'invoice',
     invoices: 'invoices',

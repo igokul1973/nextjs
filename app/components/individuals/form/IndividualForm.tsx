@@ -12,10 +12,11 @@ import PartialAttributeForm from '@/app/components/entity-attributes/partial-for
 import { useData } from '@/app/context/data/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { createIndividualCustomer, updateCustomer } from '@/app/lib/data/customer';
+import { createIndividualCustomer, updateIndividualCustomer } from '@/app/lib/data/customer';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
+import { TDirtyFields } from '@/app/lib/types';
 import { useI18n } from '@/locales/client';
-import { TPluralTranslationKey, TSingleTranslationKey } from '@/locales/types';
+import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -28,8 +29,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FC, useState } from 'react';
-import { Control, FieldError, FormProvider, useFieldArray, useForm } from 'react-hook-form';
+import { FC, useEffect, useState } from 'react';
+import { Control, FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import FileInput from '../../file/FileInput';
 import PartialPhoneForm from '../../phones/form/PartialPhoneForm';
@@ -41,7 +42,12 @@ import {
 import { StyledForm } from './styled';
 import { IProps, TIndividualForm, TIndividualFormControl, TIndividualFormOutput } from './types';
 
-const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit, isCustomer }) => {
+const IndividualForm: FC<IProps> = ({
+    localIdentifierName,
+    rawDefaultValues,
+    isEdit,
+    isCustomer
+}) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const { countries } = useData();
@@ -51,7 +57,22 @@ const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit
     const userId = user.id;
     const { push } = useRouter();
 
+    const logoFile = !rawDefaultValues?.logo
+        ? null
+        : new File([rawDefaultValues.logo.data], rawDefaultValues.logo.name, {
+              type: rawDefaultValues.logo.type
+          });
+
+    const defaultValues = {
+        ...rawDefaultValues,
+        logo:
+            rawDefaultValues.logo === null || logoFile === null
+                ? null
+                : { ...rawDefaultValues.logo, data: logoFile }
+    };
+
     // TODO: take care of this...
+    // Needed to use the same form for Service Provider
     console.log(isCustomer);
 
     const {
@@ -103,13 +124,13 @@ const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit
         control
     });
 
-    // const w = watch();
+    const w = watch();
 
-    // useEffect(() => {
-    //     console.log('DirtyFields:', dirtyFields);
-    //     console.log('Watch:', w);
-    //     console.error('Errors:', errors);
-    // }, [errors, w, dirtyFields]);
+    useEffect(() => {
+        console.log('DirtyFields:', dirtyFields);
+        console.log('Watch:', w);
+        console.error('Errors:', errors);
+    }, [errors, w, dirtyFields]);
 
     const [canFocus, setCanFocus] = useState(true);
 
@@ -121,8 +142,27 @@ const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit
 
     const onSubmit = async (formData: TIndividualFormOutput) => {
         try {
+            const { logo, ...formDataWithoutLogo } = formData;
+            let logoFormData: FormData | undefined = undefined;
+            if (logo) {
+                logoFormData = new FormData();
+                Object.entries(logo).forEach(([key, value]) => {
+                    (logoFormData as FormData).append(key, value as FormDataEntryValue);
+                });
+            }
+
             if (isEdit) {
-                await updateCustomer(formData, dirtyFields, userId);
+                const updatedCustomer = await updateIndividualCustomer(
+                    formDataWithoutLogo,
+                    dirtyFields as TDirtyFields<TIndividualFormOutput>,
+                    userId,
+                    logoFormData
+                );
+
+                if (!updatedCustomer) {
+                    throw new Error('Could not update customer.');
+                }
+
                 openSnackbar('Successfully updated customer.');
             } else {
                 await createIndividualCustomer(formData);
@@ -138,25 +178,6 @@ const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit
 
     const isSubmittable = isDirty;
 
-    const logoError = errors.logo;
-    const getLogoErrorMessage = (error: NonNullable<typeof logoError>) => {
-        if ('message' in error) {
-            return capitalize(t(error.message as TSingleTranslationKey));
-        } else if ('id' in error && error.id) {
-            return capitalize(t(error.id.message as TSingleTranslationKey));
-        } else if ('name' in error && error.name) {
-            return capitalize(t(error.name.message as TSingleTranslationKey));
-        } else if ('size' in error && error.size) {
-            return capitalize(t(error.size.message as TSingleTranslationKey));
-        } else if ('type' in error && error.type) {
-            return capitalize(t((error.type as FieldError).message as TSingleTranslationKey));
-        } else if ('data' in error && error.data) {
-            return capitalize(t(error.data.message as TPluralTranslationKey, { count: 200 }));
-        } else {
-            return '';
-        }
-    };
-
     return (
         <FormProvider
             control={control}
@@ -168,12 +189,14 @@ const IndividualForm: FC<IProps> = ({ localIdentifierName, defaultValues, isEdit
         >
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
-                    <FileInput
-                        inputName='logo'
-                        label={capitalize(t('logo'))}
-                        user={user}
-                        maxFileSize={200}
-                    />
+                    {!isCustomer && (
+                        <FileInput
+                            inputName='logo'
+                            label={capitalize(t('logo'))}
+                            user={user}
+                            maxFileSize={200}
+                        />
+                    )}
                     <FormControl>
                         <TextField
                             label={capitalize(t('first name'))}

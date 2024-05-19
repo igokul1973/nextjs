@@ -5,13 +5,14 @@ import { individualUpdateSchema } from './formSchema';
 
 export interface IProps {
     localIdentifierName: TGetLocalIdentifierNamePayload;
-    defaultValues: TIndividualForm;
+    rawDefaultValues: TIndividualForm;
     isEdit: boolean;
     isCustomer: boolean;
 }
 
 export type TIndividualForm = z.input<typeof individualUpdateSchema>;
 export type TIndividualFormOutput = z.output<typeof individualUpdateSchema>;
+export type TIndividualFormOutputWithoutLogo = Omit<TIndividualFormOutput, 'logo'>;
 export type TIndividualFormControl = Control<TIndividualForm> & Control<FieldValues>;
 export type TPhone = TIndividualFormOutput['phones'][number];
 export type TEmail = TIndividualFormOutput['emails'][number];

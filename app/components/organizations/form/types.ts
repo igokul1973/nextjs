@@ -5,13 +5,14 @@ import { organizationUpdateSchema } from './formSchema';
 
 export interface IProps {
     localIdentifierName: TGetLocalIdentifierNamePayload;
-    defaultValues: TOrganizationForm;
+    rawDefaultValues: TOrganizationForm;
     isEdit: boolean;
     isCustomer: boolean;
 }
 
 export type TOrganizationForm = z.input<typeof organizationUpdateSchema>;
 export type TOrganizationFormOutput = z.output<typeof organizationUpdateSchema>;
+export type TOrganizationFormOutputWithoutLogo = Omit<TOrganizationFormOutput, 'logo'>;
 export type TOrganizationFormControl = Control<TOrganizationForm> & Control<FieldValues>;
 export type TPhone = TOrganizationFormOutput['phones'][number];
 export type TEmail = TOrganizationFormOutput['emails'][number];

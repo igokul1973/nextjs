@@ -123,14 +123,14 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
             {customerType === EntitiesEnum.individual && defaultIndividualValues ? (
                 <IndividualForm
                     localIdentifierName={individualLocalIdentifierName}
-                    defaultValues={defaultIndividualValues}
+                    rawDefaultValues={defaultIndividualValues}
                     isEdit={false}
                     isCustomer
                 />
             ) : customerType === EntitiesEnum.organization && defaultOrganizationValues ? (
                 <OrganizationForm
                     localIdentifierName={organizationLocalIdentifierName}
-                    defaultValues={defaultOrganizationValues}
+                    rawDefaultValues={defaultOrganizationValues}
                     isEdit={false}
                     isCustomer
                 />

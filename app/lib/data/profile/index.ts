@@ -71,7 +71,7 @@ export async function updateProfile(
             return null;
         }
 
-        const { data: validatedData } = validatedFormData;
+        const validatedData = validatedFormData.data;
 
         const changedFields = getDirtyValues<TProfileFormOutput | TProfileFormOutputEmptyAvatar>(
             dirtyFields,

@@ -43,13 +43,13 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
         defaultValues
     });
 
-    const w = watch();
+    // const w = watch();
 
-    useEffect(() => {
-        console.log('DirtyFields:', dirtyFields);
-        console.log('Watch:', w);
-        console.error('Errors:', errors);
-    }, [errors, w, dirtyFields]);
+    // useEffect(() => {
+    //     console.log('DirtyFields:', dirtyFields);
+    //     console.log('Watch:', w);
+    //     console.error('Errors:', errors);
+    // }, [errors, w, dirtyFields]);
 
     const [canFocus, setCanFocus] = useState(true);
 

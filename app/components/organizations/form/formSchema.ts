@@ -94,7 +94,7 @@ const baseOrganizationFormSchema = z.object({
 });
 
 export const organizationCreateSchema = baseOrganizationFormSchema.omit({ id: true }).extend({
-    logo: logoCreateSchema,
+    logo: logoCreateSchema.nullable(),
     address: addressFormSchema.omit({ id: true }),
     phones: phonesFormSchema.element.omit({ id: true }).array(),
     emails: emailsFormSchema.element.omit({ id: true }).array(),
@@ -102,7 +102,7 @@ export const organizationCreateSchema = baseOrganizationFormSchema.omit({ id: tr
 });
 
 export const organizationUpdateSchema = baseOrganizationFormSchema.extend({
-    logo: logoUpdateSchema,
+    logo: logoUpdateSchema.nullable(),
     address: addressFormSchema,
     phones: phonesFormSchema,
     emails: emailsFormSchema,
@@ -110,7 +110,7 @@ export const organizationUpdateSchema = baseOrganizationFormSchema.extend({
 });
 
 export const organizationUpdateSchemaEmptyLogo = baseOrganizationFormSchema.extend({
-    logo: logoCreateSchema,
+    logo: logoCreateSchema.nullable(),
     address: addressFormSchema,
     phones: phonesFormSchema,
     emails: emailsFormSchema,
