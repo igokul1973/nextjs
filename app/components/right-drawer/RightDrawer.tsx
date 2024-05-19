@@ -16,9 +16,6 @@ const RightDrawer: FC<PropsWithChildren> = ({ children }) => {
         state: { isOpen, childComponent: Component, title, icon: Icon }
     } = useRightDrawerState();
 
-    // TODO: Remove later
-    console.log(Component);
-
     return (
         <StyledRightDrawer
             sx={{
@@ -44,7 +41,7 @@ const RightDrawer: FC<PropsWithChildren> = ({ children }) => {
                     </Box>
                 )}
                 {children}
-                {/* {Component && <Component />} */}
+                {Component && <Component />}
             </Box>
         </StyledRightDrawer>
     );

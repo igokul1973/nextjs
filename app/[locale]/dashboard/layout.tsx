@@ -14,7 +14,6 @@ import { redirect } from 'next/navigation';
 import { FC } from 'react';
 import Navigation from '../../components/dashboard/navigation/Navigation';
 import { TProps } from './types';
-import Account from '@/app/components/account/Account';
 
 const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
     const session = await auth();
@@ -53,10 +52,7 @@ const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
                                 {/* This header is for purposes of pushing the content down */}
                                 <DrawerHeader />
                                 {children}
-                                {/* <RightDrawer /> */}
-                                <RightDrawer>
-                                    <Account />
-                                </RightDrawer>
+                                <RightDrawer />
                             </Box>
                             <GlobalSnackbar />
                         </SnackbarProvider>

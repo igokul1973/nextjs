@@ -52,7 +52,7 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
 
     useEffect(() => {
         if (customerType && individualLocalIdentifierName && organizationLocalIdentifierName) {
-            if (customerType !== EntitiesEnum.individual) {
+            if (customerType === EntitiesEnum.individual) {
                 const defaultValues = getDefaultIndividualFormValues(
                     account.id,
                     user.id,

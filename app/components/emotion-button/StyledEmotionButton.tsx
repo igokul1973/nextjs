@@ -4,7 +4,7 @@ interface IStyledButtonProps {
     backgroundColor?: string;
 }
 const StyledButton = styled(Button, {
-    name: 'Bla',
+    name: 'Styled Button',
     slot: 'Root',
     shouldForwardProp: (prop) => prop !== 'backgroundColor'
 })<IStyledButtonProps>(({ backgroundColor }) => ({
