@@ -13,20 +13,19 @@ import {
     getFilteredInventoryCount
 } from '@/app/lib/data/inventory';
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
-import { ISearchParams } from '@/app/lib/types';
 import { capitalize, formatCurrency, getUserProvider, getUserProviderType } from '@/app/lib/utils';
 import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
 import Typography from '@mui/material/Typography';
+import { setStaticParamsLocale } from 'next-international/server';
 import { redirect } from 'next/navigation';
-import { Suspense } from 'react';
+import { FC, Suspense } from 'react';
 import { StyledSectionBox, StyledToolsBox } from './styled';
+import { IProps } from './types';
 
-interface IProps {
-    searchParams: ISearchParams;
-}
+const Page: FC<IProps> = async ({ params: { locale }, searchParams }) => {
+    setStaticParamsLocale(locale);
 
-export default async function Page({ searchParams }: IProps) {
     const t = await getI18n();
 
     const session = await auth();
@@ -98,4 +97,6 @@ export default async function Page({ searchParams }: IProps) {
             </Suspense>
         </StyledSectionBox>
     );
-}
+};
+
+export default Page;

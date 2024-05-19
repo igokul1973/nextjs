@@ -30,8 +30,10 @@ import {
 } from './constants';
 import { StyledBox } from './styled';
 import { IProps } from './types';
+import { setStaticParamsLocale } from 'next-international/server';
 
-const Page: FC<IProps> = async ({ searchParams }) => {
+const Page: FC<IProps> = async ({ params: { locale }, searchParams }) => {
+    setStaticParamsLocale(locale);
     const t = await getI18n();
 
     const session = await auth();

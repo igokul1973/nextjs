@@ -2,11 +2,16 @@ import InvoiceMeLogo from '@/app/components/invoice-me-logo/InvoiceMeLogo';
 import { colors } from '@/app/styles/colors';
 import { Typography } from '@mui/material';
 import Box from '@mui/material/Box';
+import { setStaticParamsLocale } from 'next-international/server';
 import Link from 'next/link';
+import { FC } from 'react';
 import LanguageSwitcher from '../components/language-switcher/LanguageSwitcher';
 import { ContainerBox } from './styled';
+import { IProps } from './types';
 
-export default function Page() {
+const Page: FC<IProps> = ({ params: { locale } }) => {
+    setStaticParamsLocale(locale);
+
     return (
         <ContainerBox className='container'>
             <Box component='main' className='main'>
@@ -69,4 +74,5 @@ export default function Page() {
             </Box>
         </ContainerBox>
     );
-}
+};
+export default Page;

@@ -16,8 +16,11 @@ import { notFound, redirect } from 'next/navigation';
 import { FC } from 'react';
 import { StyledBox } from './styled';
 import { IProps } from './types';
+import { setStaticParamsLocale } from 'next-international/server';
 
-const Page: FC<IProps> = async ({ params: { id } }) => {
+const Page: FC<IProps> = async ({ params: { id, locale } }) => {
+    setStaticParamsLocale(locale);
+
     const t = await getI18n();
 
     const session = await auth();

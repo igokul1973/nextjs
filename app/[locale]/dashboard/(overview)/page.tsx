@@ -11,15 +11,18 @@ import { capitalize, formatCurrency, getUserProvider, getUserProviderType } from
 import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
 import { Typography } from '@mui/material';
+import { setStaticParamsLocale } from 'next-international/server';
 import { redirect } from 'next/navigation';
 import { FC, Suspense } from 'react';
 import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_PAGE_NUMBER } from '../invoices/constants';
 import { StyledSectionBox } from './styled';
+import { IProps } from './types';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const Page: FC = async () => {
+const Page: FC<IProps> = async ({ params: { locale } }) => {
+    setStaticParamsLocale(locale);
     const t = await getI18n();
 
     const session = await auth();

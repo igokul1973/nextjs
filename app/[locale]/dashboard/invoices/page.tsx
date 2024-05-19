@@ -21,8 +21,11 @@ import { FC, Suspense } from 'react';
 import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_PAGE_NUMBER } from './constants';
 import { StyledBox } from './styled';
 import { IProps } from './types';
+import { setStaticParamsLocale } from 'next-international/server';
 
-const Page: FC<IProps> = async ({ searchParams }) => {
+const Page: FC<IProps> = async ({ params: { locale }, searchParams }) => {
+    setStaticParamsLocale(locale);
+
     const session = await auth();
     const sessionUser = session?.user;
     if (!session || !sessionUser) redirect('/');

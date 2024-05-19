@@ -12,13 +12,16 @@ import { getI18n } from '@/locales/server';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
+import { setStaticParamsLocale } from 'next-international/server';
 import NextLink from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { FC } from 'react';
 import { StyledBox } from '../../styled';
 import { IProps } from './types';
 
-const Page: FC<IProps> = async ({ params: { id } }) => {
+const Page: FC<IProps> = async ({ params: { id, locale } }) => {
+    setStaticParamsLocale(locale);
+
     const t = await getI18n();
     const session = await auth();
     const sessionUser = session?.user;
