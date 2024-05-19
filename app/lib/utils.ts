@@ -1,17 +1,33 @@
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
 import { auth } from '@/auth';
-import { EntitiesEnum } from '@prisma/client';
+import { EntitiesEnum, Prisma } from '@prisma/client';
 import dayjs, { Dayjs } from 'dayjs';
 import { redirect } from 'next/navigation';
 import { ChangeEvent } from 'react';
-import { z } from 'zod';
+import { SafeParseReturnType, z } from 'zod';
 import { TSingleTranslationKey } from '../../locales/types';
+import {
+    individualUpdateSchema,
+    individualUpdateSchemaEmptyLogo
+} from '../components/individuals/form/formSchema.ts';
+import {
+    TIndividualFormOutput,
+    TIndividualFormOutputWithoutLogo
+} from '../components/individuals/form/types.ts';
 import { TCustomerOutput } from '../components/invoices/form/types';
+import {
+    organizationUpdateSchema,
+    organizationUpdateSchemaEmptyLogo
+} from '../components/organizations/form/formSchema.ts';
+import {
+    TOrganizationFormOutput,
+    TOrganizationFormOutputWithoutLogo
+} from '../components/organizations/form/types.ts';
 import { IUserState } from '../context/user/types';
+import { getIndividualFullNameString, getUserProvider } from './commonUtils.ts';
 import { TCustomerPayload, TCustomerWithInvoicesPayload } from './data/customer/types';
 import { TGetUserWithRelationsPayload } from './data/user/types';
 import { TDirtyFields, TEntities, TIndividual } from './types';
-import { getIndividualFullNameString, getUserProvider } from './commonUtils.ts';
 
 export {
     getEntityFirstEmailString,
@@ -488,4 +504,71 @@ export const getUser = async () => {
     };
 
     return userState;
+};
+
+export const getLogoCreateOrUpdate = async (
+    changedFields: Partial<TIndividualFormOutput | TOrganizationFormOutput>,
+    userId: string
+) => {
+    const logoFile = changedFields.logo?.data;
+    const logoArrayBuffer = await logoFile?.arrayBuffer();
+
+    const buffer = logoArrayBuffer && Buffer.from(logoArrayBuffer);
+    let logoCreateOrUpdate: Prisma.fileUpdateOneWithoutProfileNestedInput | undefined = undefined;
+
+    if (changedFields.logo && buffer) {
+        if ('id' in changedFields.logo && changedFields.logo.id) {
+            logoCreateOrUpdate = {
+                update: {
+                    data: {
+                        ...changedFields.logo,
+                        data: buffer,
+                        updatedBy: userId
+                    }
+                }
+            };
+        } else {
+            logoCreateOrUpdate = {
+                create: {
+                    ...changedFields.logo,
+                    data: buffer,
+                    createdBy: userId,
+                    updatedBy: userId
+                }
+            };
+        }
+    } else if (changedFields.logo === null) {
+        logoCreateOrUpdate = {
+            delete: true
+        };
+    }
+
+    return logoCreateOrUpdate;
+};
+
+export const validateEntityFormData = <
+    T extends TIndividualFormOutputWithoutLogo | TOrganizationFormOutputWithoutLogo
+>(
+    formData: T,
+    rawLogoFormData?: FormData,
+    isIndividual?: boolean
+): SafeParseReturnType<
+    T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] },
+    T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] }
+> => {
+    const logoFormData = rawLogoFormData ? Object.fromEntries(rawLogoFormData.entries()) : null;
+    let preValidatedFormData = { ...formData, logo: logoFormData };
+
+    const validationSchema = isIndividual
+        ? logoFormData?.id
+            ? individualUpdateSchema
+            : individualUpdateSchemaEmptyLogo
+        : logoFormData?.id
+          ? organizationUpdateSchema
+          : organizationUpdateSchemaEmptyLogo;
+
+    return validationSchema.safeParse(preValidatedFormData) as SafeParseReturnType<
+        T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] },
+        T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] }
+    >;
 };

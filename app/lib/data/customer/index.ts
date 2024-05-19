@@ -1,27 +1,23 @@
 'use server';
 
 import {
-    individualUpdateSchema,
-    individualUpdateSchemaEmptyLogo
-} from '@/app/components/individuals/form/formSchema';
-import {
     TEmail,
     TIndividualFormOutput,
     TIndividualFormOutputWithoutLogo,
     TPhone
 } from '@/app/components/individuals/form/types';
 import {
-    organizationUpdateSchema,
-    organizationUpdateSchemaEmptyLogo
-} from '@/app/components/organizations/form/formSchema';
-import {
-    TOrganizationForm,
     TOrganizationFormOutput,
     TOrganizationFormOutputWithoutLogo
 } from '@/app/components/organizations/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TOrder } from '@/app/lib/types';
-import { flattenCustomer, getDirtyValues } from '@/app/lib/utils';
+import {
+    flattenCustomer,
+    getDirtyValues,
+    getLogoCreateOrUpdate,
+    validateEntityFormData
+} from '@/app/lib/utils';
 import {
     AccountRelationEnum,
     EmailTypeEnum,
@@ -31,7 +27,6 @@ import {
 } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
-import { SafeParseReturnType } from 'zod';
 import {
     TCustomerPayload,
     customerSelect,
@@ -255,9 +250,28 @@ export async function getFilteredCustomersCountByAccountId(
         throw new Error('Failed to fetch customers count.');
     }
 }
-export async function createIndividualCustomer(formData: TIndividualFormOutput) {
+export async function createIndividualCustomer(
+    rawFormData: TIndividualFormOutput,
+    userId: string,
+    rawLogoFormData?: FormData
+) {
     try {
+        const validatedFormData = validateEntityFormData<TIndividualFormOutputWithoutLogo>(
+            rawFormData,
+            rawLogoFormData,
+            true
+        );
+
+        if (!validatedFormData.success) {
+            return null;
+        }
+
+        const validatedData = validatedFormData.data;
+
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(validatedData, userId);
+
         const {
+            logo,
             address,
             phones,
             emails,
@@ -265,15 +279,13 @@ export async function createIndividualCustomer(formData: TIndividualFormOutput) 
             localIdentifierNameId,
             accountId,
             ...entity
-        } = formData;
+        } = validatedData;
 
-        let data: Prisma.XOR<
-            Prisma.customerCreateInput,
-            Prisma.customerUncheckedCreateInput
-        > | null = null;
+        let data: Prisma.customerCreateInput | null = null;
 
-        const createIndividualObject = {
+        const createIndividualObject: Prisma.individualCreateWithoutCustomerInput = {
             ...entity,
+            logo: logoCreateOrUpdate,
             accountRelation: accountRelation as AccountRelationEnum,
             account: {
                 connect: {
@@ -330,9 +342,28 @@ export async function createIndividualCustomer(formData: TIndividualFormOutput) 
     }
 }
 
-export async function createOrganizationCustomer(formData: TOrganizationForm) {
+export async function createOrganizationCustomer(
+    rawFormData: TOrganizationFormOutputWithoutLogo,
+    userId: string,
+    rawLogoFormData?: FormData
+) {
     try {
+        const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
+            rawFormData,
+            rawLogoFormData,
+            false
+        );
+
+        if (!validatedFormData.success) {
+            return null;
+        }
+
+        const validatedData = validatedFormData.data;
+
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(validatedData, userId);
+
         const {
+            logo,
             typeId,
             address,
             phones,
@@ -341,15 +372,13 @@ export async function createOrganizationCustomer(formData: TOrganizationForm) {
             localIdentifierNameId,
             accountId,
             ...entity
-        } = formData;
+        } = validatedData;
 
-        let data: Prisma.XOR<
-            Prisma.customerCreateInput,
-            Prisma.customerUncheckedCreateInput
-        > | null = null;
+        let data: Prisma.customerCreateInput | null = null;
 
         const createEntityObject = {
             ...entity,
+            logo: logoCreateOrUpdate,
             type: {
                 connect: {
                     id: typeId
@@ -393,11 +422,17 @@ export async function createOrganizationCustomer(formData: TOrganizationForm) {
 
         const newCustomer = await prisma.customer.create({
             data,
-            select: {
-                id: true,
-                isActive: true,
-                organization: true,
-                individual: true
+            include: {
+                organization: {
+                    include: {
+                        logo: true
+                    }
+                },
+                individual: {
+                    include: {
+                        logo: true
+                    }
+                }
             }
         });
 
@@ -411,70 +446,6 @@ export async function createOrganizationCustomer(formData: TOrganizationForm) {
     }
 }
 
-const validateCustomer = <
-    T extends TIndividualFormOutputWithoutLogo | TOrganizationFormOutputWithoutLogo
->(
-    formData: T,
-    rawLogoFormData?: FormData,
-    isIndividual?: boolean
-): SafeParseReturnType<
-    T & { logo?: TIndividualFormOutput['logo'] },
-    T & { logo?: TIndividualFormOutput['logo'] }
-> => {
-    const logoFormData = rawLogoFormData ? Object.fromEntries(rawLogoFormData.entries()) : null;
-    let preValidatedFormData = { ...formData, logo: logoFormData };
-
-    const validationSchema = isIndividual
-        ? logoFormData?.id
-            ? individualUpdateSchema
-            : individualUpdateSchemaEmptyLogo
-        : logoFormData?.id
-          ? organizationUpdateSchema
-          : organizationUpdateSchemaEmptyLogo;
-
-    return validationSchema.safeParse(preValidatedFormData) as SafeParseReturnType<T, T>;
-};
-
-const getLogoCreateOrUpdate = async (
-    changedFields: Partial<TIndividualFormOutput | TOrganizationFormOutput>,
-    userId: string
-) => {
-    const logoFile = changedFields.logo?.data;
-    const logoArrayBuffer = await logoFile?.arrayBuffer();
-
-    const buffer = logoArrayBuffer && Buffer.from(logoArrayBuffer);
-    let logoCreateOrUpdate: Prisma.fileUpdateOneWithoutProfileNestedInput | undefined = undefined;
-
-    if (changedFields.logo && buffer) {
-        if ('id' in changedFields.logo && changedFields.logo.id) {
-            logoCreateOrUpdate = {
-                update: {
-                    data: {
-                        ...changedFields.logo,
-                        data: buffer,
-                        updatedBy: userId
-                    }
-                }
-            };
-        } else {
-            logoCreateOrUpdate = {
-                create: {
-                    ...changedFields.logo,
-                    data: buffer,
-                    createdBy: userId,
-                    updatedBy: userId
-                }
-            };
-        }
-    } else if (changedFields.logo === null) {
-        logoCreateOrUpdate = {
-            delete: true
-        };
-    }
-
-    return logoCreateOrUpdate;
-};
-
 export async function updateIndividualCustomer(
     rawFormData: TIndividualFormOutputWithoutLogo,
     dirtyFields: TDirtyFields<TIndividualFormOutput>,
@@ -482,7 +453,7 @@ export async function updateIndividualCustomer(
     rawLogoFormData?: FormData
 ) {
     try {
-        const validatedFormData = validateCustomer<TIndividualFormOutputWithoutLogo>(
+        const validatedFormData = validateEntityFormData<TIndividualFormOutputWithoutLogo>(
             rawFormData,
             rawLogoFormData,
             true
@@ -618,7 +589,7 @@ export async function updateOrganizationCustomer(
     rawLogoFormData?: FormData
 ) {
     try {
-        const validatedFormData = validateCustomer<TOrganizationFormOutputWithoutLogo>(
+        const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
             rawFormData,
             rawLogoFormData,
             true

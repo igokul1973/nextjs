@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
-import { TCustomerPayload } from '../data/customer/types';
+import { TEntity } from '../types';
 
-export const useLogo = (
-    entity?: TCustomerPayload['individual'] | TCustomerPayload['organization'] | null
-) => {
+export const useLogo = (entity?: TEntity | null) => {
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
     useEffect(() => {

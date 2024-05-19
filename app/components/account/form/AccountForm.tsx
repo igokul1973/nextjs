@@ -1,30 +1,25 @@
 'use client';
 
+import { TAttribute, TIndividualForm } from '@/app/components/individuals/form/types';
 import { getDefaultFormValues as getDefaultIndividualFormValues } from '@/app/components/individuals/utils';
+import { TOrganizationForm } from '@/app/components/organizations/form/types';
 import { getDefaultFormValues as getDefaultOrganizationFormValues } from '@/app/components/organizations/utils';
-// import { useRightDrawerState } from '@/app/context/right-drawer/provider';
+import Warning from '@/app/components/warning/Warning';
 import { useUser } from '@/app/context/user/provider';
 import { populateForm } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { capitalize } from '@mui/material';
 import { EntitiesEnum } from '@prisma/client';
 import { FC } from 'react';
-import IndividualForm from '../../individuals/form/IndividualForm';
-import { TAttribute, TIndividualForm } from '../../individuals/form/types';
-import OrganizationForm from '../../organizations/form/OrganizationForm';
-import { TOrganizationForm } from '../../organizations/form/types';
-import Warning from '../../warning/Warning';
+import ProviderIndFormData from './ProviderIndFormData';
+import ProviderOrgFormData from './ProviderOrgFormData';
 import { IProps } from './types';
 
 const AccountForm: FC<IProps> = () => {
     const t = useI18n();
-    // const { openSnackbar } = useSnackbar();
     const {
         state: { user, account, provider }
-        // dispatch: userDispatch
     } = useUser();
-
-    // const { dispatch: rightDrawerDispatch } = useRightDrawerState();
 
     if (!provider) {
         return <Warning>{capitalize(t('please create provider first'))}</Warning>;
@@ -85,18 +80,16 @@ const AccountForm: FC<IProps> = () => {
     const isEdit = true;
 
     return isIndividual ? (
-        <IndividualForm
+        <ProviderIndFormData
             localIdentifierName={localIdentifierName}
-            defaultValues={defaultValues as TIndividualForm}
+            rawDefaultValues={defaultValues as TIndividualForm}
             isEdit={isEdit}
-            isCustomer={false}
         />
     ) : (
-        <OrganizationForm
+        <ProviderOrgFormData
             localIdentifierName={localIdentifierName}
-            defaultValues={defaultValues as TOrganizationForm}
+            rawDefaultValues={defaultValues as TOrganizationForm}
             isEdit={isEdit}
-            isCustomer={false}
         />
     );
 };

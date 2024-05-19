@@ -10,14 +10,10 @@ import DateInput from '@/app/components/date-input/DateInput';
 import PartialEmailForm from '@/app/components/emails/form/PartialEmailForm';
 import PartialAttributeForm from '@/app/components/entity-attributes/partial-form/EntityAttributeForm';
 import { useData } from '@/app/context/data/provider';
-import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { createIndividualCustomer, updateIndividualCustomer } from '@/app/lib/data/customer';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
-import { TDirtyFields } from '@/app/lib/types';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -27,72 +23,33 @@ import TextField from '@mui/material/TextField';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
-import NextLink from 'next/link';
-import { useRouter } from 'next/navigation';
-import { FC, useEffect, useState } from 'react';
-import { Control, FormProvider, useFieldArray, useForm } from 'react-hook-form';
+import { FC, PropsWithChildren, useState } from 'react';
+import { Control, useFieldArray, useFormContext } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import FileInput from '../../file/FileInput';
 import PartialPhoneForm from '../../phones/form/PartialPhoneForm';
-import {
-    individualCreateSchema,
-    individualUpdateSchema,
-    individualUpdateSchemaEmptyLogo
-} from './formSchema';
 import { StyledForm } from './styled';
 import { IProps, TIndividualForm, TIndividualFormControl, TIndividualFormOutput } from './types';
 
-const IndividualForm: FC<IProps> = ({
+const IndividualForm: FC<IProps & PropsWithChildren> = ({
     localIdentifierName,
-    rawDefaultValues,
     isEdit,
-    isCustomer
+    isCustomer,
+    onSubmit,
+    children
 }) => {
     const t = useI18n();
-    const { openSnackbar } = useSnackbar();
     const { countries } = useData();
     const {
         state: { user }
     } = useUser();
     const userId = user.id;
-    const { push } = useRouter();
-
-    const logoFile = !rawDefaultValues?.logo
-        ? null
-        : new File([rawDefaultValues.logo.data], rawDefaultValues.logo.name, {
-              type: rawDefaultValues.logo.type
-          });
-
-    const defaultValues = {
-        ...rawDefaultValues,
-        logo:
-            rawDefaultValues.logo === null || logoFile === null
-                ? null
-                : { ...rawDefaultValues.logo, data: logoFile }
-    };
-
-    // TODO: take care of this...
-    // Needed to use the same form for Service Provider
-    console.log(isCustomer);
-
     const {
-        watch,
-        register,
-        handleSubmit,
-        formState: { errors, isDirty, dirtyFields, ...formState },
         control,
-        ...methods
-    } = useForm<TIndividualForm, unknown, TIndividualFormOutput>({
-        resolver: zodResolver(
-            isEdit
-                ? defaultValues.logo
-                    ? individualUpdateSchema
-                    : individualUpdateSchemaEmptyLogo
-                : individualCreateSchema
-        ),
-        reValidateMode: 'onChange',
-        defaultValues
-    });
+        register,
+        formState: { errors, isDirty },
+        handleSubmit
+    } = useFormContext<TIndividualForm, null, TIndividualFormOutput>();
 
     const phoneTypes = Object.values(PhoneTypeEnum);
     const emailTypes = Object.values(EmailTypeEnum);
@@ -124,14 +81,6 @@ const IndividualForm: FC<IProps> = ({
         control
     });
 
-    const w = watch();
-
-    useEffect(() => {
-        console.log('DirtyFields:', dirtyFields);
-        console.log('Watch:', w);
-        console.error('Errors:', errors);
-    }, [errors, w, dirtyFields]);
-
     const [canFocus, setCanFocus] = useState(true);
 
     const onError = () => {
@@ -140,211 +89,167 @@ const IndividualForm: FC<IProps> = ({
 
     useScrollToFormError(errors, canFocus, setCanFocus);
 
-    const onSubmit = async (formData: TIndividualFormOutput) => {
-        try {
-            const { logo, ...formDataWithoutLogo } = formData;
-            let logoFormData: FormData | undefined = undefined;
-            if (logo) {
-                logoFormData = new FormData();
-                Object.entries(logo).forEach(([key, value]) => {
-                    (logoFormData as FormData).append(key, value as FormDataEntryValue);
-                });
-            }
-
-            if (isEdit) {
-                const updatedCustomer = await updateIndividualCustomer(
-                    formDataWithoutLogo,
-                    dirtyFields as TDirtyFields<TIndividualFormOutput>,
-                    userId,
-                    logoFormData
-                );
-
-                if (!updatedCustomer) {
-                    throw new Error('Could not update customer.');
-                }
-
-                openSnackbar('Successfully updated customer.');
-            } else {
-                await createIndividualCustomer(formData);
-                openSnackbar('Successfully created customer.');
-            }
-            push('/dashboard/customers');
-        } catch (error) {
-            if (error instanceof Error) {
-                openSnackbar(error.message, 'error');
-            }
-        }
-    };
-
     const isSubmittable = isDirty;
 
+    const submitBtnText: TSingleTranslationKey = isEdit
+        ? isCustomer
+            ? 'update customer'
+            : 'update provider'
+        : isCustomer
+          ? 'create customer'
+          : 'create provider';
+
     return (
-        <FormProvider
-            control={control}
-            watch={watch}
-            register={register}
-            handleSubmit={handleSubmit}
-            formState={{ errors, dirtyFields, isDirty, ...formState }}
-            {...methods}
-        >
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
-                    {!isCustomer && (
-                        <FileInput
-                            inputName='logo'
-                            label={capitalize(t('logo'))}
-                            user={user}
-                            maxFileSize={200}
-                        />
-                    )}
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
+                {!isCustomer && (
+                    <FileInput
+                        inputName='logo'
+                        label={capitalize(t('logo'))}
+                        user={user}
+                        maxFileSize={200}
+                    />
+                )}
+                <FormControl>
+                    <TextField
+                        label={capitalize(t('first name'))}
+                        placeholder={capitalize(t('first name'))}
+                        variant='outlined'
+                        error={!!errors.firstName}
+                        required
+                        helperText={
+                            !!errors.firstName &&
+                            capitalize(t(errors.firstName?.message as TSingleTranslationKey))
+                        }
+                        {...register('firstName')}
+                    />
+                </FormControl>
+                <FormControl>
+                    <TextField
+                        label={capitalize(t('last name'))}
+                        variant='outlined'
+                        placeholder={capitalize(t('last name'))}
+                        required
+                        error={!!errors.lastName}
+                        helperText={
+                            !!errors.lastName &&
+                            capitalize(t(errors.lastName?.message as TSingleTranslationKey))
+                        }
+                        {...register('lastName')}
+                    />
+                </FormControl>
+                <FormControl>
+                    <TextField
+                        label={capitalize(t('middle name'))}
+                        placeholder={capitalize(t('middle name'))}
+                        variant='outlined'
+                        {...register('middleName')}
+                    />
+                </FormControl>
+                {localIdentifierName && (
                     <FormControl>
                         <TextField
-                            label={capitalize(t('first name'))}
-                            placeholder={capitalize(t('first name'))}
+                            label={capitalize(
+                                localIdentifierName.abbreviation || localIdentifierName.name
+                            )}
+                            placeholder={`${capitalize(t('add'))} ${localIdentifierName.name}`}
                             variant='outlined'
-                            error={!!errors.firstName}
-                            required
-                            helperText={
-                                !!errors.firstName &&
-                                capitalize(t(errors.firstName?.message as TSingleTranslationKey))
-                            }
-                            {...register('firstName')}
+                            {...register('localIdentifierValue')}
                         />
                     </FormControl>
-                    <FormControl>
-                        <TextField
-                            label={capitalize(t('last name'))}
-                            variant='outlined'
-                            placeholder={capitalize(t('last name'))}
-                            required
-                            error={!!errors.lastName}
-                            helperText={
-                                !!errors.lastName &&
-                                capitalize(t(errors.lastName?.message as TSingleTranslationKey))
-                            }
-                            {...register('lastName')}
-                        />
-                    </FormControl>
-                    <FormControl>
-                        <TextField
-                            label={capitalize(t('middle name'))}
-                            placeholder={capitalize(t('middle name'))}
-                            variant='outlined'
-                            {...register('middleName')}
-                        />
-                    </FormControl>
-                    {localIdentifierName && (
-                        <FormControl>
-                            <TextField
-                                label={capitalize(
-                                    localIdentifierName.abbreviation || localIdentifierName.name
-                                )}
-                                placeholder={`${capitalize(t('add'))} ${localIdentifierName.name}`}
-                                variant='outlined'
-                                {...register('localIdentifierValue')}
-                            />
-                        </FormControl>
-                    )}
-                    <FormControl>
-                        <TextField
-                            multiline
-                            minRows={2}
-                            maxRows={5}
-                            label={capitalize(t('description'))}
-                            variant='outlined'
-                            placeholder={capitalize(t('description'))}
-                            {...register('description')}
-                        />
-                    </FormControl>
-                    <FormControl>
-                        <DateInput
-                            label={capitalize(t('date of birth'))}
-                            name='dob'
-                            control={control as unknown as Control}
-                            format='YYYY-MM-DD'
-                            helperText={capitalize(t('enter the date of birth'))}
-                        />
-                    </FormControl>
-                    <Divider />
-                    <PartialAddressForm<TIndividualForm>
-                        countries={countries}
+                )}
+                <FormControl>
+                    <TextField
+                        multiline
+                        minRows={2}
+                        maxRows={5}
+                        label={capitalize(t('description'))}
+                        variant='outlined'
+                        placeholder={capitalize(t('description'))}
+                        {...register('description')}
+                    />
+                </FormControl>
+                <FormControl>
+                    <DateInput
+                        label={capitalize(t('date of birth'))}
+                        name='dob'
+                        control={control as unknown as Control}
+                        format='YYYY-MM-DD'
+                        helperText={capitalize(t('enter the date of birth'))}
+                    />
+                </FormControl>
+                <Divider />
+                <PartialAddressForm<TIndividualForm>
+                    countries={countries}
+                    register={register as TEntityFormRegister}
+                    control={control as TIndividualFormControl}
+                    errors={errors}
+                />
+                <Divider />
+                {phones.map((phone, index) => (
+                    <PartialPhoneForm<TIndividualForm>
+                        key={phone.id}
+                        index={index}
+                        count={phones.length}
+                        types={phoneTypes}
                         register={register as TEntityFormRegister}
                         control={control as TIndividualFormControl}
                         errors={errors}
+                        remove={removePhone}
                     />
-                    <Divider />
-                    {phones.map((phone, index) => (
-                        <PartialPhoneForm<TIndividualForm>
-                            key={phone.id}
-                            index={index}
-                            count={phones.length}
-                            types={phoneTypes}
-                            register={register as TEntityFormRegister}
-                            control={control as TIndividualFormControl}
-                            errors={errors}
-                            remove={removePhone}
-                        />
-                    ))}
-                    <Button onClick={() => appendPhone({ ...getPhonesInitial(userId)[0] })}>
-                        {phones.length > 0
-                            ? capitalize(t('add another phone'))
-                            : capitalize(t('add phone'))}
+                ))}
+                <Button onClick={() => appendPhone({ ...getPhonesInitial(userId)[0] })}>
+                    {phones.length > 0
+                        ? capitalize(t('add another phone'))
+                        : capitalize(t('add phone'))}
+                </Button>
+                <Divider />
+                {emails.map((email, index) => (
+                    <PartialEmailForm<TIndividualForm>
+                        key={email.id}
+                        index={index}
+                        count={emails.length}
+                        types={emailTypes}
+                        register={register as TEntityFormRegister}
+                        control={control as TIndividualFormControl}
+                        errors={errors}
+                        remove={removeEmail}
+                    />
+                ))}
+                <Button onClick={() => appendEmail({ ...getEmailsInitial(userId)[0] })}>
+                    {emails.length > 0
+                        ? capitalize(t('add another email address'))
+                        : capitalize(t('add email address'))}
+                </Button>
+                <Divider />
+                {attributes.map((attribute, index) => (
+                    <PartialAttributeForm<TIndividualForm>
+                        key={attribute.id}
+                        index={index}
+                        register={register as TEntityFormRegister}
+                        control={control as TIndividualFormControl}
+                        errors={errors}
+                        remove={removeAttribute}
+                    />
+                ))}
+                <Button onClick={() => appendAttribute(getEmptyAttribute(userId))}>
+                    {attributes.length > 0
+                        ? capitalize(t('add another attribute'))
+                        : capitalize(t('add attribute'))}
+                </Button>
+                <Box className='action-buttons'>
+                    {children}
+                    <Button
+                        type='submit'
+                        variant='contained'
+                        color='primary'
+                        disabled={!isSubmittable}
+                    >
+                        {capitalize(t(submitBtnText))}
                     </Button>
-                    <Divider />
-                    {emails.map((email, index) => (
-                        <PartialEmailForm<TIndividualForm>
-                            key={email.id}
-                            index={index}
-                            count={emails.length}
-                            types={emailTypes}
-                            register={register as TEntityFormRegister}
-                            control={control as TIndividualFormControl}
-                            errors={errors}
-                            remove={removeEmail}
-                        />
-                    ))}
-                    <Button onClick={() => appendEmail({ ...getEmailsInitial(userId)[0] })}>
-                        {emails.length > 0
-                            ? capitalize(t('add another email address'))
-                            : capitalize(t('add email address'))}
-                    </Button>
-                    <Divider />
-                    {attributes.map((attribute, index) => (
-                        <PartialAttributeForm<TIndividualForm>
-                            key={attribute.id}
-                            index={index}
-                            register={register as TEntityFormRegister}
-                            control={control as TIndividualFormControl}
-                            errors={errors}
-                            remove={removeAttribute}
-                        />
-                    ))}
-                    <Button onClick={() => appendAttribute(getEmptyAttribute(userId))}>
-                        {attributes.length > 0
-                            ? capitalize(t('add another attribute'))
-                            : capitalize(t('add attribute'))}
-                    </Button>
-                    <Box className='action-buttons'>
-                        <Button
-                            component={NextLink}
-                            href='/dashboard/customers'
-                            variant='outlined'
-                            color='warning'
-                        >
-                            {capitalize(t('cancel'))}
-                        </Button>
-                        <Button
-                            type='submit'
-                            variant='contained'
-                            color='primary'
-                            disabled={!isSubmittable}
-                        >
-                            {capitalize(t(isEdit ? 'update customer' : 'create customer'))}
-                        </Button>
-                    </Box>
-                </StyledForm>
-            </LocalizationProvider>
-        </FormProvider>
+                </Box>
+            </StyledForm>
+        </LocalizationProvider>
     );
 };
 

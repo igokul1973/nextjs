@@ -5,9 +5,9 @@ import { individualUpdateSchema } from './formSchema';
 
 export interface IProps {
     localIdentifierName: TGetLocalIdentifierNamePayload;
-    rawDefaultValues: TIndividualForm;
     isEdit: boolean;
     isCustomer: boolean;
+    onSubmit: (formData: TIndividualFormOutput) => Promise<void>;
 }
 
 export type TIndividualForm = z.input<typeof individualUpdateSchema>;

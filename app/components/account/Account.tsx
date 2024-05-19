@@ -1,36 +1,39 @@
 'use client';
 
-import { capitalize } from '@/app/lib/utils';
-// import { getI18n } from '@/locales/server';
-import Typography from '@mui/material/Typography';
-// import { setStaticParamsLocale } from 'next-international/server';
-import { FC } from 'react';
-import { StyledProfile } from '../profile/styled';
-// import Provider from '../provider/Provider';
-// import Warning from '../warning/Warning';
 import Provider from '@/app/components/provider/Provider';
 import Warning from '@/app/components/warning/Warning';
 import { useUser } from '@/app/context/user/provider';
+import { useLogo } from '@/app/lib/hooks/useLogo';
+import { capitalize } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
+import { Box } from '@mui/material';
+import Typography from '@mui/material/Typography';
+import Image from 'next/image';
+import { FC } from 'react';
+import { StyledProfile } from '../profile/styled';
 import UpdateProviderButton from './UpdateProviderButton';
 import { StyledAccountAttribute, StyledAccountWrapper } from './styled';
 import { IProps } from './types';
 
 const Account: FC<IProps> = () => {
-    // setStaticParamsLocale(locale);
-
-    // const t = await getI18n();
     const t = useI18n();
-    // const { account, provider, providerType } = await getUser();
     const {
         state: { account, provider, providerType }
     } = useUser();
 
-    console.log(account, provider, providerType);
+    const [logoUrl] = useLogo(provider);
 
     return (
         <StyledAccountWrapper component='article'>
             <StyledProfile>
+                {logoUrl && (
+                    <StyledAccountAttribute>
+                        <Typography variant='h6'>{capitalize(t('logo'))}:</Typography>
+                        <Box sx={{ width: '100px', position: 'relative', aspectRatio: '1/1' }}>
+                            <Image src={logoUrl} fill alt='Logo' />
+                        </Box>
+                    </StyledAccountAttribute>
+                )}
                 <StyledAccountAttribute>
                     <Typography variant='h6'>
                         {`${capitalize(t('account'))} ${t('id').toLocaleUpperCase()}`}:

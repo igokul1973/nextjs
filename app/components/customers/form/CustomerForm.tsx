@@ -13,14 +13,14 @@ import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { EntitiesEnum } from '@prisma/client';
 import { FC, useEffect, useState } from 'react';
-import IndividualForm from '../../individuals/form/IndividualForm';
 import { TIndividualForm } from '../../individuals/form/types';
 import { getDefaultFormValues as getDefaultIndividualFormValues } from '../../individuals/utils';
-import OrganizationForm from '../../organizations/form/OrganizationForm';
 import { TOrganizationForm } from '../../organizations/form/types';
 import { getDefaultFormValues as getDefaultOrganizationFormValues } from '../../organizations/utils';
 import Warning from '../../warning/Warning';
 import { ICustomerFormProps } from './types';
+import CustomerOrgFormData from './CustomerOrgFormData';
+import CustomerIndFormData from './CustomerIndFormData';
 
 const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentifierNames }) => {
     const t = useI18n();
@@ -121,18 +121,16 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
                 </Select>
             </FormControl>
             {customerType === EntitiesEnum.individual && defaultIndividualValues ? (
-                <IndividualForm
+                <CustomerIndFormData
                     localIdentifierName={individualLocalIdentifierName}
                     rawDefaultValues={defaultIndividualValues}
                     isEdit={false}
-                    isCustomer
                 />
             ) : customerType === EntitiesEnum.organization && defaultOrganizationValues ? (
-                <OrganizationForm
+                <CustomerOrgFormData
                     localIdentifierName={organizationLocalIdentifierName}
                     rawDefaultValues={defaultOrganizationValues}
                     isEdit={false}
-                    isCustomer
                 />
             ) : null}
         </StyledBox>

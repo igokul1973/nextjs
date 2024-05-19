@@ -5,9 +5,9 @@ import { organizationUpdateSchema } from './formSchema';
 
 export interface IProps {
     localIdentifierName: TGetLocalIdentifierNamePayload;
-    rawDefaultValues: TOrganizationForm;
     isEdit: boolean;
     isCustomer: boolean;
+    onSubmit: (formData: TOrganizationFormOutput) => Promise<void>;
 }
 
 export type TOrganizationForm = z.input<typeof organizationUpdateSchema>;

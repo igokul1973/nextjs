@@ -249,6 +249,9 @@ export const enSingle = {
     'filter list': 'filter list',
     'click to change avatar': 'click to change avatar',
     'click to delete avatar': 'click to delete avatar',
+    'check the box if your company is not owned by government':
+        'check the box if your company is not owned by government',
+    'check the box if your company is a charity': 'check the box if your company is a charity',
     // Reports
     collected: 'collected',
     'paid invoices': 'paid invoices',

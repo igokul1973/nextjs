@@ -253,6 +253,10 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'filter list': 'filterlista',
     'click to change avatar': 'klicka för att byta avatar',
     'click to delete avatar': 'klicka för att ta bort avatar',
+    'check the box if your company is not owned by government':
+        'markera om din företag är ej utvecklad av staten',
+    'check the box if your company is a charity':
+        'markera om din företag är en välgörenhetsorganisation',
     // Reports
     collected: 'insamlad',
     'paid invoices': 'betalade fakturor',

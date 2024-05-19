@@ -1,9 +1,11 @@
-import IndividualForm from '@/app/components/individuals/form/IndividualForm';
+import CustomerIndFormData from '@/app/components/customers/form/CustomerIndFormData';
+import CustomerOrgFormData from '@/app/components/customers/form/CustomerOrgFormData';
 import { TAttribute, TIndividualForm } from '@/app/components/individuals/form/types';
-import { getDefaultFormValues as getDefaultIndividualFormValues } from '@/app/components/individuals/utils';
-import OrganizationForm from '@/app/components/organizations/form/OrganizationForm';
+import {
+    getDefaultFormValues as getDefaultIndividualFormValues,
+    getDefaultFormValues as getDefaultOrganizationFormValues
+} from '@/app/components/individuals/utils';
 import { TOrganizationForm } from '@/app/components/organizations/form/types';
-import { getDefaultFormValues as getDefaultOrganizationFormValues } from '@/app/components/organizations/utils';
 import Warning from '@/app/components/warning/Warning';
 import { getCustomerById } from '@/app/lib/data/customer';
 import { getLocalIdentifierNamesByCountryId } from '@/app/lib/data/local-identifier-name';
@@ -115,7 +117,7 @@ const Page: FC<IProps> = async ({ params: { id, locale } }) => {
               accountId,
               sessionUser.id,
               userAccountCountry.id,
-              organizationLocalIdentifierName.id
+              individualLocalIdentifierName.id
           );
 
     // Since the DB may return some empty (null, undefined) values or not return
@@ -139,18 +141,16 @@ const Page: FC<IProps> = async ({ params: { id, locale } }) => {
                 <Typography color='text.primary'> {capitalize(t('update customer'))}</Typography>
             </Breadcrumbs>
             {isIndividual ? (
-                <IndividualForm
+                <CustomerIndFormData
                     localIdentifierName={individualLocalIdentifierName}
                     rawDefaultValues={defaultValues as TIndividualForm}
                     isEdit
-                    isCustomer
                 />
             ) : (
-                <OrganizationForm
-                    localIdentifierName={organizationLocalIdentifierName}
+                <CustomerOrgFormData
+                    localIdentifierName={individualLocalIdentifierName}
                     rawDefaultValues={defaultValues as TOrganizationForm}
                     isEdit
-                    isCustomer
                 />
             )}
         </StyledBox>
