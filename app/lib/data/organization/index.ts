@@ -1,3 +1,5 @@
+'use server';
+
 import { TEmail, TPhone } from '@/app/components/individuals/form/types';
 import {
     TOrganizationFormOutput,
@@ -60,9 +62,7 @@ export async function createOrganization(
             ...entity
         } = validatedData;
 
-        let data: Prisma.organizationCreateInput | null = null;
-
-        const createEntityObject = {
+        const data: Prisma.organizationCreateInput = {
             ...entity,
             logo: logoCreateOrUpdate,
             type: {
@@ -96,12 +96,6 @@ export async function createOrganization(
             }
         };
 
-        data = createEntityObject;
-
-        if (!data) {
-            throw new Error('Failed to create customer.');
-        }
-
         const newOrg = await prisma.organization.create({
             data
         });
@@ -126,7 +120,7 @@ export async function updateOrganization(
         const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
             rawFormData,
             rawLogoFormData,
-            true
+            false
         );
 
         if (!validatedFormData.success) {
@@ -142,8 +136,6 @@ export async function updateOrganization(
         }
 
         const logoCreateOrUpdate = await getLogoCreateOrUpdate(changedFields, userId);
-
-        const customerId = validatedData.customerId;
 
         const {
             id,
@@ -171,84 +163,84 @@ export async function updateOrganization(
         const { typeId, ...rest } = entity;
         const entityWithoutTypeId = rest;
 
-        const data: Prisma.customerUpdateInput = {
-            organization: {
-                update: {
-                    data: {
-                        ...entityWithoutTypeId,
-                        logo: logoCreateOrUpdate,
-                        address: address
-                            ? {
-                                  update: {
-                                      data: {
-                                          ...addressWithoutCountryId,
-                                          updatedBy: userId,
-                                          country: !!countryId
-                                              ? {
-                                                    connect: {
-                                                        id: countryId
-                                                    }
-                                                }
-                                              : undefined
-                                      }
-                                  }
-                              }
-                            : undefined,
-                        updatedBy: userId,
-                        emails: emailsWithoutIds && {
-                            deleteMany: {
-                                organizationId: validatedData.id
-                            },
-                            createMany: {
-                                data: emailsWithoutIds?.map((e) => ({
-                                    ...e,
-                                    updatedBy: userId
-                                })) as unknown as (Omit<TEmail, 'type'> & {
-                                    type: EmailTypeEnum;
-                                })[]
-                            }
-                        },
-                        phones: phonesWithoutIds && {
-                            deleteMany: {
-                                organizationId: validatedData.id
-                            },
-                            createMany: {
-                                data: phonesWithoutIds?.map((p) => ({
-                                    ...p,
-                                    updatedBy: userId
-                                })) as unknown as (Omit<TPhone, 'type'> & {
-                                    type: PhoneTypeEnum;
-                                })[]
-                            }
-                        }
-                    }
-                }
-            }
+        const data: Prisma.organizationUpdateInput = {
+            ...entityWithoutTypeId,
+            type: typeId
+                ? {
+                      connect: {
+                          id: typeId
+                      }
+                  }
+                : undefined,
+            logo: logoCreateOrUpdate,
+            address: address
+                ? {
+                      update: {
+                          data: {
+                              ...addressWithoutCountryId,
+                              updatedBy: userId,
+                              country: !!countryId
+                                  ? {
+                                        connect: {
+                                            id: countryId
+                                        }
+                                    }
+                                  : undefined
+                          }
+                      }
+                  }
+                : undefined,
+            updatedBy: userId,
+            emails: emailsWithoutIds
+                ? {
+                      deleteMany: {
+                          organizationId: validatedData.id
+                      },
+                      createMany: {
+                          data: emailsWithoutIds?.map((e) => ({
+                              ...e,
+                              updatedBy: userId
+                          })) as unknown as (Omit<TEmail, 'type'> & {
+                              type: EmailTypeEnum;
+                          })[]
+                      }
+                  }
+                : undefined,
+            phones: phonesWithoutIds
+                ? {
+                      deleteMany: {
+                          organizationId: validatedData.id
+                      },
+                      createMany: {
+                          data: phonesWithoutIds?.map((p) => ({
+                              ...p,
+                              updatedBy: userId
+                          })) as unknown as (Omit<TPhone, 'type'> & {
+                              type: PhoneTypeEnum;
+                          })[]
+                      }
+                  }
+                : undefined
         };
 
-        const updatedCustomer = await prisma.customer.update({
+        const updatedOrganization = await prisma.organization.update({
             where: {
-                id: customerId
+                id: rawFormData.id
             },
             data,
             include: {
-                organization: {
-                    include: {
-                        address: true,
-                        phones: true,
-                        emails: true,
-                        logo: true
-                    }
-                }
+                address: true,
+                phones: true,
+                emails: true
             }
         });
 
-        console.log('Successfully updated customer with ID:', updatedCustomer.id);
+        console.log('Successfully updated organization with ID:', updatedOrganization.id);
 
         revalidatePath('/dashboard/customers');
-        return updatedCustomer;
+        return updatedOrganization;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to update customer');
+        throw new Error('Failed to update organization');
     }
 }

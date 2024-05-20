@@ -7,7 +7,7 @@ import { TextField, capitalize } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import { ChangeEvent, FC } from 'react';
+import { ChangeEvent, FC, useRef } from 'react';
 import { Controller, FieldError, useFormContext } from 'react-hook-form';
 import { IProps } from './types';
 
@@ -19,6 +19,7 @@ const FileInput: FC<IProps> = ({ inputName, label, user, maxFileSize }) => {
         formState: { errors }
     } = useFormContext();
     const t = useI18n();
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const deleteFile = () => {
         setValue(inputName, null, {
@@ -26,6 +27,7 @@ const FileInput: FC<IProps> = ({ inputName, label, user, maxFileSize }) => {
             shouldTouch: true,
             shouldValidate: true
         });
+        (fileInputRef.current as HTMLInputElement).value = '';
     };
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>): void => {
@@ -114,6 +116,7 @@ const FileInput: FC<IProps> = ({ inputName, label, user, maxFileSize }) => {
                                                     type='file'
                                                     hidden
                                                     onChange={handleFileChange}
+                                                    ref={fileInputRef}
                                                 />
                                             </IconButton>
                                         </Tooltip>

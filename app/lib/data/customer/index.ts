@@ -524,32 +524,36 @@ export async function updateIndividualCustomer(
                               }
                             : undefined,
                         updatedBy: userId,
-                        emails: emailsWithoutIds && {
-                            deleteMany: {
-                                individualId: validatedData.id
-                            },
-                            createMany: {
-                                data: emailsWithoutIds?.map((e) => ({
-                                    ...e,
-                                    updatedBy: userId
-                                })) as unknown as (Omit<TEmail, 'type'> & {
-                                    type: EmailTypeEnum;
-                                })[]
-                            }
-                        },
-                        phones: phonesWithoutIds && {
-                            deleteMany: {
-                                individualId: validatedData.id
-                            },
-                            createMany: {
-                                data: phonesWithoutIds?.map((p) => ({
-                                    ...p,
-                                    updatedBy: userId
-                                })) as unknown as (Omit<TPhone, 'type'> & {
-                                    type: PhoneTypeEnum;
-                                })[]
-                            }
-                        }
+                        emails: emailsWithoutIds
+                            ? {
+                                  deleteMany: {
+                                      individualId: validatedData.id
+                                  },
+                                  createMany: {
+                                      data: emailsWithoutIds?.map((e) => ({
+                                          ...e,
+                                          updatedBy: userId
+                                      })) as unknown as (Omit<TEmail, 'type'> & {
+                                          type: EmailTypeEnum;
+                                      })[]
+                                  }
+                              }
+                            : undefined,
+                        phones: phonesWithoutIds
+                            ? {
+                                  deleteMany: {
+                                      individualId: validatedData.id
+                                  },
+                                  createMany: {
+                                      data: phonesWithoutIds?.map((p) => ({
+                                          ...p,
+                                          updatedBy: userId
+                                      })) as unknown as (Omit<TPhone, 'type'> & {
+                                          type: PhoneTypeEnum;
+                                      })[]
+                                  }
+                              }
+                            : undefined
                     }
                 }
             }
@@ -565,8 +569,7 @@ export async function updateIndividualCustomer(
                     include: {
                         address: true,
                         phones: true,
-                        emails: true,
-                        logo: true
+                        emails: true
                     }
                 }
             }
@@ -592,7 +595,7 @@ export async function updateOrganizationCustomer(
         const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
             rawFormData,
             rawLogoFormData,
-            true
+            false
         );
 
         if (!validatedFormData.success) {
@@ -642,6 +645,13 @@ export async function updateOrganizationCustomer(
                 update: {
                     data: {
                         ...entityWithoutTypeId,
+                        type: typeId
+                            ? {
+                                  connect: {
+                                      id: typeId
+                                  }
+                              }
+                            : undefined,
                         logo: logoCreateOrUpdate,
                         address: address
                             ? {
@@ -661,32 +671,36 @@ export async function updateOrganizationCustomer(
                               }
                             : undefined,
                         updatedBy: userId,
-                        emails: emailsWithoutIds && {
-                            deleteMany: {
-                                organizationId: validatedData.id
-                            },
-                            createMany: {
-                                data: emailsWithoutIds?.map((e) => ({
-                                    ...e,
-                                    updatedBy: userId
-                                })) as unknown as (Omit<TEmail, 'type'> & {
-                                    type: EmailTypeEnum;
-                                })[]
-                            }
-                        },
-                        phones: phonesWithoutIds && {
-                            deleteMany: {
-                                organizationId: validatedData.id
-                            },
-                            createMany: {
-                                data: phonesWithoutIds?.map((p) => ({
-                                    ...p,
-                                    updatedBy: userId
-                                })) as unknown as (Omit<TPhone, 'type'> & {
-                                    type: PhoneTypeEnum;
-                                })[]
-                            }
-                        }
+                        emails: emailsWithoutIds
+                            ? {
+                                  deleteMany: {
+                                      organizationId: validatedData.id
+                                  },
+                                  createMany: {
+                                      data: emailsWithoutIds?.map((e) => ({
+                                          ...e,
+                                          updatedBy: userId
+                                      })) as unknown as (Omit<TEmail, 'type'> & {
+                                          type: EmailTypeEnum;
+                                      })[]
+                                  }
+                              }
+                            : undefined,
+                        phones: phonesWithoutIds
+                            ? {
+                                  deleteMany: {
+                                      organizationId: validatedData.id
+                                  },
+                                  createMany: {
+                                      data: phonesWithoutIds?.map((p) => ({
+                                          ...p,
+                                          updatedBy: userId
+                                      })) as unknown as (Omit<TPhone, 'type'> & {
+                                          type: PhoneTypeEnum;
+                                      })[]
+                                  }
+                              }
+                            : undefined
                     }
                 }
             }
@@ -702,8 +716,7 @@ export async function updateOrganizationCustomer(
                     include: {
                         address: true,
                         phones: true,
-                        emails: true,
-                        logo: true
+                        emails: true
                     }
                 }
             }

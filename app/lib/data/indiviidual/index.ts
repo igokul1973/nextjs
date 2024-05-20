@@ -1,3 +1,5 @@
+'use server';
+
 import {
     TEmail,
     TIndividualFormOutput,
@@ -107,7 +109,7 @@ export async function createIndividual(
         return newOrg;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Database Error: Failed to create individual customer.');
+        throw new Error('Database Error: Failed to create individual.');
     }
 }
 
@@ -137,8 +139,6 @@ export async function updateIndividual(
         }
 
         const logoCreateOrUpdate = await getLogoCreateOrUpdate(changedFields, userId);
-
-        const customerId = validatedData.customerId;
 
         const {
             id,
@@ -184,53 +184,56 @@ export async function updateIndividual(
                   }
                 : undefined,
             updatedBy: userId,
-            emails: emailsWithoutIds && {
-                deleteMany: {
-                    individualId: validatedData.id
-                },
-                createMany: {
-                    data: emailsWithoutIds?.map((e) => ({
-                        ...e,
-                        updatedBy: userId
-                    })) as unknown as (Omit<TEmail, 'type'> & {
-                        type: EmailTypeEnum;
-                    })[]
-                }
-            },
-            phones: phonesWithoutIds && {
-                deleteMany: {
-                    individualId: validatedData.id
-                },
-                createMany: {
-                    data: phonesWithoutIds?.map((p) => ({
-                        ...p,
-                        updatedBy: userId
-                    })) as unknown as (Omit<TPhone, 'type'> & {
-                        type: PhoneTypeEnum;
-                    })[]
-                }
-            }
+            emails: emailsWithoutIds
+                ? {
+                      deleteMany: {
+                          individualId: validatedData.id
+                      },
+                      createMany: {
+                          data: emailsWithoutIds?.map((e) => ({
+                              ...e,
+                              updatedBy: userId
+                          })) as unknown as (Omit<TEmail, 'type'> & {
+                              type: EmailTypeEnum;
+                          })[]
+                      }
+                  }
+                : undefined,
+            phones: phonesWithoutIds
+                ? {
+                      deleteMany: {
+                          individualId: validatedData.id
+                      },
+                      createMany: {
+                          data: phonesWithoutIds?.map((p) => ({
+                              ...p,
+                              updatedBy: userId
+                          })) as unknown as (Omit<TPhone, 'type'> & {
+                              type: PhoneTypeEnum;
+                          })[]
+                      }
+                  }
+                : undefined
         };
 
-        const updatedCustomer = await prisma.individual.update({
+        const updatedIndividual = await prisma.individual.update({
             where: {
-                id: customerId
+                id: rawFormData.id
             },
             data,
             include: {
                 address: true,
                 phones: true,
-                emails: true,
-                logo: true
+                emails: true
             }
         });
 
-        console.log('Successfully updated customer with ID:', updatedCustomer.id);
+        console.log('Successfully updated individual with ID:', updatedIndividual.id);
 
         revalidatePath('/dashboard/customers');
-        return updatedCustomer;
+        return updatedIndividual;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to update customer');
+        throw new Error('Failed to update individual');
     }
 }

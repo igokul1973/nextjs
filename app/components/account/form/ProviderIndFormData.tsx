@@ -15,7 +15,6 @@ import { useI18n } from '@/locales/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
 import Button from '@mui/material/Button';
-import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { components } from '../../dashboard/avatar-menu/constants';
@@ -33,7 +32,6 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
     } = useUser();
     const userId = user.id;
     const { openSnackbar } = useSnackbar();
-    const { push } = useRouter();
     const { dispatch: rightDrawerDispatch } = useRightDrawerState();
 
     const logoFile = !rawDefaultValues.logo
@@ -132,7 +130,7 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
             <IndividualForm
                 localIdentifierName={localIdentifierName}
                 isEdit={isEdit}
-                isCustomer
+                isCustomer={false}
                 onSubmit={onSubmit}
             >
                 <Button type='button' onClick={goBack} variant='outlined' color='warning'>

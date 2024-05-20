@@ -557,7 +557,7 @@ export const validateEntityFormData = <
     T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] }
 > => {
     const logoFormData = rawLogoFormData ? Object.fromEntries(rawLogoFormData.entries()) : null;
-    let preValidatedFormData = { ...formData, logo: logoFormData };
+    const preValidatedFormData = { ...formData, logo: logoFormData };
 
     const validationSchema = isIndividual
         ? logoFormData?.id
