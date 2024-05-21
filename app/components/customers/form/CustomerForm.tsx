@@ -18,9 +18,9 @@ import { getDefaultFormValues as getDefaultIndividualFormValues } from '../../in
 import { TOrganizationForm } from '../../organizations/form/types';
 import { getDefaultFormValues as getDefaultOrganizationFormValues } from '../../organizations/utils';
 import Warning from '../../warning/Warning';
-import { ICustomerFormProps } from './types';
-import CustomerOrgFormData from './CustomerOrgFormData';
 import CustomerIndFormData from './CustomerIndFormData';
+import CustomerOrgFormData from './CustomerOrgFormData';
+import { ICustomerFormProps } from './types';
 
 const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentifierNames }) => {
     const t = useI18n();

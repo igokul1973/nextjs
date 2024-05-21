@@ -20,6 +20,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { components } from '../../dashboard/avatar-menu/constants';
 import IndividualForm from '../../individuals/form/IndividualForm';
 import { IProviderIndFormDataProps } from './types';
+import { TSingleTranslationKey } from '@/locales/types';
 
 const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
     localIdentifierName,
@@ -92,20 +93,21 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
                 );
 
                 if (!updatedProvider) {
-                    throw new Error('Could not update provider.');
+                    throw new Error('could not update provider');
                 }
 
-                openSnackbar('Successfully updated provider.');
+                openSnackbar(capitalize(t('successfully updated provider')));
             } else {
                 const createdProvider = await createIndividual(formData, userId, logoFormData);
                 if (!createdProvider) {
-                    throw new Error('Could not create provider.');
+                    throw new Error(capitalize(t('could not create provider')));
                 }
-                openSnackbar('Successfully created provider.');
+                openSnackbar(capitalize(t('successfully created provider')));
             }
+            goBack();
         } catch (error) {
             if (error instanceof Error) {
-                openSnackbar(error.message, 'error');
+                openSnackbar(capitalize(t(error.message as TSingleTranslationKey)), 'error');
             }
         }
     };

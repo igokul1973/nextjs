@@ -111,8 +111,11 @@ export const enSingle = {
     'please enter the email type': 'please enter the email type',
     'please enter the user ID': 'please enter the user ID',
     // Attributes
+    'additional attributes': 'additional attributes',
     'add another attribute': 'add another attribute',
     'add attribute': 'add attribute',
+    'you have not attributes. Add one by clicking button below.':
+        'you have not attributes. Add one by clicking button below.',
     text: 'text',
     value: 'value',
     // Inventory
@@ -258,6 +261,53 @@ export const enSingle = {
     'pending invoices': 'pending invoices',
     'total invoices': 'total invoices',
     'total customers': 'total customers',
+    // Snackbar
+    'successfully created customer': 'successfully created customer',
+    'successfully updated customer': 'successfully updated customer',
+    'could not create customer': 'could not create customer',
+    'could not update customer': 'could not update customer',
+    'database error: failed to create customer': 'database error: failed to create customer',
+    'database error: failed to update customer': 'database error: failed to update customer',
+    'database error: failed to delete customer': 'database error: failed to delete customer',
+    'cannot delete customer because it has associated invoices':
+        'cannot delete customer because it has associated invoices',
+    'successfully created provider': 'successfully created provider',
+    'successfully updated provider': 'successfully updated provider',
+    'could not create provider': 'could not create provider',
+    'could not update provider': 'could not update provider',
+    'database error: failed to create provider': 'database error: failed to create provider',
+    'database error: failed to update provider': 'database error: failed to update provider',
+    'database error: failed to delete provider': 'database error: failed to delete provider',
+    'successfully created invoice': 'successfully created invoice',
+    'successfully updated invoice': 'successfully updated invoice',
+    'successfully deleted invoice': 'successfully deleted invoice',
+    'could not create invoice': 'could not create invoice',
+    'could not update invoice': 'could not update invoice',
+    'database error: failed to create invoice': 'database error: failed to create invoice',
+    'database error: failed to update invoice': 'database error: failed to update invoice',
+    'database error: failed to delete invoice': 'database error: failed to delete invoice',
+    'successfully created inventory item': 'successfully created inventory item',
+    'successfully updated inventory item': 'successfully updated inventory item',
+    'could not create inventory item': 'could not create inventory item',
+    'could not update inventory item': 'could not update inventory item',
+    'database error: failed to create inventory item':
+        'database error: failed to create inventory item',
+    'database error: failed to update inventory item':
+        'database error: failed to update inventory item',
+    'database error: failed to delete inventory item':
+        'database error: failed to delete inventory item',
+    'cannot delete inventory item because it has associated invoices':
+        'cannot delete inventory item because it has associated invoices',
+    'successfully created user profile': 'successfully created user profile',
+    'successfully updated user profile': 'successfully updated user profile',
+    'could not create user profile': 'could not create user profile',
+    'could not update user profile': 'could not update user profile',
+    'database error: failed to create user profile':
+        'database error: failed to create user profile',
+    'database error: failed to update user profile':
+        'database error: failed to update user profile',
+    'database error: failed to delete user profile':
+        'database error: failed to delete user profile',
     // Miscellaneous
     search: 'search',
     'search customers': 'search customers',

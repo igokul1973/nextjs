@@ -1,11 +1,9 @@
 import CustomerIndFormData from '@/app/components/customers/form/CustomerIndFormData';
 import CustomerOrgFormData from '@/app/components/customers/form/CustomerOrgFormData';
 import { TAttribute, TIndividualForm } from '@/app/components/individuals/form/types';
-import {
-    getDefaultFormValues as getDefaultIndividualFormValues,
-    getDefaultFormValues as getDefaultOrganizationFormValues
-} from '@/app/components/individuals/utils';
+import { getDefaultFormValues as getDefaultIndividualFormValues } from '@/app/components/individuals/utils';
 import { TOrganizationForm } from '@/app/components/organizations/form/types';
+import { getDefaultFormValues as getDefaultOrganizationFormValues } from '@/app/components/organizations/utils';
 import Warning from '@/app/components/warning/Warning';
 import { getCustomerById } from '@/app/lib/data/customer';
 import { getLocalIdentifierNamesByCountryId } from '@/app/lib/data/local-identifier-name';

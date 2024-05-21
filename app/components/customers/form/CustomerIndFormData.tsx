@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { ICustomerIndFormDataProps } from './types';
+import { TSingleTranslationKey } from '@/locales/types';
 
 const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
     localIdentifierName,
@@ -49,7 +50,7 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
 
     const {
         watch,
-        formState: { errors, dirtyFields, ...formState },
+        formState: { errors, dirtyFields, isDirty, ...formState },
         ...methods
     } = useForm<TIndividualForm, unknown, TIndividualFormOutput>({
         resolver: zodResolver(
@@ -66,8 +67,10 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
     // const w = watch();
 
     // useEffect(() => {
-    //     console.log('Watch:', w);
-    //     console.error('Errors:', errors);
+    // console.log('Dirty fields: ', dirtyFields);
+    // console.log('Is dirty: ', isDirty);
+    // console.log('Watch:', w);
+    // console.error('Errors:', errors);
     // }, [errors, w]);
 
     const onSubmit = async (formData: TIndividualFormOutput) => {
@@ -89,9 +92,9 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
                     logoFormData
                 );
                 if (!updatedCustomer) {
-                    throw new Error('Could not update customer.');
+                    throw new Error('could not update customer');
                 }
-                openSnackbar('Successfully updated customer.');
+                openSnackbar(capitalize(t('successfully updated customer')));
             } else {
                 const createdCustomer = await createIndividualCustomer(
                     formData,
@@ -99,20 +102,24 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
                     logoFormData
                 );
                 if (!createdCustomer) {
-                    throw new Error('Could not create customer.');
+                    throw new Error(capitalize(t('could not create customer')));
                 }
-                openSnackbar('Successfully created customer.');
+                openSnackbar(capitalize(t('successfully created customer')));
             }
             push('/dashboard/customers');
         } catch (error) {
             if (error instanceof Error) {
-                openSnackbar(error.message, 'error');
+                openSnackbar(capitalize(t(error.message as TSingleTranslationKey)), 'error');
             }
         }
     };
 
     return (
-        <FormProvider watch={watch} formState={{ errors, dirtyFields, ...formState }} {...methods}>
+        <FormProvider
+            watch={watch}
+            formState={{ errors, dirtyFields, isDirty, ...formState }}
+            {...methods}
+        >
             <IndividualForm
                 localIdentifierName={localIdentifierName}
                 isEdit={isEdit}

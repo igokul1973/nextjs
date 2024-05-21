@@ -106,7 +106,7 @@ export async function createOrganization(
         return newOrg;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Database Error: Failed to create individual customer.');
+        throw new Error('database error: failed to create provider');
     }
 }
 
@@ -241,6 +241,6 @@ export async function updateOrganization(
         return updatedOrganization;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to update organization');
+        throw new Error('database error: failed to update provider');
     }
 }

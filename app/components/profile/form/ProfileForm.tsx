@@ -136,20 +136,20 @@ const ProfileForm: FC<IProps> = () => {
                 );
 
                 if (!updatedProfile) {
-                    throw Error('Failed to update profile.');
+                    throw Error('failed to update user profile.');
                 }
 
                 userDispatch({ type: 'setProfile', payload: { profile: updatedProfile } });
-                openSnackbar('Successfully updated profile.');
+                openSnackbar(capitalize(t('successfully updated user profile')));
 
                 goBack();
             } else {
                 // await createProfile(formData);
-                openSnackbar('Successfully created profile.');
+                openSnackbar(capitalize(t('successfully created user profile')));
             }
         } catch (error) {
             if (error instanceof Error) {
-                openSnackbar(error.message, 'error');
+                openSnackbar(capitalize(t(error.message as TSingleTranslationKey)), 'error');
             }
         }
     };

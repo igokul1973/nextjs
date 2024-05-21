@@ -32,7 +32,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import { EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
-import { FC, PropsWithChildren, useState } from 'react';
+import { FC, PropsWithChildren, useEffect, useState } from 'react';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import { StyledForm } from './styled';
@@ -52,6 +52,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
     } = useUser();
     const userId = user.id;
     const {
+        watch,
         control,
         register,
         formState: { errors, isDirty },
@@ -95,6 +96,15 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
     };
 
     useScrollToFormError(errors, canFocus, setCanFocus);
+
+    const w = watch();
+
+    useEffect(() => {
+        // console.log('Dirty fields: ', dirtyFields);
+        console.log('Is dirty: ', isDirty);
+        console.log('Watch:', w);
+        console.error('Errors:', errors);
+    }, [errors, w]);
 
     const isSubmittable = isDirty;
 
@@ -218,6 +228,9 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                 </Tooltip>
             </FormControl>
             <Divider />
+            <Box component={'h5'} sx={{ margin: 0 }}>
+                {capitalize(t('address'))}:
+            </Box>
             <PartialAddressForm<TOrganizationForm>
                 countries={countries}
                 register={register as TEntityFormRegister}
@@ -225,6 +238,9 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                 errors={errors}
             />
             <Divider />
+            <Box component='h5' sx={{ margin: 0 }}>
+                {capitalize(t('phones'))}:
+            </Box>
             {phones.map((phone, index) => (
                 <PartialPhoneForm<TOrganizationForm>
                     key={phone.id}
@@ -243,6 +259,9 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                     : capitalize(t('add phone'))}
             </Button>
             <Divider />
+            <Box component={'h5'} sx={{ margin: 0 }}>
+                {capitalize(t('email addresses'))}:
+            </Box>
             {emails.map((email, index) => (
                 <PartialEmailForm<TOrganizationForm>
                     key={email.id}
@@ -261,16 +280,25 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                     : capitalize(t('add email address'))}
             </Button>
             <Divider />
-            {attributes.map((attribute, index) => (
-                <PartialAttributeForm<TOrganizationForm>
-                    key={attribute.id}
-                    index={index}
-                    register={register as TEntityFormRegister}
-                    control={control as TOrganizationFormControl}
-                    errors={errors}
-                    remove={removeAttribute}
-                />
-            ))}
+            <Box component={'h5'} sx={{ margin: 0 }}>
+                {capitalize(t('additional attributes'))}:
+            </Box>
+            {attributes.length ? (
+                attributes.map((attribute, index) => (
+                    <PartialAttributeForm<TOrganizationForm>
+                        key={attribute.id}
+                        index={index}
+                        register={register as TEntityFormRegister}
+                        control={control as TOrganizationFormControl}
+                        errors={errors}
+                        remove={removeAttribute}
+                    />
+                ))
+            ) : (
+                <Box>
+                    {capitalize(t('you have not attributes. Add one by clicking button below.'))}
+                </Box>
+            )}
             <Button
                 onClick={() => {
                     return appendAttribute(getEmptyAttribute(userId));

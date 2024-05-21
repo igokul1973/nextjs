@@ -16,6 +16,7 @@ import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
 import { createOrganization, updateOrganization } from '@/app/lib/data/organization';
 import { useI18n } from '@/locales/client';
+import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
 import Button from '@mui/material/Button';
@@ -94,20 +95,21 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps> = ({
                 );
 
                 if (!updatedProvider) {
-                    throw new Error('Could not update provider.');
+                    throw new Error('could not update provider');
                 }
 
-                openSnackbar('Successfully updated provider.');
+                openSnackbar(capitalize(t('successfully updated provider')));
             } else {
                 const createdProvider = await createOrganization(formData, userId, logoFormData);
                 if (!createdProvider) {
-                    throw new Error('Could not create provider.');
+                    throw new Error(capitalize(t('could not create provider')));
                 }
-                openSnackbar('Successfully created provider.');
+                openSnackbar(capitalize(t('successfully created provider')));
             }
+            goBack();
         } catch (error) {
             if (error instanceof Error) {
-                openSnackbar(error.message, 'error');
+                openSnackbar(capitalize(t(error.message as TSingleTranslationKey)), 'error');
             }
         }
     };

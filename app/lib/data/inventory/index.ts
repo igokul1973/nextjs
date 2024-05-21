@@ -152,7 +152,7 @@ export async function createInventoryItem(formData: TInventoryFormOutput) {
         revalidatePath('/dashboard/inventory');
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Database Error: Failed to create inventory.');
+        throw new Error('database error: failed to create inventory item');
     }
 }
 
@@ -181,7 +181,7 @@ export async function updateInventoryItem(
         revalidatePath('/dashboard/inventory');
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to update inventory item.');
+        throw new Error('database error: failed to update inventory item');
     }
 }
 
@@ -207,8 +207,8 @@ export async function deleteInventoryItemById(id: string) {
             error.message.toLocaleLowerCase().includes('foreign key constraint') &&
             error.message.toLocaleLowerCase().includes('invoice')
         ) {
-            throw new Error('Cannot delete inventory item because it has associated invoices.');
+            throw new Error('cannot delete inventory item because it has associated invoices');
         }
-        throw new Error('Database Error: failed to delete inventory item.');
+        throw new Error('database error: failed to delete inventory item');
     }
 }

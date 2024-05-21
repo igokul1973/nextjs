@@ -23,7 +23,6 @@ export const StyledAlert = styled(Alert, {
     name: 'Styled Alert',
     slot: 'Root'
 })`
-    // width: 100%;
     align-items: center;
 `;
 

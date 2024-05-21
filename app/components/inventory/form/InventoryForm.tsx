@@ -62,16 +62,23 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
     const onSubmit = async (formData: TInventoryFormOutput) => {
         try {
             if (isEdit) {
-                await updateInventoryItem(formData, dirtyFields, userId);
-                openSnackbar('Successfully updated inventory item.');
+                const updatedInventoryItem = await updateInventoryItem(
+                    formData,
+                    dirtyFields,
+                    userId
+                );
+                if (!updatedInventoryItem) {
+                    throw new Error('could not update inventory item');
+                }
+                openSnackbar(capitalize(t('successfully updated inventory item')));
             } else {
                 await createInventoryItem(formData);
-                openSnackbar('Successfully created inventory item.');
+                openSnackbar(capitalize(t('successfully created inventory item')));
             }
             push('/dashboard/inventory');
         } catch (error) {
             if (error instanceof Error) {
-                openSnackbar(error.message, 'error');
+                openSnackbar(capitalize(t(error.message as TSingleTranslationKey)), 'error');
             }
         }
     };

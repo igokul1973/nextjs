@@ -12,7 +12,7 @@ import Image from 'next/image';
 import { FC } from 'react';
 import { StyledProfile } from '../profile/styled';
 import UpdateProviderButton from './UpdateProviderButton';
-import { StyledAccountAttribute, StyledAccountWrapper } from './styled';
+import { StyledAccountAttribute, StyledAccountAttributeLogo, StyledAccountWrapper } from './styled';
 import { IProps } from './types';
 
 const Account: FC<IProps> = () => {
@@ -27,12 +27,12 @@ const Account: FC<IProps> = () => {
         <StyledAccountWrapper component='article'>
             <StyledProfile>
                 {logoUrl && (
-                    <StyledAccountAttribute>
+                    <StyledAccountAttributeLogo>
                         <Typography variant='h6'>{capitalize(t('logo'))}:</Typography>
                         <Box sx={{ width: '100px', position: 'relative', aspectRatio: '1/1' }}>
                             <Image src={logoUrl} fill alt='Logo' />
                         </Box>
-                    </StyledAccountAttribute>
+                    </StyledAccountAttributeLogo>
                 )}
                 <StyledAccountAttribute>
                     <Typography variant='h6'>

@@ -38,7 +38,7 @@ export async function createProfile(formData: TProfileFormOutput) {
         // console.log('Successfully created new inventory item: ', newProfile);
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Database Error: Failed to create inventory.');
+        throw new Error('database error: failed to create user profile');
     }
 }
 
@@ -133,11 +133,11 @@ export async function updateProfile(
             data
         });
 
-        console.log('Successfully updated profile item with ID:', validatedData.id);
+        console.log('Successfully updated user profile item with ID:', validatedData.id);
 
         return updatedProfile;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to update user profile.');
+        throw new Error('database error: failed to update user profile');
     }
 }

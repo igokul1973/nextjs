@@ -187,7 +187,7 @@ export async function createInvoice(formData: TInvoiceFormOutput): Promise<void>
         revalidatePath('/dashboard/invoices');
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Database Error: Failed to create the invoice.');
+        throw new Error('database error: failed to create invoice');
     }
 }
 
@@ -296,7 +296,7 @@ export async function updateInvoice(
         revalidatePath('/dashboard/invoices');
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Database Error: Failed to update the invoice.');
+        throw new Error('database error: failed to update invoice');
     }
 }
 
@@ -320,6 +320,6 @@ export async function deleteInvoiceById(id: string, status: InvoiceStatusEnum): 
         revalidatePath('/dashboard/invoices');
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error(`Database Error: failed to delete invoice with ID: ${id}`);
+        throw new Error(`database error: failed to delete invoice`);
     }
 }

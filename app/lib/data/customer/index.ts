@@ -442,7 +442,7 @@ export async function createOrganizationCustomer(
         return newCustomer;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Database Error: Failed to create individual customer.');
+        throw new Error('database error: failed to create customer.');
     }
 }
 
@@ -581,7 +581,7 @@ export async function updateIndividualCustomer(
         return updatedCustomer;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to update customer');
+        throw new Error('database error: failed to update customer');
     }
 }
 
@@ -728,7 +728,7 @@ export async function updateOrganizationCustomer(
         return updatedCustomer;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to update customer');
+        throw new Error('database error: failed to update customer');
     }
 }
 
@@ -755,8 +755,8 @@ export async function deleteCustomerById(id: string): Promise<void> {
             error.message.toLocaleLowerCase().includes('foreign key constraint') &&
             error.message.toLocaleLowerCase().includes('invoices')
         ) {
-            throw new Error('Cannot delete customer because it has associated invoices.');
+            throw new Error('cannot delete customer because it has associated invoices');
         }
-        throw new Error('Database Error: failed to delete Customer.');
+        throw new Error('database error: failed to delete customer');
     }
 }

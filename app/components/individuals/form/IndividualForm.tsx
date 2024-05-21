@@ -47,6 +47,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
     const {
         control,
         register,
+        watch,
         formState: { errors, isDirty },
         handleSubmit
     } = useFormContext<TIndividualForm, null, TIndividualFormOutput>();
@@ -179,6 +180,9 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                     />
                 </FormControl>
                 <Divider />
+                <Box component={'h5'} sx={{ margin: 0 }}>
+                    {capitalize(t('address'))}:
+                </Box>
                 <PartialAddressForm<TIndividualForm>
                     countries={countries}
                     register={register as TEntityFormRegister}
@@ -186,6 +190,9 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                     errors={errors}
                 />
                 <Divider />
+                <Box component='h5' sx={{ margin: 0 }}>
+                    {capitalize(t('phones'))}:
+                </Box>
                 {phones.map((phone, index) => (
                     <PartialPhoneForm<TIndividualForm>
                         key={phone.id}
@@ -204,6 +211,9 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                         : capitalize(t('add phone'))}
                 </Button>
                 <Divider />
+                <Box component={'h5'} sx={{ margin: 0 }}>
+                    {capitalize(t('email addresses'))}:
+                </Box>
                 {emails.map((email, index) => (
                     <PartialEmailForm<TIndividualForm>
                         key={email.id}
@@ -222,16 +232,27 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                         : capitalize(t('add email address'))}
                 </Button>
                 <Divider />
-                {attributes.map((attribute, index) => (
-                    <PartialAttributeForm<TIndividualForm>
-                        key={attribute.id}
-                        index={index}
-                        register={register as TEntityFormRegister}
-                        control={control as TIndividualFormControl}
-                        errors={errors}
-                        remove={removeAttribute}
-                    />
-                ))}
+                <Box component={'h5'} sx={{ margin: 0 }}>
+                    {capitalize(t('additional attributes'))}:
+                </Box>
+                {attributes.length ? (
+                    attributes.map((attribute, index) => (
+                        <PartialAttributeForm<TIndividualForm>
+                            key={attribute.id}
+                            index={index}
+                            register={register as TEntityFormRegister}
+                            control={control as TIndividualFormControl}
+                            errors={errors}
+                            remove={removeAttribute}
+                        />
+                    ))
+                ) : (
+                    <Box>
+                        {capitalize(
+                            t('you have not attributes. Add one by clicking button below.')
+                        )}
+                    </Box>
+                )}
                 <Button onClick={() => appendAttribute(getEmptyAttribute(userId))}>
                     {attributes.length > 0
                         ? capitalize(t('add another attribute'))

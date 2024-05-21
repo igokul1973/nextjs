@@ -96,7 +96,7 @@ export async function createIndividual(
         data = createEntityObject;
 
         if (!data) {
-            throw new Error('Failed to create customer.');
+            throw new Error('failed to create provider');
         }
 
         const newOrg = await prisma.individual.create({
@@ -109,7 +109,7 @@ export async function createIndividual(
         return newOrg;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Database Error: Failed to create individual.');
+        throw new Error('database error: failed to create provider');
     }
 }
 
@@ -234,6 +234,6 @@ export async function updateIndividual(
         return updatedIndividual;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to update individual');
+        throw new Error('database error: failed to update provider');
     }
 }

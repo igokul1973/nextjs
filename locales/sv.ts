@@ -113,8 +113,11 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'please enter the email type': 'var god ange e-posttyp',
     'please enter the user ID': 'var god ange användar-ID',
     // Attributes
+    'additional attributes': 'ytterligare attribut',
     'add another attribute': 'lägg till ett annat attribut',
     'add attribute': 'lägg till en attribut',
+    'you have not attributes. Add one by clicking button below.':
+        'du har inte attribut. Lägg till en genom att klicka på knappen nedan.',
     text: 'text',
     value: 'värde',
     // Inventory
@@ -263,6 +266,53 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'pending invoices': 'avvaktande fakturor',
     'total invoices': 'totala fakturor',
     'total customers': 'totala kunder',
+    // Snackbar
+    'successfully created customer': 'kunden har skapats',
+    'successfully updated customer': 'kunden har uppdaterats',
+    'could not create customer': 'kunde inte skapa kunden',
+    'could not update customer': 'kunde inte uppdatera kunden',
+    'database error: failed to create customer': 'databas fel: kunde inte skapa kunden',
+    'database error: failed to update customer': 'databas fel: kunde inte uppdatera kunden',
+    'database error: failed to delete customer': 'databas fel: kunde inte ta bort kunden',
+    'cannot delete customer because it has associated invoices':
+        'kunde inte ta bort kunden eftersom den har associerade fakturor',
+    'successfully created provider': 'leverantören har skapats',
+    'successfully updated provider': 'leverantören har uppdaterats',
+    'could not create provider': 'kunde inte skapa leverantören',
+    'could not update provider': 'kunde inte uppdatera leverantören',
+    'database error: failed to create provider': 'databasfel: kunde inte skapa leverantören',
+    'database error: failed to update provider': 'databasfel: kunde inte uppdatera leverantören',
+    'database error: failed to delete provider': 'databasfel: kunde inte ta bort leverantören',
+    'successfully created invoice': 'fakturan har skapats',
+    'successfully updated invoice': 'fakturan har uppdaterats',
+    'successfully deleted invoice': 'fakturan har borttagits',
+    'could not create invoice': 'kunde inte skapa fakturan',
+    'could not update invoice': 'kunde inte uppdatera fakturan',
+    'database error: failed to create invoice': 'databasfel: kunde inte skapa fakturan',
+    'database error: failed to update invoice': 'databasfel: kunde inte uppdatera fakturan',
+    'database error: failed to delete invoice': 'databasfel: kunde inte ta bort fakturan',
+    'successfully created inventory item': 'inventeringsobjektet har skapats',
+    'successfully updated inventory item': 'inventeringsobjektet har uppdaterats',
+    'could not create inventory item': 'kunde inte skapa inventeringsobjektet',
+    'could not update inventory item': 'kunde inte uppdatera inventeringsobjektet',
+    'database error: failed to create inventory item':
+        'databasfel: kunde inte skapa inventeringsobjektet',
+    'database error: failed to update inventory item':
+        'databasfel: kunde inte uppdatera inventeringsobjektet',
+    'database error: failed to delete inventory item':
+        'databasfel: kunde inte ta bort inventeringsobjektet',
+    'cannot delete inventory item because it has associated invoices':
+        'kunde inte ta bort inventeringsobjektet eftersom den har associerade fakturor',
+    'successfully created user profile': 'användarprofilen har skapats',
+    'successfully updated user profile': ' användarprofilen har uppdaterats',
+    'could not create user profile': 'kunde inte skapa användarprofilen',
+    'could not update user profile': 'kunde inte uppdatera användarprofilen',
+    'database error: failed to create user profile':
+        'databasfel: kunde inte skapa användarprofilen',
+    'database error: failed to update user profile':
+        'databasfel: kunde inte uppdatera användarprofilen',
+    'database error: failed to delete user profile':
+        'databasfel: kunde inte ta bort användarprofilen',
     // Miscellaneous
     search: 'sök',
     'search customers': 'sök kunder',

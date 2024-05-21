@@ -14,6 +14,7 @@ import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
 import { createOrganizationCustomer, updateOrganizationCustomer } from '@/app/lib/data/customer';
 import { useI18n } from '@/locales/client';
+import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, capitalize } from '@mui/material';
 import NextLink from 'next/link';
@@ -51,7 +52,7 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
 
     const {
         watch,
-        formState: { errors, dirtyFields, ...formState },
+        formState: { errors, dirtyFields, isDirty, ...formState },
         ...methods
     } = useForm<TOrganizationForm, unknown, TOrganizationFormOutput>({
         resolver: zodResolver(
@@ -91,10 +92,10 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
                 );
 
                 if (!updatedCustomer) {
-                    throw new Error('Could not update customer.');
+                    throw new Error('could not update customer');
                 }
 
-                openSnackbar('Successfully updated customer.');
+                openSnackbar(capitalize(t('successfully updated customer')));
             } else {
                 const createdCustomer = await createOrganizationCustomer(
                     formData,
@@ -102,20 +103,24 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
                     logoFormData
                 );
                 if (!createdCustomer) {
-                    throw new Error('Could not create customer.');
+                    throw new Error(capitalize(t('could not create customer')));
                 }
-                openSnackbar('Successfully created customer.');
+                openSnackbar(capitalize(t('successfully created customer')));
             }
             push('/dashboard/customers');
         } catch (error) {
             if (error instanceof Error) {
-                openSnackbar(error.message, 'error');
+                openSnackbar(capitalize(t(error.message as TSingleTranslationKey)), 'error');
             }
         }
     };
 
     return (
-        <FormProvider watch={watch} formState={{ errors, dirtyFields, ...formState }} {...methods}>
+        <FormProvider
+            watch={watch}
+            formState={{ errors, dirtyFields, isDirty, ...formState }}
+            {...methods}
+        >
             <OrganizationForm
                 localIdentifierName={localIdentifierName}
                 isEdit={isEdit}

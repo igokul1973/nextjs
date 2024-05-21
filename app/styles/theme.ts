@@ -54,42 +54,42 @@ const theme: ThemeOptions = {
                 filledSuccess: {
                     backgroundColor: colors.success,
                     color: 'white',
-                    maxWidth: '400px'
+                    maxWidth: '500px'
                 },
                 filledError: {
                     backgroundColor: colors.error,
                     color: 'white',
-                    maxWidth: '400px'
+                    maxWidth: '500px'
                 },
                 filledWarning: {
                     backgroundColor: colors.warning,
                     color: 'red',
-                    maxWidth: '400px'
+                    maxWidth: '500px'
                 },
                 filledInfo: {
                     backgroundColor: colors.info,
                     color: 'white',
-                    maxWidth: '400px'
+                    maxWidth: '500px'
                 },
                 standardSuccess: {
                     backgroundColor: colors.success,
                     color: 'white',
-                    maxWidth: '400px'
+                    maxWidth: '500px'
                 },
                 standardError: {
                     backgroundColor: colors.error,
                     color: 'white',
-                    maxWidth: '400px'
+                    maxWidth: '500px'
                 },
                 standardWarning: {
                     backgroundColor: colors.warning,
                     color: 'red',
-                    maxWidth: '400px'
+                    maxWidth: '500px'
                 },
                 standardInfo: {
                     backgroundColor: colors.info,
                     color: 'black',
-                    maxWidth: '400px'
+                    maxWidth: '500px'
                 }
             }
         },
