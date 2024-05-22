@@ -1,3 +1,4 @@
+import { UpdateButton } from '@/app/components/buttons/update/UpdateButton';
 import Loading from '@/app/components/loading/Loading';
 import { capitalize } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
@@ -7,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import { setStaticParamsLocale } from 'next-international/server';
 import NextLink from 'next/link';
 import { FC, Suspense } from 'react';
-import { StyledBox } from '../../styled';
+import { StyledBox, StyledHeader } from '../../styled';
 import ViewInvoiceData from './ViewInvoiceData';
 import { IProps } from './types';
 
@@ -18,9 +19,15 @@ const Page: FC<IProps> = async ({ params: { id, locale }, searchParams: { number
 
     return (
         <StyledBox component='section'>
-            <Typography variant='h1'>
-                {capitalize(t('view invoice'))} # {number}
-            </Typography>
+            <StyledHeader>
+                <Typography variant='h1'>
+                    {capitalize(t('view invoice'))} # {number}
+                </Typography>
+                <UpdateButton
+                    href={`/dashboard/invoices/${id}/edit?number=${number}`}
+                    name={capitalize(t('update invoice'))}
+                />
+            </StyledHeader>
             <Breadcrumbs aria-label='breadcrumb'>
                 <Link
                     component={NextLink}

@@ -1,7 +1,8 @@
 import ModeEditOutlined from '@mui/icons-material/ModeEditOutlined';
-import BaseLinkIconButton from '../base/BaseLinkIconButton';
+import BaseLinkButton from '../base/BaseLinkButton';
 import { IBaseLinkButtonProps } from '../types';
 
-export function UpdateButton({ href }: IBaseLinkButtonProps) {
-    return <BaseLinkIconButton href={href} icon={ModeEditOutlined} ariaLabel='Update' />;
+export function UpdateButton({ href, name, ...rest }: IBaseLinkButtonProps) {
+    name = name || 'Update';
+    return <BaseLinkButton href={href} name={name} endIcon={<ModeEditOutlined />} {...rest} />;
 }

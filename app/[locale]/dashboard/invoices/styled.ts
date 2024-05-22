@@ -15,3 +15,12 @@ export const StyledBox = styled(Box, {
         justify-content: space-between;
     }
 `;
+
+export const StyledHeader = styled(Box, {
+    name: 'Styled Header',
+    slot: 'Root'
+})`
+    display: flex;
+    flex-wrap: 'wrap';
+    justify-content: space-between;
+`;

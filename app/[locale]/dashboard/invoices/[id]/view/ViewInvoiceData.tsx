@@ -2,6 +2,7 @@ import InvoiceView from '@/app/components/invoice-view/InvoiceView';
 import Warning from '@/app/components/warning/Warning';
 import { getInvoiceById } from '@/app/lib/data/invoice';
 import { getUser } from '@/app/lib/utils';
+import Box from '@mui/material/Box';
 import { setStaticParamsLocale } from 'next-international/server';
 import { notFound } from 'next/navigation';
 import { FC } from 'react';
@@ -37,7 +38,11 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale } }) => {
                 : rawInvoice.paidOn.toLocaleDateString(userAccountCountry.locale)
     };
 
-    return <InvoiceView invoice={invoice} locale={userAccountCountry.locale} />;
+    return (
+        <Box component='article'>
+            <InvoiceView invoice={invoice} locale={userAccountCountry.locale} />;
+        </Box>
+    );
 };
 
 export default ViewInvoiceData;

@@ -7,9 +7,7 @@ import { stringToBoolean } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import ViewIcon from '@mui/icons-material/Visibility';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -32,6 +30,8 @@ import { visuallyHidden } from '@mui/utils';
 import { InvoiceStatusEnum } from '@prisma/client';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChangeEvent, FC, MouseEvent, useEffect, useState } from 'react';
+import { UpdateIconButton } from '../../buttons/update/UpdateIconButton';
+import { ViewIconButton } from '../../buttons/view/ViewIconButton';
 import { IInvoiceTable } from '../types';
 import {
     DEFAULT_IS_DENSE,
@@ -332,28 +332,12 @@ const InvoicesTable: FC<IProps> = ({ invoices, count, tableName }) => {
                                                     width: '175px'
                                                 }}
                                             >
-                                                <IconButton
-                                                    color='primary'
-                                                    aria-label='edit'
-                                                    onClick={() => {
-                                                        push(
-                                                            `/dashboard/invoices/${row.id}/view?number=${row.number}`
-                                                        );
-                                                    }}
-                                                >
-                                                    <ViewIcon />
-                                                </IconButton>
-                                                <IconButton
-                                                    color='primary'
-                                                    aria-label='edit'
-                                                    onClick={() => {
-                                                        push(
-                                                            `/dashboard/invoices/${row.id}/edit?number=${row.number}`
-                                                        );
-                                                    }}
-                                                >
-                                                    <EditIcon />
-                                                </IconButton>
+                                                <ViewIconButton
+                                                    href={`/dashboard/invoices/${row.id}/view?number=${row.number}`}
+                                                />
+                                                <UpdateIconButton
+                                                    href={`/dashboard/invoices/${row.id}/edit?number=${row.number}`}
+                                                />
                                                 <IconButton
                                                     color='warning'
                                                     aria-label='edit'
