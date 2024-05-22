@@ -182,7 +182,7 @@ export const enSingle = {
     freight: 'freight',
     delivery: 'delivery',
     subtotal: 'subtotal',
-    total: 'totaltotal',
+    total: 'total',
     sum: 'sum',
     amount: 'amount',
     'select invoice status': 'select invoice status',

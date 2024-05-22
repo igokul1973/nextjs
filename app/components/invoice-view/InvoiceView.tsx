@@ -1,11 +1,13 @@
 'use client';
 
+import { useLogo } from '@/app/lib/hooks/useLogo';
 import { useI18n } from '@/locales/client';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import { FC } from 'react';
+import Image from 'next/image';
+import { FC, useMemo } from 'react';
 import CustomerTable from './CustomerTable';
 import InvoiceItemsTable from './InvoiceItemsTable';
 import {
@@ -21,11 +23,23 @@ import { IProps } from './types';
 
 const InvoiceView: FC<IProps> = ({ invoice, locale }) => {
     const t = useI18n();
+    const logoObject = useMemo(
+        () => ({
+            logo: invoice.providerLogo
+        }),
+        [invoice]
+    );
+    const [logoUrl] = useLogo(logoObject);
     const { customer, invoiceItems } = invoice;
+
     return (
         <StyledInvoice component={Paper} className='invoice-view'>
             <StyledHeader component='section' className='provider-info'>
-                <Box>Avatar</Box>
+                {logoUrl && (
+                    <Box sx={{ height: '4vw', width: '100%', position: 'relative' }}>
+                        <Image src={logoUrl} fill alt='Logo' />
+                    </Box>
+                )}
                 <Typography variant='h3'>{invoice.providerName}</Typography>
             </StyledHeader>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>

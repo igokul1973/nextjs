@@ -36,6 +36,7 @@ export interface ICreateInvoiceState {
 }
 
 export const invoicesInclude = {
+    providerLogo: true,
     invoiceItems: true,
     createdByUser: true,
     customer: {

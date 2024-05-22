@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { TEntity } from '../types';
 
-export const useLogo = (entity?: TEntity | null) => {
+export const useLogo = (entity?: { logo: TEntity['logo'] } | null) => {
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
     useEffect(() => {

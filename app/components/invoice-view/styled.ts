@@ -33,7 +33,9 @@ export const StyledHeader = styled(Box, {
     slot: 'Root'
 })`
     display: flex;
-    alignitems: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: 1rem;
     font-size: 1.2vw;
 `;
