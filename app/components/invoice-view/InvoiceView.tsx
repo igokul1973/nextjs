@@ -80,7 +80,6 @@ const InvoiceView: FC<IProps> = ({ invoice, locale }) => {
                     <Box>{invoice.paymentInfo}</Box>
                 </Box>
             </StyledFooter>
-            {/* <Debug debugObject={invoice} /> */}
         </StyledInvoice>
     );
 };

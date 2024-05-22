@@ -3,4 +3,7 @@ export interface IProps {
         id: string;
         locale: string;
     };
+    searchParams: {
+        number: string;
+    };
 }

@@ -321,7 +321,9 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'please create provider first': 'var god skapa leverantören',
     'please create user profile first': 'var god skapa användarprofil',
     'click icon to the right to upload avatar': 'klicka på ikonen för att ladda upp avatar',
-    'click icon to the right to upload logo': 'klicka på ikonen för att ladda upp logo'
+    'click icon to the right to upload logo': 'klicka på ikonen för att ladda upp logo',
+    'before creating customers please register yourself as a Service Provider':
+        'för att skapa kunder du skall registreras som leverantör'
 };
 
 const sv = {

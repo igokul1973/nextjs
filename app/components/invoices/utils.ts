@@ -1,14 +1,9 @@
-import { TGetUserWithRelationsPayload } from '@/app/lib/data/user/types';
+import { TEntity } from '@/app/lib/types';
 import { getProviderName } from '@/app/lib/utils';
 import { InvoiceStatusEnum } from '@prisma/client';
 import { TInvoiceForm, TInvoiceItem } from './form/types';
 
-export const getDefaultFormValues = (
-    userId: string,
-    provider:
-        | TGetUserWithRelationsPayload['account']['individuals'][number]
-        | TGetUserWithRelationsPayload['account']['organizations'][number]
-): TInvoiceForm => {
+export const getDefaultFormValues = (userId: string, provider: TEntity): TInvoiceForm => {
     return {
         id: '',
         number: '',
@@ -25,6 +20,7 @@ export const getDefaultFormValues = (
         providerCountry: provider.address.country.name,
         providerPhone: provider.phones[0].number,
         providerEmail: provider.emails[0].email,
+        providerLogoId: null,
         purchaseOrderNumbers: [],
         manufacturerInvoiceNumbers: [],
         additionalInformation: '',

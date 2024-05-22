@@ -25,7 +25,7 @@ const GlobalSnackbar = () => {
             anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
             transitionDuration={{ enter: 500, exit: 1000 }}
             open={open}
-            autoHideDuration={500000}
+            autoHideDuration={5000}
             onClose={handleClose}
         >
             {typeof message === 'string' ? (

@@ -230,14 +230,26 @@ export async function updateInvoice(
             customer: rawCustomer,
             invoiceItems,
             status,
+            providerLogoId,
             ...partialChangedFields
         } = changedFields;
 
         let data: Prisma.invoiceUpdateInput = {
             ...partialChangedFields,
             providerLogo: {
-                delete: true,
-                create: providerLogo
+                delete: !!formData.providerLogoId,
+                upsert: providerLogo && {
+                    create: providerLogo,
+                    update: providerLogo
+                }
+                // create: !!!formData.providerLogoId && providerLogo,
+                // update: !!formData.providerLogoId &&
+                //     providerLogo && {
+                //         data: providerLogo,
+                //         where: {
+                //             id: formData.providerLogoId
+                //         }
+                //     }
             },
             updatedByUser: {
                 connect: {
@@ -285,15 +297,16 @@ export async function updateInvoice(
             };
         }
 
-        await prisma.invoice.update({
+        const updatedInvoice = await prisma.invoice.update({
             where: {
                 id: formData.id
             },
             data
         });
 
-        console.log('Successfully updated invoice with ID:', formData.id);
+        console.log('Successfully updated invoice with ID:', updatedInvoice.id);
         revalidatePath('/dashboard/invoices');
+        return updatedInvoice;
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('database error: failed to update invoice');

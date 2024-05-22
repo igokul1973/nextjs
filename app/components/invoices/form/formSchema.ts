@@ -245,9 +245,6 @@ export const invoiceCreateSchema = baseInvoiceFormSchema.omit({ id: true }).exte
 });
 
 export const invoiceUpdateSchema = baseInvoiceFormSchema.extend({
-    invoiceItems: baseInvoiceItemFormSchema
-});
-
-export const invoiceUpdateSchemaEmptyLogo = baseInvoiceFormSchema.extend({
-    invoiceItems: baseInvoiceItemFormSchema
+    invoiceItems: baseInvoiceItemFormSchema,
+    providerLogoId: z.string().nullable()
 });

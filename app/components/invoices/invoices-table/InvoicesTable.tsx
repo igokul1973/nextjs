@@ -336,7 +336,9 @@ const InvoicesTable: FC<IProps> = ({ invoices, count, tableName }) => {
                                                     color='primary'
                                                     aria-label='edit'
                                                     onClick={() => {
-                                                        push(`/dashboard/invoices/${row.id}/view`);
+                                                        push(
+                                                            `/dashboard/invoices/${row.id}/view?number=${row.number}`
+                                                        );
                                                     }}
                                                 >
                                                     <ViewIcon />
@@ -345,7 +347,9 @@ const InvoicesTable: FC<IProps> = ({ invoices, count, tableName }) => {
                                                     color='primary'
                                                     aria-label='edit'
                                                     onClick={() => {
-                                                        push(`/dashboard/invoices/${row.id}/edit`);
+                                                        push(
+                                                            `/dashboard/invoices/${row.id}/edit?number=${row.number}`
+                                                        );
                                                     }}
                                                 >
                                                     <EditIcon />

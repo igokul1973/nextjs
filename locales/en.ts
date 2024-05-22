@@ -316,7 +316,9 @@ export const enSingle = {
     'please create provider first': 'please create provider first',
     'please create user profile first': 'please create user profile first',
     'click icon to the right to upload avatar': 'click icon to the right to upload avatar',
-    'click icon to the right to upload logo': 'click icon to the right to upload logo'
+    'click icon to the right to upload logo': 'click icon to the right to upload logo',
+    'before creating customers please register yourself as a Service Provider':
+        'before creating customers please register yourself as a Service Provider'
 };
 
 const en = {

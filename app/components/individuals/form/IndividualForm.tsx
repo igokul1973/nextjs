@@ -47,7 +47,6 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
     const {
         control,
         register,
-        watch,
         formState: { errors, isDirty },
         handleSubmit
     } = useFormContext<TIndividualForm, null, TIndividualFormOutput>();
