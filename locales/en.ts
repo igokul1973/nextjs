@@ -193,6 +193,7 @@ export const enSingle = {
     'could not load data': 'could not load data',
     'please enter at least one character': 'please enter at least one character',
     'please enter the name': 'please enter the name',
+    'please enter the locale code': 'please enter the locale code',
     'please at least one invoice item': 'please at least one invoice item',
     'please enter the first name': 'please enter the first name',
     'please enter the last name': 'please enter the last name',

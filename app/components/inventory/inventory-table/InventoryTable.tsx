@@ -1,9 +1,10 @@
 'use client';
 
+import { DEFAULT_PAGE_NUMBER } from '@/app/[locale]/dashboard/inventory/constants';
+import { IInventoryTable } from '@/app/components/inventory/types';
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { deleteInventoryItemById } from '@/app/lib/data/inventory';
-import { TOrder } from '@/app/lib/types';
-import { stringToBoolean, stringifyObjectValues } from '@/app/lib/utils';
+import { deleteInventoryItemById } from '@/app/lib/data/inventory/actions';
+import { stringifyObjectValues } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -30,8 +31,6 @@ import { alpha } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChangeEvent, FC, MouseEvent, useEffect, useState } from 'react';
-import { DEFAULT_PAGE_NUMBER } from '../../../[locale]/dashboard/inventory/constants';
-import { IInventoryTable } from '../types';
 import { IEnhancedTableProps, IEnhancedTableToolbarProps, IHeadCell, IProps } from './types';
 
 const headCells: readonly IHeadCell[] = [
@@ -188,11 +187,11 @@ const InventoryTable: FC<IProps> = ({ inventory, count, sanitizedSearchParams })
             const params = new URLSearchParams(stringifiedSearchParams);
             replace(`${pathname}?${params.toString()}`);
         }
-    }, [searchParams, replace, pathname, page, isDense]);
+    }, [searchParams, sanitizedSearchParams, replace, pathname]);
 
     const pageNumber = page;
 
-    const handleRequestSort = (event: MouseEvent<unknown>, property: keyof IInventoryTable) => {
+    const handleRequestSort = (_: MouseEvent<unknown>, property: keyof IInventoryTable) => {
         const isAsc = orderBy === property && order === 'asc';
         const params = new URLSearchParams(searchParams || undefined);
         params.set('order', isAsc ? 'desc' : 'asc');
@@ -209,7 +208,7 @@ const InventoryTable: FC<IProps> = ({ inventory, count, sanitizedSearchParams })
         setSelected([]);
     };
 
-    const handleClick = (event: MouseEvent<unknown>, id: string) => {
+    const handleClick = (_: MouseEvent<unknown>, id: string) => {
         const selectedIndex = selected.indexOf(id);
         let newSelected: readonly IInventoryTable['id'][] = [];
 
@@ -228,7 +227,7 @@ const InventoryTable: FC<IProps> = ({ inventory, count, sanitizedSearchParams })
         setSelected(newSelected);
     };
 
-    const handleChangePage = (event: unknown, newPage: number) => {
+    const handleChangePage = (_: unknown, newPage: number) => {
         const params = new URLSearchParams(searchParams);
         params.set('page', newPage.toString());
         replace(`${pathname}?${params.toString()}`);

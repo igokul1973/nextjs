@@ -32,7 +32,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import { EmailTypeEnum, PhoneTypeEnum } from '@prisma/client';
-import { FC, PropsWithChildren, useEffect, useState } from 'react';
+import { FC, PropsWithChildren, useState } from 'react';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import { StyledForm } from './styled';
@@ -52,7 +52,6 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
     } = useUser();
     const userId = user.id;
     const {
-        watch,
         control,
         register,
         formState: { errors, isDirty },
@@ -96,15 +95,6 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
     };
 
     useScrollToFormError(errors, canFocus, setCanFocus);
-
-    const w = watch();
-
-    useEffect(() => {
-        // console.log('Dirty fields: ', dirtyFields);
-        console.log('Is dirty: ', isDirty);
-        console.log('Watch:', w);
-        console.error('Errors:', errors);
-    }, [errors, w]);
 
     const isSubmittable = isDirty;
 

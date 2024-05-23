@@ -37,11 +37,11 @@ const PartialInvoiceItemForm: FC<IProps> = ({
     const priceError = errors.invoiceItems?.[index]?.price;
     const quantityError = errors.invoiceItems?.[index]?.quantity;
 
-    const getInventory = async (filter: string) => {
-        if (!filter) {
+    const getInventory = async (query: string) => {
+        if (!query) {
             return setInventory(initialInventory);
         }
-        const inventory = await getFilteredInventoryByAccountIdRaw(accountId, filter);
+        const inventory = await getFilteredInventoryByAccountIdRaw({ accountId, query });
         setInventory(inventory);
     };
 

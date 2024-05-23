@@ -5,7 +5,7 @@ import FileInput from '@/app/components/file/FileInput';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { updateProfile } from '@/app/lib/data/profile';
+import { updateProfile } from '@/app/lib/data/profile/actions';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { TDirtyFields } from '@/app/lib/types';
 import { populateForm } from '@/app/lib/utils';

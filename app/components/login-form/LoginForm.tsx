@@ -1,7 +1,7 @@
 'use client';
 
 import ColorModeContext from '@/app/context/color-mode/provider';
-import { authenticate } from '@/app/lib/data/user';
+import { authenticate } from '@/app/lib/data/user/actions';
 import AlternateEmailOutlined from '@mui/icons-material/AlternateEmailOutlined';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';

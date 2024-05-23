@@ -1,5 +1,3 @@
-'use server';
-
 import prisma from '@/app/lib/prisma';
 import { TAccount } from '@/app/lib/types';
 

@@ -9,9 +9,13 @@ import {
 import { TIndividualForm, TIndividualFormOutput } from '@/app/components/individuals/form/types';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { createIndividualCustomer, updateIndividualCustomer } from '@/app/lib/data/customer';
+import {
+    createIndividualCustomer,
+    updateIndividualCustomer
+} from '@/app/lib/data/customer/actions';
 import { TDirtyFields } from '@/app/lib/types';
 import { useI18n } from '@/locales/client';
+import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, capitalize } from '@mui/material';
 import NextLink from 'next/link';
@@ -19,7 +23,6 @@ import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { ICustomerIndFormDataProps } from './types';
-import { TSingleTranslationKey } from '@/locales/types';
 
 const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
     localIdentifierName,

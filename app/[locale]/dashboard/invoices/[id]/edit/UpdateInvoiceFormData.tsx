@@ -6,7 +6,6 @@ import { getCustomersByAccountId } from '@/app/lib/data/customer';
 import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory';
 import { getInvoiceById } from '@/app/lib/data/invoice';
 import { getUser, populateForm } from '@/app/lib/utils';
-import { getI18n } from '@/locales/server';
 import { setStaticParamsLocale } from 'next-international/server';
 import { notFound } from 'next/navigation';
 import { FC } from 'react';
@@ -15,7 +14,6 @@ import { IProps } from './types';
 const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => {
     setStaticParamsLocale(locale);
 
-    const t = await getI18n();
     const { user, provider, account } = await getUser();
     const userAccountCountry = provider && provider.address?.country;
 
@@ -29,7 +27,12 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
 
     const invoicePromise = getInvoiceById(id, account.id);
     const customersPromise = getCustomersByAccountId(account.id);
-    const inventoryPromise = getFilteredInventoryByAccountIdRaw(account.id, '', 0, 50);
+    const inventoryPromise = getFilteredInventoryByAccountIdRaw({
+        accountId: account.id,
+        query: '',
+        page: 0,
+        itemsPerPage: 50
+    });
     const [invoice, customers, rawInventory] = await Promise.all([
         invoicePromise,
         customersPromise,

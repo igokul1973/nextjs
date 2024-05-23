@@ -3,7 +3,7 @@
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
 import { getFilteredCustomersByAccountId } from '@/app/lib/data/customer';
-import { createInvoice, updateInvoice } from '@/app/lib/data/invoice';
+import { createInvoice, updateInvoice } from '@/app/lib/data/invoice/actions';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { maskPercentage, useDebounce } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';

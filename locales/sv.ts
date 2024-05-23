@@ -196,6 +196,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'could not load data': 'kunde inte ladda data',
     'please enter at least one character': 'var god ange minst ett tecken',
     'please enter the name': 'var god ange namnet',
+    'please enter the locale code': 'var god ange lokala kod',
     'please at least one invoice item': 'var god ange minst ett faktureringsobjekt',
     'please enter the first name': 'var god ange förnamn',
     'please enter the last name': 'var god ange efternamn',

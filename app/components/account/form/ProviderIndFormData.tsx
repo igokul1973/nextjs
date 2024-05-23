@@ -9,9 +9,10 @@ import { TIndividualForm, TIndividualFormOutput } from '@/app/components/individ
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { createIndividual, updateIndividual } from '@/app/lib/data/indiviidual';
+import { createIndividual, updateIndividual } from '@/app/lib/data/indiviidual/actions';
 import { TDirtyFields } from '@/app/lib/types';
 import { useI18n } from '@/locales/client';
+import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
 import Button from '@mui/material/Button';
@@ -20,7 +21,6 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { components } from '../../dashboard/avatar-menu/constants';
 import IndividualForm from '../../individuals/form/IndividualForm';
 import { IProviderIndFormDataProps } from './types';
-import { TSingleTranslationKey } from '@/locales/types';
 
 const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
     localIdentifierName,

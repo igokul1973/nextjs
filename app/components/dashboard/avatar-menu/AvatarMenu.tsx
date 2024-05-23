@@ -2,7 +2,7 @@
 
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useUser } from '@/app/context/user/provider';
-import { logOut } from '@/app/lib/data/user';
+import { logOut } from '@/app/lib/data/user/actions';
 import { useAvatar } from '@/app/lib/hooks/useAvatar';
 import { useI18n } from '@/locales/client';
 import AccountIcon from '@mui/icons-material/AccountBalance';

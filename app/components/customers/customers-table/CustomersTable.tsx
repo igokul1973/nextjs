@@ -1,7 +1,7 @@
 'use client';
 
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { deleteCustomerById } from '@/app/lib/data/customer';
+import { deleteCustomerById } from '@/app/lib/data/customer/actions';
 import { stringifyObjectValues } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
@@ -248,10 +248,9 @@ const CustomersTable: FC<IProps> = ({ customers, count, searchParams: sanitizedS
         if (searchParams.size < Object.keys(sanitizedSearchParams).length) {
             const stringifiedSearchParams = stringifyObjectValues(sanitizedSearchParams);
             const params = new URLSearchParams(stringifiedSearchParams);
-            // const redirectLink = `/dashboard/invoices?${params.toString()}`;
             replace(`${pathname}?${params.toString()}`);
         }
-    }, [searchParams, replace, pathname, page, isDense]);
+    }, [searchParams, sanitizedSearchParams, replace, pathname]);
 
     const selectedFilters = {
         organizations: showOrg,

@@ -1,7 +1,7 @@
 'use client';
 
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { deleteInvoiceById } from '@/app/lib/data/invoice';
+import { deleteInvoiceById } from '@/app/lib/data/invoice/actions';
 import { stringifyObjectValues } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
@@ -175,11 +175,11 @@ const InvoicesTable: FC<IProps> = ({
             const params = new URLSearchParams(stringifiedSearchParams);
             replace(`${pathname}?${params.toString()}`);
         }
-    }, [searchParams, replace, pathname, page, isDense]);
+    }, [searchParams, sanitizedSearchParams, replace, pathname]);
 
     const pageNumber = page;
 
-    const handleRequestSort = (event: MouseEvent<unknown>, property: keyof IInvoiceTable) => {
+    const handleRequestSort = (_: MouseEvent<unknown>, property: keyof IInvoiceTable) => {
         const isAsc = orderBy === property && order === 'asc';
         const params = new URLSearchParams(searchParams);
         params.set('order', isAsc ? 'desc' : 'asc');
@@ -196,7 +196,7 @@ const InvoicesTable: FC<IProps> = ({
         setSelected([]);
     };
 
-    const handleClick = (event: MouseEvent<unknown>, id: string) => {
+    const handleClick = (_: MouseEvent<unknown>, id: string) => {
         const selectedIndex = selected.indexOf(id);
         let newSelected: readonly IInvoiceTable['id'][] = [];
 
@@ -215,7 +215,7 @@ const InvoicesTable: FC<IProps> = ({
         setSelected(newSelected);
     };
 
-    const handleChangePage = (event: unknown, newPage: number) => {
+    const handleChangePage = (_: unknown, newPage: number) => {
         const params = new URLSearchParams(searchParams);
         params.set('page', newPage.toString());
         push(`${pathname}?${params.toString()}`);

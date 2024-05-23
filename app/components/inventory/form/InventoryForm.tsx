@@ -3,7 +3,7 @@
 import { StyledBox } from '@/app/[locale]/dashboard/inventory/create/styled';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { createInventoryItem, updateInventoryItem } from '@/app/lib/data/inventory';
+import { createInventoryItem, updateInventoryItem } from '@/app/lib/data/inventory/actions';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { anyTrue, maskPrice } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';

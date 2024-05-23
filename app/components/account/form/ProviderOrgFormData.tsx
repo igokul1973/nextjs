@@ -14,7 +14,7 @@ import {
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { createOrganization, updateOrganization } from '@/app/lib/data/organization';
+import { createOrganization, updateOrganization } from '@/app/lib/data/organization/actions';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';

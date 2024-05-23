@@ -1,9 +1,5 @@
-'use server';
-
 import prisma from '@/app/lib/prisma';
 import { TUser } from '@/app/lib/types';
-import { signIn, signOut } from '@/auth';
-import { AuthError } from 'next-auth';
 import { unstable_noStore as noStore } from 'next/cache';
 import { TGetUserPayload, TGetUserWithRelationsPayload, getUserWithRelations } from './types';
 
@@ -70,24 +66,4 @@ export async function getUserById(id: string): Promise<{ id: string; email: stri
         console.log('Failed to fetch user: ', error);
         throw new Error('Failed to fetch user.');
     }
-}
-
-export async function authenticate(_: string | undefined, formData: FormData) {
-    try {
-        await signIn('credentials', formData);
-    } catch (error) {
-        if (error instanceof AuthError) {
-            switch (error.type) {
-                case 'CredentialsSignin':
-                    return 'Invalid credentials';
-                default:
-                    return 'Something went wrong during authentication.';
-            }
-        }
-        throw error;
-    }
-}
-
-export async function logOut() {
-    await signOut({ redirectTo: '/' });
 }

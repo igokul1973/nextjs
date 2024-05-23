@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 import { setStaticParamsLocale } from 'next-international/server';
 import NextLink from 'next/link';
 import { FC, Suspense } from 'react';
-import { IProps } from '../types';
+import { IProps } from './types';
 import CreateCustomerFormData from './CreateCustomerFormData';
 import { StyledBox } from './styled';
 

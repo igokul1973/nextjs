@@ -4,14 +4,12 @@ import Warning from '@/app/components/warning/Warning';
 import { getCustomersByAccountId } from '@/app/lib/data/customer';
 import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory';
 import { getUser } from '@/app/lib/utils';
-import { getI18n } from '@/locales/server';
 import { setStaticParamsLocale } from 'next-international/server';
 import { FC } from 'react';
 import { IProps } from './types';
 
 const CreateInvoiceFormData: FC<IProps> = async ({ params: { locale } }) => {
     setStaticParamsLocale(locale);
-    const t = await getI18n();
     const { user, provider, account } = await getUser();
 
     const userAccountCountry = provider && provider.address?.country;
@@ -25,7 +23,12 @@ const CreateInvoiceFormData: FC<IProps> = async ({ params: { locale } }) => {
     }
 
     const customersPromise = getCustomersByAccountId(account.id);
-    const inventoryPromise = getFilteredInventoryByAccountIdRaw(account.id, '', 0, 50);
+    const inventoryPromise = getFilteredInventoryByAccountIdRaw({
+        accountId: account.id,
+        query: '',
+        page: 0,
+        itemsPerPage: 50
+    });
     const [customers, inventory] = await Promise.all([customersPromise, inventoryPromise]);
 
     const defaultValues = getDefaultFormValues(user.id, provider);
