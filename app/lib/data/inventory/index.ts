@@ -3,7 +3,7 @@
 import { DEFAULT_ITEMS_PER_PAGE } from '@/app/[locale]/dashboard/inventory/constants';
 import { TInventoryFormOutput } from '@/app/components/inventory/form/types';
 import prisma from '@/app/lib/prisma';
-import { TDirtyFields, TOrder } from '@/app/lib/types';
+import { IBaseDataFilterArgs, TDirtyFields } from '@/app/lib/types';
 import { getDirtyValues } from '@/app/lib/utils';
 import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
@@ -48,17 +48,17 @@ export async function getInventoryItemById(
     }
 }
 
-export async function getFilteredInventoryByAccountIdRaw(
-    accountId: string,
-    query: string,
-    currentPage: number = 0,
-    itemsPerPage: number = DEFAULT_ITEMS_PER_PAGE,
-    orderBy: string = 'name',
-    order: TOrder = 'asc'
-): Promise<TInventoryTransformed[]> {
+export async function getFilteredInventoryByAccountIdRaw({
+    accountId,
+    query,
+    page = 0,
+    itemsPerPage = DEFAULT_ITEMS_PER_PAGE,
+    orderBy = 'name',
+    order = 'asc'
+}: IBaseDataFilterArgs): Promise<TInventoryTransformed[]> {
     noStore();
 
-    const offset = currentPage * itemsPerPage;
+    const offset = page * itemsPerPage;
 
     const numericQuery = Number(query);
     const isQueryNumber = !isNaN(numericQuery);

@@ -1,89 +1,86 @@
 import DashboardCardWrapper from '@/app/components/dashboard/dashboard-card-wrapper/CardWrapper';
 import InvoicesTable from '@/app/components/invoices/invoices-table/InvoicesTable';
-import { CardsSkeleton, LatestInvoicesSkeleton } from '@/app/components/skeletons';
+import { CardsSkeleton } from '@/app/components/skeletons';
 import Warning from '@/app/components/warning/Warning';
-import {
-    getFilteredInvoicesByAccountId,
-    getFilteredInvoicesByAccountIdCount
-} from '@/app/lib/data/invoice';
-import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
-import { capitalize, formatCurrency, getUserProvider, getUserProviderType } from '@/app/lib/utils';
-import { auth } from '@/auth';
+import { capitalize, stringifyObjectValues } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
 import { Typography } from '@mui/material';
 import { setStaticParamsLocale } from 'next-international/server';
-import { redirect } from 'next/navigation';
+import { RedirectType, redirect } from 'next/navigation';
 import { FC, Suspense } from 'react';
-import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_PAGE_NUMBER } from '../invoices/constants';
+import InvoicesTableData from '../invoices/InvoicesTableData';
+import {
+    DEFAULT_IS_DENSE,
+    DEFAULT_ITEMS_PER_PAGE,
+    DEFAULT_ORDER,
+    DEFAULT_ORDER_BY,
+    DEFAULT_PAGE_NUMBER,
+    propsSchema
+} from '../invoices/constants';
 import { StyledSectionBox } from './styled';
 import { IProps } from './types';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const Page: FC<IProps> = async ({ params: { locale } }) => {
+const Page: FC<IProps> = async (props) => {
+    const propsData = propsSchema.safeParse(props);
+
+    if (!propsData.success) {
+        return <Warning variant='h4'>Incorrect incoming data</Warning>;
+    }
+
+    const {
+        params: { locale },
+        searchParams
+    } = propsData.data;
+
     setStaticParamsLocale(locale);
+
+    const query = searchParams?.query || '';
+    const page = searchParams?.page || DEFAULT_PAGE_NUMBER;
+    const itemsPerPage = searchParams?.itemsPerPage || DEFAULT_ITEMS_PER_PAGE;
+    const orderBy = searchParams?.orderBy || DEFAULT_ORDER_BY;
+    const order = searchParams?.order || DEFAULT_ORDER;
+    const isDense = searchParams?.isDense ?? DEFAULT_IS_DENSE;
+
+    const sanitizedSearchParams = {
+        query,
+        page,
+        itemsPerPage,
+        orderBy,
+        order,
+        isDense
+    };
+
+    if (Object.keys(searchParams).length < Object.keys(sanitizedSearchParams).length) {
+        const stringifiedSearchParams = stringifyObjectValues(sanitizedSearchParams);
+        const params = new URLSearchParams(stringifiedSearchParams);
+        const redirectLink = `/dashboard?${params.toString()}`;
+        return redirect(redirectLink, RedirectType.replace);
+    }
+
     const t = await getI18n();
-
-    const session = await auth();
-    const sessionUser = session?.user;
-    if (!session || !sessionUser) redirect('/');
-
-    const dbUser = await getUserWithRelationsByEmail(sessionUser.email);
-
-    if (!dbUser) {
-        redirect('/');
-    }
-
-    const provider = getUserProvider(dbUser);
-    const providerType = getUserProviderType(provider);
-
-    const userAccountProvider = provider && providerType && provider[providerType];
-    const userAccountCountry = userAccountProvider && userAccountProvider.address?.country;
-
-    if (!userAccountCountry) {
-        return (
-            <Warning variant='h4'>
-                Before creating invoices please register yourself as a Provider.
-            </Warning>
-        );
-    }
-
-    const accountId = session.user.accountId;
-
-    const countPromise = await getFilteredInvoicesByAccountIdCount(accountId, '');
-    const latestInvoicesPromise = await getFilteredInvoicesByAccountId(
-        accountId,
-        '',
-        DEFAULT_PAGE_NUMBER,
-        DEFAULT_ITEMS_PER_PAGE,
-        'date',
-        'desc'
-    );
-
-    const [count, latestInvoices] = await Promise.all([countPromise, latestInvoicesPromise]);
-
-    const invoices = latestInvoices.map((invoice) => {
-        return {
-            ...invoice,
-            amount: formatCurrency(invoice.amount, userAccountCountry.locale),
-            date: invoice.date.toLocaleDateString(userAccountCountry.locale),
-            payBy: invoice.payBy.toLocaleDateString(userAccountCountry.locale),
-            paidOn: invoice.paidOn?.toLocaleDateString(userAccountCountry.locale)
-        };
-    });
 
     return (
         <StyledSectionBox component='section'>
             <Typography variant='h1'>{capitalize(t('dashboard'))}</Typography>
             <Suspense fallback={<CardsSkeleton />}>
-                <DashboardCardWrapper locale={userAccountCountry.locale} />
+                <DashboardCardWrapper />
             </Suspense>
             {/* <Suspense fallback={<RevenueChartSkeleton />}>
                     <RevenueChart />
                 </Suspense> */}
-            <Suspense fallback={<LatestInvoicesSkeleton />}>
-                <InvoicesTable invoices={invoices} count={count} tableName='latest invoices' />
+            <Suspense
+                key={query + page}
+                fallback={
+                    <InvoicesTable invoices={[]} count={0} searchParams={sanitizedSearchParams} />
+                }
+            >
+                <InvoicesTableData
+                    searchParams={sanitizedSearchParams}
+                    tableName='latest invoices'
+                />
             </Suspense>
         </StyledSectionBox>
     );

@@ -1,17 +1,33 @@
 import DashboardCard from '@/app/components/dashboard/dashboard-card/DashboardCard';
-import { fetchCardData } from '@/app/lib/data/card';
-import { formatCurrency } from '@/app/lib/utils';
+import Warning from '@/app/components/warning/Warning';
+import { getCardData } from '@/app/lib/data/card';
+import { formatCurrency, getUser } from '@/app/lib/utils';
 import { FC } from 'react';
 import { StyledCardWrapper } from './styled';
-import { IProps } from './types';
 
-const DashboardCardWrapper: FC<IProps> = async ({ locale }) => {
-    const {
-        numberOfCustomers,
-        numberOfInvoices,
-        totalPaidInvoices: totalPaidInvoicesNum,
-        totalPendingInvoices: totalPendingInvoicesNum
-    } = await fetchCardData();
+const DashboardCardWrapper: FC = async () => {
+    const userPromise = getUser();
+    const cardDataPromise = getCardData();
+
+    const [
+        { provider },
+        {
+            numberOfCustomers,
+            numberOfInvoices,
+            totalPaidInvoices: totalPaidInvoicesNum,
+            totalPendingInvoices: totalPendingInvoicesNum
+        }
+    ] = await Promise.all([userPromise, cardDataPromise]);
+
+    const locale = provider?.address?.country.locale;
+
+    if (!locale) {
+        return (
+            <Warning variant='h4'>
+                Before listing invoice data please register yourself as a Provider.
+            </Warning>
+        );
+    }
 
     const totalPaidInvoices = formatCurrency(totalPaidInvoicesNum ?? '0', locale);
     const totalPendingInvoices = formatCurrency(totalPendingInvoicesNum ?? '0', locale);

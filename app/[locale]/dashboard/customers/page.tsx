@@ -1,94 +1,67 @@
+import { CreateButton } from '@/app/components/buttons/create/CreateButton';
 import CustomersTable from '@/app/components/customers/customers-table/CustomersTable';
 import Search from '@/app/components/search/search';
-// import { getFilteredCustomersCountByAccountId } from '@/app/lib/data/customers';
-import { CreateButton } from '@/app/components/buttons/create/CreateButton';
 import Warning from '@/app/components/warning/Warning';
-import {
-    getFilteredCustomersByAccountId,
-    getFilteredCustomersCountByAccountId
-} from '@/app/lib/data/customer';
-import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
-import {
-    capitalize,
-    formatCurrency,
-    getUserProvider,
-    getUserProviderType,
-    stringToBoolean
-} from '@/app/lib/utils';
-import { auth } from '@/auth';
+import { capitalize, stringifyObjectValues } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { EntitiesEnum } from '@prisma/client';
-import { redirect } from 'next/navigation';
+import { setStaticParamsLocale } from 'next-international/server';
+import { RedirectType, redirect } from 'next/navigation';
 import { FC, Suspense } from 'react';
+import CustomersTableData from './CustomersTableData';
 import {
+    DEFAULT_IS_DENSE,
     DEFAULT_ITEMS_PER_PAGE,
     DEFAULT_ORDER,
     DEFAULT_ORDER_BY,
-    DEFAULT_PAGE_NUMBER
+    DEFAULT_PAGE_NUMBER,
+    propsSchema
 } from './constants';
 import { StyledBox } from './styled';
-import { IProps } from './types';
-import { setStaticParamsLocale } from 'next-international/server';
+import { TPageProps } from './types';
 
-const Page: FC<IProps> = async ({ params: { locale }, searchParams }) => {
+const Page: FC<TPageProps> = async (props) => {
+    const propsData = propsSchema.safeParse(props);
+
+    if (!propsData.success) {
+        return <Warning variant='h4'>Incorrect incoming data</Warning>;
+    }
+
+    const {
+        params: { locale },
+        searchParams
+    } = propsData.data;
+
     setStaticParamsLocale(locale);
-    const t = await getI18n();
 
-    const session = await auth();
-    const sessionUser = session?.user;
-    if (!session || !sessionUser) redirect('/');
-
-    const dbUser = await getUserWithRelationsByEmail(sessionUser.email);
-
-    if (!dbUser) {
-        redirect('/');
-    }
-
-    const provider = getUserProvider(dbUser);
-    const providerType = getUserProviderType(provider);
-
-    const userAccountProvider = provider && providerType && provider[providerType];
-    const userAccountCountry = userAccountProvider && userAccountProvider.address?.country;
-
-    if (!userAccountCountry) {
-        return (
-            <Warning variant='h4'>
-                Before creating invoices please register yourself as a Provider.
-            </Warning>
-        );
-    }
-
-    const accountId = sessionUser.accountId;
     const query = searchParams?.query || '';
-    const currentPage = Number(searchParams?.page) || DEFAULT_PAGE_NUMBER;
-    const itemsPerPage = Number(searchParams?.itemsPerPage) || DEFAULT_ITEMS_PER_PAGE;
+    const page = searchParams?.page || DEFAULT_PAGE_NUMBER;
+    const itemsPerPage = searchParams?.itemsPerPage || DEFAULT_ITEMS_PER_PAGE;
     const orderBy = searchParams?.orderBy || DEFAULT_ORDER_BY;
     const order = searchParams?.order || DEFAULT_ORDER;
-    const showOrg = stringToBoolean(searchParams.showOrg || true.toString());
-    const showInd = stringToBoolean(searchParams.showInd || true.toString());
+    const isDense = searchParams?.isDense ?? DEFAULT_IS_DENSE;
+    const showOrg = searchParams?.showOrg ?? true;
+    const showInd = searchParams?.showInd ?? true;
 
-    const count = await getFilteredCustomersCountByAccountId(accountId, query, showOrg, showInd);
-    const rawCustomers = await getFilteredCustomersByAccountId(
-        accountId,
+    const sanitizedSearchParams = {
         query,
-        currentPage,
+        page,
         itemsPerPage,
         showOrg,
         showInd,
         orderBy,
-        order
-    );
+        order,
+        isDense
+    };
 
-    const customers = rawCustomers.map((c) => {
-        return {
-            ...c,
-            totalPaid: formatCurrency(c.totalPaid, userAccountCountry.locale),
-            totalPending: formatCurrency(c.totalPending, userAccountCountry.locale),
-            customerType: c.customerType as EntitiesEnum
-        };
-    });
+    if (Object.keys(searchParams).length < Object.keys(sanitizedSearchParams).length) {
+        const stringifiedSearchParams = stringifyObjectValues(sanitizedSearchParams);
+        const params = new URLSearchParams(stringifiedSearchParams);
+        const redirectLink = `/dashboard/customers?${params.toString()}`;
+        return redirect(redirectLink, RedirectType.replace);
+    }
+    const t = await getI18n();
 
     return (
         <StyledBox component='section' className='section'>
@@ -101,10 +74,12 @@ const Page: FC<IProps> = async ({ params: { locale }, searchParams }) => {
                 />
             </Box>
             <Suspense
-                key={query + currentPage}
-                fallback={<CustomersTable customers={[]} count={0} />}
+                key={query + page}
+                fallback={
+                    <CustomersTable customers={[]} count={0} searchParams={sanitizedSearchParams} />
+                }
             >
-                <CustomersTable customers={customers} count={count} />
+                <CustomersTableData searchParams={sanitizedSearchParams} />
             </Suspense>
         </StyledBox>
     );

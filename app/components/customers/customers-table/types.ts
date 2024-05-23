@@ -1,3 +1,4 @@
+import { TCustomersDataProps } from '@/app/[locale]/dashboard/customers/types';
 import { TOrder } from '@/app/lib/types';
 import { ChangeEvent, MouseEvent } from 'react';
 import { ICustomerTable } from '../types';
@@ -31,7 +32,7 @@ export interface IEnhancedTableToolbarProps {
     setSelectedFilters: (filters: ISelectedFilters) => void;
 }
 
-export interface IProps {
+export interface IProps extends TCustomersDataProps {
     customers: ICustomerTable[];
     count: number;
 }

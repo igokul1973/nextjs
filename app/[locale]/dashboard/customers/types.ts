@@ -1,8 +1,11 @@
-import { ISearchParams } from '@/app/lib/types';
+import { ITypedSearchParams } from '@/app/lib/types';
+import { z } from 'zod';
+import { propsSchema } from './constants';
 
-export interface IProps {
-    params: {
-        locale: string;
+export type TPageProps = z.infer<typeof propsSchema>;
+export type TCustomersDataProps = {
+    searchParams: ITypedSearchParams & {
+        showOrg: boolean;
+        showInd: boolean;
     };
-    searchParams: ISearchParams & { showOrg: string; showInd: string };
-}
+};

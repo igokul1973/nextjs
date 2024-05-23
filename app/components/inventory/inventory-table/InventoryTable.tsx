@@ -3,7 +3,7 @@
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { deleteInventoryItemById } from '@/app/lib/data/inventory';
 import { TOrder } from '@/app/lib/types';
-import { stringToBoolean } from '@/app/lib/utils';
+import { stringToBoolean, stringifyObjectValues } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -30,13 +30,7 @@ import { alpha } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChangeEvent, FC, MouseEvent, useEffect, useState } from 'react';
-import {
-    DEFAULT_IS_DENSE,
-    DEFAULT_ITEMS_PER_PAGE,
-    DEFAULT_ORDER,
-    DEFAULT_ORDER_BY,
-    DEFAULT_PAGE_NUMBER
-} from '../../../[locale]/dashboard/inventory/constants';
+import { DEFAULT_PAGE_NUMBER } from '../../../[locale]/dashboard/inventory/constants';
 import { IInventoryTable } from '../types';
 import { IEnhancedTableProps, IEnhancedTableToolbarProps, IHeadCell, IProps } from './types';
 
@@ -177,7 +171,7 @@ function EnhancedTableToolbar(props: IEnhancedTableToolbarProps) {
     );
 }
 
-const InventoryTable: FC<IProps> = ({ inventory, count }) => {
+const InventoryTable: FC<IProps> = ({ inventory, count, sanitizedSearchParams }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const [selected, setSelected] = useState<readonly IInventoryTable['id'][]>([]);
@@ -185,29 +179,18 @@ const InventoryTable: FC<IProps> = ({ inventory, count }) => {
     const { replace } = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const page = searchParams.get('page') ?? DEFAULT_PAGE_NUMBER.toString();
-    const itemsPerPageParam = searchParams.get('itemsPerPage') ?? DEFAULT_ITEMS_PER_PAGE.toString();
-    const order = (searchParams.get('order') ?? DEFAULT_ORDER) as TOrder;
-    const orderBy = searchParams.get('orderBy') ?? DEFAULT_ORDER_BY;
-    const isDense = stringToBoolean(searchParams.get('isDense') || DEFAULT_IS_DENSE.toString());
+    const { page, itemsPerPage: rowsPerPage, order, orderBy, isDense } = sanitizedSearchParams;
 
     useEffect(() => {
         // If no search params, set defaults
-        if (
-            !searchParams.has('page') ||
-            !searchParams.get('itemsPerPage') ||
-            !searchParams.get('isDense')
-        ) {
-            const params = new URLSearchParams(searchParams || undefined);
-            params.set('itemsPerPage', itemsPerPageParam);
-            params.set('page', page);
-            params.set('isDense', isDense.toString());
+        if (searchParams.size < Object.keys(sanitizedSearchParams).length) {
+            const stringifiedSearchParams = stringifyObjectValues(sanitizedSearchParams);
+            const params = new URLSearchParams(stringifiedSearchParams);
             replace(`${pathname}?${params.toString()}`);
         }
-    }, [searchParams, replace, pathname, itemsPerPageParam, page, isDense]);
+    }, [searchParams, replace, pathname, page, isDense]);
 
-    const pageNumber = parseInt(page, 10);
-    const rowsPerPage = parseInt(itemsPerPageParam, 10);
+    const pageNumber = page;
 
     const handleRequestSort = (event: MouseEvent<unknown>, property: keyof IInventoryTable) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -246,20 +229,20 @@ const InventoryTable: FC<IProps> = ({ inventory, count }) => {
     };
 
     const handleChangePage = (event: unknown, newPage: number) => {
-        const params = new URLSearchParams(searchParams || undefined);
+        const params = new URLSearchParams(searchParams);
         params.set('page', newPage.toString());
         replace(`${pathname}?${params.toString()}`);
     };
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const params = new URLSearchParams(searchParams || undefined);
+        const params = new URLSearchParams(searchParams);
         params.set('itemsPerPage', event.target.value);
         params.set('page', DEFAULT_PAGE_NUMBER.toString());
         replace(`${pathname}?${params.toString()}`);
     };
 
     const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const params = new URLSearchParams(searchParams || undefined);
+        const params = new URLSearchParams(searchParams);
         params.set('isDense', event.target.checked.toString());
         replace(`${pathname}?${params.toString()}`);
     };

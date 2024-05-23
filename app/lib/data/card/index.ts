@@ -4,7 +4,7 @@ import prisma from '@/app/lib/prisma';
 import { InvoiceStatusEnum } from '@prisma/client';
 import { unstable_noStore as noStore } from 'next/cache';
 
-export async function fetchCardData() {
+export async function getCardData() {
     noStore();
     try {
         // You can probably combine these into a single SQL query

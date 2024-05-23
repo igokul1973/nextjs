@@ -2,8 +2,7 @@
 
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { deleteCustomerById } from '@/app/lib/data/customer';
-import { TOrder } from '@/app/lib/types';
-import { stringToBoolean } from '@/app/lib/utils';
+import { stringifyObjectValues } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -33,13 +32,7 @@ import { alpha } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChangeEvent, FC, MouseEvent, useEffect, useState } from 'react';
-import {
-    DEFAULT_IS_DENSE,
-    DEFAULT_ITEMS_PER_PAGE,
-    DEFAULT_ORDER,
-    DEFAULT_ORDER_BY,
-    DEFAULT_PAGE_NUMBER
-} from '../../../[locale]/dashboard/customers/constants';
+import { DEFAULT_PAGE_NUMBER } from '../../../[locale]/dashboard/customers/constants';
 import { ICustomerTable } from '../types';
 import {
     IEnhancedTableProps,
@@ -231,7 +224,7 @@ const EnhancedTableToolbar: FC<IEnhancedTableToolbarProps> = ({
     );
 };
 
-const CustomersTable: FC<IProps> = ({ customers, count }) => {
+const CustomersTable: FC<IProps> = ({ customers, count, searchParams: sanitizedSearchParams }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const { push } = useRouter();
@@ -240,43 +233,36 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
     const { replace } = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const page = searchParams.get('page') ?? DEFAULT_PAGE_NUMBER.toString();
-    const itemsPerPageParam = searchParams.get('itemsPerPage') ?? DEFAULT_ITEMS_PER_PAGE.toString();
-    const order = (searchParams.get('order') ?? DEFAULT_ORDER) as TOrder;
-    const orderBy = searchParams.get('orderBy') ?? DEFAULT_ORDER_BY;
-    const showOrg = stringToBoolean(searchParams.get('showOrg') || true.toString());
-    const showInd = stringToBoolean(searchParams.get('showInd') || true.toString());
-    const isDense = stringToBoolean(searchParams.get('isDense') || DEFAULT_IS_DENSE.toString());
+    const {
+        page,
+        itemsPerPage: rowsPerPage,
+        order,
+        isDense,
+        orderBy,
+        showOrg,
+        showInd
+    } = sanitizedSearchParams;
+
+    useEffect(() => {
+        // If no search params, set defaults
+        if (searchParams.size < Object.keys(sanitizedSearchParams).length) {
+            const stringifiedSearchParams = stringifyObjectValues(sanitizedSearchParams);
+            const params = new URLSearchParams(stringifiedSearchParams);
+            // const redirectLink = `/dashboard/invoices?${params.toString()}`;
+            replace(`${pathname}?${params.toString()}`);
+        }
+    }, [searchParams, replace, pathname, page, isDense]);
+
     const selectedFilters = {
         organizations: showOrg,
         individuals: showInd
     };
 
-    useEffect(() => {
-        // If no search params, set defaults
-        if (
-            !searchParams.has('page') ||
-            !searchParams.get('itemsPerPage') ||
-            !searchParams.get('isDense') ||
-            !searchParams.get('showOrg') ||
-            !searchParams.get('showInd')
-        ) {
-            const params = new URLSearchParams(searchParams || undefined);
-            params.set('itemsPerPage', itemsPerPageParam);
-            params.set('page', page);
-            params.set('isDense', isDense.toString());
-            params.set('showOrg', showOrg.toString());
-            params.set('showInd', showInd.toString());
-            replace(`${pathname}?${params.toString()}`);
-        }
-    }, [searchParams, replace, pathname, itemsPerPageParam, page, isDense, showOrg, showInd]);
+    const pageNumber = page;
 
-    const pageNumber = parseInt(page, 10);
-    const rowsPerPage = parseInt(itemsPerPageParam, 10);
-
-    const handleRequestSort = (event: MouseEvent<unknown>, property: keyof ICustomerTable) => {
+    const handleRequestSort = (_: MouseEvent<unknown>, property: keyof ICustomerTable) => {
         const isAsc = orderBy === property && order === 'asc';
-        const params = new URLSearchParams(searchParams || undefined);
+        const params = new URLSearchParams(searchParams);
         params.set('order', isAsc ? 'desc' : 'asc');
         params.set('orderBy', property);
         replace(`${pathname}?${params.toString()}`);
@@ -310,21 +296,21 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
         setSelected(newSelected);
     };
 
-    const handleChangePage = (event: unknown, newPage: number) => {
-        const params = new URLSearchParams(searchParams || undefined);
+    const handleChangePage = (_: unknown, newPage: number) => {
+        const params = new URLSearchParams(searchParams);
         params.set('page', newPage.toString());
         replace(`${pathname}?${params.toString()}`);
     };
 
     const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const params = new URLSearchParams(searchParams || undefined);
+        const params = new URLSearchParams(searchParams);
         params.set('itemsPerPage', event.target.value);
         params.set('page', DEFAULT_PAGE_NUMBER.toString());
         replace(`${pathname}?${params.toString()}`);
     };
 
     const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const params = new URLSearchParams(searchParams || undefined);
+        const params = new URLSearchParams(searchParams);
         params.set('isDense', event.target.checked.toString());
         replace(`${pathname}?${params.toString()}`);
     };
@@ -344,7 +330,7 @@ const CustomersTable: FC<IProps> = ({ customers, count }) => {
     };
 
     const setSelectedFilters = (filters: ISelectedFilters) => {
-        const params = new URLSearchParams(searchParams || undefined);
+        const params = new URLSearchParams(searchParams);
         params.set('showOrg', filters.organizations.toString());
         params.set('showInd', filters.individuals.toString());
         replace(`${pathname}?${params.toString()}`);

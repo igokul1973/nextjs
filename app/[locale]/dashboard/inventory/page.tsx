@@ -1,83 +1,63 @@
 import {
+    DEFAULT_IS_DENSE,
     DEFAULT_ITEMS_PER_PAGE,
     DEFAULT_ORDER,
     DEFAULT_ORDER_BY,
-    DEFAULT_PAGE_NUMBER
+    DEFAULT_PAGE_NUMBER,
+    propsSchema
 } from '@/app/[locale]/dashboard/inventory/constants';
 import { CreateButton } from '@/app/components/buttons/create/CreateButton';
 import InventoryTable from '@/app/components/inventory/inventory-table/InventoryTable';
 import Search from '@/app/components/search/search';
 import Warning from '@/app/components/warning/Warning';
-import {
-    getFilteredInventoryByAccountIdRaw,
-    getFilteredInventoryCount
-} from '@/app/lib/data/inventory';
-import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
-import { capitalize, formatCurrency, getUserProvider, getUserProviderType } from '@/app/lib/utils';
-import { auth } from '@/auth';
+import { capitalize, stringifyObjectValues } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
 import Typography from '@mui/material/Typography';
 import { setStaticParamsLocale } from 'next-international/server';
-import { redirect } from 'next/navigation';
+import { RedirectType, redirect } from 'next/navigation';
 import { FC, Suspense } from 'react';
+import InventoryTableData from './InventoryTableData';
 import { StyledSectionBox, StyledToolsBox } from './styled';
 import { IProps } from './types';
 
-const Page: FC<IProps> = async ({ params: { locale }, searchParams }) => {
+const Page: FC<IProps> = async (props) => {
+    const propsData = propsSchema.safeParse(props);
+
+    if (!propsData.success) {
+        return <Warning variant='h4'>Incorrect incoming data</Warning>;
+    }
+
+    const {
+        params: { locale },
+        searchParams
+    } = propsData.data;
+
     setStaticParamsLocale(locale);
 
-    const t = await getI18n();
-
-    const session = await auth();
-    const sessionUser = session?.user;
-    if (!session || !sessionUser) redirect('/');
-
-    const dbUser = await getUserWithRelationsByEmail(sessionUser.email);
-
-    if (!dbUser) {
-        redirect('/');
-    }
-
-    const provider = getUserProvider(dbUser);
-    const providerType = getUserProviderType(provider);
-
-    const userAccountProvider = provider && providerType && provider[providerType];
-    const userAccountCountry = userAccountProvider && userAccountProvider.address?.country;
-
-    if (!userAccountCountry) {
-        return (
-            <Warning variant='h4'>
-                Before viewing inventory please register yourself as a Provider.
-            </Warning>
-        );
-    }
-
-    const accountId = sessionUser.accountId;
     const query = searchParams?.query || '';
-    const currentPage = Number(searchParams?.page) || DEFAULT_PAGE_NUMBER;
-    const itemsPerPage = Number(searchParams?.itemsPerPage) || DEFAULT_ITEMS_PER_PAGE;
+    const page = searchParams?.page || DEFAULT_PAGE_NUMBER;
+    const itemsPerPage = searchParams?.itemsPerPage || DEFAULT_ITEMS_PER_PAGE;
     const orderBy = searchParams?.orderBy || DEFAULT_ORDER_BY;
     const order = searchParams?.order || DEFAULT_ORDER;
+    const isDense = searchParams?.isDense ?? DEFAULT_IS_DENSE;
 
-    const count = await getFilteredInventoryCount(accountId, query);
-    const rawInventory = await getFilteredInventoryByAccountIdRaw(
-        accountId,
+    const sanitizedSearchParams = {
         query,
-        currentPage,
+        page,
         itemsPerPage,
         orderBy,
-        order
-    );
+        order,
+        isDense
+    };
 
-    const inventory = rawInventory.map((inventoryItem) => {
-        return {
-            ...inventoryItem,
-            price: formatCurrency(inventoryItem.price, userAccountCountry.locale),
-            manufacturerPrice: inventoryItem.manufacturerPrice
-                ? formatCurrency(inventoryItem.manufacturerPrice, userAccountCountry.locale)
-                : ''
-        };
-    });
+    if (Object.keys(searchParams).length < Object.keys(sanitizedSearchParams).length) {
+        const stringifiedSearchParams = stringifyObjectValues(sanitizedSearchParams);
+        const params = new URLSearchParams(stringifiedSearchParams);
+        const redirectLink = `/dashboard/inventory?${params.toString()}`;
+        return redirect(redirectLink, RedirectType.replace);
+    }
+
+    const t = await getI18n();
 
     return (
         <StyledSectionBox component='section'>
@@ -90,10 +70,16 @@ const Page: FC<IProps> = async ({ params: { locale }, searchParams }) => {
                 />
             </StyledToolsBox>
             <Suspense
-                key={query + currentPage}
-                fallback={<InventoryTable inventory={[]} count={0} />}
+                key={query + page}
+                fallback={
+                    <InventoryTable
+                        inventory={[]}
+                        count={0}
+                        sanitizedSearchParams={sanitizedSearchParams}
+                    />
+                }
             >
-                <InventoryTable inventory={inventory} count={count} />
+                <InventoryTableData searchParams={sanitizedSearchParams} />
             </Suspense>
         </StyledSectionBox>
     );

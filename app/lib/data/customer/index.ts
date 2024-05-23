@@ -11,7 +11,7 @@ import {
     TOrganizationFormOutputWithoutLogo
 } from '@/app/components/organizations/form/types';
 import prisma from '@/app/lib/prisma';
-import { TDirtyFields, TOrder } from '@/app/lib/types';
+import { IBaseDataFilterArgs, TDirtyFields, TOrder } from '@/app/lib/types';
 import {
     flattenCustomer,
     getDirtyValues,
@@ -137,20 +137,23 @@ export async function getCustomersByAccountId(accountId: string) {
     }
 }
 
-export async function getFilteredCustomersByAccountId(
-    accountId: string,
-    query: string,
-    currentPage: number,
-    itemsPerPage: number,
-    showOrg: boolean = true,
-    showInd: boolean = true,
-    orderBy: string = 'name',
-    order: TOrder = 'asc'
-) {
+export async function getFilteredCustomersByAccountId({
+    accountId,
+    query,
+    page,
+    itemsPerPage = 5,
+    orderBy = 'name',
+    order = 'asc',
+    showOrg = true,
+    showInd = true
+}: IBaseDataFilterArgs & {
+    showOrg?: boolean;
+    showInd?: boolean;
+}) {
     noStore();
 
     try {
-        const offset = currentPage * itemsPerPage;
+        const offset = page * itemsPerPage;
         let orderByClause = { [orderBy]: order } as
             | Prisma.customerOrderByWithRelationInput
             | Prisma.customerOrderByWithRelationInput[];

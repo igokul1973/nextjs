@@ -1,10 +1,11 @@
 'use server';
 
+import { DEFAULT_ITEMS_PER_PAGE } from '@/app/[locale]/dashboard/invoices/constants';
 import { TInvoiceFormOutput } from '@/app/components/invoices/form/types';
 import prisma from '@/app/lib/prisma';
+import { IBaseDataFilterArgs, TDirtyFields, TFile } from '@/app/lib/types';
 import { InvoiceStatusEnum, Prisma } from '@prisma/client';
 import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
-import { TDirtyFields, TFile, TOrder } from '../../types';
 import { flattenCustomer, getDirtyValues, getUser } from '../../utils';
 import {
     TGetInvoiceWithRelationsPayloadRaw,
@@ -72,17 +73,17 @@ export async function getInvoiceById(
     }
 }
 
-export async function getFilteredInvoicesByAccountId(
-    accountId: string,
-    query: string,
-    currentPage: number,
-    itemsPerPage: number,
-    orderBy: string = 'number',
-    order: TOrder = 'asc'
-) {
+export async function getFilteredInvoicesByAccountId({
+    accountId,
+    query,
+    page = 0,
+    itemsPerPage = DEFAULT_ITEMS_PER_PAGE,
+    orderBy = 'number',
+    order = 'asc'
+}: IBaseDataFilterArgs) {
     noStore();
 
-    const offset = currentPage * itemsPerPage;
+    const offset = page * itemsPerPage;
 
     try {
         const rawInvoices = await prisma.invoice.findMany({

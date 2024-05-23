@@ -1,4 +1,4 @@
-import { TOrder } from '@/app/lib/types';
+import { ITypedSearchParams, TOrder } from '@/app/lib/types';
 import { TSingleTranslationKey } from '@/locales/types';
 import { ChangeEvent, MouseEvent } from 'react';
 import { IInvoiceTable } from '../types';
@@ -29,6 +29,7 @@ export interface IEnhancedTableToolbarProps {
 export interface IProps {
     invoices: IInvoiceTable[];
     count: number;
+    searchParams: ITypedSearchParams;
     tableName?: TSingleTranslationKey;
 }
 

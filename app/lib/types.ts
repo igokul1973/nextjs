@@ -36,7 +36,8 @@ export enum LocaleEnum {
     sw_KE = 'sw-KE'
 }
 
-export type TOrder = 'asc' | 'desc';
+export const ORDER = ['asc', 'desc'] as const;
+export type TOrder = (typeof ORDER)[number];
 
 export type TDirtyFields<T> = {
     [K in keyof T]?: T[K] extends Record<string, unknown>
@@ -142,6 +143,24 @@ export interface ISearchParams {
     page?: string;
     itemsPerPage?: string;
     orderBy?: string;
-    order: TOrder;
+    order?: TOrder;
     isDense?: string;
+}
+
+export interface ITypedSearchParams extends Record<string, string | number | boolean> {
+    query: string;
+    page: number;
+    itemsPerPage: number;
+    orderBy: string;
+    order: TOrder;
+    isDense: boolean;
+}
+
+export interface IBaseDataFilterArgs {
+    accountId: string;
+    query: string;
+    page?: number;
+    itemsPerPage?: number;
+    orderBy?: string;
+    order?: TOrder;
 }

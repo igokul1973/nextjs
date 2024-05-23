@@ -239,9 +239,8 @@ export function getDirtyValues<T>(
     }
 }
 
-export function stringToBoolean(str: string) {
-    // Ternary operator: condition ? true-value : false-value
-    return str.toLowerCase() === 'true' ? true : false;
+export function stringToBoolean(str: string | undefined): boolean | undefined {
+    return str !== undefined ? str.toLowerCase() === 'true' : str;
 }
 
 export function isDayJsDate(val: unknown) {
@@ -571,4 +570,10 @@ export const validateEntityFormData = <
         T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] },
         T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] }
     >;
+};
+
+export const stringifyObjectValues = (o: Record<string, string | number | boolean>) => {
+    return Object.entries(o).reduce((acc, [key, value]) => {
+        return { ...acc, [key]: value.toString() };
+    }, {});
 };

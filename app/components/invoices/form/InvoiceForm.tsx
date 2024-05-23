@@ -97,11 +97,16 @@ const InvoiceForm: FC<IProps> = ({
 
     const [customers, setCustomers] = useState<TCustomerOutput[]>(initialCustomers);
 
-    const getCustomers = async (filter: string) => {
-        if (!filter) {
+    const getCustomers = async (query: string) => {
+        if (!query) {
             return setCustomers(initialCustomers);
         }
-        const customers = await getFilteredCustomersByAccountId(accountId, filter, 0, 25);
+        const customers = await getFilteredCustomersByAccountId({
+            accountId,
+            query,
+            page: 0,
+            itemsPerPage: 25
+        });
         setCustomers(customers);
     };
 

@@ -1,4 +1,4 @@
-import { TOrder } from '@/app/lib/types';
+import { ITypedSearchParams, TOrder } from '@/app/lib/types';
 import { ChangeEvent, MouseEvent } from 'react';
 import { IInventoryTable } from '../types';
 
@@ -27,6 +27,7 @@ export interface IEnhancedTableToolbarProps {
 export interface IProps {
     inventory: IInventoryTable[];
     count: number;
+    sanitizedSearchParams: ITypedSearchParams;
 }
 
 // For old InventoryTable_old.tsx
