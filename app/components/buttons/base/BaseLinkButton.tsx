@@ -1,5 +1,9 @@
+'use client';
+
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import NextLink from 'next/link';
+import { useState } from 'react';
 import { IBaseLinkButtonProps } from '../types';
 
 export default function BaseLinkButton({
@@ -10,6 +14,8 @@ export default function BaseLinkButton({
     variant = 'contained',
     ...rest
 }: IBaseLinkButtonProps) {
+    const [isLoading, setIsLoading] = useState(false);
+
     return (
         <Button
             component={NextLink}
@@ -17,9 +23,13 @@ export default function BaseLinkButton({
             variant={variant}
             color={color}
             endIcon={endIcon}
+            onClick={() => {
+                setIsLoading(true);
+            }}
             {...rest}
         >
             {name}
+            {isLoading && <CircularProgress color='inherit' size={16} sx={{ ml: 1 }} />}
         </Button>
     );
 }

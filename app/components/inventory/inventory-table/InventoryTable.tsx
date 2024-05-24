@@ -8,7 +8,6 @@ import { stringifyObjectValues } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -32,6 +31,7 @@ import { visuallyHidden } from '@mui/utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChangeEvent, FC, MouseEvent, useEffect, useState } from 'react';
 import { IEnhancedTableProps, IEnhancedTableToolbarProps, IHeadCell, IProps } from './types';
+import { UpdateIconButton } from '@/app/components/buttons/update/UpdateIconButton';
 
 const headCells: readonly IHeadCell[] = [
     {
@@ -335,15 +335,9 @@ const InventoryTable: FC<IProps> = ({ inventory, count, sanitizedSearchParams })
                                                 justifyContent: 'center'
                                             }}
                                         >
-                                            <IconButton
-                                                color='primary'
-                                                aria-label='edit'
-                                                onClick={() => {
-                                                    push(`/dashboard/inventory/${row.id}/edit`);
-                                                }}
-                                            >
-                                                <EditIcon />
-                                            </IconButton>
+                                            <UpdateIconButton
+                                                href={`/dashboard/inventory/${row.id}/edit`}
+                                            />
                                             <IconButton
                                                 color='warning'
                                                 aria-label='edit'

@@ -1,5 +1,7 @@
 'use client';
 
+import { components } from '@/app/components/dashboard/avatar-menu/constants';
+import IndividualForm from '@/app/components/individuals/form/IndividualForm';
 import {
     individualCreateSchema,
     individualUpdateSchema,
@@ -18,8 +20,6 @@ import { capitalize } from '@mui/material';
 import Button from '@mui/material/Button';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { components } from '../../dashboard/avatar-menu/constants';
-import IndividualForm from '../../individuals/form/IndividualForm';
 import { IProviderIndFormDataProps } from './types';
 
 const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({

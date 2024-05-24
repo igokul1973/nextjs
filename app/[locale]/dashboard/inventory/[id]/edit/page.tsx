@@ -18,7 +18,7 @@ const Page: FC<IProps> = async ({ params: { id, locale } }) => {
 
     return (
         <StyledBox component='main'>
-            <Typography variant='h1'>{capitalize(t('create inventory'))}</Typography>
+            <Typography variant='h1'>{capitalize(t('update inventory item'))}</Typography>
             <Breadcrumbs aria-label='breadcrumb'>
                 <Link
                     component={NextLink}
@@ -28,7 +28,9 @@ const Page: FC<IProps> = async ({ params: { id, locale } }) => {
                 >
                     {capitalize(t('inventory'))}
                 </Link>
-                <Typography color='text.primary'>{capitalize(t('create inventory'))}</Typography>
+                <Typography color='text.primary'>
+                    {capitalize(t('update inventory item'))}
+                </Typography>
             </Breadcrumbs>
             <Suspense fallback={<Loading />}>
                 <UpdateInventoryFormData params={{ id, locale }} />

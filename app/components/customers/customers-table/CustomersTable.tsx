@@ -1,12 +1,13 @@
 'use client';
 
+import { DEFAULT_PAGE_NUMBER } from '@/app/[locale]/dashboard/customers/constants';
+import { UpdateIconButton } from '@/app/components/buttons/update/UpdateIconButton';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { deleteCustomerById } from '@/app/lib/data/customer/actions';
 import { stringifyObjectValues } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -32,7 +33,6 @@ import { alpha } from '@mui/material/styles';
 import { visuallyHidden } from '@mui/utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChangeEvent, FC, MouseEvent, useEffect, useState } from 'react';
-import { DEFAULT_PAGE_NUMBER } from '../../../[locale]/dashboard/customers/constants';
 import { ICustomerTable } from '../types';
 import {
     IEnhancedTableProps,
@@ -393,17 +393,9 @@ const CustomersTable: FC<IProps> = ({ customers, count, searchParams: sanitizedS
                                             align='center'
                                             sx={{ display: 'flex', justifyContent: 'center' }}
                                         >
-                                            <IconButton
-                                                color='primary'
-                                                aria-label='edit'
-                                                onClick={() => {
-                                                    push(
-                                                        `/dashboard/customers/${row.customerId}/edit`
-                                                    );
-                                                }}
-                                            >
-                                                <EditIcon />
-                                            </IconButton>
+                                            <UpdateIconButton
+                                                href={`/dashboard/customers/${row.customerId}/edit`}
+                                            />
                                             <IconButton
                                                 color='warning'
                                                 aria-label='edit'

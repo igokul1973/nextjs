@@ -17,7 +17,7 @@ const Page: FC<IProps> = async ({ params: { locale } }) => {
     const t = await getI18n();
     return (
         <StyledBox component='main'>
-            <Typography variant='h1'>{capitalize(t('create inventory'))}</Typography>
+            <Typography variant='h1'>{capitalize(t('create inventory item'))}</Typography>
             <Breadcrumbs aria-label='breadcrumb'>
                 <Link
                     component={NextLink}

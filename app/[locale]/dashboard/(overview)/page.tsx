@@ -57,7 +57,7 @@ const Page: FC<IProps> = async (props) => {
         const stringifiedSearchParams = stringifyObjectValues(sanitizedSearchParams);
         const params = new URLSearchParams(stringifiedSearchParams);
         const redirectLink = `/dashboard?${params.toString()}`;
-        return redirect(redirectLink, RedirectType.replace);
+        return redirect(redirectLink, RedirectType.push);
     }
 
     const t = await getI18n();

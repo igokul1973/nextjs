@@ -59,7 +59,7 @@ const Page: FC<TPageProps> = async (props) => {
         const stringifiedSearchParams = stringifyObjectValues(sanitizedSearchParams);
         const params = new URLSearchParams(stringifiedSearchParams);
         const redirectLink = `/dashboard/customers?${params.toString()}`;
-        return redirect(redirectLink, RedirectType.replace);
+        return redirect(redirectLink, RedirectType.push);
     }
     const t = await getI18n();
 

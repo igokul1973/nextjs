@@ -7,7 +7,7 @@ import {
     propsSchema
 } from '@/app/[locale]/dashboard/inventory/constants';
 import { CreateButton } from '@/app/components/buttons/create/CreateButton';
-import InventoryTable from '@/app/components/inventory/inventory-table/InventoryTable';
+import Loading from '@/app/components/loading/Loading';
 import Search from '@/app/components/search/search';
 import Warning from '@/app/components/warning/Warning';
 import { capitalize, stringifyObjectValues } from '@/app/lib/utils';
@@ -54,7 +54,7 @@ const Page: FC<IProps> = async (props) => {
         const stringifiedSearchParams = stringifyObjectValues(sanitizedSearchParams);
         const params = new URLSearchParams(stringifiedSearchParams);
         const redirectLink = `/dashboard/inventory?${params.toString()}`;
-        return redirect(redirectLink, RedirectType.replace);
+        return redirect(redirectLink, RedirectType.push);
     }
 
     const t = await getI18n();
@@ -72,11 +72,12 @@ const Page: FC<IProps> = async (props) => {
             <Suspense
                 key={query + page}
                 fallback={
-                    <InventoryTable
-                        inventory={[]}
-                        count={0}
-                        sanitizedSearchParams={sanitizedSearchParams}
-                    />
+                    <Loading />
+                    // <InventoryTable
+                    //     inventory={[]}
+                    //     count={0}
+                    //     sanitizedSearchParams={sanitizedSearchParams}
+                    // />
                 }
             >
                 <InventoryTableData searchParams={sanitizedSearchParams} />

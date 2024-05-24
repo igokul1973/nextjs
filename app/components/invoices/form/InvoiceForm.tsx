@@ -334,10 +334,7 @@ const InvoiceForm: FC<IProps> = ({
                         <MenuItem disabled>{capitalize(t('select your phone'))}</MenuItem>
                         {providerPhones.map((phone) => {
                             return (
-                                <MenuItem
-                                    key={phone.id}
-                                    value={`+${phone.countryCode}-${phone.number}`}
-                                >
+                                <MenuItem key={phone.id} value={phone.number}>
                                     <Box
                                         sx={{
                                             marginLeft: 1,
