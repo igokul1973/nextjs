@@ -1,5 +1,3 @@
-import { useI18n } from '@/locales/client';
-import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -8,22 +6,23 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import { FC } from 'react';
 import { ICustomerTableProps } from './types';
+import { getI18n } from '@/locales/server';
+import { capitalize } from '@/app/lib/utils';
+import { StyledTableCell } from './styled';
 
-const CustomerTable: FC<ICustomerTableProps> = ({ customer }) => {
-    const t = useI18n();
+const CustomerTable: FC<ICustomerTableProps> = async ({ customer }) => {
+    const t = await getI18n();
     return (
         <TableContainer>
             <Table size='small' sx={{ minWidth: 400 }} aria-label='spanning table'>
                 <TableBody>
                     <TableRow>
-                        <TableCell isScaledInvoice>{capitalize(t('customer name'))}:</TableCell>
-                        <TableCell align='left' isScaledInvoice>
-                            {customer.customerName}
-                        </TableCell>
+                        <StyledTableCell>{capitalize(t('customer name'))}:</StyledTableCell>
+                        <StyledTableCell align='left'>{customer.customerName}</StyledTableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell isScaledInvoice>{capitalize(t('customer address'))}:</TableCell>
-                        <TableCell align='left' isScaledInvoice>
+                        <StyledTableCell>{capitalize(t('customer address'))}:</StyledTableCell>
+                        <StyledTableCell align='left'>
                             <Box>{customer.customerAddressLine1}</Box>
                             {customer.customerAddressLine2 && (
                                 <Box>{customer.customerAddressLine2}</Box>
@@ -46,19 +45,15 @@ const CustomerTable: FC<ICustomerTableProps> = ({ customer }) => {
                                 <Box component='span'>{customer.customerPostCode}</Box>
                             </Box>
                             <Box>{customer.customerCountry}</Box>
-                        </TableCell>
+                        </StyledTableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell isScaledInvoice>{capitalize(t('customer email'))}:</TableCell>
-                        <TableCell align='left' isScaledInvoice>
-                            {customer.customerEmail}
-                        </TableCell>
+                        <StyledTableCell>{capitalize(t('customer email'))}:</StyledTableCell>
+                        <StyledTableCell align='left'>{customer.customerEmail}</StyledTableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell isScaledInvoice>{capitalize(t('customer phone'))}:</TableCell>
-                        <TableCell align='left' isScaledInvoice>
-                            {customer.customerPhone}
-                        </TableCell>
+                        <StyledTableCell>{capitalize(t('customer phone'))}:</StyledTableCell>
+                        <StyledTableCell align='left'>{customer.customerPhone}</StyledTableCell>
                     </TableRow>
                 </TableBody>
             </Table>

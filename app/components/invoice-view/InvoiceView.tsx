@@ -1,8 +1,5 @@
-'use client';
-
-import { useLogo } from '@/app/lib/hooks/useLogo';
+// import { useLogo } from '@/app/lib/hooks/useLogo';
 import { useI18n } from '@/locales/client';
-import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
@@ -17,29 +14,29 @@ import {
     StyledHeader,
     StyledInvoice,
     StyledInvoiceInfo,
-    StyledInvoiceItems
+    StyledInvoiceItems,
+    StyledViewPdfBtn
 } from './styled';
 import { IProps } from './types';
+import { getI18n } from '@/locales/server';
+import { capitalize } from '@/app/lib/utils';
+import ImageView from './ImageView';
 
-const InvoiceView: FC<IProps> = ({ invoice, locale }) => {
-    const t = useI18n();
-    const logoObject = useMemo(
-        () => ({
-            logo: invoice.providerLogo
-        }),
-        [invoice]
-    );
-    const [logoUrl] = useLogo(logoObject);
+const InvoiceView: FC<IProps> = async ({ invoice, locale }) => {
+    const t = await getI18n();
+    const l = invoice.providerLogo;
+    const b = l && Buffer.from(l.data);
     const { customer, invoiceItems } = invoice;
 
     return (
         <StyledInvoice component={Paper} className='invoice-view'>
+            <StyledViewPdfBtn
+                href={`/dashboard/invoices/${invoice.id}/view?number=${invoice.number}&isPdf=true`}
+                name='View PDF'
+                color='secondary'
+            />
             <StyledHeader component='section' className='provider-info'>
-                {logoUrl && (
-                    <Box sx={{ height: '4vw', width: '100%', position: 'relative' }}>
-                        <Image src={logoUrl} fill alt='Logo' />
-                    </Box>
-                )}
+                {l && b && <ImageView image={b} name={l.name} type={l.type} />}
                 <Typography variant='h3'>{invoice.providerName}</Typography>
             </StyledHeader>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -57,7 +54,12 @@ const InvoiceView: FC<IProps> = ({ invoice, locale }) => {
                 </StyledCustomerInfo>
             </Box>
             <StyledInvoiceItems component='section' className='invoice-items'>
-                <InvoiceItemsTable invoiceItems={invoiceItems} tax={invoice.tax} locale={locale} />
+                <InvoiceItemsTable
+                    invoiceItems={invoiceItems}
+                    tax={invoice.tax}
+                    discount={invoice.discount}
+                    locale={locale}
+                />
             </StyledInvoiceItems>
             {invoice.additionalInformation && (
                 <StyledAdditionalInfo component='section' className='invoice-additional-info'>

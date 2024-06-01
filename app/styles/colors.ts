@@ -1,6 +1,7 @@
 export const colors = {
     primary: '#00695f',
-    secondary: '#52b202',
+    // secondary: '#52b202', // light green
+    secondary: '#9c27b0', // purple
     success: '#61d800',
     info: '#00a2ff',
     error: 'rgb(255 0 0)',

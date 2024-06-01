@@ -1,10 +1,15 @@
+'use client';
+
 import { styled } from '@mui/material';
+import TableCell from '@mui/material/TableCell';
 import Box from '@mui/material/Box';
+import BaseLinkButton from '../buttons/base/BaseLinkButton';
 
 export const StyledInvoice = styled(Box, {
     name: 'Styled Invoice',
     slot: 'Root'
 })`
+    position: relative;
     display: flex;
     flex-direction: column;
     row-gap: 3rem;
@@ -26,6 +31,14 @@ export const StyledInvoice = styled(Box, {
     h5 {
         font-size: 1.4vw;
     }
+`;
+export const StyledViewPdfBtn = styled(BaseLinkButton, {
+    name: 'Styled View Pdf Btn',
+    slot: 'Root'
+})`
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
 `;
 
 export const StyledHeader = styled(Box, {
@@ -107,4 +120,12 @@ export const StyledFooter = styled(Box, {
     justify-content: space-between;
     gap: 1rem;
     border-top: 1px solid lightgray;
+`;
+
+export const StyledTableCell = styled(TableCell, {
+    name: 'Styled Footer',
+    slot: 'Root'
+})`
+    font-size: inherit;
+    padding: inherit;
 `;

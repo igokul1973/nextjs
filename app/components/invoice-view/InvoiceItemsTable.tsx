@@ -1,15 +1,16 @@
 import { formatCurrency } from '@/app/lib/utils';
-import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
-import { capitalize } from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
-import TableCell, { TableCellProps } from '@mui/material/TableCell';
+import { TableCellProps } from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { FC } from 'react';
 import { IInvoiceItemsTableProps } from './types';
+import { getI18n } from '@/locales/server';
+import capitalize from '@mui/material/utils/capitalize';
+import { StyledTableCell } from './styled';
 
 const headerRowCells: {
     title: Partial<TSingleTranslationKey>;
@@ -33,61 +34,69 @@ const headerRowCells: {
     }
 ];
 
-const InvoiceItemsTable: FC<IInvoiceItemsTableProps> = ({ tax, invoiceItems, locale }) => {
-    const t = useI18n();
+const InvoiceItemsTable: FC<IInvoiceItemsTableProps> = async ({
+    tax,
+    invoiceItems,
+    discount,
+    locale
+}) => {
+    const t = await getI18n();
     const subtotal = invoiceItems.map(({ price }) => price).reduce((sum, i) => sum + i, 0);
-    const taxSubtotal = subtotal * (tax / 100);
-    const total = subtotal + taxSubtotal;
+    const discountSubtotal = subtotal * (discount / 100);
+    const totalAfterDiscount = subtotal - discountSubtotal;
+    const taxSubtotal = totalAfterDiscount * (tax / 100);
+    const total = totalAfterDiscount + taxSubtotal;
     return (
         <TableContainer>
             <Table sx={{ minWidth: 700 }} aria-label='spanning table'>
                 <TableHead>
                     <TableRow>
                         {headerRowCells.map((cell) => (
-                            <TableCell isScaledInvoice key={cell.title} align={cell.alignment}>
+                            <StyledTableCell key={cell.title} align={cell.alignment}>
                                 {capitalize(t(cell.title))}
-                            </TableCell>
+                            </StyledTableCell>
                         ))}
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {invoiceItems.map((ii) => (
                         <TableRow key={ii.id}>
-                            <TableCell isScaledInvoice>{ii.name}</TableCell>
-                            <TableCell align='right' isScaledInvoice>
-                                {ii.quantity}
-                            </TableCell>
-                            <TableCell align='right' isScaledInvoice>
+                            <StyledTableCell>{ii.name}</StyledTableCell>
+                            <StyledTableCell align='right'>{ii.quantity}</StyledTableCell>
+                            <StyledTableCell align='right'>
                                 {formatCurrency(ii.price, locale)}
-                            </TableCell>
-                            <TableCell align='right' isScaledInvoice>
+                            </StyledTableCell>
+                            <StyledTableCell align='right'>
                                 {formatCurrency(ii.price * ii.quantity, locale)}
-                            </TableCell>
+                            </StyledTableCell>
                         </TableRow>
                     ))}
                     <TableRow>
-                        <TableCell rowSpan={3} isScaledInvoice />
-                        <TableCell colSpan={2} isScaledInvoice>
-                            {capitalize(t('subtotal'))}
-                        </TableCell>
-                        <TableCell align='right' isScaledInvoice>
+                        <StyledTableCell rowSpan={4} sx={{ borderBottom: 'none' }} />
+                        <StyledTableCell colSpan={2}>{capitalize(t('subtotal'))}</StyledTableCell>
+                        <StyledTableCell align='right'>
                             {formatCurrency(subtotal, locale)}
-                        </TableCell>
+                        </StyledTableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell isScaledInvoice>{capitalize(t('tax'))}</TableCell>
-                        <TableCell align='right' isScaledInvoice>{`${tax} %`}</TableCell>
-                        <TableCell align='right' isScaledInvoice>
+                        <StyledTableCell>{capitalize(t('rebate/discount'))}</StyledTableCell>
+                        <StyledTableCell align='right'>{`${discount} %`}</StyledTableCell>
+                        <StyledTableCell align='right'>
+                            {formatCurrency(discountSubtotal, locale)}%
+                        </StyledTableCell>
+                    </TableRow>
+                    <TableRow>
+                        <StyledTableCell>{capitalize(t('tax'))}</StyledTableCell>
+                        <StyledTableCell align='right'>{`${tax} %`}</StyledTableCell>
+                        <StyledTableCell align='right'>
                             {formatCurrency(taxSubtotal, locale)}
-                        </TableCell>
+                        </StyledTableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell colSpan={2} isScaledInvoice>
-                            {capitalize(t('total'))}
-                        </TableCell>
-                        <TableCell align='right' isScaledInvoice>
+                        <StyledTableCell colSpan={2}>{capitalize(t('total'))}</StyledTableCell>
+                        <StyledTableCell align='right'>
                             {formatCurrency(total, locale)}
-                        </TableCell>
+                        </StyledTableCell>
                     </TableRow>
                 </TableBody>
             </Table>

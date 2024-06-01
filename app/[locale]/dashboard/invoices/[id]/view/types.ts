@@ -5,5 +5,6 @@ export interface IProps {
     };
     searchParams: {
         number: string;
+        isPdf?: string;
     };
 }

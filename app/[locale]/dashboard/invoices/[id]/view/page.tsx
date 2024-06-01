@@ -12,7 +12,7 @@ import { StyledBox, StyledHeader } from '../../styled';
 import ViewInvoiceData from './ViewInvoiceData';
 import { IProps } from './types';
 
-const Page: FC<IProps> = async ({ params: { id, locale }, searchParams: { number } }) => {
+const Page: FC<IProps> = async ({ params: { id, locale }, searchParams: { number, isPdf } }) => {
     setStaticParamsLocale(locale);
 
     const t = await getI18n();
@@ -37,10 +37,27 @@ const Page: FC<IProps> = async ({ params: { id, locale }, searchParams: { number
                 >
                     {capitalize(t('invoices'))}
                 </Link>
-                <Typography color='text.primary'>{capitalize(t('view invoice'))}</Typography>
+
+                {isPdf ? (
+                    <>
+                        <Link
+                            component={NextLink}
+                            underline='hover'
+                            color='inherit'
+                            href={`/dashboard/invoices/${id}/view?number=${number}`}
+                        >
+                            {capitalize(t('view invoice'))}
+                        </Link>
+                        <Typography color='text.primary'>
+                            {capitalize(t('view pdf invoice'))}
+                        </Typography>
+                    </>
+                ) : (
+                    <Typography color='text.primary'>{capitalize(t('view invoice'))}</Typography>
+                )}
             </Breadcrumbs>
             <Suspense fallback={<Loading />}>
-                <ViewInvoiceData params={{ id, locale }} searchParams={{ number }} />
+                <ViewInvoiceData params={{ id, locale }} searchParams={{ number, isPdf }} />
             </Suspense>
         </StyledBox>
     );

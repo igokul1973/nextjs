@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { TEntity } from '../types';
 
-export const useLogo = (entity?: { logo: TEntity['logo'] } | null) => {
+export const useLogo = (logo?: { logo: TEntity['logo'] } | null) => {
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
     useEffect(() => {
-        if (entity && entity.logo) {
+        if (logo && logo.logo) {
             const logoFile =
-                entity.logo === null
+                logo.logo === null
                     ? null
-                    : new File([Buffer.from(entity.logo.data)], entity.logo.name, {
-                          type: entity.logo.type
+                    : new File([Buffer.from(logo.logo.data)], logo.logo.name, {
+                          type: logo.logo.type
                       });
             const logoUrl = logoFile && URL.createObjectURL(logoFile);
 
@@ -21,7 +21,7 @@ export const useLogo = (entity?: { logo: TEntity['logo'] } | null) => {
         } else {
             setLogoUrl(null);
         }
-    }, [entity]);
+    }, [logo]);
 
     return [logoUrl];
 };

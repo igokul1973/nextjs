@@ -8,12 +8,6 @@ declare module '@mui/material/styles' {
     }
 }
 
-declare module '@mui/material/TableCell' {
-    interface TableCellProps {
-        isScaledInvoice?: boolean;
-    }
-}
-
 // The theme will be created in the ThemeRegistry.tsx
 const theme: ThemeOptions = {
     palette: {
@@ -92,19 +86,22 @@ const theme: ThemeOptions = {
                     maxWidth: '500px'
                 }
             }
-        },
-        MuiTableCell: {
-            styleOverrides: {
-                root: ({ isScaledInvoice }) => {
-                    return {
-                        ...(isScaledInvoice && {
-                            fontSize: 'inherit',
-                            padding: 'inherit'
-                        })
-                    };
-                }
-            }
         }
+        /* Example of a MUI component style overrides */
+        // MuiTableCell: {
+        //     styleOverrides: {
+        // The function may check the presense of the custom property
+        // on the element, such as isScaledInvoice
+        //         root: ({ isScaledInvoice }) => {
+        //             return {
+        //                 ...(isScaledInvoice && {
+        //                     fontSize: 'inherit',
+        //                     padding: 'inherit'
+        //                 })
+        //             };
+        //         }
+        //     }
+        // },
         /* Example of a custom component style overrides */
         // GameButtonComponent: {
         //     styleOverrides: {
