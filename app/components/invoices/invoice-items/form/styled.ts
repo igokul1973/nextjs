@@ -18,6 +18,10 @@ export const StyledBox = styled(Box, {
         flex: 1 0 auto;
     }
 
+    & > :nth-child(3) {
+        flex: 1 0 50px;
+    }
+
     & > :last-child {
         flex: 1 0 50px;
     }

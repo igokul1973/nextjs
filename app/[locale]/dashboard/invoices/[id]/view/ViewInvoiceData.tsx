@@ -1,7 +1,7 @@
 import InvoiceView from '@/app/components/invoice-view/InvoiceView';
 import Warning from '@/app/components/warning/Warning';
 import { getInvoiceById } from '@/app/lib/data/invoice';
-import { formatCurrency, getUser } from '@/app/lib/utils';
+import { capitalize, formatCurrency, formatNumeroSign, getUser } from '@/app/lib/utils';
 import Box from '@mui/material/Box';
 import { setStaticParamsLocale } from 'next-international/server';
 import { notFound } from 'next/navigation';
@@ -61,6 +61,8 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
         return (await r.json()).url;
     };
 
+    const numberSymbol = formatNumeroSign(locale);
+
     const subtotal = invoice.invoiceItems.map(({ price }) => price).reduce((sum, i) => sum + i, 0);
     const discountSubtotal = subtotal * (invoice.discount / 100);
     const totalAfterDiscount = subtotal - discountSubtotal;
@@ -70,9 +72,9 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
     try {
         const d = {
             // logo: invoice.providerLogo,
-            logo: 'logo',
+            // logo: 'logo',
             providerName: invoice.providerName,
-            invoiceTitle: t('invoice').toUpperCase(),
+            invoiceTitle: `${t('invoice').toUpperCase()} ${numberSymbol}`,
             customerInfo: `${invoice.customerName}
                 ${invoice.customerAddressLine1}${invoice.customerAddressLine2 ? '\n' + invoice.customerAddressLine2 : ''}${invoice.customerAddressLine3 ? '\n' + invoice.customerAddressLine3 : ''}
                 ${invoice.customerLocality} ${invoice.customerRegion ? invoice.customerRegion + ' ' : ''}${invoice.customerPostCode}
@@ -105,35 +107,34 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
                     ]
                 ]
             },
-            invoiceNumberTitle: 'Invoice #',
             invoiceNumber: invoice.number,
-            customerNumberTitle: 'Customer #',
-            customerNumber: '323',
-            invoiceDateTitle: 'Date',
+            customerCodeTitle: `${capitalize(t('customer'))} ${numberSymbol}`,
+            customerCode: invoice.customerCode,
+            invoiceDateTitle: capitalize(t('date')),
             invoiceDate: invoice.date,
-            yourReferenceTitle: 'Your reference',
-            yourReference: 'Vlad Tsehanovsckiy',
-            ourReferenceTitle: 'Our reference',
-            ourReference: 'Anton Tajiev',
-            customerLocalIdentifierTitle: 'Customer EIN or SSN',
-            customerLocalIdentifier: '521387-8392',
-            providerLocalIdentifierTitle: 'Provider EIN or SSN',
-            providerLocalIdentifier: '521387-8392',
-            paymentTermsTitle: 'Payment terms',
-            paymentTerms: invoice.paymentInfo,
-            payByTitle: 'Pay by date',
+            customerReferenceTitle: capitalize(t('your reference')) + ':',
+            customerReference: invoice.customerRef,
+            providerReferenceTitle: capitalize(t('our reference')) + ':',
+            providerReference: invoice.providerRef,
+            customerLocalIdentifierTitle: `${capitalize(t('your'))} ${invoice.customerLocalIdentifierNameAbbrev}:`,
+            customerLocalIdentifierValue: invoice.customerLocalIdentifierValue,
+            providerLocalIdentifierTitle: `${capitalize(t('our'))} ${invoice.providerLocalIdentifierNameAbbrev}:`,
+            providerLocalIdentifierValue: invoice.providerLocalIdentifierValue,
+            paymentTermsTitle: capitalize(t('payment terms')) + ':',
+            termsTitle: capitalize(t('terms')),
+            terms: invoice.terms,
+            paymentTerms: invoice.paymentTerms,
+            payByTitle: capitalize(t('pay by date')) + ':',
             payBy: invoice.payBy,
-            deliveryTermsTitle: 'Delivery terms',
-            deliveryTerms: invoice.terms ?? '',
-            additionalInfo: invoice.additionalInformation ?? '',
-            providerPhones: `For billing inquiries:
+            deliveryTermsTitle: capitalize(t('delivery terms')),
+            deliveryTerms: invoice.terms,
+            additionalInfo: invoice.additionalInformation,
+            providerPhones: `${capitalize(t('for billing inquiries'))}:
                 ${invoice.providerPhone}
                 ${invoice.providerEmail}
                 `,
-            bankingInfo: `Bankgiro:
-                839-0938
-                Plusgiro:
-                502-2834
+            bankingInfo: `${capitalize(t('payment information'))}:
+                ${invoice.paymentInfo}
                 `
         };
         const url = isPdf && (await fetchPdfUrl(d));

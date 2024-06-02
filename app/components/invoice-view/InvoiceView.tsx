@@ -8,6 +8,7 @@ import { FC, useMemo } from 'react';
 import CustomerTable from './CustomerTable';
 import InvoiceItemsTable from './InvoiceItemsTable';
 import {
+    FlexBox,
     StyledAdditionalInfo,
     StyledCustomerInfo,
     StyledFooter,
@@ -19,7 +20,7 @@ import {
 } from './styled';
 import { IProps } from './types';
 import { getI18n } from '@/locales/server';
-import { capitalize } from '@/app/lib/utils';
+import { capitalize, formatNumeroSign } from '@/app/lib/utils';
 import ImageView from './ImageView';
 
 const InvoiceView: FC<IProps> = async ({ invoice, locale }) => {
@@ -27,6 +28,7 @@ const InvoiceView: FC<IProps> = async ({ invoice, locale }) => {
     const l = invoice.providerLogo;
     const b = l && Buffer.from(l.data);
     const { customer, invoiceItems } = invoice;
+    const numberSymbol = formatNumeroSign(locale);
 
     return (
         <StyledInvoice component={Paper} className='invoice-view'>
@@ -37,21 +39,83 @@ const InvoiceView: FC<IProps> = async ({ invoice, locale }) => {
             />
             <StyledHeader component='section' className='provider-info'>
                 {l && b && <ImageView image={b} name={l.name} type={l.type} />}
-                <Typography variant='h3'>{invoice.providerName}</Typography>
+                <Typography variant='h3'>{invoice.providerName.toUpperCase()}</Typography>
             </StyledHeader>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Box sx={{ display: 'flex' }}>
                 <StyledInvoiceInfo component='section' className='invoice-info'>
                     <Typography variant='h2'>
-                        {capitalize(t('invoice'))} # {invoice.number}
+                        {t('invoice').toUpperCase()} {numberSymbol} {invoice.number}
                     </Typography>
-                    <Typography variant='h5'>
-                        {capitalize(t('invoice date'))}: {invoice.date}
-                    </Typography>
+                    <Box
+                        sx={{
+                            width: '100%',
+                            marginTop: '1rem',
+                            display: 'flex',
+                            gap: '3rem'
+                        }}
+                    >
+                        <Typography variant='h5'>
+                            {capitalize(t('invoice date'))}: {invoice.date}
+                        </Typography>
+                        {invoice.customerCode && (
+                            <Typography variant='h5'>
+                                {capitalize(t('customer'))} {numberSymbol}: {invoice.customerCode}
+                            </Typography>
+                        )}
+                    </Box>
                 </StyledInvoiceInfo>
                 <StyledCustomerInfo component='section' className='customer-info'>
                     <CustomerTable customer={customer} />
                     {/* <Debug debugObject={invoice.customer} /> */}
                 </StyledCustomerInfo>
+            </Box>
+            <Box sx={{ display: 'flex' }}>
+                <Box sx={{ flex: 1, display: 'flex', gap: '4rem' }}>
+                    <Box>
+                        {invoice.customerRef && (
+                            <Typography>{capitalize(t('our reference'))}:</Typography>
+                        )}
+                        {invoice.providerRef && (
+                            <Typography>{capitalize(t('your reference'))}:</Typography>
+                        )}
+                        {invoice.customerLocalIdentifierValue && (
+                            <Typography>
+                                {capitalize(t('your'))} {invoice.customerLocalIdentifierNameAbbrev}:
+                            </Typography>
+                        )}
+                        {invoice.providerLocalIdentifierValue && (
+                            <Typography>
+                                {capitalize(t('your'))} {invoice.customerLocalIdentifierNameAbbrev}:
+                            </Typography>
+                        )}
+                    </Box>
+                    <Box>
+                        {invoice.customerRef && <Typography>{invoice.customerRef}</Typography>}
+                        {invoice.providerRef && <Typography>{invoice.providerRef}</Typography>}
+                        {invoice.customerLocalIdentifierValue && (
+                            <Typography>{invoice.customerLocalIdentifierValue}</Typography>
+                        )}
+                        {invoice.providerLocalIdentifierValue && (
+                            <Typography>{invoice.providerLocalIdentifierValue}</Typography>
+                        )}
+                    </Box>
+                </Box>
+                <Box sx={{ flex: 1, display: 'flex', gap: '4rem' }}>
+                    <Box>
+                        <Typography>{capitalize(t('pay by date'))}:</Typography>
+                        {invoice.paymentTerms && (
+                            <Typography>{capitalize(t('payment terms'))}:</Typography>
+                        )}
+                        {invoice.deliveryTerms && (
+                            <Typography>{capitalize(t('delivery terms'))}:</Typography>
+                        )}
+                    </Box>
+                    <Box>
+                        <Typography>{invoice.payBy}:</Typography>
+                        {invoice.paymentTerms && <Typography>{invoice.paymentTerms}</Typography>}
+                        {invoice.deliveryTerms && <Typography>{invoice.deliveryTerms}</Typography>}
+                    </Box>
+                </Box>
             </Box>
             <StyledInvoiceItems component='section' className='invoice-items'>
                 <InvoiceItemsTable
@@ -65,6 +129,11 @@ const InvoiceView: FC<IProps> = async ({ invoice, locale }) => {
                 <StyledAdditionalInfo component='section' className='invoice-additional-info'>
                     {capitalize(t('additional information'))}:
                     <Box>{invoice.additionalInformation}</Box>
+                </StyledAdditionalInfo>
+            )}
+            {invoice.terms && (
+                <StyledAdditionalInfo component='section' className='invoice-additional-info'>
+                    {capitalize(t('terms'))}:<Box>{invoice.terms}</Box>
                 </StyledAdditionalInfo>
             )}
             <StyledFooter component='section' className='provider-info'>
@@ -84,16 +153,13 @@ const InvoiceView: FC<IProps> = async ({ invoice, locale }) => {
                     </Box>
                 </Box>
                 <Box>
-                    <Box>{capitalize(t('provider email'))}:</Box>
+                    <Box>{capitalize(t('for billing inquiries'))}:</Box>
+                    <Box>{invoice.providerPhone}</Box>
                     <Box>{invoice.providerEmail}</Box>
                 </Box>
                 <Box>
-                    <Box>{capitalize(t('provider phone'))}:</Box>
-                    <Box>{invoice.providerPhone}</Box>
-                </Box>
-                <Box>
                     <Box>{capitalize(t('payment info'))}:</Box>
-                    <Box>{invoice.paymentInfo}</Box>
+                    <Box sx={{ whiteSpace: 'pre-wrap' }}>{invoice.paymentInfo}</Box>
                 </Box>
             </StyledFooter>
         </StyledInvoice>

@@ -11,6 +11,33 @@ import {
 } from '@prisma/client';
 import { LocaleEnum } from './types.ts';
 
+const measurementUnits = [
+    {
+        name: 'not applicable',
+        abbreviation: 'n/a'
+    },
+    {
+        name: 'pieces',
+        abbreviation: 'pc'
+    },
+    {
+        name: 'hours',
+        abbreviation: 'hr'
+    },
+    {
+        name: 'square meters',
+        abbreviation: 'sq.m.'
+    },
+    {
+        name: 'meters',
+        abbreviation: 'm'
+    },
+    {
+        name: 'pounds',
+        abbreviation: 'lb'
+    }
+];
+
 const countries = [
     {
         name: 'United States of America',
@@ -37,10 +64,12 @@ const countries = [
         localIdentifierNames: [
             {
                 name: 'Organisationsnummer',
+                abbreviation: 'org.nr.',
                 type: EntitiesEnum.organization
             },
             {
                 name: 'Personnummer',
+                abbreviation: 'pers.nr.',
                 type: EntitiesEnum.individual
             }
         ]
@@ -609,7 +638,7 @@ const invoices = [
         payBy: '2022-12-30',
         paidOn: '2022-12-29',
         paymentInfo: 'This is a payment info',
-        tax: 20
+        paymentTerms: '15 days from the invoice date'
     },
     {
         date: '2023-02-16',
@@ -620,7 +649,8 @@ const invoices = [
         payBy: '2023-03-12',
         paidOn: '2023-03-08',
         paymentInfo: 'This is a payment info',
-        tax: 20
+        deliveryTerms: 'FOB',
+        delivery: 10
     },
     {
         date: '2023-03-26',
@@ -631,7 +661,6 @@ const invoices = [
         paidOn: '2023-04-19',
         paymentInfo: 'This is a payment info',
         notes: 'This company is sometimes overdue with its invoice payments',
-        tax: 10,
         discount: 5
     },
     {
@@ -640,7 +669,7 @@ const invoices = [
         purchaseOrderNumbers: ['PO988984', 'PO389630'],
         payBy: '2023-06-11',
         paymentInfo: 'This is a payment info',
-        tax: 20
+        paymentTerms: '15 days from the invoice date'
     },
     {
         date: '2023-05-11',
@@ -648,7 +677,7 @@ const invoices = [
         purchaseOrderNumbers: ['PO322384'],
         payBy: '2023-06-11',
         paymentInfo: 'This is a payment info',
-        tax: 10,
+        paymentTerms: '30 days from the invoice date',
         discount: 5
     },
     {
@@ -660,8 +689,9 @@ const invoices = [
         payBy: '2024-04-15',
         paymentInfo: 'This is a payment info',
         notes: 'Gotta check out if anything is wrong before moving status to pending',
-        tax: 10,
-        discount: 5
+        discount: 5,
+        deliveryTerms: 'We will notify you when it is ready to be shipped',
+        delivery: 10
     },
     {
         date: '2024-04-01',
@@ -671,7 +701,8 @@ const invoices = [
         additionalInformation: 'Some additional information',
         payBy: '2024-04-19',
         paymentInfo: 'This is a payment info for my company',
-        tax: 10
+        deliveryTerms: 'Quote delivery time, upon receipt of each order',
+        delivery: 50
     }
 ];
 
@@ -692,6 +723,7 @@ const invoices = [
 
 export {
     countries,
+    measurementUnits,
     customerIndividuals,
     customerOrganizations,
     inventory,

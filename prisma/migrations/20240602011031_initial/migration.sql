@@ -152,6 +152,20 @@ CREATE TABLE "individual_emails" (
 );
 
 -- CreateTable
+CREATE TABLE "measurement_units" (
+    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "name" VARCHAR(255) NOT NULL,
+    "abbreviation" VARCHAR(255),
+    "account_id" UUID NOT NULL,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(3) NOT NULL,
+    "created_by" UUID NOT NULL,
+    "updated_by" UUID NOT NULL,
+
+    CONSTRAINT "measurement_units_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "countries" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "name" VARCHAR(255) NOT NULL,
@@ -270,6 +284,7 @@ CREATE TABLE "inventory" (
 -- CreateTable
 CREATE TABLE "customers" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "code" VARCHAR(255),
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -282,6 +297,8 @@ CREATE TABLE "invoice" (
     "number" TEXT NOT NULL,
     "date" TIMESTAMPTZ(3) NOT NULL,
     "customer_name" VARCHAR(255) NOT NULL,
+    "customer_local_identifier_name_abbrev" VARCHAR(255),
+    "customer_local_identifier_value" VARCHAR(255),
     "customer_address_line_1" VARCHAR(255) NOT NULL,
     "customer_address_line_2" VARCHAR(255),
     "customer_address_line_3" VARCHAR(255),
@@ -291,9 +308,13 @@ CREATE TABLE "invoice" (
     "customer_country" VARCHAR(255) NOT NULL,
     "customer_phone" VARCHAR(255) NOT NULL,
     "customer_email" VARCHAR(255) NOT NULL,
+    "customer_ref" VARCHAR(255),
+    "customer_code" VARCHAR(255),
     "customer_id" UUID NOT NULL,
     "provider_logo_id" UUID,
     "provider_name" VARCHAR(255) NOT NULL,
+    "provider_local_identifier_name_abbrev" VARCHAR(255),
+    "provider_local_identifier_value" VARCHAR(255),
     "provider_address_line_1" VARCHAR(255) NOT NULL,
     "provider_address_line_2" VARCHAR(255),
     "provider_address_line_3" VARCHAR(255),
@@ -303,6 +324,7 @@ CREATE TABLE "invoice" (
     "provider_country" VARCHAR(255) NOT NULL,
     "provider_phone" VARCHAR(255) NOT NULL,
     "provider_email" VARCHAR(255) NOT NULL,
+    "provider_ref" VARCHAR(255),
     "status" "invoiceStatus" NOT NULL,
     "purchase_order_numbers" VARCHAR(255)[],
     "manufacturer_invoice_numbers" VARCHAR(255)[],
@@ -310,9 +332,11 @@ CREATE TABLE "invoice" (
     "pay_by" TIMESTAMPTZ(3) NOT NULL,
     "paid_on" TIMESTAMPTZ(3),
     "payment_info" TEXT,
+    "paymentTerms" TEXT,
+    "deliveryTerms" TEXT,
     "terms" TEXT,
-    "tax" INTEGER NOT NULL DEFAULT 0,
     "discount" INTEGER NOT NULL DEFAULT 0,
+    "delivery" INTEGER NOT NULL DEFAULT 0,
     "notes" TEXT,
     "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(3) NOT NULL,
@@ -326,7 +350,10 @@ CREATE TABLE "invoice" (
 CREATE TABLE "invoice_items" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "name" TEXT NOT NULL,
+    "measurement_unit_id" UUID NOT NULL,
     "price" BIGINT NOT NULL,
+    "sales_tax" INTEGER NOT NULL DEFAULT 0,
+    "discount" INTEGER NOT NULL DEFAULT 0,
     "quantity" INTEGER NOT NULL,
     "invoice_id" UUID NOT NULL,
     "inventory_id" UUID NOT NULL,
@@ -351,6 +378,9 @@ CREATE UNIQUE INDEX "profiles_avatar_id_key" ON "profiles"("avatar_id");
 CREATE UNIQUE INDEX "profiles_user_id_key" ON "profiles"("user_id");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "measurement_units_name_account_id_key" ON "measurement_units"("name", "account_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "local_identifier_names_name_country_id_key" ON "local_identifier_names"("name", "country_id");
 
 -- CreateIndex
@@ -370,6 +400,9 @@ CREATE UNIQUE INDEX "inventory_type_type_key" ON "inventory_type"("type");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "invoice_provider_logo_id_key" ON "invoice"("provider_logo_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "invoice_items_name_invoice_id_key" ON "invoice_items"("name", "invoice_id");
 
 -- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -394,6 +427,9 @@ ALTER TABLE "organization_emails" ADD CONSTRAINT "organization_emails_organizati
 
 -- AddForeignKey
 ALTER TABLE "individual_emails" ADD CONSTRAINT "individual_emails_individual_id_fkey" FOREIGN KEY ("individual_id") REFERENCES "individuals"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "measurement_units" ADD CONSTRAINT "measurement_units_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "local_identifier_names" ADD CONSTRAINT "local_identifier_names_country_id_fkey" FOREIGN KEY ("country_id") REFERENCES "countries"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -448,6 +484,9 @@ ALTER TABLE "invoice" ADD CONSTRAINT "invoice_created_by_fkey" FOREIGN KEY ("cre
 
 -- AddForeignKey
 ALTER TABLE "invoice" ADD CONSTRAINT "invoice_updated_by_fkey" FOREIGN KEY ("updated_by") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "invoice_items" ADD CONSTRAINT "invoice_items_measurement_unit_id_fkey" FOREIGN KEY ("measurement_unit_id") REFERENCES "measurement_units"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "invoice_items" ADD CONSTRAINT "invoice_items_invoice_id_fkey" FOREIGN KEY ("invoice_id") REFERENCES "invoice"("id") ON DELETE CASCADE ON UPDATE CASCADE;

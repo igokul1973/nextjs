@@ -24,6 +24,7 @@ import {
     inventory,
     inventoryTypes,
     invoices,
+    measurementUnits,
     organizationTypes,
     profiles,
     providerIndividual,
@@ -144,9 +145,11 @@ async function seedAccounts() {
 async function seedUsers() {
     console.log('Seeding users...');
     // Should return 2 accounts
-    const accounts = await prisma.account.findMany();
-    if (!accounts.length) {
-        throw Error('The accounts are not found, something went wrong..');
+    const accounts = (await prisma.account.findMany({ include: { users: true } })).filter(
+        (a) => !a.users.length
+    );
+    if (!accounts.length && accounts.length !== 2) {
+        throw Error('The accounts are not found or found more than 2, something went wrong..');
     }
 
     const sanitizedUsers = await Promise.all(
@@ -161,6 +164,32 @@ async function seedUsers() {
     return prisma.user.createMany({
         data: sanitizedUsers
     });
+}
+
+async function seedMeasurementUnits() {
+    console.log('Seeding measurement units...');
+    const admins = await getAdmins();
+    if (!admins.length) {
+        throw Error('The admins are not found, something went wrong..');
+    }
+
+    const updatePromises = admins.map(async (admin) => {
+        const data: Prisma.accountUpdateInput = {
+            measurementUnits: {
+                create: measurementUnits.map((m) => ({
+                    ...m,
+                    createdBy: admin.id,
+                    updatedBy: admin.id
+                }))
+            }
+        };
+        return prisma.account.update({
+            data,
+            where: { id: admin.accountId }
+        });
+    });
+
+    return Promise.all(updatePromises);
 }
 
 async function seedProfiles() {
@@ -472,7 +501,7 @@ async function seedCustomers() {
         }
 
         // Now, let's try creating organization customers for the current admin
-        const customerOrgCreatePromises = customerOrgs.map(async (customerOrgData) => {
+        const customerOrgCreatePromises = customerOrgs.map(async (customerOrgData, index) => {
             const {
                 type,
                 address: orgAddress,
@@ -556,6 +585,7 @@ async function seedCustomers() {
 
             return prisma.customer.create({
                 data: {
+                    code: `O-${index + 1}`,
                     organization: {
                         create: sanitizedCustomerOrganization
                     }
@@ -564,87 +594,90 @@ async function seedCustomers() {
         });
 
         // Now, let's try creating individual customers for the current admin
-        const customerIndCreatePromises = customerInds.map(async (customerIndividualData) => {
-            const indLocalIdentifier = localIdentifiers.find(
-                (li) => li.countryId === adminCountry.id && li.type === EntitiesEnum.individual
-            );
-
-            if (!indLocalIdentifier) {
-                throw Error(
-                    'The individual local identifier is not found, something went wrong.. Try to correct your data.'
+        const customerIndCreatePromises = customerInds.map(
+            async (customerIndividualData, index) => {
+                const indLocalIdentifier = localIdentifiers.find(
+                    (li) => li.countryId === adminCountry.id && li.type === EntitiesEnum.individual
                 );
-            }
 
-            const {
-                address: indAddress,
-                emails: indEmails,
-                phones: indPhones,
-                dob,
-                ...customerIndividual
-            } = customerIndividualData;
+                if (!indLocalIdentifier) {
+                    throw Error(
+                        'The individual local identifier is not found, something went wrong.. Try to correct your data.'
+                    );
+                }
 
-            const { country, ...sanitizedIndividualAddress } = indAddress;
+                const {
+                    address: indAddress,
+                    emails: indEmails,
+                    phones: indPhones,
+                    dob,
+                    ...customerIndividual
+                } = customerIndividualData;
 
-            const createdIndividualAddress = await prisma.address.create({
-                select: {
-                    id: true
-                },
-                data: {
-                    ...sanitizedIndividualAddress,
-                    createdBy: admin.id,
-                    updatedBy: admin.id,
-                    country: {
-                        connect: {
-                            id: adminCountry.id
+                const { country, ...sanitizedIndividualAddress } = indAddress;
+
+                const createdIndividualAddress = await prisma.address.create({
+                    select: {
+                        id: true
+                    },
+                    data: {
+                        ...sanitizedIndividualAddress,
+                        createdBy: admin.id,
+                        updatedBy: admin.id,
+                        country: {
+                            connect: {
+                                id: adminCountry.id
+                            }
                         }
                     }
-                }
-            });
+                });
 
-            const sanitizedIndividualEmails = indEmails.map((ie) => {
-                return {
-                    ...ie,
+                const sanitizedIndividualEmails = indEmails.map((ie) => {
+                    return {
+                        ...ie,
+                        createdBy: admin.id,
+                        updatedBy: admin.id
+                    };
+                });
+
+                const sanitizedIndividualPhones = indPhones.map((ip) => {
+                    return {
+                        ...ip,
+                        createdBy: admin.id,
+                        updatedBy: admin.id
+                    };
+                });
+
+                const sanitizedCustomerIndividual = {
+                    ...customerIndividual,
+                    accountId: admin?.accountId,
+                    localIdentifierNameId: indLocalIdentifier.id,
                     createdBy: admin.id,
-                    updatedBy: admin.id
+                    updatedBy: admin.id,
+                    addressId: createdIndividualAddress.id,
+                    dob: new Date(dob),
+                    emails: {
+                        createMany: {
+                            data: sanitizedIndividualEmails
+                        }
+                    },
+                    phones: {
+                        createMany: {
+                            data: sanitizedIndividualPhones
+                        }
+                    }
                 };
-            });
 
-            const sanitizedIndividualPhones = indPhones.map((ip) => {
-                return {
-                    ...ip,
-                    createdBy: admin.id,
-                    updatedBy: admin.id
-                };
-            });
-
-            const sanitizedCustomerIndividual = {
-                ...customerIndividual,
-                accountId: admin?.accountId,
-                localIdentifierNameId: indLocalIdentifier.id,
-                createdBy: admin.id,
-                updatedBy: admin.id,
-                addressId: createdIndividualAddress.id,
-                dob: new Date(dob),
-                emails: {
-                    createMany: {
-                        data: sanitizedIndividualEmails
+                return prisma.customer.create({
+                    data: {
+                        code: `I-${index + 1}`,
+                        individual: {
+                            create: sanitizedCustomerIndividual
+                        }
                     }
-                },
-                phones: {
-                    createMany: {
-                        data: sanitizedIndividualPhones
-                    }
-                }
-            };
-
-            return prisma.customer.create({
-                data: {
-                    individual: {
-                        create: sanitizedCustomerIndividual
-                    }
-                }
-            });
-        });
+                });
+            }
+        );
         return customerOrgCreatePromises.concat(customerIndCreatePromises);
     });
 
@@ -703,6 +736,7 @@ async function seedInvoices() {
             throw Error('The provider is not found. Please seed one first.');
         }
         const inventory = user.account.inventory;
+        const measurementUnits = user.account.measurementUnits;
         if (!inventory.length) {
             throw Error('The account does not have inventory. Please seed one first.');
         }
@@ -717,6 +751,7 @@ async function seedInvoices() {
                 }
                 const address = customer.address;
                 const customerPhone = getEntityFirstPhoneString(customer);
+                const customerCode = customer.customer.code;
 
                 const customerEmail = getEntityFirstEmailString(customer);
                 // Provider info has to be remembered on the invoice
@@ -742,9 +777,12 @@ async function seedInvoices() {
                 const providerEmail = getEntityFirstEmailString(
                     concreteProvider as unknown as TEntity
                 );
+                const providerLocalIdentifierNameAbbrev =
+                    concreteProvider.localIdentifierName.abbreviation;
+                const providerLocalIdentifierValue = concreteProvider.localIdentifierValue;
 
                 return invoices.map((invoice) => {
-                    const invoiceItems = inventory.map((inventoryItem) => {
+                    const invoiceItems = inventory.map((inventoryItem, index) => {
                         return {
                             name: inventoryItem.name,
                             price: inventoryItem.price,
@@ -755,6 +793,12 @@ async function seedInvoices() {
                                     ? 1
                                     : Math.floor(Math.random() * 3) + 1,
                             inventoryId: inventoryItem.id,
+                            salesTax: index % 2 === 0 ? 8 : index % 3 === 0 ? 3 : 0,
+                            measurementUnitId:
+                                measurementUnits[
+                                    Math.floor(Math.random() * measurementUnits.length)
+                                ].id,
+                            discount: index % 2 === 0 ? 10 : index % 3 === 0 ? 20 : 0,
                             createdBy: user.id,
                             updatedBy: user.id
                         };
@@ -778,9 +822,17 @@ async function seedInvoices() {
                         customerCountry: address.country.name,
                         customerPhone,
                         customerEmail,
+                        customerCode,
+                        customerLocalIdentifierNameAbbrev:
+                            customer.localIdentifierName.abbreviation,
+                        customerLocalIdentifierValue: customer.localIdentifierValue,
+                        customerRef: 'Some customer reference',
+                        providerLocalIdentifierNameAbbrev,
+                        providerLocalIdentifierValue,
                         providerLogo: {
                             create: providerLogoData
                         },
+                        providerRef: 'Some provider reference',
                         providerName,
                         providerAddressLine1,
                         providerAddressLine2,
@@ -899,6 +951,10 @@ async function seedDatabase() {
     await seedUsers();
     console.log('--------------------------------');
     console.log('Seeded users');
+    console.log('--------------------------------\n');
+    await seedMeasurementUnits();
+    console.log('--------------------------------');
+    console.log('Seeded measurement units');
     console.log('--------------------------------\n');
     await seedProfiles();
     console.log('--------------------------------');

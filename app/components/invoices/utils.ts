@@ -28,7 +28,6 @@ export const getDefaultFormValues = (userId: string, provider: TEntity): TInvoic
         paidOn: null,
         paymentInfo: '',
         terms: '',
-        tax: 0.0,
         discount: 0.0,
         notes: '',
         invoiceItems: getInoiceItemsInitial(userId),
@@ -45,6 +44,7 @@ export const getInoiceItemsInitial = (userId: string): TInvoiceItem[] => {
             inventoryItem: null,
             price: null,
             quantity: 1,
+            salesTax: 0,
             inventoryId: '',
             createdBy: userId,
             updatedBy: userId

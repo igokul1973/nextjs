@@ -25,7 +25,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { InvoiceStatusEnum } from '@prisma/client';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FC, memo, useState } from 'react';
+import { FC, memo, useEffect, useState } from 'react';
 import {
     Control,
     Controller,
@@ -74,13 +74,13 @@ const InvoiceForm: FC<IProps> = ({
         shouldFocusError: false
     });
 
-    // const w = watch();
+    const w = watch();
 
-    // useEffect(() => {
-    //     console.log('DirtyFields:', dirtyFields);
-    //     console.log('Watch:', w);
-    //     console.error('Errors:', errors);
-    // }, [errors, w, dirtyFields]);
+    useEffect(() => {
+        console.log('DirtyFields:', dirtyFields);
+        console.log('Watch:', w);
+        console.error('Errors:', errors);
+    }, [errors, w, dirtyFields]);
 
     const {
         fields: invoiceItems,
@@ -431,44 +431,6 @@ const InvoiceForm: FC<IProps> = ({
                             })}
                         />
                     </FormControl>
-                    <FormControl fullWidth>
-                        <TextField
-                            label={capitalize(t('tax'))}
-                            inputProps={{
-                                type: 'number',
-                                inputMode: 'decimal',
-                                min: 0,
-                                max: 100,
-                                minLength: 1,
-                                step: '0.01'
-                            }}
-                            InputProps={{
-                                startAdornment: (
-                                    <PercentIcon
-                                        sx={{
-                                            color: 'action.active',
-                                            fontSize: '1.2rem',
-                                            marginRight: 1
-                                        }}
-                                    />
-                                )
-                            }}
-                            variant='outlined'
-                            required
-                            error={!!errors.tax}
-                            helperText={
-                                !!errors.tax &&
-                                capitalize(t(errors.tax.message as TSingleTranslationKey))
-                            }
-                            {...register('tax', {
-                                valueAsNumber: true,
-                                onChange: (e) => {
-                                    maskPercentage(e);
-                                    setValue('tax', e.target.valueAsNumber);
-                                }
-                            })}
-                        />
-                    </FormControl>
                     <FormControl>
                         <TextField
                             multiline
@@ -497,6 +459,22 @@ const InvoiceForm: FC<IProps> = ({
                             label={capitalize(t('payment terms'))}
                             variant='outlined'
                             placeholder={capitalize(t('enter payment terms'))}
+                            error={!!errors.additionalInformation}
+                            helperText={
+                                !!errors.additionalInformation &&
+                                capitalize(t(errors.number?.message as TSingleTranslationKey))
+                            }
+                            {...register('paymentTerms')}
+                        />
+                    </FormControl>
+                    <FormControl>
+                        <TextField
+                            multiline
+                            minRows={2}
+                            maxRows={5}
+                            label={capitalize(t('terms'))}
+                            variant='outlined'
+                            placeholder={capitalize(t('enter additional terms'))}
                             error={!!errors.additionalInformation}
                             helperText={
                                 !!errors.additionalInformation &&

@@ -24,12 +24,16 @@ export const StyledInvoice = styled(Box, {
     }
     h2 {
         font-size: 3vw;
+        font-weight: 400;
     }
     h3 {
         font-size: 2.2vw;
     }
     h5 {
         font-size: 1.4vw;
+    }
+    p {
+        font-size: 1.2vw;
     }
 `;
 export const StyledViewPdfBtn = styled(BaseLinkButton, {
@@ -58,6 +62,7 @@ export const StyledInvoiceInfo = styled(Box, {
     slot: 'Root'
 })`
     position: relative;
+    flex: 1;
 
     .delete-btn {
         position: absolute;
@@ -72,6 +77,7 @@ export const StyledCustomerInfo = styled(Box, {
     slot: 'Root'
 })`
     position: relative;
+    flex: 1;
 
     .delete-btn {
         position: absolute;
@@ -116,7 +122,6 @@ export const StyledFooter = styled(Box, {
     margin-top: auto;
     padding-top: 1rem;
     display: flex;
-    alignitems: center;
     justify-content: space-between;
     gap: 1rem;
     border-top: 1px solid lightgray;
@@ -128,4 +133,12 @@ export const StyledTableCell = styled(TableCell, {
 })`
     font-size: inherit;
     padding: inherit;
+`;
+
+export const FlexBox = styled(Box, {
+    name: 'Flex Box',
+    slot: 'Root'
+})`
+    display: flex;
+    gap: 2rem;
 `;

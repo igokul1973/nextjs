@@ -58,14 +58,15 @@ enum PhoneTypeEnum {
 }
 
 model account {
-  id            String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  isActive      Boolean        @default(true)
-  users         user[]
-  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz(3)
-  individuals   individual[]
-  organizations organization[]
-  inventory     inventory[]
+  id               String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  isActive         Boolean           @default(true)
+  users            user[]
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  individuals      individual[]
+  organizations    organization[]
+  inventory        inventory[]
+  measurementUnits measurementUnit[]
 
   @@map("accounts")
 }
@@ -200,6 +201,22 @@ model individualEmail {
   updatedBy    String        @map("updated_by") @db.Uuid
 
   @@map("individual_emails")
+}
+
+model measurementUnit {
+  id           String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name         String        @db.VarChar(255)
+  abbreviation String?       @db.VarChar(255)
+  accountId    String        @map("account_id") @db.Uuid
+  account      account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  invoiceItem  invoiceItem[]
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy    String        @map("created_by") @db.Uuid
+  updatedBy    String        @map("updated_by") @db.Uuid
+
+  @@unique([name, accountId], name: "unique_measurement_per_account")
+  @@map("measurement_units")
 }
 
 model country {
@@ -340,6 +357,7 @@ model inventory {
 
 model customer {
   id           String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  code         String?       @db.VarChar(255) // e.g. customer code inside accounting software
   isActive     Boolean       @default(true) @map("is_active")
   invoices     invoice[]
   organization organization?
@@ -352,94 +370,112 @@ model customer {
 // One has to create logic where the invoice and its items cannot change
 // as soon as it received status 'paid'.
 model invoice {
-  id                         String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                                String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   // Number assigned to invoice for internal purposes
-  number                     String
-  date                       DateTime          @db.Timestamptz(3)
+  number                            String
+  date                              DateTime          @db.Timestamptz(3)
   // Fixed fields at the moment of invoice creation/update
   // as customer or provider data may change over time.
-  customerName               String            @map("customer_name") @db.VarChar(255)
-  customerAddressLine1       String            @map("customer_address_line_1") @db.VarChar(255)
-  customerAddressLine2       String?           @map("customer_address_line_2") @db.VarChar(255)
-  customerAddressLine3       String?           @map("customer_address_line_3") @db.VarChar(255)
-  customerLocality           String            @map("customer_locality") @db.VarChar(255)
-  customerRegion             String?           @map("customer_region") @db.VarChar(255)
-  customerPostCode           String            @map("customer_post_code") @db.VarChar(255)
-  customerCountry            String            @map("customer_country") @db.VarChar(255)
-  customerPhone              String            @map("customer_phone") @db.VarChar(255)
-  customerEmail              String            @map("customer_email") @db.VarChar(255)
-  customerId                 String            @map("customer_id") @db.Uuid
-  customer                   customer          @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  providerLogoId             String?           @unique @map("provider_logo_id") @db.Uuid
-  providerLogo               file?             @relation(fields: [providerLogoId], references: [id])
-  providerName               String            @map("provider_name") @db.VarChar(255)
-  providerAddressLine1       String            @map("provider_address_line_1") @db.VarChar(255)
-  providerAddressLine2       String?           @map("provider_address_line_2") @db.VarChar(255)
-  providerAddressLine3       String?           @map("provider_address_line_3") @db.VarChar(255)
-  providerLocality           String            @map("provider_locality") @db.VarChar(255)
-  providerRegion             String?           @map("provider_region") @db.VarChar(255)
-  providerPostCode           String            @map("provider_post_code") @db.VarChar(255)
-  providerCountry            String            @map("provider_country") @db.VarChar(255)
-  providerPhone              String            @map("provider_phone") @db.VarChar(255)
-  providerEmail              String            @map("provider_email") @db.VarChar(255)
-  status                     InvoiceStatusEnum
+  customerName                      String            @map("customer_name") @db.VarChar(255)
+  customerLocalIdentifierNameAbbrev String?           @map("customer_local_identifier_name_abbrev") @db.VarChar(255)
+  customerLocalIdentifierValue      String?           @map("customer_local_identifier_value") @db.VarChar(255)
+  customerAddressLine1              String            @map("customer_address_line_1") @db.VarChar(255)
+  customerAddressLine2              String?           @map("customer_address_line_2") @db.VarChar(255)
+  customerAddressLine3              String?           @map("customer_address_line_3") @db.VarChar(255)
+  customerLocality                  String            @map("customer_locality") @db.VarChar(255)
+  customerRegion                    String?           @map("customer_region") @db.VarChar(255)
+  customerPostCode                  String            @map("customer_post_code") @db.VarChar(255)
+  customerCountry                   String            @map("customer_country") @db.VarChar(255)
+  customerPhone                     String            @map("customer_phone") @db.VarChar(255)
+  customerEmail                     String            @map("customer_email") @db.VarChar(255)
+  customerRef                       String?           @map("customer_ref") @db.VarChar(255)
+  customerCode                      String?           @map("customer_code") @db.VarChar(255)
+  customerId                        String            @map("customer_id") @db.Uuid
+  customer                          customer          @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  providerLogoId                    String?           @unique @map("provider_logo_id") @db.Uuid
+  providerLogo                      file?             @relation(fields: [providerLogoId], references: [id])
+  providerName                      String            @map("provider_name") @db.VarChar(255)
+  providerLocalIdentifierNameAbbrev String?           @map("provider_local_identifier_name_abbrev") @db.VarChar(255)
+  providerLocalIdentifierValue      String?           @map("provider_local_identifier_value") @db.VarChar(255)
+  providerAddressLine1              String            @map("provider_address_line_1") @db.VarChar(255)
+  providerAddressLine2              String?           @map("provider_address_line_2") @db.VarChar(255)
+  providerAddressLine3              String?           @map("provider_address_line_3") @db.VarChar(255)
+  providerLocality                  String            @map("provider_locality") @db.VarChar(255)
+  providerRegion                    String?           @map("provider_region") @db.VarChar(255)
+  providerPostCode                  String            @map("provider_post_code") @db.VarChar(255)
+  providerCountry                   String            @map("provider_country") @db.VarChar(255)
+  providerPhone                     String            @map("provider_phone") @db.VarChar(255)
+  providerEmail                     String            @map("provider_email") @db.VarChar(255)
+  providerRef                       String?           @map("provider_ref") @db.VarChar(255)
+  status                            InvoiceStatusEnum
   // Inventory items with fixed name, price and other info
-  invoiceItems               invoiceItem[]
+  invoiceItems                      invoiceItem[]
   // Number related to PO, if any existed.
   // For example, all/some invoice items were purchased from a certain
   // store/manufacturer which fulfilled the PO number.
   // Usually used for internal purposes.
-  purchaseOrderNumbers       String[]          @map("purchase_order_numbers") @db.VarChar(255)
+  purchaseOrderNumbers              String[]          @map("purchase_order_numbers") @db.VarChar(255)
   // Numbers related to Invoices issued by store/manufacturer, if any existed.
   // For example, all/some invoice items were purchased from a certain
   // store/manufacturer which provided the invoice(s)
   // Usually used for internal purposes
-  manufacturerInvoiceNumbers String[]          @map("manufacturer_invoice_numbers") @db.VarChar(255)
+  manufacturerInvoiceNumbers        String[]          @map("manufacturer_invoice_numbers") @db.VarChar(255)
   // Irbitrary information provided to customer
-  additionalInformation      String?           @map("additional_information") @db.Text
-  payBy                      DateTime          @map("pay_by") @db.Timestamptz(3)
-  paidOn                     DateTime?         @map("paid_on") @db.Timestamptz(3)
+  additionalInformation             String?           @map("additional_information") @db.Text
+  payBy                             DateTime          @map("pay_by") @db.Timestamptz(3)
+  paidOn                            DateTime?         @map("paid_on") @db.Timestamptz(3)
   // How to pay
-  paymentInfo                String?           @map("payment_info") @db.Text
+  paymentInfo                       String?           @map("payment_info") @db.Text
+  // Delivery terms and conditions
+  paymentTerms                      String?           @db.Text
+  // Delivery terms and conditions
+  deliveryTerms                     String?           @db.Text
   // Any additional terms and conditions
-  terms                      String?           @db.Text
-  // Tax percentage (can be state sales tax in USA or VAT in Europe)
-  tax                        Int               @default(0) @db.Integer
+  terms                             String?           @db.Text
   // Discount percentage on whole invoice
-  discount                   Int               @default(0) @db.Integer
+  discount                          Int               @default(0) @db.Integer
+  // Delivery price on whole invoice
+  delivery                          Int               @default(0) @db.Integer
   // Internal notes
-  notes                      String?           @db.Text
-  createdAt                  DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt                  DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy                  String            @map("created_by") @db.Uuid
-  updatedBy                  String            @map("updated_by") @db.Uuid
-  createdByUser              user              @relation("CreatedInvoices", fields: [createdBy], references: [id])
-  updatedByUser              user              @relation("UpdatedInvoices", fields: [updatedBy], references: [id])
+  notes                             String?           @db.Text
+  createdAt                         DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy                         String            @map("created_by") @db.Uuid
+  updatedBy                         String            @map("updated_by") @db.Uuid
+  createdByUser                     user              @relation("CreatedInvoices", fields: [createdBy], references: [id])
+  updatedByUser                     user              @relation("UpdatedInvoices", fields: [updatedBy], references: [id])
 }
 
 model invoiceItem {
-  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   // Field from Inventory.name, may not match with inventory item
   // with inventoryID in this table as the inventory item data may change
-  name        String    @map("name") @db.Text
+  name              String          @map("name") @db.Text
   // Price is also from Inventory table, but may not match
   // with inventory item with inventoryId on record, as inventory prices
   // have a tendency to change over the time.
-  price       BigInt    @db.BigInt
-  quantity    Int       @db.Integer
-  invoiceId   String    @map("invoice_id") @db.Uuid
-  invoice     invoice   @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  measurementUnitId String          @map("measurement_unit_id") @db.Uuid
+  measurementUnit   measurementUnit @relation(fields: [measurementUnitId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  price             BigInt          @db.BigInt
+  // Tax percentage (can be state sales tax in USA or VAT in Europe)
+  salesTax          Int             @default(0) @map("sales_tax") @db.Integer
+  // Discount percentage on the item
+  discount          Int             @default(0) @db.Integer
+  quantity          Int             @db.Integer
+  invoiceId         String          @map("invoice_id") @db.Uuid
+  invoice           invoice         @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   // Used strictly for archiving/analytics purposes.
   // The inventory data may change, so this field
   // only shows the original inventory item ID
   // and cannot be relied upon.
-  inventoryId String    @map("inventory_id") @db.Uuid
-  inventory   inventory @relation(fields: [inventoryId], references: [id], onDelete: Restrict)
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy   String    @map("created_by") @db.Uuid
-  updatedBy   String    @map("updated_by") @db.Uuid
+  inventoryId       String          @map("inventory_id") @db.Uuid
+  inventory         inventory       @relation(fields: [inventoryId], references: [id], onDelete: Restrict)
+  createdAt         DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime        @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy         String          @map("created_by") @db.Uuid
+  updatedBy         String          @map("updated_by") @db.Uuid
 
+  @@unique([name, invoiceId], name: "unique_invoice_item_name_per_invoice")
   @@map("invoice_items")
 }
 

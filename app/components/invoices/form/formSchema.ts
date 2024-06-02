@@ -129,25 +129,8 @@ const baseInvoiceFormSchema = z.object({
             }
             return val;
         }),
-    terms: z.string().optional(),
-    // Tax percentage (can be state sales tax in USA or VAT in Europe), default is 0
-    tax: z
-        .number({
-            invalid_type_error: 'the tax cannot be less than 0'
-        })
-        .min(0, { message: 'the tax cannot be less than 0' })
-        .max(100, { message: 'the tax cannot be more than 100' })
-        .transform((val, ctx) => {
-            if (val === null) {
-                ctx.addIssue({
-                    code: 'invalid_type',
-                    expected: 'number',
-                    received: 'null'
-                });
-                return z.NEVER;
-            }
-            return Math.floor(val * 100);
-        }),
+    paymentTerms: z.string().nullish(),
+    terms: z.string().nullish(),
     // Discount percentage on whole invoice, default is 0.
     discount: z
         .number({
@@ -200,6 +183,24 @@ const baseInvoiceItemFormSchema = z
                 .gt(0, { message: 'please select inventory item to get the price' })
                 .lte(999999999999.99, { message: 'price cannot be more than 999 999 999 999.99' })
                 .nullable()
+                .transform((val, ctx) => {
+                    if (val === null) {
+                        ctx.addIssue({
+                            code: 'invalid_type',
+                            expected: 'number',
+                            received: 'null'
+                        });
+                        return z.NEVER;
+                    }
+                    return Math.floor(val * 100);
+                }),
+            // Tax percentage (can be state sales tax in USA or VAT in Europe), default is 0
+            salesTax: z
+                .number({
+                    invalid_type_error: 'the tax cannot be less than 0'
+                })
+                .min(0, { message: 'the tax cannot be less than 0' })
+                .max(100, { message: 'the tax cannot be more than 100' })
                 .transform((val, ctx) => {
                     if (val === null) {
                         ctx.addIssue({

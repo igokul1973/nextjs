@@ -49,6 +49,14 @@ const localeToCurrencyCode: Record<string, string> = {
     // Add more mappings here...
 };
 
+const localeToNumeroSign: Record<string, string> = {
+    'en-US': '#',
+    'en-GB': 'No.',
+    'sv-SE': 'nr.',
+    'ru-RU': '№'
+    // Add more mappings here...
+};
+
 export const objectKeys = Object.keys as unknown as <T>(o: T) => (keyof T)[];
 
 export const formatCurrency = (amount: number, locale: string) => {
@@ -57,6 +65,10 @@ export const formatCurrency = (amount: number, locale: string) => {
         style: 'currency',
         currency: currrencyCode
     });
+};
+
+export const formatNumeroSign = (locale: string) => {
+    return localeToNumeroSign[locale];
 };
 
 export const formatDateToLocal = (dateStr: string, locale: string = 'en-US') => {

@@ -1,6 +1,6 @@
 import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory';
 import { TInventoryTransformed } from '@/app/lib/data/inventory/types';
-import { mask2DecimalPlaces, useDebounce } from '@/app/lib/utils';
+import { mask2DecimalPlaces, maskPercentage, useDebounce } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TPluralTranslationKey, TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -15,6 +15,7 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { TInvoiceForm } from '../../form/types';
 import { StyledBox, StyledQuantityBox } from './styled';
 import { IProps } from './types';
+import PercentIcon from '@mui/icons-material/Percent';
 
 const PartialInvoiceItemForm: FC<IProps> = ({
     index,
@@ -36,6 +37,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
     const inventoryItemError = errors.invoiceItems?.[index]?.inventoryItem;
     const priceError = errors.invoiceItems?.[index]?.price;
     const quantityError = errors.invoiceItems?.[index]?.quantity;
+    const salesTaxError = errors.invoiceItems?.[index]?.salesTax;
 
     const getInventory = async (query: string) => {
         if (!query) {
@@ -212,6 +214,44 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                     </IconButton>
                 )}
             </StyledQuantityBox>
+            <FormControl fullWidth>
+                <TextField
+                    label={capitalize(t('sales tax'))}
+                    inputProps={{
+                        type: 'number',
+                        inputMode: 'decimal',
+                        min: 0,
+                        max: 100,
+                        minLength: 1,
+                        step: '0.01'
+                    }}
+                    InputProps={{
+                        startAdornment: (
+                            <PercentIcon
+                                sx={{
+                                    color: 'action.active',
+                                    fontSize: '1.2rem',
+                                    marginRight: 1
+                                }}
+                            />
+                        )
+                    }}
+                    variant='outlined'
+                    required
+                    error={!!salesTaxError}
+                    helperText={
+                        !!salesTaxError &&
+                        capitalize(t(salesTaxError.message as TSingleTranslationKey))
+                    }
+                    {...register(`invoiceItems.${index}.salesTax`, {
+                        valueAsNumber: true,
+                        onChange: (e) => {
+                            maskPercentage(e);
+                            setValue(`invoiceItems.${index}.salesTax`, e.target.valueAsNumber);
+                        }
+                    })}
+                />
+            </FormControl>
         </StyledBox>
     );
 };
