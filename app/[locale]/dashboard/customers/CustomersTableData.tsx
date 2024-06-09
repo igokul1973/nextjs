@@ -4,7 +4,7 @@ import {
     getFilteredCustomersByAccountId,
     getFilteredCustomersCountByAccountId
 } from '@/app/lib/data/customer';
-import { formatCurrency, getUser } from '@/app/lib/utils';
+import { formatCurrencyAsCents, getUser } from '@/app/lib/utils';
 import { EntitiesEnum } from '@prisma/client';
 import { FC } from 'react';
 import { TCustomersDataProps } from './types';
@@ -32,8 +32,8 @@ const CustomersTableData: FC<TCustomersDataProps> = async ({ searchParams }) => 
     const customers = rawCustomers.map((c) => {
         return {
             ...c,
-            totalPaid: formatCurrency(c.totalPaid, userAccountCountry.locale),
-            totalPending: formatCurrency(c.totalPending, userAccountCountry.locale),
+            totalPaid: formatCurrencyAsCents(c.totalPaid, userAccountCountry.locale),
+            totalPending: formatCurrencyAsCents(c.totalPending, userAccountCountry.locale),
             customerType: c.customerType as EntitiesEnum
         };
     });

@@ -3,6 +3,7 @@ import { getDefaultFormValues } from '@/app/components/invoices/utils';
 import Warning from '@/app/components/warning/Warning';
 import { getCustomersByAccountId } from '@/app/lib/data/customer';
 import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory';
+import { getFilteredMeasurementUnitsByAccount } from '@/app/lib/data/measurement-unit';
 import { getUser } from '@/app/lib/utils';
 import { setStaticParamsLocale } from 'next-international/server';
 import { FC } from 'react';
@@ -22,6 +23,10 @@ const CreateInvoiceFormData: FC<IProps> = async ({ params: { locale } }) => {
         );
     }
 
+    const measurementUnitsPromise = getFilteredMeasurementUnitsByAccount({
+        accountId: account.id,
+        query: ''
+    });
     const customersPromise = getCustomersByAccountId(account.id);
     const inventoryPromise = getFilteredInventoryByAccountIdRaw({
         accountId: account.id,
@@ -29,14 +34,19 @@ const CreateInvoiceFormData: FC<IProps> = async ({ params: { locale } }) => {
         page: 0,
         itemsPerPage: 50
     });
-    const [customers, inventory] = await Promise.all([customersPromise, inventoryPromise]);
+
+    const [measurementUnits, customers, inventory] = await Promise.all([
+        measurementUnitsPromise,
+        customersPromise,
+        inventoryPromise
+    ]);
 
     const defaultValues = getDefaultFormValues(user.id, provider);
-
     return (
         <InvoiceForm
             customers={customers}
             inventory={inventory}
+            measurementUnits={measurementUnits}
             accountId={account.id}
             locale={userAccountCountry.locale}
             providerPhones={provider.phones}

@@ -1,5 +1,4 @@
 import { TTransformedInvoice } from '@/app/lib/data/invoice/types';
-import { ISearchParams } from '@/app/lib/types';
 
 type IViewInvoice = Omit<TTransformedInvoice, 'date' | 'payBy' | 'paidOn'> & {
     date: string;
@@ -13,9 +12,7 @@ export interface IProps {
 }
 
 export interface IInvoiceItemsTableProps {
-    tax: IViewInvoice['tax'];
     invoiceItems: TTransformedInvoice['invoiceItems'];
-    discount: IViewInvoice['discount'];
     locale: string;
 }
 

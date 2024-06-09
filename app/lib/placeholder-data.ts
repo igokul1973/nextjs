@@ -500,7 +500,7 @@ const inventory = [
         name: 'Product 1',
         description: 'Something 1 description',
         type: 'product',
-        price: 1000, // Note, prices in db are saved in division units, such as cents
+        price: 1000, // Note, prices in db are saved in smallest units, such as cents
         externalCode: 'RXF1TTS-D',
         internalCode: 'LPMRF32-X1',
         manufacturerCode: 'TTS-LLMPD1',
@@ -649,8 +649,7 @@ const invoices = [
         payBy: '2023-03-12',
         paidOn: '2023-03-08',
         paymentInfo: 'This is a payment info',
-        deliveryTerms: 'FOB',
-        delivery: 10
+        deliveryTerms: 'FOB'
     },
     {
         date: '2023-03-26',
@@ -660,8 +659,7 @@ const invoices = [
         payBy: '2023-04-15',
         paidOn: '2023-04-19',
         paymentInfo: 'This is a payment info',
-        notes: 'This company is sometimes overdue with its invoice payments',
-        discount: 5
+        notes: 'This company is sometimes overdue with its invoice payments'
     },
     {
         date: '2023-05-11',
@@ -677,8 +675,7 @@ const invoices = [
         purchaseOrderNumbers: ['PO322384'],
         payBy: '2023-06-11',
         paymentInfo: 'This is a payment info',
-        paymentTerms: '30 days from the invoice date',
-        discount: 5
+        paymentTerms: '30 days from the invoice date'
     },
     {
         date: '2024-03-18',
@@ -689,9 +686,7 @@ const invoices = [
         payBy: '2024-04-15',
         paymentInfo: 'This is a payment info',
         notes: 'Gotta check out if anything is wrong before moving status to pending',
-        discount: 5,
-        deliveryTerms: 'We will notify you when it is ready to be shipped',
-        delivery: 10
+        deliveryTerms: 'We will notify you when it is ready to be shipped'
     },
     {
         date: '2024-04-01',
@@ -701,8 +696,7 @@ const invoices = [
         additionalInformation: 'Some additional information',
         payBy: '2024-04-19',
         paymentInfo: 'This is a payment info for my company',
-        deliveryTerms: 'Quote delivery time, upon receipt of each order',
-        delivery: 50
+        deliveryTerms: 'Quote delivery time, upon receipt of each order'
     }
 ];
 

@@ -1,6 +1,17 @@
 'use client';
 
 import { styled } from '@mui/material';
+import Box from '@mui/material/Box';
+
+export const Totals = styled(Box, {
+    name: 'Totals',
+    slot: 'Root'
+})`
+    display: flex;
+    flex-wrap: 'wrap';
+    gap: 1rem;
+    font-weight: 700;
+`;
 
 export const StyledForm = styled('form', {
     name: 'Form',

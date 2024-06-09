@@ -1,7 +1,15 @@
 import InvoiceView from '@/app/components/invoice-view/InvoiceView';
 import Warning from '@/app/components/warning/Warning';
 import { getInvoiceById } from '@/app/lib/data/invoice';
-import { capitalize, formatCurrency, formatNumeroSign, getUser } from '@/app/lib/utils';
+import {
+    capitalize,
+    formatCurrencyAsCents,
+    formatNumeroSign,
+    getInvoiceItemSubtotalAfterTax,
+    getInvoiceTotal,
+    getInvoiceTotalTaxAndDiscount,
+    getUser
+} from '@/app/lib/utils';
 import Box from '@mui/material/Box';
 import { setStaticParamsLocale } from 'next-international/server';
 import { notFound } from 'next/navigation';
@@ -63,11 +71,9 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
 
     const numberSymbol = formatNumeroSign(locale);
 
-    const subtotal = invoice.invoiceItems.map(({ price }) => price).reduce((sum, i) => sum + i, 0);
-    const discountSubtotal = subtotal * (invoice.discount / 100);
-    const totalAfterDiscount = subtotal - discountSubtotal;
-    const taxSubtotal = totalAfterDiscount * (invoice.tax / 100);
-    const total = totalAfterDiscount + taxSubtotal;
+    const invoiceTotal = getInvoiceTotal(invoice.invoiceItems);
+    const { taxTotal, discountTotal } = getInvoiceTotalTaxAndDiscount(invoice.invoiceItems);
+    const invoiceSubtotal = invoiceTotal - taxTotal + discountTotal;
 
     try {
         const d = {
@@ -85,25 +91,44 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
                 ${invoice.providerCountry}
                 `,
             invoiceTable: {
-                headerRow: ['#', 'Name', 'Quantity', 'Units', 'Price', 'Tax', 'Item total'],
-                dataRows: invoice.invoiceItems.map((ii, i) => [
-                    i.toString(),
-                    ii.name.toString(),
-                    ii.quantity.toString(),
-                    'enh',
-                    formatCurrency(ii.price, locale),
-                    `${invoice.tax}%`,
-                    formatCurrency(ii.price * ii.quantity, locale)
-                ]),
-                // [41, 'Item 41', 1, 'pcs', '$100', '0%', '$100']
+                headerRow: [
+                    '#',
+                    'Name',
+                    'Price',
+                    'Discount',
+                    'Quantity',
+                    'Units',
+                    'Tax',
+                    'Item total'
+                ],
+                dataRows: invoice.invoiceItems.map((ii, i) => {
+                    const itemSubtotal = getInvoiceItemSubtotalAfterTax({
+                        price: ii.price,
+                        discountPercent: ii.discount,
+                        taxPercent: ii.salesTax,
+                        quantity: ii.quantity
+                    });
+                    return [
+                        i.toString(),
+                        ii.name,
+                        formatCurrencyAsCents(ii.price, locale),
+                        ii.discount.toString(),
+                        ii.quantity.toString(),
+                        ii.measurementUnit.abbreviation,
+                        `${ii.salesTax}%`,
+                        formatCurrencyAsCents(itemSubtotal, locale)
+                    ];
+                }),
                 totalRows: [
-                    ['Subtotal', formatCurrency(subtotal, locale)],
-                    ['Delivery', '$0'],
-                    ['Tax', formatCurrency(taxSubtotal, locale)],
-                    ['Discount', `${invoice.discount}%`],
+                    [
+                        'Subtotal (before tax and discount)',
+                        formatCurrencyAsCents(invoiceSubtotal, locale)
+                    ],
+                    ['Tax', formatCurrencyAsCents(taxTotal, locale)],
+                    ['Discount', formatCurrencyAsCents(discountTotal, locale)],
                     [
                         { text: 'Total', bold: true },
-                        { text: formatCurrency(total, locale), bold: true }
+                        { text: formatCurrencyAsCents(invoiceTotal, locale), bold: true }
                     ]
                 ]
             },

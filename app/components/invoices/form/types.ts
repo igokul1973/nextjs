@@ -1,12 +1,14 @@
 import { TInventoryTransformed } from '@/app/lib/data/inventory/types';
 import { Control, FieldValues } from 'react-hook-form';
 import { z } from 'zod';
-import { TEmail, TPhone } from '../../individuals/form/types';
+import { TEmail, TPhone } from '@/app/components/individuals/form/types';
 import { invoiceUpdateSchema } from './formSchema';
+import { TMeasurementUnit } from '@/app/lib/types';
 
 export interface IProps {
     customers: TCustomerOutput[];
     inventory: TInventoryTransformed[];
+    measurementUnits: TMeasurementUnit[];
     accountId: string;
     locale: string;
     providerPhones: TPhone[];

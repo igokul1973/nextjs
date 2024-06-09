@@ -37,9 +37,10 @@ export async function createInvoice(formData: TInvoiceFormOutput): Promise<void>
             status: status as InvoiceStatusEnum,
             invoiceItems: {
                 create: invoiceItems.map((ii) => {
-                    const { inventoryItem, ...item } = ii;
+                    const { inventoryItem, measurementUnit, ...item } = ii;
                     return {
-                        ...item
+                        ...item,
+                        measurementUnitId: measurementUnit.id
                     };
                 })
             },
@@ -151,9 +152,10 @@ export async function updateInvoice(
         if (invoiceItems && invoiceItems.length > 0) {
             // Stripping invoice item of id and adding updatedBy value
             const preparedInvoiceItems = invoiceItems.map((ii) => {
-                const { id, inventoryItem, ...item } = ii;
+                const { id, inventoryItem, measurementUnit, ...item } = ii;
                 return {
                     ...item,
+                    measurementUnitId: measurementUnit.id,
                     updatedBy: userId
                 };
             });

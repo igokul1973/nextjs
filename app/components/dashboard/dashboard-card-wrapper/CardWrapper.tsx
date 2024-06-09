@@ -1,7 +1,7 @@
 import DashboardCard from '@/app/components/dashboard/dashboard-card/DashboardCard';
 import Warning from '@/app/components/warning/Warning';
 import { getCardData } from '@/app/lib/data/card';
-import { formatCurrency, getUser } from '@/app/lib/utils';
+import { formatCurrencyAsCents, getUser } from '@/app/lib/utils';
 import { FC } from 'react';
 import { StyledCardWrapper } from './styled';
 
@@ -29,8 +29,8 @@ const DashboardCardWrapper: FC = async () => {
         );
     }
 
-    const totalPaidInvoices = formatCurrency(totalPaidInvoicesNum ?? '0', locale);
-    const totalPendingInvoices = formatCurrency(totalPendingInvoicesNum ?? '0', locale);
+    const totalPaidInvoices = formatCurrencyAsCents(totalPaidInvoicesNum ?? '0', locale);
+    const totalPendingInvoices = formatCurrencyAsCents(totalPendingInvoicesNum ?? '0', locale);
 
     return (
         <StyledCardWrapper>

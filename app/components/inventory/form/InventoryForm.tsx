@@ -130,10 +130,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                     <TextField
                         label={capitalize(t('price'))}
                         inputProps={{
-                            type: 'number',
-                            inputMode: 'numeric',
-                            minLength: 1,
-                            step: '0.01'
+                            type: 'text'
                         }}
                         variant='outlined'
                         required

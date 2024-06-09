@@ -11,7 +11,7 @@ const baseInvoiceFormSchema = z.object({
                     .string({
                         required_error: 'please enter a customer'
                     })
-                    .min(1, { message: 'must be at least characters#many' }),
+                    .min(1, { message: 'must be at least characters#other' }),
                 customerType: z.string().optional(),
                 customerName: z.string().min(1),
                 customerAddressLine1: z.string().min(1),
@@ -130,14 +130,8 @@ const baseInvoiceFormSchema = z.object({
             return val;
         }),
     paymentTerms: z.string().nullish(),
+    deliveryTerms: z.string().nullish(),
     terms: z.string().nullish(),
-    // Discount percentage on whole invoice, default is 0.
-    discount: z
-        .number({
-            invalid_type_error: 'the discount cannot be less than 0'
-        })
-        .min(0, { message: 'the discount cannot be less than 0' })
-        .max(100, { message: 'the discount cannot be more than 100' }),
     notes: z.string().optional(),
     createdBy: z.string(),
     updatedBy: z.string()
@@ -192,15 +186,17 @@ const baseInvoiceItemFormSchema = z
                         });
                         return z.NEVER;
                     }
-                    return Math.floor(val * 100);
+                    return val;
                 }),
-            // Tax percentage (can be state sales tax in USA or VAT in Europe), default is 0
-            salesTax: z
+            // Discount percentage on invoice item, default is 0.
+            // Will be multiplied by 100 on output for database storage
+            // and calculations.
+            discount: z
                 .number({
-                    invalid_type_error: 'the tax cannot be less than 0'
+                    invalid_type_error: 'the discount cannot be less than 0'
                 })
-                .min(0, { message: 'the tax cannot be less than 0' })
-                .max(100, { message: 'the tax cannot be more than 100' })
+                .min(0, { message: 'the discount cannot be less than 0' })
+                .max(10000, { message: 'the discount cannot be more than 100' })
                 .transform((val, ctx) => {
                     if (val === null) {
                         ctx.addIssue({
@@ -210,19 +206,66 @@ const baseInvoiceItemFormSchema = z
                         });
                         return z.NEVER;
                     }
-                    return Math.floor(val * 100);
+                    return val;
+                }),
+            // Tax percentage (can be state sales tax in USA or VAT in Europe), default is 0.
+            // Will be multiplied by 1000 on output for database storage
+            // and calculations.
+            salesTax: z
+                .number({
+                    invalid_type_error: 'the tax cannot be less than 0'
+                })
+                .min(0, { message: 'the tax cannot be less than 0' })
+                .max(100000, { message: 'the tax cannot be more than 100' })
+                .transform((val, ctx) => {
+                    if (val === null) {
+                        ctx.addIssue({
+                            code: 'invalid_type',
+                            expected: 'number',
+                            received: 'null'
+                        });
+                        return z.NEVER;
+                    }
+
+                    return val;
                 }),
             quantity: z.coerce
                 .number({
-                    invalid_type_error: 'must be more than#many'
+                    invalid_type_error: 'must be more than#other'
                 })
-                .gt(0, { message: 'must be more than#many' })
+                .gt(0, { message: 'must be more than#other' })
                 .nullable()
                 .transform((val, ctx) => {
                     if (val === null) {
                         ctx.addIssue({
                             code: 'invalid_type',
                             expected: 'number',
+                            received: 'null'
+                        });
+                        return z.NEVER;
+                    }
+                    return val;
+                }),
+            measurementUnit: z
+                .object(
+                    {
+                        id: z.string(),
+                        name: z.string({
+                            required_error: 'enter the unit'
+                        }),
+                        abbreviation: z.string().nullish()
+                    },
+                    {
+                        required_error: 'enter the unit',
+                        invalid_type_error: 'enter the unit'
+                    }
+                )
+                .nullable()
+                .transform((val, ctx) => {
+                    if (val === null) {
+                        ctx.addIssue({
+                            code: 'invalid_type',
+                            expected: 'object',
                             received: 'null'
                         });
                         return z.NEVER;

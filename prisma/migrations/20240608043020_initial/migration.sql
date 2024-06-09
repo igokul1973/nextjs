@@ -335,8 +335,6 @@ CREATE TABLE "invoice" (
     "paymentTerms" TEXT,
     "deliveryTerms" TEXT,
     "terms" TEXT,
-    "discount" INTEGER NOT NULL DEFAULT 0,
-    "delivery" INTEGER NOT NULL DEFAULT 0,
     "notes" TEXT,
     "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(3) NOT NULL,

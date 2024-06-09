@@ -260,8 +260,6 @@ const InventoryTable: FC<IProps> = ({ inventory, count, sanitizedSearchParams })
         }
     };
 
-    const { push } = useRouter();
-
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>

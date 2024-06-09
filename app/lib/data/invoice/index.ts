@@ -2,7 +2,7 @@ import { DEFAULT_ITEMS_PER_PAGE } from '@/app/[locale]/dashboard/invoices/consta
 import prisma from '@/app/lib/prisma';
 import { IBaseDataFilterArgs } from '@/app/lib/types';
 import { unstable_noStore as noStore } from 'next/cache';
-import { flattenCustomer } from '../../utils';
+import { flattenCustomer, getInvoiceTotal } from '@/app/lib/utils';
 import {
     TGetInvoiceWithRelationsPayloadRaw,
     TTransformedInvoice,
@@ -10,7 +10,6 @@ import {
     invoicesInclude
 } from './types';
 
-// FIXME: Continue here - need type fo the invoice
 const transformInvoice = (invoice: TGetInvoiceWithRelationsPayloadRaw): TTransformedInvoice => {
     const { invoiceItems: rawInvoiceItems, customer: rawCustomer, ...partialInvoice } = invoice;
     const invoiceItems = rawInvoiceItems.map((ii) => {
@@ -21,9 +20,9 @@ const transformInvoice = (invoice: TGetInvoiceWithRelationsPayloadRaw): TTransfo
     });
 
     const customer = flattenCustomer(rawCustomer);
-    const amount = invoiceItems.reduce((acc, ii) => {
-        return acc + ii.quantity * ii.price;
-    }, 0);
+
+    const amount = getInvoiceTotal(invoiceItems);
+
     return {
         ...partialInvoice,
         amount,

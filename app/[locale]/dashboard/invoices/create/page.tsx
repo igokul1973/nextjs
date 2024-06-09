@@ -7,9 +7,9 @@ import { setStaticParamsLocale } from 'next-international/server';
 import NextLink from 'next/link';
 import { FC, Suspense } from 'react';
 import Loading from '../../(overview)/loading';
-import { IProps } from './types';
 import CreateInvoiceFormData from './CreateInvoiceFormData';
 import { StyledBox } from './styled';
+import { IProps } from './types';
 
 const Page: FC<IProps> = async ({ params: { locale } }) => {
     setStaticParamsLocale(locale);

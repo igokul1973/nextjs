@@ -26,6 +26,7 @@ import {
 import { IUserState } from '../context/user/types';
 import { getIndividualFullNameString, getUserProvider } from './commonUtils.ts';
 import { TCustomerPayload, TCustomerWithInvoicesPayload } from './data/customer/types';
+import { TTransformedInvoice } from './data/invoice/types.ts';
 import { TGetUserWithRelationsPayload } from './data/user/types';
 import { TDirtyFields, TEntities, TIndividual } from './types';
 
@@ -61,6 +62,14 @@ export const objectKeys = Object.keys as unknown as <T>(o: T) => (keyof T)[];
 
 export const formatCurrency = (amount: number, locale: string) => {
     const currrencyCode = localeToCurrencyCode[locale];
+    return amount.toLocaleString(locale, {
+        style: 'currency',
+        currency: currrencyCode
+    });
+};
+
+export const formatCurrencyAsCents = (amount: number, locale: string) => {
+    const currrencyCode = localeToCurrencyCode[locale];
     return (amount / 100).toLocaleString(locale, {
         style: 'currency',
         currency: currrencyCode
@@ -80,6 +89,14 @@ export const formatDateToLocal = (dateStr: string, locale: string = 'en-US') => 
     };
     const formatter = new Intl.DateTimeFormat(locale, options);
     return formatter.format(date);
+};
+
+export const formatDiscount = (discount: number) => {
+    return discount / 100;
+};
+
+export const formatTax = (tax: number) => {
+    return tax / 1000;
 };
 
 export const generatePagination = (currentPage: number, totalPages: number) => {
@@ -107,7 +124,7 @@ export const generatePagination = (currentPage: number, totalPages: number) => {
     return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
 };
 
-export function useDebounce<T>(f: (...args: T[]) => unknown, ms: number = 500) {
+export function useDebounce<T>(f: (...args: T[]) => unknown, ms = 500) {
     let timeout: NodeJS.Timeout | null = null;
     return (...args: T[]) => {
         if (timeout) {
@@ -281,6 +298,48 @@ export const maskMax3Digits = (e: ChangeEvent<HTMLInputElement>) => {
     }
 };
 
+export const isNumeric = (str: string) => {
+    if (typeof str !== 'string') return false;
+    const possiblyNumber = Number(str);
+    const possiblyFloat = parseFloat(str);
+    return !isNaN(possiblyNumber) && !isNaN(possiblyFloat);
+};
+
+export const isNumericInput = (str: string) => {
+    if (str === '') return true;
+    if (str === '.') str = '0.';
+    return isNumeric(str);
+};
+
+/**
+ * Removes all non-numeric characters from the input.
+ * Only digits and . are allowed.
+ */
+export const maskNumber = (e: ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+
+    e.target.value = value.trim();
+    // Masking the value to be a number
+    if (isNumericInput(value)) {
+        return;
+    }
+    const allowedChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'];
+    let matchIndex = -1;
+    for (let index = 0; index < value.length; index++) {
+        if (!allowedChars.includes(value[index])) {
+            matchIndex = index;
+            break;
+        }
+    }
+
+    if (matchIndex !== -1) {
+        const valueArray = value.split('');
+        valueArray.splice(matchIndex, 1);
+        e.target.value = valueArray.join('');
+        maskNumber(e);
+    }
+};
+
 /**
  * The regular expression (\d{1,}(?=\D|$)) is used to match
  * the whole part of the decimal number. It ensures that the
@@ -300,9 +359,20 @@ function matchAndReplaceLongWholePart(e: ChangeEvent<HTMLInputElement>, maxLengt
 }
 
 export const mask2DecimalPlaces = (e: ChangeEvent<HTMLInputElement>) => {
+    maskNumber(e);
     const { value } = e.target;
     // Masking the value to max 2 decimal places
     const isMatch = value.match(/(\d+\.\d{3,})/g);
+    if (isMatch) {
+        e.target.value = value.slice(0, -1);
+    }
+};
+
+export const mask3DecimalPlaces = (e: ChangeEvent<HTMLInputElement>) => {
+    maskNumber(e);
+    const { value } = e.target;
+    // Masking the value to max 2 decimal places
+    const isMatch = value.match(/(\d+\.\d{4,})/g);
     if (isMatch) {
         e.target.value = value.slice(0, -1);
     }
@@ -314,17 +384,14 @@ export const maskPrice = (e: ChangeEvent<HTMLInputElement>) => {
 };
 
 export const maskPercentage = (e: ChangeEvent<HTMLInputElement>) => {
+    maskNumber(e);
     const { value } = e.target;
     const numericValue = parseFloat(value);
-    if (isNaN(numericValue) || value === '') {
+    if (numericValue < 0) {
         return (e.target.value = '0');
     } else if (numericValue > 100) {
-        return (e.target.value = '100.00');
-    } else if (numericValue < 0) {
-        return (e.target.value = '0.00');
+        return (e.target.value = '100');
     }
-    // Masking the price to max 2 decimal places
-    mask2DecimalPlaces(e);
 };
 
 export const anyTrue = (
@@ -588,4 +655,286 @@ export const stringifyObjectValues = (o: Record<string, string | number | boolea
     return Object.entries(o).reduce((acc, [key, value]) => {
         return { ...acc, [key]: value.toString() };
     }, {});
+};
+
+/**
+ * Rounding to 2 decimal places
+ */
+const roundTo2DP = (number: number) => {
+    return Math.round(number * 100) / 100;
+};
+
+/**
+ * Getting discount amount in cents.
+ *
+ * The price is a whole number in smaller units representing the decimal
+ * price value multiplied by 100 .
+ * Examples (assuming $):
+ * 1000 = $10.00
+ * 18925 = $189.25
+ *
+ * The discountPercent is a whole number representing
+ * the percentage multiplied by 100 in order to account
+ * for the rounding errors when the discount has (maximum)
+ * 2 decimal places.
+ * Examples:
+ * 100 = 1%
+ * 1892 = 18.92%
+ */
+export const getInvoiceItemDiscountAmount = ({
+    price,
+    discountPercent,
+    quantity
+}: {
+    price: number;
+    discountPercent: number;
+    quantity: number;
+}) => {
+    return roundTo2DP((price * discountPercent * quantity) / 10000);
+};
+
+/**
+ * Getting invoice item subtotal in cents.
+ *
+ * The price is a whole number in smaller units representing the decimal
+ * price value multiplied by 100 .
+ * Examples (assuming $):
+ * 1000 = $10.00
+ * 18925 = $189.25
+ *
+ * The discountPercent is a whole number representing
+ * the percentage multiplied by 100 in order to account
+ * for the rounding errors when the discount has (maximum)
+ * 2 decimal places.
+ * Examples:
+ * 100 = 1%
+ * 1892 = 18.92%
+ */
+export const getInvoiceItemSubtotalAfterDiscount = ({
+    price,
+    discountPercent,
+    quantity
+}: {
+    price: number;
+    discountPercent: number;
+    quantity: number;
+}) => {
+    const invoiceItemDiscountAmount = getInvoiceItemDiscountAmount({
+        price,
+        discountPercent,
+        quantity
+    });
+
+    return price * quantity - invoiceItemDiscountAmount;
+};
+
+/**
+ * Getting invoice item tax amount
+ *
+ * The price is a whole number in smaller units representing the decimal
+ * price value multiplied by 100 .
+ * Examples (assuming $):
+ * 1000 = $10.00
+ * 18925 = $189.25
+ *
+ * The taxPercent is a whole number representing
+ * the percentage multiplied by 1000 in order to account
+ * for the rounding errors when the sales tax has (maximum)
+ * 3 decimal places.
+ * Examples:
+ * 1000 = 1%
+ * 18925 = 18.925%
+ *
+ * The discountPercent is a whole number representing
+ * the percentage multiplied by 100 in order to account
+ * for the rounding errors when the discount has (maximum)
+ * 2 decimal places.
+ * Examples:
+ * 100 = 1%
+ * 1892 = 18.92%
+ */
+export const getInvoiceItemSalesTaxAmount = ({
+    price,
+    discountPercent,
+    taxPercent,
+    quantity
+}: {
+    price: number;
+    discountPercent: number;
+    taxPercent: number;
+    quantity: number;
+}) => {
+    const invoiceItemSubtotalBeforeTax = getInvoiceItemSubtotalAfterDiscount({
+        price,
+        discountPercent,
+        quantity
+    });
+    return (invoiceItemSubtotalBeforeTax / 100000) * taxPercent;
+};
+
+/**
+ * Getting invoice item subtotal after tax
+ *
+ * The price is a whole number in smaller units representing the decimal
+ * price value multiplied by 100 .
+ * Examples (assuming $):
+ * 1000 = $10.00
+ * 18925 = $189.25
+ *
+ * The discountPercent is a whole number representing
+ * the percentage multiplied by 100 in order to account
+ * for the rounding errors when the discount has (maximum)
+ * 2 decimal places.
+ * Examples:
+ * 100 = 1%
+ * 1892 = 18.92%
+ *
+ * The taxPercent is a whole number representing
+ * the percentage multiplied by 1000 in order to account
+ * for the rounding errors when the sales tax has (maximum)
+ * 3 decimal places.
+ * Examples:
+ * 1000 = 1%
+ * 18925 = 18.925%
+ */
+export const getInvoiceItemSubtotalAfterTax = ({
+    price,
+    discountPercent,
+    taxPercent,
+    quantity
+}: {
+    price: number;
+    discountPercent: number;
+    taxPercent: number;
+    quantity: number;
+}) => {
+    const subtotalAfterDiscount = getInvoiceItemSubtotalAfterDiscount({
+        price,
+        discountPercent,
+        quantity
+    });
+    const taxAmount = getInvoiceItemSalesTaxAmount({
+        price,
+        discountPercent,
+        taxPercent,
+        quantity
+    });
+    return subtotalAfterDiscount + taxAmount;
+};
+
+/**
+ * Getting invoice total.
+ *
+ * For correct calculations the below formula constituents must
+ * have following format:
+ *
+ * The price is a whole number in smaller units representing the decimal
+ * price value multiplied by 100 .
+ * Examples (assuming $):
+ * 1000 = $10.00
+ * 18925 = $189.25
+ *
+ * The discountPercent is a whole number representing
+ * the percentage multiplied by 100 in order to account
+ * for the rounding errors when the discount has (maximum)
+ * 2 decimal places.
+ * Examples:
+ * 100 = 1%
+ * 1892 = 18.92%
+ *
+ * The taxPercent is a whole number representing
+ * the percentage multiplied by 1000 in order to account
+ * for the rounding errors when the sales tax has (maximum)
+ * 3 decimal places.
+ * Examples:
+ * 1000 = 1%
+ * 18925 = 18.925%
+ */
+export const getInvoiceTotal = (
+    invoiceItems: Pick<
+        TTransformedInvoice['invoiceItems'][number],
+        'price' | 'quantity' | 'discount' | 'salesTax'
+    >[]
+) => {
+    return invoiceItems.reduce((acc, ii) => {
+        const { price, quantity } = ii;
+        const discountPercent = ii.discount;
+        const taxPercent = ii.salesTax;
+        return (
+            acc +
+            getInvoiceItemSubtotalAfterTax({
+                price,
+                discountPercent,
+                taxPercent,
+                quantity
+            })
+        );
+    }, 0);
+};
+
+/**
+ * Getting invoice total tax and discount.
+ *
+ * Used to show total tax and discount on invoices
+ * for informational purposes.
+ *
+ * For correct calculations the below formula constituents must
+ * have following format:
+ *
+ * The price is a whole number in smaller units representing the decimal
+ * price value multiplied by 100 .
+ * Examples (assuming $):
+ * 1000 = $10.00
+ * 18925 = $189.25
+ *
+ * The discountPercent is a whole number representing
+ * the percentage multiplied by 100 in order to account
+ * for the rounding errors when the discount has (maximum)
+ * 2 decimal places.
+ * Examples:
+ * 100 = 1%
+ * 1892 = 18.92%
+ *
+ * The taxPercent is a whole number representing
+ * the percentage multiplied by 1000 in order to account
+ * for the rounding errors when the sales tax has (maximum)
+ * 3 decimal places.
+ * Examples:
+ * 1000 = 1%
+ * 18925 = 18.925%
+ */
+export const getInvoiceTotalTaxAndDiscount = (
+    invoiceItems: Pick<
+        TTransformedInvoice['invoiceItems'][number],
+        'price' | 'quantity' | 'discount' | 'salesTax'
+    >[]
+) => {
+    return invoiceItems.reduce(
+        (acc, ii) => {
+            const { price, quantity } = ii;
+            const discountPercent = ii.discount;
+            const taxPercent = ii.salesTax;
+            return {
+                taxTotal:
+                    acc.taxTotal +
+                    getInvoiceItemSalesTaxAmount({
+                        price,
+                        discountPercent,
+                        taxPercent,
+                        quantity
+                    }),
+                discountTotal:
+                    acc.discountTotal +
+                    getInvoiceItemDiscountAmount({
+                        price,
+                        discountPercent,
+                        quantity
+                    })
+            };
+        },
+        {
+            taxTotal: 0,
+            discountTotal: 0
+        }
+    );
 };

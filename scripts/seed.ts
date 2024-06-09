@@ -793,12 +793,12 @@ async function seedInvoices() {
                                     ? 1
                                     : Math.floor(Math.random() * 3) + 1,
                             inventoryId: inventoryItem.id,
-                            salesTax: index % 2 === 0 ? 8 : index % 3 === 0 ? 3 : 0,
+                            salesTax: index % 2 === 0 ? 8000 : index % 3 === 0 ? 3000 : 0,
                             measurementUnitId:
                                 measurementUnits[
                                     Math.floor(Math.random() * measurementUnits.length)
                                 ].id,
-                            discount: index % 2 === 0 ? 10 : index % 3 === 0 ? 20 : 0,
+                            discount: index % 2 === 0 ? 1000 : index % 3 === 0 ? 2000 : 0,
                             createdBy: user.id,
                             updatedBy: user.id
                         };

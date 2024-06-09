@@ -1,14 +1,14 @@
 // import { useLogo } from '@/app/lib/hooks/useLogo';
-import { useI18n } from '@/locales/client';
+import { capitalize, formatNumeroSign } from '@/app/lib/utils';
+import { getI18n } from '@/locales/server';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import Image from 'next/image';
-import { FC, useMemo } from 'react';
+import { FC } from 'react';
 import CustomerTable from './CustomerTable';
+import ImageView from './ImageView';
 import InvoiceItemsTable from './InvoiceItemsTable';
 import {
-    FlexBox,
     StyledAdditionalInfo,
     StyledCustomerInfo,
     StyledFooter,
@@ -19,9 +19,6 @@ import {
     StyledViewPdfBtn
 } from './styled';
 import { IProps } from './types';
-import { getI18n } from '@/locales/server';
-import { capitalize, formatNumeroSign } from '@/app/lib/utils';
-import ImageView from './ImageView';
 
 const InvoiceView: FC<IProps> = async ({ invoice, locale }) => {
     const t = await getI18n();
@@ -80,7 +77,7 @@ const InvoiceView: FC<IProps> = async ({ invoice, locale }) => {
                         )}
                         {invoice.customerLocalIdentifierValue && (
                             <Typography>
-                                {capitalize(t('your'))} {invoice.customerLocalIdentifierNameAbbrev}:
+                                {capitalize(t('our'))} {invoice.customerLocalIdentifierNameAbbrev}:
                             </Typography>
                         )}
                         {invoice.providerLocalIdentifierValue && (
@@ -118,12 +115,7 @@ const InvoiceView: FC<IProps> = async ({ invoice, locale }) => {
                 </Box>
             </Box>
             <StyledInvoiceItems component='section' className='invoice-items'>
-                <InvoiceItemsTable
-                    invoiceItems={invoiceItems}
-                    tax={invoice.tax}
-                    discount={invoice.discount}
-                    locale={locale}
-                />
+                <InvoiceItemsTable invoiceItems={invoiceItems} locale={locale} />
             </StyledInvoiceItems>
             {invoice.additionalInformation && (
                 <StyledAdditionalInfo component='section' className='invoice-additional-info'>

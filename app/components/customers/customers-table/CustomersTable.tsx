@@ -227,7 +227,6 @@ const EnhancedTableToolbar: FC<IEnhancedTableToolbarProps> = ({
 const CustomersTable: FC<IProps> = ({ customers, count, searchParams: sanitizedSearchParams }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
-    const { push } = useRouter();
     const [selected, setSelected] = useState<readonly ICustomerTable['customerId'][]>([]);
 
     const { replace } = useRouter();

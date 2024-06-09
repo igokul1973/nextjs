@@ -1,15 +1,16 @@
 import { TPluralTranslationKeyRaw, TSingleTranslationKey } from './types';
 
 const svPlural: Record<TPluralTranslationKeyRaw, string> = {
-    'must be digits#many': 'måste vara {count} siffror',
-    'must be up to digits#many': 'måste vara upp till {count} siffror',
-    'must be at least characters#many': 'kan inte vara mindre än {count} tecken',
-    'must be more than#many': 'måste vara mer än {count}',
-    'file size must be less than kb#many': 'filen måste vara mindre än {count} KB',
-    'file size must be less than mb#many': 'filen måste vara mindre än {count} MB',
-    'square picture (png, jpg, jpeg, webp, or svg) with max file size: kb#many':
+    'must be digits#other': 'måste vara {count} siffror',
+    'must be up to digits#other': 'måste vara upp till {count} siffror',
+    'can have up to decimal digits#other': 'kan ha upp till {count} decimaler',
+    'must be at least characters#other': 'kan inte vara mindre än {count} tecken',
+    'must be more than#other': 'måste vara mer än {count}',
+    'file size must be less than kb#other': 'filen måste vara mindre än {count} KB',
+    'file size must be less than mb#other': 'filen måste vara mindre än {count} MB',
+    'square picture (png, jpg, jpeg, webp, or svg) with max file size: kb#other':
         'fyrkantig bild (png, jpg, jpeg, webp, eller svg) med maximal filstorlek: {count} KB',
-    'square picture (png, jpg, jpeg, webp, or svg) with max file size mb#many':
+    'square picture (png, jpg, jpeg, webp, or svg) with max file size mb#other':
         'fyrkantig bild (png, jpg, jpeg, webp, eller svg) med maximal filstorlek: {count} MB'
 };
 
@@ -135,7 +136,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     pending: 'avvaktande',
     paid: 'betalat',
     cancelled: 'avbruten',
-    'sales tax': 'moms/VAT',
+    'sales tax': 'momssats',
     your: 'er',
     our: 'vår',
     'your reference': 'er referens',
@@ -146,7 +147,11 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'payment terms': 'betalningsvillkor',
     terms: 'andra villkor',
     'rebate/discount': 'rabatt/avdrag',
+    discount: 'rabatt',
+    'item subtotal': 'delpris',
     notes: 'anteckningar',
+    unit: 'enhet',
+    'measurement unit': 'enhet',
     'enter tax': 'ange moms/VAT',
     'invoice number': 'faktureringsnummer',
     'invoice date': 'faktureringsdatum',
@@ -175,7 +180,6 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'add invoice item': 'lägg till ett faktureringsobjekt',
     'add another invoice item': 'lägg till ett annat faktureringsobjekt',
     'inventory item name': 'inventeringsobjectetsnamn',
-
     'your phone': 'ditt telefon',
     'select your phone': 'välj ditt telefon',
     'select your phone (might be shown on the invoice)':
@@ -196,6 +200,9 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     freight: 'frakt',
     subtotal: 'delsumma',
     total: 'totalsumma',
+    'invoice total': 'fakturasumma',
+    'tax total': 'fakturamoms',
+    'discount total': 'fakturarabatt',
     sum: 'belopp',
     amount: 'mängd',
     'select invoice status': 'välj faktureringsstatus',
@@ -244,6 +251,9 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'please enter a customer': 'var god ange en kund',
     'file must be a PNG, JPG, JPEG, WEBP, or SVG image':
         'filen måste vara en PNG, JPG, JPEG, WEBP, eller SVG bild',
+    'enter the unit': 'ange enhet',
+    'unit type is incorrect': 'enhettypen är felaktig',
+    'enter additional terms': 'ange ytterligare villkor',
     // Buttons
     'create customer': 'skapa en kund',
     'update customer': 'redigera kunden',

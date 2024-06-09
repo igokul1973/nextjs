@@ -424,18 +424,14 @@ model invoice {
   additionalInformation             String?           @map("additional_information") @db.Text
   payBy                             DateTime          @map("pay_by") @db.Timestamptz(3)
   paidOn                            DateTime?         @map("paid_on") @db.Timestamptz(3)
-  // How to pay
+  // How to pay (bank info)
   paymentInfo                       String?           @map("payment_info") @db.Text
-  // Delivery terms and conditions
+  // Payment terms and conditions
   paymentTerms                      String?           @db.Text
   // Delivery terms and conditions
   deliveryTerms                     String?           @db.Text
   // Any additional terms and conditions
   terms                             String?           @db.Text
-  // Discount percentage on whole invoice
-  discount                          Int               @default(0) @db.Integer
-  // Delivery price on whole invoice
-  delivery                          Int               @default(0) @db.Integer
   // Internal notes
   notes                             String?           @db.Text
   createdAt                         DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)

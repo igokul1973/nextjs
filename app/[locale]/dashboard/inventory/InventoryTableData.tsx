@@ -4,7 +4,7 @@ import {
     getFilteredInventoryByAccountIdRaw,
     getFilteredInventoryCount
 } from '@/app/lib/data/inventory';
-import { formatCurrency, getUser } from '@/app/lib/utils';
+import { formatCurrencyAsCents, getUser } from '@/app/lib/utils';
 import { FC } from 'react';
 import { TInventoryDataProps } from './types';
 
@@ -31,9 +31,9 @@ const InventoryTableData: FC<TInventoryDataProps> = async ({ searchParams }) => 
     const inventory = rawInventory.map((inventoryItem) => {
         return {
             ...inventoryItem,
-            price: formatCurrency(inventoryItem.price, locale),
+            price: formatCurrencyAsCents(inventoryItem.price, locale),
             manufacturerPrice: inventoryItem.manufacturerPrice
-                ? formatCurrency(inventoryItem.manufacturerPrice, locale)
+                ? formatCurrencyAsCents(inventoryItem.manufacturerPrice, locale)
                 : ''
         };
     });

@@ -1,4 +1,13 @@
-import { formatCurrency } from '@/app/lib/utils';
+import {
+    capitalize,
+    formatCurrencyAsCents,
+    formatDiscount,
+    formatTax,
+    getInvoiceItemSubtotalAfterTax,
+    getInvoiceTotal,
+    getInvoiceTotalTaxAndDiscount
+} from '@/app/lib/utils';
+import { getI18n } from '@/locales/server';
 import { TSingleTranslationKey } from '@/locales/types';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -7,10 +16,8 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { FC } from 'react';
-import { IInvoiceItemsTableProps } from './types';
-import { getI18n } from '@/locales/server';
-import capitalize from '@mui/material/utils/capitalize';
 import { StyledTableCell } from './styled';
+import { IInvoiceItemsTableProps } from './types';
 
 const headerRowCells: {
     title: Partial<TSingleTranslationKey>;
@@ -25,7 +32,19 @@ const headerRowCells: {
         alignment: 'right'
     },
     {
+        title: 'measurement unit',
+        alignment: 'right'
+    },
+    {
         title: 'price',
+        alignment: 'right'
+    },
+    {
+        title: 'discount',
+        alignment: 'right'
+    },
+    {
+        title: 'sales tax',
         alignment: 'right'
     },
     {
@@ -34,18 +53,10 @@ const headerRowCells: {
     }
 ];
 
-const InvoiceItemsTable: FC<IInvoiceItemsTableProps> = async ({
-    tax,
-    invoiceItems,
-    discount,
-    locale
-}) => {
+const InvoiceItemsTable: FC<IInvoiceItemsTableProps> = async ({ invoiceItems, locale }) => {
     const t = await getI18n();
-    const subtotal = invoiceItems.map(({ price }) => price).reduce((sum, i) => sum + i, 0);
-    const discountSubtotal = subtotal * (discount / 100);
-    const totalAfterDiscount = subtotal - discountSubtotal;
-    const taxSubtotal = totalAfterDiscount * (tax / 100);
-    const total = totalAfterDiscount + taxSubtotal;
+    const { discountTotal, taxTotal } = getInvoiceTotalTaxAndDiscount(invoiceItems);
+    const total = getInvoiceTotal(invoiceItems);
     return (
         <TableContainer>
             <Table sx={{ minWidth: 700 }} aria-label='spanning table'>
@@ -64,38 +75,49 @@ const InvoiceItemsTable: FC<IInvoiceItemsTableProps> = async ({
                             <StyledTableCell>{ii.name}</StyledTableCell>
                             <StyledTableCell align='right'>{ii.quantity}</StyledTableCell>
                             <StyledTableCell align='right'>
-                                {formatCurrency(ii.price, locale)}
+                                {ii.measurementUnit.abbreviation}
                             </StyledTableCell>
                             <StyledTableCell align='right'>
-                                {formatCurrency(ii.price * ii.quantity, locale)}
+                                {formatCurrencyAsCents(ii.price, locale)}
+                            </StyledTableCell>
+                            <StyledTableCell align='right'>
+                                {formatDiscount(ii.discount)}%
+                            </StyledTableCell>
+                            <StyledTableCell align='right'>
+                                {formatTax(ii.salesTax)}%
+                            </StyledTableCell>
+                            <StyledTableCell align='right'>
+                                {formatCurrencyAsCents(
+                                    getInvoiceItemSubtotalAfterTax({
+                                        price: ii.price,
+                                        discountPercent: ii.discount,
+                                        taxPercent: ii.salesTax,
+                                        quantity: ii.quantity
+                                    }),
+                                    locale
+                                )}
                             </StyledTableCell>
                         </TableRow>
                     ))}
                     <TableRow>
-                        <StyledTableCell rowSpan={4} sx={{ borderBottom: 'none' }} />
-                        <StyledTableCell colSpan={2}>{capitalize(t('subtotal'))}</StyledTableCell>
+                        <StyledTableCell rowSpan={3} colSpan={5} sx={{ borderBottom: 'none' }} />
+                        <StyledTableCell>{capitalize(t('discount total'))}:</StyledTableCell>
                         <StyledTableCell align='right'>
-                            {formatCurrency(subtotal, locale)}
+                            {formatCurrencyAsCents(discountTotal, locale)}
                         </StyledTableCell>
                     </TableRow>
                     <TableRow>
-                        <StyledTableCell>{capitalize(t('rebate/discount'))}</StyledTableCell>
-                        <StyledTableCell align='right'>{`${discount} %`}</StyledTableCell>
+                        <StyledTableCell>{capitalize(t('tax total'))}:</StyledTableCell>
                         <StyledTableCell align='right'>
-                            {formatCurrency(discountSubtotal, locale)}%
+                            {formatCurrencyAsCents(taxTotal, locale)}
                         </StyledTableCell>
                     </TableRow>
                     <TableRow>
-                        <StyledTableCell>{capitalize(t('tax'))}</StyledTableCell>
-                        <StyledTableCell align='right'>{`${tax} %`}</StyledTableCell>
-                        <StyledTableCell align='right'>
-                            {formatCurrency(taxSubtotal, locale)}
+                        <StyledTableCell sx={{ fontWeight: 'bold' }}>
+                            {capitalize(t('total'))}:
                         </StyledTableCell>
-                    </TableRow>
-                    <TableRow>
-                        <StyledTableCell colSpan={2}>{capitalize(t('total'))}</StyledTableCell>
                         <StyledTableCell align='right'>
-                            {formatCurrency(total, locale)}
+                            {formatCurrencyAsCents(total, locale)}
                         </StyledTableCell>
                     </TableRow>
                 </TableBody>

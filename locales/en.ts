@@ -1,13 +1,14 @@
 export const enPlural = {
-    'must be digits#many': 'must be {count} digits',
-    'must be up to digits#many': 'must be up to {count} digits',
-    'must be at least characters#many': 'must be at least {count} characters long',
-    'must be more than#many': 'must be more than {count} ',
-    'file size must be less than kb#many': 'filen måste vara mindre än {count} KB',
-    'file size must be less than mb#many': 'filen måste vara mindre än {count} MB',
-    'square picture (png, jpg, jpeg, webp, or svg) with max file size: kb#many':
+    'must be digits#other': 'must be {count} digits',
+    'must be up to digits#other': 'must be up to {count} digits',
+    'can have up to decimal digits#other': 'can have up to {count} decimal digits',
+    'must be at least characters#other': 'must be at least {count} characters long',
+    'must be more than#other': 'must be more than {count} ',
+    'file size must be less than kb#other': 'filen måste vara mindre än {count} KB',
+    'file size must be less than mb#other': 'filen måste vara mindre än {count} MB',
+    'square picture (png, jpg, jpeg, webp, or svg) with max file size: kb#other':
         'square picture with max file size: {count} KB',
-    'square picture (png, jpg, jpeg, webp, or svg) with max file size mb#many':
+    'square picture (png, jpg, jpeg, webp, or svg) with max file size mb#other':
         'square picture with max file size: {count} MB'
 };
 
@@ -133,7 +134,7 @@ export const enSingle = {
     pending: 'pending',
     paid: 'paid',
     cancelled: 'cancelled',
-    'sales tax': 'tax',
+    'sales tax': 'sales tax',
     your: 'your',
     our: 'our',
     'your reference': 'your reference',
@@ -144,7 +145,11 @@ export const enSingle = {
     'pay by date': 'pay by date',
     terms: 'other terms',
     'rebate/discount': 'rebate/discount',
+    discount: 'discount',
+    'item subtotal': 'item subtotal',
     notes: 'notes',
+    unit: 'unit',
+    'measurement unit': 'measurement unit',
     'enter tax': 'enter tax',
     'invoice date': 'invoice date',
     'enter the date the invoice have been paid on': 'enter the date the invoice have been paid on',
@@ -193,6 +198,9 @@ export const enSingle = {
     'delivery terms': 'delivery terms',
     subtotal: 'subtotal',
     total: 'total',
+    'invoice total': 'invoice total',
+    'tax total': 'tax total',
+    'discount total': 'discount total',
     sum: 'sum',
     amount: 'amount',
     'select invoice status': 'select invoice status',
@@ -240,6 +248,9 @@ export const enSingle = {
     'please enter a customer': 'please enter a customer',
     'file must be a PNG, JPG, JPEG, WEBP, or SVG image':
         'file must be a PNG, JPG, JPEG, WEBP, or SVG image',
+    'enter the unit': 'enter the unit',
+    'unit type is incorrect': 'unit type is incorrect',
+    'enter additional terms': 'enter additional terms',
     // Buttons
     'create customer': 'create customer',
     'update customer': 'update customer',

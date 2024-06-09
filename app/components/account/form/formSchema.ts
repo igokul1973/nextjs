@@ -25,7 +25,7 @@ const fileSchema = z
             return false;
         }
         return file.size <= MAX_UPLOAD_SIZE;
-    }, 'file size must be less than kb#many')
+    }, 'file size must be less than kb#other')
     .refine((file) => {
         if (!file) {
             return true;

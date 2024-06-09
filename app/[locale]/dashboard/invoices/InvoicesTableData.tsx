@@ -4,7 +4,7 @@ import {
     getFilteredInvoicesByAccountId,
     getFilteredInvoicesByAccountIdCount
 } from '@/app/lib/data/invoice';
-import { formatCurrency, getUser } from '@/app/lib/utils';
+import { formatCurrencyAsCents, getUser } from '@/app/lib/utils';
 import { FC } from 'react';
 import { TInvoicesDataProps } from './types';
 
@@ -33,7 +33,7 @@ const InvoicesTableData: FC<TInvoicesDataProps> = async ({ searchParams, tableNa
     const invoices = rawInvoices.map((invoice) => {
         return {
             ...invoice,
-            amount: formatCurrency(invoice.amount, userAccountCountry.locale),
+            amount: formatCurrencyAsCents(invoice.amount, userAccountCountry.locale),
             date: invoice.date.toLocaleDateString(userAccountCountry.locale),
             payBy: invoice.payBy.toLocaleDateString(userAccountCountry.locale),
             paidOn: invoice.paidOn?.toLocaleDateString(userAccountCountry.locale)

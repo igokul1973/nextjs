@@ -5,5 +5,5 @@ export type TPluralTranslationKeyRaw = keyof typeof enPlural;
 
 export type TPluralTranslationKey<
     S extends TPluralTranslationKeyRaw = TPluralTranslationKeyRaw,
-    K extends string = '#many'
+    K extends string = '#other'
 > = S extends `${infer T}${K}` ? T : never;

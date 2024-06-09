@@ -5,6 +5,7 @@ import Warning from '@/app/components/warning/Warning';
 import { getCustomersByAccountId } from '@/app/lib/data/customer';
 import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory';
 import { getInvoiceById } from '@/app/lib/data/invoice';
+import { getFilteredMeasurementUnitsByAccount } from '@/app/lib/data/measurement-unit';
 import { getUser, populateForm } from '@/app/lib/utils';
 import { setStaticParamsLocale } from 'next-international/server';
 import { notFound } from 'next/navigation';
@@ -25,6 +26,10 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
         );
     }
 
+    const measurementUnitsPromise = getFilteredMeasurementUnitsByAccount({
+        accountId: account.id,
+        query: ''
+    });
     const invoicePromise = getInvoiceById(id, account.id);
     const customersPromise = getCustomersByAccountId(account.id);
     const inventoryPromise = getFilteredInventoryByAccountIdRaw({
@@ -33,7 +38,8 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
         page: 0,
         itemsPerPage: 50
     });
-    const [invoice, customers, rawInventory] = await Promise.all([
+    const [measurementUnits, invoice, customers, rawInventory] = await Promise.all([
+        measurementUnitsPromise,
         invoicePromise,
         customersPromise,
         inventoryPromise
@@ -75,10 +81,17 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
     } = invoice;
 
     const preparedInvoiceItems = invoiceItems.map((invoiceItem) => {
-        const { price: rawPrice, ...partialInvoiceItem } = invoiceItem;
+        const {
+            price: rawPrice,
+            discount: rawDiscount,
+            salesTax: rawSalesTax,
+            ...partialInvoiceItem
+        } = invoiceItem;
 
         return {
             price: rawPrice / 100,
+            discount: rawDiscount / 100,
+            salesTax: rawSalesTax / 1000,
             inventoryItem: {
                 id: partialInvoiceItem.inventoryId,
                 name: partialInvoiceItem.name
@@ -113,6 +126,7 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
         <InvoiceForm
             customers={customers}
             inventory={inventory}
+            measurementUnits={measurementUnits}
             accountId={account.id}
             locale={userAccountCountry.locale}
             providerPhones={provider.phones}

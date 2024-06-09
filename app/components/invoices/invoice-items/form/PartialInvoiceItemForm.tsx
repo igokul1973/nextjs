@@ -1,31 +1,46 @@
+import { TInvoiceForm } from '@/app/components/invoices/form/types';
 import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory';
 import { TInventoryTransformed } from '@/app/lib/data/inventory/types';
-import { mask2DecimalPlaces, maskPercentage, useDebounce } from '@/app/lib/utils';
+import { getFilteredMeasurementUnitsByAccount } from '@/app/lib/data/measurement-unit';
+import { TMeasurementUnit } from '@/app/lib/types';
+import {
+    formatCurrency,
+    getInvoiceItemSubtotalAfterTax,
+    mask2DecimalPlaces,
+    mask3DecimalPlaces,
+    maskPercentage,
+    maskPrice,
+    useDebounce
+} from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TPluralTranslationKey, TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PercentIcon from '@mui/icons-material/Percent';
 import { capitalize } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
-import { FC, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { FC, useEffect, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { TInvoiceForm } from '../../form/types';
-import { StyledBox, StyledQuantityBox } from './styled';
+import { StyledBox } from './styled';
 import { IProps } from './types';
-import PercentIcon from '@mui/icons-material/Percent';
 
 const PartialInvoiceItemForm: FC<IProps> = ({
     index,
     count,
     accountId,
     inventory: initialInventory,
-    remove
+    measurementUnits: initialMeasurementUnits,
+    remove,
+    recalculateTotals
 }) => {
     const t = useI18n();
+    const { locale } = useParams<{ locale: string }>();
     const {
+        watch,
         control,
         register,
         setValue,
@@ -33,11 +48,36 @@ const PartialInvoiceItemForm: FC<IProps> = ({
     } = useFormContext<TInvoiceForm>();
 
     const [inventory, setInventory] = useState<TInventoryTransformed[]>(initialInventory);
+    const [measurementUnits, setMeasurementUnits] =
+        useState<TMeasurementUnit[]>(initialMeasurementUnits);
+    const [itemSubtotal, setItemSubtotal] = useState('0.00');
 
     const inventoryItemError = errors.invoiceItems?.[index]?.inventoryItem;
+    const measurementUnitError = errors.invoiceItems?.[index]?.measurementUnit;
     const priceError = errors.invoiceItems?.[index]?.price;
     const quantityError = errors.invoiceItems?.[index]?.quantity;
+    const discountError = errors.invoiceItems?.[index]?.discount;
     const salesTaxError = errors.invoiceItems?.[index]?.salesTax;
+
+    const priceWatch = watch(`invoiceItems.${index}.price`);
+    const quantityWatch = watch(`invoiceItems.${index}.quantity`);
+    const discountWatch = watch(`invoiceItems.${index}.discount`);
+    const taxWatch = watch(`invoiceItems.${index}.salesTax`);
+
+    useEffect(() => {
+        if (priceWatch && quantityWatch) {
+            const subtotal = getInvoiceItemSubtotalAfterTax({
+                price: priceWatch,
+                quantity: quantityWatch,
+                discountPercent: discountWatch,
+                taxPercent: taxWatch
+            });
+            setItemSubtotal(formatCurrency(subtotal / 100, locale));
+            recalculateTotals();
+        } else {
+            setItemSubtotal(formatCurrency(0, locale));
+        }
+    }, [quantityWatch, taxWatch, discountWatch, priceWatch, locale]);
 
     const getInventory = async (query: string) => {
         if (!query) {
@@ -48,6 +88,16 @@ const PartialInvoiceItemForm: FC<IProps> = ({
     };
 
     const debouncedHandleGetInventory = useDebounce<string>(getInventory, 300);
+
+    const getMeasurementUnit = async (query: string) => {
+        if (!query) {
+            return setMeasurementUnits(initialMeasurementUnits);
+        }
+        const measurementUnits = await getFilteredMeasurementUnitsByAccount({ accountId, query });
+        setMeasurementUnits(measurementUnits);
+    };
+
+    const debouncedHandleGetMeasurementUnit = useDebounce<string>(getMeasurementUnit, 300);
 
     const setAdditionalValues = (inventoryItem: TInventoryTransformed | null) => {
         if (inventoryItem) {
@@ -82,6 +132,14 @@ const PartialInvoiceItemForm: FC<IProps> = ({
             input.internalCode?.toLocaleLowerCase().includes(lowerCaseValue) ||
             input.manufacturerCode?.toLocaleLowerCase().includes(lowerCaseValue) ||
             input.externalCode?.toLocaleLowerCase().includes(lowerCaseValue)
+        );
+    };
+
+    const matchMeasurementUnit = (input: TMeasurementUnit, value: string) => {
+        const lowerCaseValue = value.toLocaleLowerCase();
+        return (
+            input.name.toLocaleLowerCase().includes(lowerCaseValue) ||
+            input.abbreviation?.toLocaleLowerCase().includes(lowerCaseValue)
         );
     };
 
@@ -137,6 +195,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                                     renderInput={(params) => (
                                         <TextField
                                             {...params}
+                                            required
                                             error={!!inventoryItemError}
                                             helperText={
                                                 !!inventoryItemError &&
@@ -158,49 +217,210 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                 <FormControl fullWidth>
                     <TextField
                         sx={{ overflowX: 'clip' }}
-                        title={capitalize(t('must be up to digits', { count: 3 }))}
+                        title={
+                            capitalize(t('price')) +
+                            ' ' +
+                            t('can have up to decimal digits', { count: 2 })
+                        }
                         label={capitalize(t('price'))}
                         InputLabelProps={{ shrink: true }}
                         inputProps={{
-                            type: 'number',
-                            inputMode: 'decimal'
+                            type: 'text'
                         }}
                         variant='outlined'
                         required
-                        disabled
                         error={!!priceError}
                         helperText={
                             !!priceError &&
                             capitalize(t(priceError.message as TSingleTranslationKey))
                         }
-                        {...register(`invoiceItems.${index}.price`)}
+                        {...register(`invoiceItems.${index}.price`, {
+                            setValueAs: (value) => {
+                                return Math.floor(value * 100);
+                            },
+                            onChange: (e) => {
+                                maskPrice(e);
+                            }
+                        })}
                     />
                 </FormControl>
             </Box>
-            <StyledQuantityBox>
+            <FormControl fullWidth>
+                <TextField
+                    title={
+                        capitalize(t('quantity')) +
+                        ' ' +
+                        t('can have up to decimal digits', { count: 3 })
+                    }
+                    label={capitalize(t('quantity'))}
+                    inputProps={{
+                        type: 'text'
+                    }}
+                    variant='outlined'
+                    required
+                    error={!!quantityError}
+                    helperText={
+                        !!quantityError &&
+                        capitalize(t(quantityError.message as TPluralTranslationKey, { count: 0 }))
+                    }
+                    {...register(`invoiceItems.${index}.quantity`, {
+                        valueAsNumber: true,
+                        onChange: (e) => {
+                            mask3DecimalPlaces(e);
+                        }
+                    })}
+                />
+            </FormControl>
+            <Box>
+                <FormControl fullWidth>
+                    <Controller
+                        name={`invoiceItems.${index}.measurementUnit`}
+                        control={control}
+                        render={({ field: { onChange, value, ...field } }) => {
+                            return (
+                                <Autocomplete
+                                    value={
+                                        value
+                                            ? measurementUnits.find((option) => {
+                                                  return option.id === value.id;
+                                              })
+                                            : null
+                                    }
+                                    options={measurementUnits}
+                                    filterOptions={(options, value) => {
+                                        return options.filter((option) =>
+                                            matchMeasurementUnit(option, value.inputValue)
+                                        );
+                                    }}
+                                    onChange={(_, inventoryItem) => {
+                                        onChange(inventoryItem);
+                                    }}
+                                    onInputChange={(_, value) => {
+                                        if (
+                                            !value ||
+                                            !measurementUnits.find((mu) =>
+                                                matchMeasurementUnit(mu, value)
+                                            )
+                                        ) {
+                                            console.log('Getting the measurement unit');
+                                            debouncedHandleGetMeasurementUnit(value);
+                                        }
+                                    }}
+                                    getOptionLabel={(option) => {
+                                        return option.abbreviation || option.name;
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            error={!!measurementUnitError}
+                                            helperText={
+                                                !!measurementUnitError &&
+                                                capitalize(
+                                                    t(
+                                                        measurementUnitError.message as TSingleTranslationKey
+                                                    )
+                                                )
+                                            }
+                                            required
+                                            title={capitalize(t('unit'))}
+                                            label={capitalize(t('unit'))}
+                                            placeholder={capitalize(t('enter inventory item name'))}
+                                            inputRef={field.ref}
+                                        />
+                                    )}
+                                    {...field}
+                                />
+                            );
+                        }}
+                    />
+                </FormControl>
+            </Box>
+            <Box>
                 <FormControl fullWidth>
                     <TextField
-                        title={capitalize(t('must be up to digits', { count: 3 }))}
-                        label={capitalize(t('quantity'))}
+                        title={capitalize(t('discount'))}
+                        label={capitalize(t('discount'))}
                         inputProps={{
-                            type: 'number',
-                            inputMode: 'decimal',
-                            minLength: 1,
-                            step: '1'
+                            type: 'text'
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <PercentIcon
+                                    sx={{
+                                        color: 'action.active',
+                                        fontSize: '1.2rem',
+                                        marginRight: 1
+                                    }}
+                                />
+                            )
                         }}
                         variant='outlined'
                         required
-                        error={!!quantityError}
+                        error={!!discountError}
                         helperText={
-                            !!quantityError &&
-                            capitalize(
-                                t(quantityError.message as TPluralTranslationKey, { count: 0 })
-                            )
+                            !!discountError &&
+                            capitalize(t(discountError.message as TSingleTranslationKey))
                         }
-                        {...register(`invoiceItems.${index}.quantity`, {
-                            valueAsNumber: true,
-                            onChange: mask2DecimalPlaces
+                        {...register(`invoiceItems.${index}.discount`, {
+                            onChange: (e) => {
+                                maskPercentage(e);
+                                mask2DecimalPlaces(e);
+                            },
+                            setValueAs: (value) => {
+                                return Math.floor(value * 100);
+                            }
                         })}
+                    />
+                </FormControl>
+            </Box>
+            <Box>
+                <FormControl fullWidth>
+                    <TextField
+                        title={capitalize(t('sales tax'))}
+                        label={capitalize(t('sales tax'))}
+                        inputProps={{
+                            type: 'text'
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <PercentIcon
+                                    sx={{
+                                        color: 'action.active',
+                                        fontSize: '1.2rem',
+                                        marginRight: 1
+                                    }}
+                                />
+                            )
+                        }}
+                        variant='outlined'
+                        required
+                        error={!!salesTaxError}
+                        helperText={
+                            !!salesTaxError &&
+                            capitalize(t(salesTaxError.message as TSingleTranslationKey))
+                        }
+                        {...register(`invoiceItems.${index}.salesTax`, {
+                            onChange: (e) => {
+                                maskPercentage(e);
+                                mask3DecimalPlaces(e);
+                            },
+                            setValueAs: (value) => {
+                                return Math.floor(value * 1000);
+                            }
+                        })}
+                    />
+                </FormControl>
+            </Box>
+            <Box>
+                <FormControl fullWidth>
+                    <TextField
+                        sx={{ overflowX: 'clip' }}
+                        title={capitalize(t('item subtotal'))}
+                        label={capitalize(t('item subtotal'))}
+                        InputLabelProps={{ shrink: true }}
+                        variant='outlined'
+                        disabled
+                        value={itemSubtotal}
                     />
                 </FormControl>
                 {count > 1 && (
@@ -213,45 +433,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                         <DeleteIcon />
                     </IconButton>
                 )}
-            </StyledQuantityBox>
-            <FormControl fullWidth>
-                <TextField
-                    label={capitalize(t('sales tax'))}
-                    inputProps={{
-                        type: 'number',
-                        inputMode: 'decimal',
-                        min: 0,
-                        max: 100,
-                        minLength: 1,
-                        step: '0.01'
-                    }}
-                    InputProps={{
-                        startAdornment: (
-                            <PercentIcon
-                                sx={{
-                                    color: 'action.active',
-                                    fontSize: '1.2rem',
-                                    marginRight: 1
-                                }}
-                            />
-                        )
-                    }}
-                    variant='outlined'
-                    required
-                    error={!!salesTaxError}
-                    helperText={
-                        !!salesTaxError &&
-                        capitalize(t(salesTaxError.message as TSingleTranslationKey))
-                    }
-                    {...register(`invoiceItems.${index}.salesTax`, {
-                        valueAsNumber: true,
-                        onChange: (e) => {
-                            maskPercentage(e);
-                            setValue(`invoiceItems.${index}.salesTax`, e.target.valueAsNumber);
-                        }
-                    })}
-                />
-            </FormControl>
+            </Box>
         </StyledBox>
     );
 };

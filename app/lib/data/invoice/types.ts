@@ -1,6 +1,7 @@
 import { TCustomerOutput } from '@/app/components/invoices/form/types';
 import { InvoiceStatusEnum, Prisma } from '@prisma/client';
 import { includeEntityRelations } from '../user/types';
+import { TMeasurementUnit } from '../../types';
 
 export const getInvoiceSelect = {
     id: true,
@@ -37,7 +38,11 @@ export interface ICreateInvoiceState {
 
 export const invoicesInclude = {
     providerLogo: true,
-    invoiceItems: true,
+    invoiceItems: {
+        include: {
+            measurementUnit: true
+        }
+    },
     createdByUser: true,
     customer: {
         include: {
@@ -59,10 +64,13 @@ export type TGetInvoiceWithRelationsPayloadRaw = Prisma.invoiceGetPayload<{
 }>;
 
 interface IInvoiceItem {
-    price: number;
     id: string;
     name: string;
+    price: number;
+    discount: number;
     quantity: number;
+    measurementUnit: TMeasurementUnit;
+    salesTax: number;
     invoiceId: string;
     inventoryId: string;
     createdAt: Date;
