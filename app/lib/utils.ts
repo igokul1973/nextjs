@@ -362,19 +362,19 @@ export const mask2DecimalPlaces = (e: ChangeEvent<HTMLInputElement>) => {
     maskNumber(e);
     const { value } = e.target;
     // Masking the value to max 2 decimal places
-    const isMatch = value.match(/(\d+\.\d{3,})/g);
-    if (isMatch) {
-        e.target.value = value.slice(0, -1);
+    const match = value.match(/(\d+)\.(\d{3,})/);
+    if (match) {
+        e.target.value = match[1] + '.' + match[2].slice(0, 2);
     }
 };
 
 export const mask3DecimalPlaces = (e: ChangeEvent<HTMLInputElement>) => {
     maskNumber(e);
     const { value } = e.target;
-    // Masking the value to max 2 decimal places
-    const isMatch = value.match(/(\d+\.\d{4,})/g);
-    if (isMatch) {
-        e.target.value = value.slice(0, -1);
+    // Masking the value to max 3 decimal places
+    const match = value.match(/(\d+)\.(\d{4,})/);
+    if (match) {
+        e.target.value = match[1] + '.' + match[2].slice(0, 3);
     }
 };
 
@@ -388,9 +388,9 @@ export const maskPercentage = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     const numericValue = parseFloat(value);
     if (numericValue < 0) {
-        return (e.target.value = '0');
+        e.target.value = '0';
     } else if (numericValue > 100) {
-        return (e.target.value = '100');
+        e.target.value = '100';
     }
 };
 
@@ -673,6 +673,14 @@ const roundTo2DP = (number: number) => {
  * 1000 = $10.00
  * 18925 = $189.25
  *
+ * The quantity is a whole number representing pieces, pounds, milligrams,
+ * etc. multiplied by 1000 in order to account for the rounding errors
+ * when the quantity has (maximum) 3 decimal places.
+ * Examples:
+ * 1 = 0.001 milligram
+ * 1000 = 1 piece
+ * 10892 = 10.892 kilograms
+ *
  * The discountPercent is a whole number representing
  * the percentage multiplied by 100 in order to account
  * for the rounding errors when the discount has (maximum)
@@ -690,7 +698,7 @@ export const getInvoiceItemDiscountAmount = ({
     discountPercent: number;
     quantity: number;
 }) => {
-    return roundTo2DP((price * discountPercent * quantity) / 10000);
+    return roundTo2DP((price * discountPercent * quantity) / 10000000);
 };
 
 /**
@@ -701,6 +709,14 @@ export const getInvoiceItemDiscountAmount = ({
  * Examples (assuming $):
  * 1000 = $10.00
  * 18925 = $189.25
+ *
+ * The quantity is a whole number representing pieces, pounds, milligrams,
+ * etc. multiplied by 1000 in order to account for the rounding errors
+ * when the quantity has (maximum) 3 decimal places.
+ * Examples:
+ * 1 = 0.001 milligram
+ * 1000 = 1 piece
+ * 10892 = 10.892 kilograms
  *
  * The discountPercent is a whole number representing
  * the percentage multiplied by 100 in order to account
@@ -725,7 +741,7 @@ export const getInvoiceItemSubtotalAfterDiscount = ({
         quantity
     });
 
-    return price * quantity - invoiceItemDiscountAmount;
+    return (price * quantity) / 1000 - invoiceItemDiscountAmount;
 };
 
 /**
@@ -736,6 +752,14 @@ export const getInvoiceItemSubtotalAfterDiscount = ({
  * Examples (assuming $):
  * 1000 = $10.00
  * 18925 = $189.25
+ *
+ * The quantity is a whole number representing pieces, pounds, milligrams,
+ * etc. multiplied by 1000 in order to account for the rounding errors
+ * when the quantity has (maximum) 3 decimal places.
+ * Examples:
+ * 1 = 0.001 milligram
+ * 1000 = 1 piece
+ * 10892 = 10.892 kilograms
  *
  * The taxPercent is a whole number representing
  * the percentage multiplied by 1000 in order to account
@@ -780,6 +804,14 @@ export const getInvoiceItemSalesTaxAmount = ({
  * Examples (assuming $):
  * 1000 = $10.00
  * 18925 = $189.25
+ *
+ * The quantity is a whole number representing pieces, pounds, milligrams,
+ * etc. multiplied by 1000 in order to account for the rounding errors
+ * when the quantity has (maximum) 3 decimal places.
+ * Examples:
+ * 1 = 0.001 milligram
+ * 1000 = 1 piece
+ * 10892 = 10.892 kilograms
  *
  * The discountPercent is a whole number representing
  * the percentage multiplied by 100 in order to account
@@ -834,6 +866,14 @@ export const getInvoiceItemSubtotalAfterTax = ({
  * 1000 = $10.00
  * 18925 = $189.25
  *
+ * The quantity is a whole number representing pieces, pounds, milligrams,
+ * etc. multiplied by 1000 in order to account for the rounding errors
+ * when the quantity has (maximum) 3 decimal places.
+ * Examples:
+ * 1 = 0.001 milligram
+ * 1000 = 1 piece
+ * 10892 = 10.892 kilograms
+ *
  * The discountPercent is a whole number representing
  * the percentage multiplied by 100 in order to account
  * for the rounding errors when the discount has (maximum)
@@ -886,6 +926,14 @@ export const getInvoiceTotal = (
  * Examples (assuming $):
  * 1000 = $10.00
  * 18925 = $189.25
+ *
+ * The quantity is a whole number representing pieces, pounds, milligrams,
+ * etc. multiplied by 1000 in order to account for the rounding errors
+ * when the quantity has (maximum) 3 decimal places.
+ * Examples:
+ * 1 = 0.001 milligram
+ * 1000 = 1 piece
+ * 10892 = 10.892 kilograms
  *
  * The discountPercent is a whole number representing
  * the percentage multiplied by 100 in order to account

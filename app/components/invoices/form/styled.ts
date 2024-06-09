@@ -8,9 +8,14 @@ export const Totals = styled(Box, {
     slot: 'Root'
 })`
     display: flex;
-    flex-wrap: 'wrap';
+    flex-wrap: wrap;
     gap: 1rem;
     font-weight: 700;
+    position: sticky;
+    top: 65px;
+    background-color: white;
+    padding-block: 1rem;
+    z-index: 100;
 `;
 
 export const StyledForm = styled('form', {

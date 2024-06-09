@@ -9,7 +9,7 @@ export const StyledBox = styled(Box, {
 })`
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
     .tools {
         display: flex;
         justify-content: space-between;

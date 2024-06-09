@@ -790,8 +790,8 @@ async function seedInvoices() {
                             quantity:
                                 inventoryItem.typeId === serviceTypeId ||
                                 inventoryItem.typeId === miscellaneousTypeId
-                                    ? 1
-                                    : Math.floor(Math.random() * 3) + 1,
+                                    ? 1000
+                                    : (Math.floor(Math.random() * 3) + 1) * 1000,
                             inventoryId: inventoryItem.id,
                             salesTax: index % 2 === 0 ? 8000 : index % 3 === 0 ? 3000 : 0,
                             measurementUnitId:

@@ -23,7 +23,7 @@ import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
 import { useParams } from 'next/navigation';
-import { FC, useEffect, useState } from 'react';
+import { ChangeEvent, FC, useEffect, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { StyledBox } from './styled';
 import { IProps } from './types';
@@ -235,11 +235,16 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                             capitalize(t(priceError.message as TSingleTranslationKey))
                         }
                         {...register(`invoiceItems.${index}.price`, {
-                            setValueAs: (value) => {
-                                return Math.floor(value * 100);
-                            },
                             onChange: (e) => {
                                 maskPrice(e);
+                            },
+                            setValueAs: (value) => {
+                                const e = {
+                                    target: { value: value.toString() }
+                                } as unknown as ChangeEvent<HTMLInputElement>;
+                                maskPrice(e);
+                                const floatValue = parseFloat(e.target.value);
+                                return Math.floor(floatValue * 100);
                             }
                         })}
                     />
@@ -264,9 +269,16 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                         capitalize(t(quantityError.message as TPluralTranslationKey, { count: 0 }))
                     }
                     {...register(`invoiceItems.${index}.quantity`, {
-                        valueAsNumber: true,
                         onChange: (e) => {
                             mask3DecimalPlaces(e);
+                        },
+                        setValueAs: (value) => {
+                            const e = {
+                                target: { value: value.toString() }
+                            } as unknown as ChangeEvent<HTMLInputElement>;
+                            mask3DecimalPlaces(e);
+                            const floatValue = parseFloat(e.target.value);
+                            return Math.floor(floatValue * 1000);
                         }
                     })}
                 />
@@ -367,7 +379,13 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                                 mask2DecimalPlaces(e);
                             },
                             setValueAs: (value) => {
-                                return Math.floor(value * 100);
+                                const e = {
+                                    target: { value: value.toString() }
+                                } as unknown as ChangeEvent<HTMLInputElement>;
+                                maskPercentage(e);
+                                mask2DecimalPlaces(e);
+                                const floatValue = parseFloat(e.target.value);
+                                return Math.floor(floatValue * 100);
                             }
                         })}
                     />
@@ -404,8 +422,16 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                                 maskPercentage(e);
                                 mask3DecimalPlaces(e);
                             },
+                            // FIXME: Continue here. This method may set the wrong value
+                            // because the masking has not happened yet.
                             setValueAs: (value) => {
-                                return Math.floor(value * 1000);
+                                const e = {
+                                    target: { value: value.toString() }
+                                } as unknown as ChangeEvent<HTMLInputElement>;
+                                maskPercentage(e);
+                                mask3DecimalPlaces(e);
+                                const floatValue = parseFloat(e.target.value);
+                                return Math.floor(floatValue * 1000);
                             }
                         })}
                     />

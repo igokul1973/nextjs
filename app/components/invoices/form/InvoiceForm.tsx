@@ -184,14 +184,22 @@ const InvoiceForm: FC<IProps> = ({
         <>
             <Totals>
                 <Box>
-                    {capitalize(t('invoice total'))}: {formatCurrencyAsCents(invoiceTotal, locale)}
+                    {capitalize(t('invoice total'))}:{' '}
+                    <Box component='span' color='secondary.main'>
+                        {formatCurrencyAsCents(invoiceTotal, locale)}
+                    </Box>
                 </Box>
                 <Box>
-                    {capitalize(t('tax total'))}: {formatCurrencyAsCents(invoiceTotal, locale)}
+                    {capitalize(t('tax total'))}:{' '}
+                    <Box component='span' color='secondary.main'>
+                        {formatCurrencyAsCents(taxTotal, locale)}
+                    </Box>
                 </Box>
                 <Box>
                     {capitalize(t('discount total'))}:{' '}
-                    {formatCurrencyAsCents(discountTotal, locale)}
+                    <Box component='span' color='secondary.main'>
+                        {formatCurrencyAsCents(discountTotal, locale)}
+                    </Box>
                 </Box>
             </Totals>
             <FormProvider

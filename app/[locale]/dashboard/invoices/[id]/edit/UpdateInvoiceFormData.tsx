@@ -83,6 +83,7 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
     const preparedInvoiceItems = invoiceItems.map((invoiceItem) => {
         const {
             price: rawPrice,
+            quantity: rawQuantity,
             discount: rawDiscount,
             salesTax: rawSalesTax,
             ...partialInvoiceItem
@@ -90,6 +91,7 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
 
         return {
             price: rawPrice / 100,
+            quantity: rawQuantity / 1000,
             discount: rawDiscount / 100,
             salesTax: rawSalesTax / 1000,
             inventoryItem: {
