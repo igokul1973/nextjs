@@ -172,9 +172,10 @@ const baseInvoiceItemFormSchema = z
                 }),
             price: z
                 .number({
-                    invalid_type_error: 'please select inventory item to get the price'
+                    invalid_type_error:
+                        'select inventory item to get the price or enter one manually'
                 })
-                .gt(0, { message: 'please select inventory item to get the price' })
+                .gt(0, { message: 'select inventory item to get the price or enter one manually' })
                 .lte(999999999999.99, { message: 'price cannot be more than 999 999 999 999.99' })
                 .nullable()
                 .transform((val, ctx) => {

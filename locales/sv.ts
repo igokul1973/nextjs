@@ -179,7 +179,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'enter notes (for internal use)': 'ange anteckningar (för internt bruk)',
     'add invoice item': 'lägg till ett faktureringsobjekt',
     'add another invoice item': 'lägg till ett annat faktureringsobjekt',
-    'inventory item name': 'inventeringsobjectetsnamn',
+    'inventory item name': 'inventeringsobjectnamn',
     'your phone': 'ditt telefon',
     'select your phone': 'välj ditt telefon',
     'select your phone (might be shown on the invoice)':
@@ -246,8 +246,8 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'the tax cannot be more than 100': 'momsatsen kan inte vara mer än 100',
     'the discount cannot be less than 0': 'rabatten kan inte vara mindre än 0',
     'the discount cannot be more than 100': 'rabatten kan inte vara mer än 100',
-    'please select inventory item to get the price':
-        'val ett inventeringsobjectetsnamn för att fa priset',
+    'select inventory item to get the price or enter one manually':
+        'val ett inventeringsobjectetsnamn för att fa priset eller ange ett manuellt',
     'please enter a customer': 'var god ange en kund',
     'file must be a PNG, JPG, JPEG, WEBP, or SVG image':
         'filen måste vara en PNG, JPG, JPEG, WEBP, eller SVG bild',

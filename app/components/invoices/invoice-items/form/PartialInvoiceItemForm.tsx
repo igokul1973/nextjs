@@ -67,10 +67,10 @@ const PartialInvoiceItemForm: FC<IProps> = ({
     useEffect(() => {
         if (priceWatch && quantityWatch) {
             const subtotal = getInvoiceItemSubtotalAfterTax({
-                price: priceWatch,
-                quantity: quantityWatch,
-                discountPercent: discountWatch,
-                taxPercent: taxWatch
+                price: priceWatch || 0,
+                quantity: quantityWatch || 0,
+                discountPercent: discountWatch || 0,
+                taxPercent: taxWatch || 0
             });
             setItemSubtotal(formatCurrency(subtotal / 100, locale));
             recalculateTotals();

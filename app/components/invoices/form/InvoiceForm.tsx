@@ -29,7 +29,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { InvoiceStatusEnum } from '@prisma/client';
 import NextLink from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import {
     Control,
     Controller,
@@ -94,11 +94,11 @@ const InvoiceForm: FC<IProps> = ({
 
     const form = watch();
 
-    useEffect(() => {
-        // console.log('DirtyFields:', dirtyFields);
-        console.log('Watch:', form);
-        // console.error('Errors:', errors);
-    }, [errors, form, dirtyFields]);
+    // useEffect(() => {
+    // console.log('DirtyFields:', dirtyFields);
+    // console.log('Watch:', form);
+    // console.error('Errors:', errors);
+    // }, [errors, form, dirtyFields]);
 
     const {
         fields: invoiceItems,
@@ -112,10 +112,10 @@ const InvoiceForm: FC<IProps> = ({
     const recalculateTotals = () => {
         const data = form.invoiceItems.map((ii) => {
             return {
-                price: Number(ii.price),
-                quantity: Number(ii.quantity),
-                salesTax: Number(ii.salesTax),
-                discount: Number(ii.discount)
+                price: Number(ii.price || 0),
+                quantity: Number(ii.quantity || 0),
+                salesTax: Number(ii.salesTax || 0),
+                discount: Number(ii.discount || 0)
             };
         });
         const invoiceTotal = getInvoiceTotal(data);

@@ -177,7 +177,7 @@ export const enSingle = {
     'enter notes (for internal use)': 'enter notes (for internal use)',
     'add invoice item': 'add invoice item',
     'add another invoice item': 'add another invoice item',
-    'inventory item name': 'inventory objektnamn',
+    'inventory item name': 'inventory item name',
     'your phone': 'your phone',
     'select your phone': 'select your phone',
     'select your phone (might be shown on the invoice)':
@@ -243,8 +243,8 @@ export const enSingle = {
     'the tax cannot be more than 100': 'the tax cannot be more than 100',
     'the discount cannot be less than 0': 'the discount cannot be less than 0',
     'the discount cannot be more than 100': 'the discount cannot be more than 100',
-    'please select inventory item to get the price':
-        'please select inventory item to get the price',
+    'select inventory item to get the price or enter one manually':
+        'select inventory item to get the price or enter one manually',
     'please enter a customer': 'please enter a customer',
     'file must be a PNG, JPG, JPEG, WEBP, or SVG image':
         'file must be a PNG, JPG, JPEG, WEBP, or SVG image',
