@@ -14,10 +14,10 @@ import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FC, useState } from 'react';
+import { ChangeEvent, FC, useState } from 'react';
 import { Control, FieldValues, useForm } from 'react-hook-form';
 import FormSelect from '../../form-select/FormSelect';
-import { inventoryCreateSchema, inventoryUpdateSchema } from './formSchema';
+import { getInventoryCreateSchema, getInventoryUpdateSchema } from './formSchema';
 import { StyledForm, StyledMenuItemBox } from './styled';
 import { IProps, TInventoryForm, TInventoryFormOutput } from './types';
 
@@ -38,7 +38,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
         formState: { errors, dirtyFields },
         control
     } = useForm<TInventoryForm, unknown, TInventoryFormOutput>({
-        resolver: zodResolver(isEdit ? inventoryUpdateSchema : inventoryCreateSchema),
+        resolver: zodResolver(isEdit ? getInventoryUpdateSchema(t) : getInventoryCreateSchema(t)),
         reValidateMode: 'onChange',
         defaultValues
     });
@@ -87,7 +87,6 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
 
     return (
         <StyledBox component='section'>
-            {/* Inventory Name */}
             <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
                 <FormControl>
                     <TextField
@@ -97,8 +96,9 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         error={!!errors.name}
                         required
                         helperText={
-                            !!errors.name &&
-                            capitalize(t(errors.name?.message as TSingleTranslationKey))
+                            !!errors.name
+                                ? capitalize(errors.name.message)
+                                : capitalize(t('must be less than characters', { count: 80 }))
                         }
                         {...register('name')}
                     />
@@ -111,10 +111,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                     control={control as unknown as Control<FieldValues>}
                     required
                     error={!!errors.typeId}
-                    helperText={
-                        !!errors.typeId &&
-                        capitalize(t(errors.typeId.message as TSingleTranslationKey))
-                    }
+                    helperText={!!errors.typeId && capitalize(errors.typeId.message)}
                 >
                     {types.map((type) => {
                         return (
@@ -136,13 +133,22 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         required
                         error={!!errors.price}
                         helperText={
-                            !!errors.price &&
-                            capitalize(t(errors.price.message as TSingleTranslationKey))
+                            !!errors.price
+                                ? capitalize(errors.price.message)
+                                : capitalize(t('price cannot be more than 999 999 999 999.99'))
                         }
                         {...register('price', {
-                            valueAsNumber: true,
                             onChange: (e) => {
                                 maskPrice(e);
+                            },
+                            setValueAs: (value) => {
+                                if (typeof value === 'undefined' || value === null) return value;
+                                const e = {
+                                    target: { value: value.toString() }
+                                } as unknown as ChangeEvent<HTMLInputElement>;
+                                maskPrice(e);
+                                const floatValue = parseFloat(e.target.value);
+                                return Math.floor(floatValue * 100) || null;
                             }
                         })}
                     />
@@ -165,8 +171,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         placeholder={capitalize(t('external code'))}
                         error={!!errors.externalCode}
                         helperText={
-                            !!errors.externalCode &&
-                            capitalize(t(errors.externalCode?.message as TSingleTranslationKey))
+                            !!errors.externalCode && capitalize(errors.externalCode?.message)
                         }
                         {...register('externalCode')}
                     />
@@ -178,8 +183,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         placeholder={capitalize(t('internal code'))}
                         error={!!errors.internalCode}
                         helperText={
-                            !!errors.internalCode &&
-                            capitalize(t(errors.internalCode?.message as TSingleTranslationKey))
+                            !!errors.internalCode && capitalize(errors.internalCode?.message)
                         }
                         {...register('internalCode')}
                     />
@@ -192,7 +196,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         error={!!errors.manufacturerCode}
                         helperText={
                             !!errors.manufacturerCode &&
-                            capitalize(t(errors.manufacturerCode?.message as TSingleTranslationKey))
+                            capitalize(errors.manufacturerCode?.message)
                         }
                         {...register('manufacturerCode')}
                     />
@@ -201,22 +205,28 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                     <TextField
                         label={capitalize(t('manufacturer price'))}
                         inputProps={{
-                            type: 'number',
-                            inputMode: 'numeric',
-                            minLength: 1,
-                            step: '0.01'
+                            type: 'text'
                         }}
                         variant='outlined'
                         required
                         error={!!errors.manufacturerPrice}
                         helperText={
-                            !!errors.manufacturerPrice &&
-                            capitalize(t(errors.manufacturerPrice.message as TSingleTranslationKey))
+                            !!errors.manufacturerPrice
+                                ? capitalize(errors.manufacturerPrice.message)
+                                : capitalize(t('price cannot be more than 999 999 999 999.99'))
                         }
                         {...register('manufacturerPrice', {
-                            valueAsNumber: true,
                             onChange: (e) => {
                                 maskPrice(e);
+                            },
+                            setValueAs: (value) => {
+                                if (typeof value === 'undefined' || value === null) return value;
+                                const e = {
+                                    target: { value: value.toString() }
+                                } as unknown as ChangeEvent<HTMLInputElement>;
+                                maskPrice(e);
+                                const floatValue = parseFloat(e.target.value);
+                                return Math.floor(floatValue * 100) || null;
                             }
                         })}
                     />

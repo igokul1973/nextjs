@@ -1,23 +1,26 @@
 import InvoiceView from '@/app/components/invoice-view/InvoiceView';
+import InvoicePdfView from '@/app/components/pdf/InvoicePdfView';
 import Warning from '@/app/components/warning/Warning';
 import { getInvoiceById } from '@/app/lib/data/invoice';
 import {
     capitalize,
     formatCurrencyAsCents,
+    formatDiscount,
     formatNumeroSign,
+    formatQuantity,
+    formatSalesTax,
     getInvoiceItemSubtotalAfterTax,
+    getInvoiceSubtotalTaxAndDiscount,
     getInvoiceTotal,
-    getInvoiceTotalTaxAndDiscount,
     getUser
 } from '@/app/lib/utils';
+import { getI18n } from '@/locales/server';
 import Box from '@mui/material/Box';
 import { setStaticParamsLocale } from 'next-international/server';
 import { notFound } from 'next/navigation';
 import { FC } from 'react';
-import { IProps } from './types';
 import { baseUrl } from './constants';
-import InvoicePdfView from '@/app/components/pdf/InvoicePdfView';
-import { getI18n } from '@/locales/server';
+import { IProps } from './types';
 
 const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParams: { isPdf } }) => {
     const t = await getI18n();
@@ -72,7 +75,7 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
     const numberSymbol = formatNumeroSign(locale);
 
     const invoiceTotal = getInvoiceTotal(invoice.invoiceItems);
-    const { taxTotal, discountTotal } = getInvoiceTotalTaxAndDiscount(invoice.invoiceItems);
+    const { taxTotal, discountTotal } = getInvoiceSubtotalTaxAndDiscount(invoice.invoiceItems);
     const invoiceSubtotal = invoiceTotal - taxTotal + discountTotal;
 
     try {
@@ -94,10 +97,10 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
                 headerRow: [
                     '#',
                     'Name',
-                    'Price',
-                    'Discount',
                     'Quantity',
                     'Units',
+                    'Price',
+                    'Discount',
                     'Tax',
                     'Item total'
                 ],
@@ -111,27 +114,29 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
                     return [
                         i.toString(),
                         ii.name,
-                        formatCurrencyAsCents(ii.price, locale),
-                        ii.discount.toString(),
-                        ii.quantity.toString(),
+                        formatQuantity(ii.quantity).toString(),
                         ii.measurementUnit.abbreviation,
-                        `${ii.salesTax}%`,
+                        formatCurrencyAsCents(ii.price, locale),
+                        `${formatDiscount(ii.discount)}%`,
+                        `${formatSalesTax(ii.salesTax)}%`,
                         formatCurrencyAsCents(itemSubtotal, locale)
                     ];
                 }),
                 totalRows: [
                     [
-                        'Subtotal (before tax and discount)',
+                        capitalize(t('subtotal (before tax and discount)')),
                         formatCurrencyAsCents(invoiceSubtotal, locale)
                     ],
-                    ['Tax', formatCurrencyAsCents(taxTotal, locale)],
-                    ['Discount', formatCurrencyAsCents(discountTotal, locale)],
+                    [capitalize(t('discount')), formatCurrencyAsCents(discountTotal, locale)],
+                    [capitalize(t('sales tax')), formatCurrencyAsCents(taxTotal, locale)],
                     [
-                        { text: 'Total', bold: true },
+                        { text: capitalize(t('total')), bold: true },
                         { text: formatCurrencyAsCents(invoiceTotal, locale), bold: true }
                     ]
                 ]
             },
+            paymentAmountTitle: capitalize(t('payment amount')) + ':',
+            paymentAmount: formatCurrencyAsCents(invoiceTotal, locale),
             invoiceNumber: invoice.number,
             customerCodeTitle: `${capitalize(t('customer'))} ${numberSymbol}`,
             customerCode: invoice.customerCode,
@@ -146,13 +151,14 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
             providerLocalIdentifierTitle: `${capitalize(t('our'))} ${invoice.providerLocalIdentifierNameAbbrev}:`,
             providerLocalIdentifierValue: invoice.providerLocalIdentifierValue,
             paymentTermsTitle: capitalize(t('payment terms')) + ':',
-            termsTitle: capitalize(t('terms')),
+            termsTitle: capitalize(t('terms')) + ':',
             terms: invoice.terms,
             paymentTerms: invoice.paymentTerms,
             payByTitle: capitalize(t('pay by date')) + ':',
             payBy: invoice.payBy,
             deliveryTermsTitle: capitalize(t('delivery terms')),
             deliveryTerms: invoice.terms,
+            additionalInfoTitle: capitalize(t('additional information')) + ':',
             additionalInfo: invoice.additionalInformation,
             providerPhones: `${capitalize(t('for billing inquiries'))}:
                 ${invoice.providerPhone}

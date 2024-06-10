@@ -1,6 +1,7 @@
 // This file contains type definitions for your data.
 // It describes the shape of the data, and what data type each property should accept.
 // For simplicity of teaching, we're manually defining these types.
+import { useI18n } from '@/locales/client';
 
 export enum LocaleEnum {
     en_US = 'en-US',
@@ -168,3 +169,5 @@ export interface IBaseDataFilterArgs {
     orderBy?: string;
     order?: TOrder;
 }
+
+export type TTranslateFn = ReturnType<typeof useI18n>;

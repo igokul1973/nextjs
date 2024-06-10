@@ -1,5 +1,10 @@
 // import { useLogo } from '@/app/lib/hooks/useLogo';
-import { capitalize, formatNumeroSign } from '@/app/lib/utils';
+import {
+    capitalize,
+    formatCurrencyAsCents,
+    formatNumeroSign,
+    getInvoiceTotal
+} from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -99,6 +104,9 @@ const InvoiceView: FC<IProps> = async ({ invoice, locale }) => {
                 </Box>
                 <Box sx={{ flex: 1, display: 'flex', gap: '4rem' }}>
                     <Box>
+                        <Typography sx={{ fontWeight: 'bold' }}>
+                            {capitalize(t('payment amount'))}:
+                        </Typography>
                         <Typography>{capitalize(t('pay by date'))}:</Typography>
                         {invoice.paymentTerms && (
                             <Typography>{capitalize(t('payment terms'))}:</Typography>
@@ -108,6 +116,9 @@ const InvoiceView: FC<IProps> = async ({ invoice, locale }) => {
                         )}
                     </Box>
                     <Box>
+                        <Typography>
+                            {formatCurrencyAsCents(getInvoiceTotal(invoice.invoiceItems), locale)}:
+                        </Typography>
                         <Typography>{invoice.payBy}:</Typography>
                         {invoice.paymentTerms && <Typography>{invoice.paymentTerms}</Typography>}
                         {invoice.deliveryTerms && <Typography>{invoice.deliveryTerms}</Typography>}

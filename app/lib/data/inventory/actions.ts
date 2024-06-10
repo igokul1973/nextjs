@@ -34,7 +34,7 @@ export async function updateInventoryItem(
     const data = { ...changedFields, updatedBy: userId };
 
     try {
-        await prisma.inventory.update({
+        const updatedInventoryItem = await prisma.inventory.update({
             where: {
                 id: formData.id
             },
@@ -43,6 +43,7 @@ export async function updateInventoryItem(
 
         console.log('Successfully updated inventory item with ID:', formData.id);
         revalidatePath('/dashboard/inventory');
+        return updatedInventoryItem;
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('database error: failed to update inventory item');

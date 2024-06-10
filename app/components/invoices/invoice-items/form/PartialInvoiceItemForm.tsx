@@ -13,7 +13,6 @@ import {
     useDebounce
 } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
-import { TPluralTranslationKey, TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PercentIcon from '@mui/icons-material/Percent';
 import { capitalize } from '@mui/material';
@@ -145,11 +144,11 @@ const PartialInvoiceItemForm: FC<IProps> = ({
 
     const getInventoryItemErrorMessage = (error: NonNullable<typeof inventoryItemError>) => {
         if ('message' in error) {
-            return capitalize(t(error.message as TSingleTranslationKey));
+            return capitalize(error.message);
         } else if ('id' in error && error.id) {
-            return capitalize(t(error.id.message as TSingleTranslationKey));
+            return capitalize(error.id.message);
         } else if ('name' in error && error.name) {
-            return capitalize(t(error.name.message as TSingleTranslationKey));
+            return capitalize(error.name.message);
         } else {
             return '';
         }
@@ -230,15 +229,13 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                         variant='outlined'
                         required
                         error={!!priceError}
-                        helperText={
-                            !!priceError &&
-                            capitalize(t(priceError.message as TSingleTranslationKey))
-                        }
+                        helperText={!!priceError && capitalize(priceError.message)}
                         {...register(`invoiceItems.${index}.price`, {
                             onChange: (e) => {
                                 maskPrice(e);
                             },
                             setValueAs: (value) => {
+                                if (typeof value === 'undefined' || value === null) return value;
                                 const e = {
                                     target: { value: value.toString() }
                                 } as unknown as ChangeEvent<HTMLInputElement>;
@@ -264,15 +261,13 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                     variant='outlined'
                     required
                     error={!!quantityError}
-                    helperText={
-                        !!quantityError &&
-                        capitalize(t(quantityError.message as TPluralTranslationKey, { count: 0 }))
-                    }
+                    helperText={!!quantityError && capitalize(quantityError.message)}
                     {...register(`invoiceItems.${index}.quantity`, {
                         onChange: (e) => {
                             mask3DecimalPlaces(e);
                         },
                         setValueAs: (value) => {
+                            if (typeof value === 'undefined' || value === null) return value;
                             const e = {
                                 target: { value: value.toString() }
                             } as unknown as ChangeEvent<HTMLInputElement>;
@@ -327,11 +322,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                                             error={!!measurementUnitError}
                                             helperText={
                                                 !!measurementUnitError &&
-                                                capitalize(
-                                                    t(
-                                                        measurementUnitError.message as TSingleTranslationKey
-                                                    )
-                                                )
+                                                capitalize(measurementUnitError.message)
                                             }
                                             required
                                             title={capitalize(t('unit'))}
@@ -369,16 +360,14 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                         variant='outlined'
                         required
                         error={!!discountError}
-                        helperText={
-                            !!discountError &&
-                            capitalize(t(discountError.message as TSingleTranslationKey))
-                        }
+                        helperText={!!discountError && capitalize(discountError.message)}
                         {...register(`invoiceItems.${index}.discount`, {
                             onChange: (e) => {
                                 maskPercentage(e);
                                 mask2DecimalPlaces(e);
                             },
                             setValueAs: (value) => {
+                                if (typeof value === 'undefined' || value === null) return value;
                                 const e = {
                                     target: { value: value.toString() }
                                 } as unknown as ChangeEvent<HTMLInputElement>;
@@ -413,10 +402,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                         variant='outlined'
                         required
                         error={!!salesTaxError}
-                        helperText={
-                            !!salesTaxError &&
-                            capitalize(t(salesTaxError.message as TSingleTranslationKey))
-                        }
+                        helperText={!!salesTaxError && capitalize(salesTaxError.message)}
                         {...register(`invoiceItems.${index}.salesTax`, {
                             onChange: (e) => {
                                 maskPercentage(e);
@@ -425,6 +411,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                             // FIXME: Continue here. This method may set the wrong value
                             // because the masking has not happened yet.
                             setValueAs: (value) => {
+                                if (typeof value === 'undefined' || value === null) return value;
                                 const e = {
                                     target: { value: value.toString() }
                                 } as unknown as ChangeEvent<HTMLInputElement>;

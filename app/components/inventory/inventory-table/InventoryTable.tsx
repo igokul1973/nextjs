@@ -1,6 +1,7 @@
 'use client';
 
 import { DEFAULT_PAGE_NUMBER } from '@/app/[locale]/dashboard/inventory/constants';
+import { UpdateIconButton } from '@/app/components/buttons/update/UpdateIconButton';
 import { IInventoryTable } from '@/app/components/inventory/types';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { deleteInventoryItemById } from '@/app/lib/data/inventory/actions';
@@ -31,7 +32,6 @@ import { visuallyHidden } from '@mui/utils';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChangeEvent, FC, MouseEvent, useEffect, useState } from 'react';
 import { IEnhancedTableProps, IEnhancedTableToolbarProps, IHeadCell, IProps } from './types';
-import { UpdateIconButton } from '@/app/components/buttons/update/UpdateIconButton';
 
 const headCells: readonly IHeadCell[] = [
     {
@@ -301,7 +301,10 @@ const InventoryTable: FC<IProps> = ({ inventory, count, sanitizedSearchParams })
                                             padding='none'
                                             sx={{
                                                 width: '250px',
-                                                maxWidth: '250px'
+                                                maxWidth: '250px',
+                                                textOverflow: 'ellipsis',
+                                                overflow: 'hidden',
+                                                whiteSpace: 'nowrap'
                                             }}
                                         >
                                             {row.name}

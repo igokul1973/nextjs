@@ -5,7 +5,6 @@ import dayjs, { Dayjs } from 'dayjs';
 import { redirect } from 'next/navigation';
 import { ChangeEvent } from 'react';
 import { SafeParseReturnType, z } from 'zod';
-import { TSingleTranslationKey } from '../../locales/types';
 import {
     individualUpdateSchema,
     individualUpdateSchemaEmptyLogo
@@ -91,11 +90,15 @@ export const formatDateToLocal = (dateStr: string, locale: string = 'en-US') => 
     return formatter.format(date);
 };
 
+export const formatQuantity = (quantity: number) => {
+    return quantity / 1000;
+};
+
 export const formatDiscount = (discount: number) => {
     return discount / 100;
 };
 
-export const formatTax = (tax: number) => {
+export const formatSalesTax = (tax: number) => {
     return tax / 1000;
 };
 
@@ -277,7 +280,7 @@ export function isDayJsDate(val: unknown) {
 }
 
 export function isValidDate(
-    errorMessage: TSingleTranslationKey
+    errorMessage: string
 ): z.ZodType<Date | dayjs.Dayjs, z.ZodTypeDef, Date | dayjs.Dayjs> {
     return z.custom<Date | Dayjs>(
         (val) => {
@@ -665,7 +668,34 @@ const roundTo2DP = (number: number) => {
 };
 
 /**
- * Getting discount amount in cents.
+ * Getting invoice item subtotal in smaller units.
+ *
+ * The price is a whole number in smaller units representing the decimal
+ * price value multiplied by 100 .
+ * Examples (assuming $):
+ * 1000 = $10.00
+ * 18925 = $189.25
+ *
+ * The quantity is a whole number representing pieces, pounds, milligrams,
+ * etc. multiplied by 1000 in order to account for the rounding errors
+ * when the quantity has (maximum) 3 decimal places.
+ * Examples:
+ * 1 = 0.001 milligram
+ * 1000 = 1 piece
+ * 10892 = 10.892 kilograms
+ */
+export const getInvoiceItemSubtotal = ({
+    price,
+    quantity
+}: {
+    price: number;
+    quantity: number;
+}) => {
+    return (price * quantity) / 1000;
+};
+
+/**
+ * Getting discount amount in smaller units.
  *
  * The price is a whole number in smaller units representing the decimal
  * price value multiplied by 100 .
@@ -691,18 +721,18 @@ const roundTo2DP = (number: number) => {
  */
 export const getInvoiceItemDiscountAmount = ({
     price,
-    discountPercent,
-    quantity
+    quantity,
+    discountPercent
 }: {
     price: number;
-    discountPercent: number;
     quantity: number;
+    discountPercent: number;
 }) => {
-    return roundTo2DP((price * discountPercent * quantity) / 10000000);
+    return roundTo2DP((getInvoiceItemSubtotal({ price, quantity }) * discountPercent) / 10000);
 };
 
 /**
- * Getting invoice item subtotal in cents.
+ * Getting invoice item subtotal after discount in smaller units.
  *
  * The price is a whole number in smaller units representing the decimal
  * price value multiplied by 100 .
@@ -735,17 +765,18 @@ export const getInvoiceItemSubtotalAfterDiscount = ({
     discountPercent: number;
     quantity: number;
 }) => {
+    const invoiceItemSubtotal = getInvoiceItemSubtotal({ price, quantity });
     const invoiceItemDiscountAmount = getInvoiceItemDiscountAmount({
         price,
         discountPercent,
         quantity
     });
 
-    return (price * quantity) / 1000 - invoiceItemDiscountAmount;
+    return invoiceItemSubtotal - invoiceItemDiscountAmount;
 };
 
 /**
- * Getting invoice item tax amount
+ * Getting invoice item tax amount in smaller units
  *
  * The price is a whole number in smaller units representing the decimal
  * price value multiplied by 100 .
@@ -797,7 +828,7 @@ export const getInvoiceItemSalesTaxAmount = ({
 };
 
 /**
- * Getting invoice item subtotal after tax
+ * Getting invoice item subtotal after tax in smaller units.
  *
  * The price is a whole number in smaller units representing the decimal
  * price value multiplied by 100 .
@@ -855,7 +886,7 @@ export const getInvoiceItemSubtotalAfterTax = ({
 };
 
 /**
- * Getting invoice total.
+ * Getting invoice total in smaller units.
  *
  * For correct calculations the below formula constituents must
  * have following format:
@@ -913,7 +944,7 @@ export const getInvoiceTotal = (
 };
 
 /**
- * Getting invoice total tax and discount.
+ * Getting invoice total tax and discount in smaller units.
  *
  * Used to show total tax and discount on invoices
  * for informational purposes.
@@ -951,7 +982,7 @@ export const getInvoiceTotal = (
  * 1000 = 1%
  * 18925 = 18.925%
  */
-export const getInvoiceTotalTaxAndDiscount = (
+export const getInvoiceSubtotalTaxAndDiscount = (
     invoiceItems: Pick<
         TTransformedInvoice['invoiceItems'][number],
         'price' | 'quantity' | 'discount' | 'salesTax'
@@ -963,6 +994,12 @@ export const getInvoiceTotalTaxAndDiscount = (
             const discountPercent = ii.discount;
             const taxPercent = ii.salesTax;
             return {
+                subtotal:
+                    acc.subtotal +
+                    getInvoiceItemSubtotal({
+                        price,
+                        quantity
+                    }),
                 taxTotal:
                     acc.taxTotal +
                     getInvoiceItemSalesTaxAmount({
@@ -981,6 +1018,7 @@ export const getInvoiceTotalTaxAndDiscount = (
             };
         },
         {
+            subtotal: 0,
             taxTotal: 0,
             discountTotal: 0
         }

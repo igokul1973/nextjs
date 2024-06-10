@@ -2,10 +2,11 @@ import {
     capitalize,
     formatCurrencyAsCents,
     formatDiscount,
-    formatTax,
+    formatQuantity,
+    formatSalesTax,
     getInvoiceItemSubtotalAfterTax,
-    getInvoiceTotal,
-    getInvoiceTotalTaxAndDiscount
+    getInvoiceSubtotalTaxAndDiscount,
+    getInvoiceTotal
 } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
 import { TSingleTranslationKey } from '@/locales/types';
@@ -32,7 +33,7 @@ const headerRowCells: {
         alignment: 'right'
     },
     {
-        title: 'measurement unit',
+        title: 'unit',
         alignment: 'right'
     },
     {
@@ -55,7 +56,7 @@ const headerRowCells: {
 
 const InvoiceItemsTable: FC<IInvoiceItemsTableProps> = async ({ invoiceItems, locale }) => {
     const t = await getI18n();
-    const { discountTotal, taxTotal } = getInvoiceTotalTaxAndDiscount(invoiceItems);
+    const { subtotal, discountTotal, taxTotal } = getInvoiceSubtotalTaxAndDiscount(invoiceItems);
     const total = getInvoiceTotal(invoiceItems);
     return (
         <TableContainer>
@@ -73,7 +74,9 @@ const InvoiceItemsTable: FC<IInvoiceItemsTableProps> = async ({ invoiceItems, lo
                     {invoiceItems.map((ii) => (
                         <TableRow key={ii.id}>
                             <StyledTableCell>{ii.name}</StyledTableCell>
-                            <StyledTableCell align='right'>{ii.quantity}</StyledTableCell>
+                            <StyledTableCell align='right'>
+                                {formatQuantity(ii.quantity)}
+                            </StyledTableCell>
                             <StyledTableCell align='right'>
                                 {ii.measurementUnit.abbreviation}
                             </StyledTableCell>
@@ -84,7 +87,7 @@ const InvoiceItemsTable: FC<IInvoiceItemsTableProps> = async ({ invoiceItems, lo
                                 {formatDiscount(ii.discount)}%
                             </StyledTableCell>
                             <StyledTableCell align='right'>
-                                {formatTax(ii.salesTax)}%
+                                {formatSalesTax(ii.salesTax)}%
                             </StyledTableCell>
                             <StyledTableCell align='right'>
                                 {formatCurrencyAsCents(
@@ -100,23 +103,33 @@ const InvoiceItemsTable: FC<IInvoiceItemsTableProps> = async ({ invoiceItems, lo
                         </TableRow>
                     ))}
                     <TableRow>
-                        <StyledTableCell rowSpan={3} colSpan={5} sx={{ borderBottom: 'none' }} />
-                        <StyledTableCell>{capitalize(t('discount total'))}:</StyledTableCell>
+                        <StyledTableCell rowSpan={4} colSpan={3} sx={{ borderBottom: 'none' }} />
+                        <StyledTableCell colSpan={3}>
+                            {capitalize(t('subtotal (before tax and discount)'))}:
+                        </StyledTableCell>
+                        <StyledTableCell align='right'>
+                            {formatCurrencyAsCents(subtotal, locale)}
+                        </StyledTableCell>
+                    </TableRow>
+                    <TableRow>
+                        <StyledTableCell colSpan={3}>
+                            {capitalize(t('discount total'))}:
+                        </StyledTableCell>
                         <StyledTableCell align='right'>
                             {formatCurrencyAsCents(discountTotal, locale)}
                         </StyledTableCell>
                     </TableRow>
                     <TableRow>
-                        <StyledTableCell>{capitalize(t('tax total'))}:</StyledTableCell>
+                        <StyledTableCell colSpan={3}>{capitalize(t('tax total'))}:</StyledTableCell>
                         <StyledTableCell align='right'>
                             {formatCurrencyAsCents(taxTotal, locale)}
                         </StyledTableCell>
                     </TableRow>
                     <TableRow>
-                        <StyledTableCell sx={{ fontWeight: 'bold' }}>
+                        <StyledTableCell colSpan={3} sx={{ fontWeight: 'bold' }}>
                             {capitalize(t('total'))}:
                         </StyledTableCell>
-                        <StyledTableCell align='right'>
+                        <StyledTableCell align='right' sx={{ fontWeight: 'bold' }}>
                             {formatCurrencyAsCents(total, locale)}
                         </StyledTableCell>
                     </TableRow>

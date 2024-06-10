@@ -30,9 +30,10 @@ const DateInput: FC<
                             textField: {
                                 required,
                                 error: !!error,
-                                helperText: !!error
-                                    ? capitalize(t(error?.message as TSingleTranslationKey))
-                                    : capitalize(t(helperText as TSingleTranslationKey)),
+                                helperText:
+                                    !!error && !!error.message
+                                        ? capitalize(error.message)
+                                        : helperText,
                                 FormHelperTextProps: {
                                     error: !!error
                                 },
