@@ -1,6 +1,6 @@
 import prisma from '@/app/lib/prisma';
 import { IBaseDataFilterArgs } from '@/app/lib/types';
-import { flattenCustomer } from '@/app/lib/utils';
+import { flattenCustomer, getInvoiceTotal } from '@/app/lib/utils';
 import { AccountRelationEnum, InvoiceStatusEnum, Prisma } from '@prisma/client';
 import { unstable_noStore as noStore } from 'next/cache';
 import {
@@ -178,9 +178,7 @@ export async function getFilteredCustomersByAccountId({
             });
             const { totalPending, totalPaid } = invoices.reduce(
                 ({ totalPending, totalPaid }, i) => {
-                    const invoiceTotal = i.invoiceItems.reduce((acc, ii) => {
-                        return acc + ii.quantity * ii.price;
-                    }, 0);
+                    const invoiceTotal = getInvoiceTotal(i.invoiceItems);
                     if (i.status === InvoiceStatusEnum.pending) {
                         return { totalPending: totalPending + invoiceTotal, totalPaid };
                     } else if (i.status === InvoiceStatusEnum.paid) {

@@ -53,7 +53,9 @@ export const customerWithInvoicesSelect = {
                     id: true,
                     name: true,
                     price: true,
-                    quantity: true
+                    quantity: true,
+                    discount: true,
+                    salesTax: true
                 }
             }
         }

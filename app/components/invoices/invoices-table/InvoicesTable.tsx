@@ -310,41 +310,36 @@ const InvoicesTable: FC<IProps> = ({
                                         <TableCell align='center'>{row.amount}</TableCell>
                                         <TableCell align='center'>{row.status}</TableCell>
                                         <TableCell align='center'>{row.date}</TableCell>
-                                        {row.status !== InvoiceStatusEnum.paid ? (
-                                            <TableCell
-                                                align='center'
-                                                sx={{
-                                                    width: '175px'
-                                                }}
-                                            >
-                                                <ViewIconButton
-                                                    href={`/dashboard/invoices/${row.id}/view?number=${row.number}`}
-                                                />
-                                                <UpdateIconButton
-                                                    href={`/dashboard/invoices/${row.id}/edit?number=${row.number}`}
-                                                />
-                                                <IconButton
-                                                    color='warning'
-                                                    aria-label='edit'
-                                                    onClick={() =>
-                                                        deleteInvoice(
-                                                            row.id,
-                                                            row.number,
-                                                            row.status
-                                                        )
-                                                    }
-                                                >
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            </TableCell>
-                                        ) : (
-                                            <TableCell
-                                                align='center'
-                                                sx={{ display: 'flex', justifyContent: 'center' }}
-                                            >
-                                                <Box sx={{ minHeight: '40px' }}></Box>
-                                            </TableCell>
-                                        )}
+                                        <TableCell
+                                            align='center'
+                                            sx={{
+                                                width: '175px'
+                                            }}
+                                        >
+                                            <ViewIconButton
+                                                href={`/dashboard/invoices/${row.id}/view?number=${row.number}`}
+                                            />
+                                            {row.status !== InvoiceStatusEnum.paid && (
+                                                <>
+                                                    <UpdateIconButton
+                                                        href={`/dashboard/invoices/${row.id}/edit?number=${row.number}`}
+                                                    />
+                                                    <IconButton
+                                                        color='warning'
+                                                        aria-label='edit'
+                                                        onClick={() =>
+                                                            deleteInvoice(
+                                                                row.id,
+                                                                row.number,
+                                                                row.status
+                                                            )
+                                                        }
+                                                    >
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                </>
+                                            )}
+                                        </TableCell>
                                     </TableRow>
                                 );
                             })}
