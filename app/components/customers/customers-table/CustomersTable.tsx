@@ -44,6 +44,13 @@ import {
 
 const headCells: readonly IHeadCell[] = [
     {
+        id: 'customerCode',
+        isNumeric: false,
+        disablePadding: true,
+        label: 'number',
+        align: 'left'
+    },
+    {
         id: 'customerId',
         isNumeric: false,
         disablePadding: true,
@@ -371,6 +378,7 @@ const CustomersTable: FC<IProps> = ({ customers, count, searchParams: sanitizedS
                                         selected={isItemSelected}
                                         sx={{ cursor: 'pointer' }}
                                     >
+                                        <TableCell align='left'>{row.customerCode}</TableCell>
                                         <TableCell
                                             align='left'
                                             component='th'

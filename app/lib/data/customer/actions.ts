@@ -35,9 +35,10 @@ export async function createIndividualCustomer(
 
         const validatedData = validatedFormData.data;
 
-        const logoCreateOrUpdate = await getLogoCreateOrUpdate(validatedData, userId);
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(validatedData.logo, userId, false);
 
         const {
+            code,
             logo,
             address,
             phones,
@@ -80,6 +81,7 @@ export async function createIndividualCustomer(
         };
 
         data = {
+            code,
             individual: {
                 create: createIndividualObject
             }
@@ -127,9 +129,10 @@ export async function createOrganizationCustomer(
 
         const validatedData = validatedFormData.data;
 
-        const logoCreateOrUpdate = await getLogoCreateOrUpdate(validatedData, userId);
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(validatedData.logo, userId, false);
 
         const {
+            code,
             logo,
             typeId,
             address,
@@ -178,6 +181,7 @@ export async function createOrganizationCustomer(
         };
 
         data = {
+            code,
             organization: {
                 create: createEntityObject
             }
@@ -237,14 +241,13 @@ export async function updateIndividualCustomer(
             return null;
         }
 
-        const logoCreateOrUpdate = await getLogoCreateOrUpdate(changedFields, userId);
-
-        console.log(logoCreateOrUpdate);
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(changedFields.logo, userId, true);
 
         const customerId = validatedData.customerId;
 
         const {
             id,
+            code,
             address,
             phones,
             emails,
@@ -267,6 +270,7 @@ export async function updateIndividualCustomer(
         });
 
         const data: Prisma.customerUpdateInput = {
+            code,
             individual: {
                 update: {
                     data: {
@@ -375,12 +379,13 @@ export async function updateOrganizationCustomer(
             return null;
         }
 
-        const logoCreateOrUpdate = await getLogoCreateOrUpdate(changedFields, userId);
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(changedFields.logo, userId, true);
 
         const customerId = validatedData.customerId;
 
         const {
             id,
+            code,
             address,
             phones,
             emails,
@@ -406,6 +411,7 @@ export async function updateOrganizationCustomer(
         const entityWithoutTypeId = rest;
 
         const data: Prisma.customerUpdateInput = {
+            code,
             organization: {
                 update: {
                     data: {

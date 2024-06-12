@@ -22,6 +22,25 @@ import { FC } from 'react';
 import { baseUrl } from './constants';
 import { IProps } from './types';
 
+const fetchPdfUrl = async (d: Record<string, unknown>): Promise<string> => {
+    'use server';
+    const r = await fetch(`${baseUrl}/api/create/pdf`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            pageSettings: {
+                pageMargins: [20, 80, 20, 100]
+            },
+            data: d
+        }),
+        cache: 'no-store'
+    });
+
+    return (await r.json()).url;
+};
+
 const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParams: { isPdf } }) => {
     const t = await getI18n();
     setStaticParamsLocale(locale);
@@ -55,25 +74,6 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
             rawInvoice.paidOn === null
                 ? null
                 : rawInvoice.paidOn.toLocaleDateString(userAccountCountry.locale)
-    };
-
-    const fetchPdfUrl = async (d: Record<string, unknown>): Promise<string> => {
-        'use server';
-        const r = await fetch(`${baseUrl}/api/create/pdf`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                pageSettings: {
-                    pageMargins: [20, 80, 20, 100]
-                },
-                data: d
-            }),
-            cache: 'no-store'
-        });
-
-        return (await r.json()).url;
     };
 
     const numberSymbol = formatNumeroSign(locale);

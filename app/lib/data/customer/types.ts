@@ -19,6 +19,7 @@ export const includeEntityRelations = {
 
 export const customerSelect = {
     id: true,
+    code: true,
     individual: {
         include: includeEntityRelations
     },
@@ -32,6 +33,7 @@ export const customerSelect = {
 
 export const customerWithInvoicesSelect = {
     id: true,
+    code: true,
     individual: {
         include: includeEntityRelations
     },

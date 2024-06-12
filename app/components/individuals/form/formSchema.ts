@@ -74,6 +74,7 @@ export const logoCreateSchema = logoUpdateSchema.omit({ id: true });
 
 const baseIndividualFormSchema = z.object({
     id: z.string(),
+    code: z.string().max(50, { message: 'must be less than 50 characters' }).nullish(),
     firstName: z
         .string({
             required_error: 'please enter the first name',
@@ -91,9 +92,6 @@ const baseIndividualFormSchema = z.object({
     localIdentifierNameId: z.string(),
     localIdentifierValue: z.string().nullish(),
     accountRelation: z.string(),
-    customerId: z.string({
-        required_error: 'please enter the customer ID'
-    }),
     dob: isValidDate('invalid date')
         .nullish()
         .transform((val) => {
@@ -108,7 +106,7 @@ const baseIndividualFormSchema = z.object({
 });
 
 export const individualCreateSchema = baseIndividualFormSchema.omit({ id: true }).extend({
-    logo: logoCreateSchema.nullable(),
+    logo: logoCreateSchema.nullish(),
     address: addressFormSchema.omit({ id: true }),
     phones: phonesFormSchema.element.omit({ id: true }).array(),
     emails: emailsFormSchema.element.omit({ id: true }).array(),
@@ -116,7 +114,10 @@ export const individualCreateSchema = baseIndividualFormSchema.omit({ id: true }
 });
 
 export const individualUpdateSchema = baseIndividualFormSchema.extend({
-    logo: logoUpdateSchema.nullable(),
+    logo: logoUpdateSchema.nullish(),
+    customerId: z.string({
+        required_error: 'please enter the customer ID'
+    }),
     address: addressFormSchema,
     phones: phonesFormSchema,
     emails: emailsFormSchema,
@@ -124,7 +125,10 @@ export const individualUpdateSchema = baseIndividualFormSchema.extend({
 });
 
 export const individualUpdateSchemaEmptyLogo = baseIndividualFormSchema.extend({
-    logo: logoCreateSchema.nullable(),
+    logo: logoCreateSchema.nullish(),
+    customerId: z.string({
+        required_error: 'please enter the customer ID'
+    }),
     address: addressFormSchema,
     phones: phonesFormSchema,
     emails: emailsFormSchema,

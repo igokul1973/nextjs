@@ -72,6 +72,7 @@ export const logoCreateSchema = logoUpdateSchema.omit({ id: true });
 
 const baseOrganizationFormSchema = z.object({
     id: z.string().optional(),
+    code: z.string().max(50, { message: 'must be less than 50 characters' }).nullish(),
     name: z
         .string({
             required_error: 'please enter the name',
@@ -82,9 +83,6 @@ const baseOrganizationFormSchema = z.object({
     localIdentifierNameId: z.string(),
     localIdentifierValue: z.string().nullish(),
     accountRelation: z.string(),
-    customerId: z.string({
-        required_error: 'please enter the customer ID'
-    }),
     typeId: z.string().optional(),
     description: z.string().nullish(),
     isPrivate: z.boolean().optional(),
@@ -94,7 +92,7 @@ const baseOrganizationFormSchema = z.object({
 });
 
 export const organizationCreateSchema = baseOrganizationFormSchema.omit({ id: true }).extend({
-    logo: logoCreateSchema.nullable(),
+    logo: logoCreateSchema.nullish(),
     address: addressFormSchema.omit({ id: true }),
     phones: phonesFormSchema.element.omit({ id: true }).array(),
     emails: emailsFormSchema.element.omit({ id: true }).array(),
@@ -102,7 +100,10 @@ export const organizationCreateSchema = baseOrganizationFormSchema.omit({ id: tr
 });
 
 export const organizationUpdateSchema = baseOrganizationFormSchema.extend({
-    logo: logoUpdateSchema.nullable(),
+    logo: logoUpdateSchema.nullish(),
+    customerId: z.string({
+        required_error: 'please enter the customer ID'
+    }),
     address: addressFormSchema,
     phones: phonesFormSchema,
     emails: emailsFormSchema,
@@ -110,7 +111,10 @@ export const organizationUpdateSchema = baseOrganizationFormSchema.extend({
 });
 
 export const organizationUpdateSchemaEmptyLogo = baseOrganizationFormSchema.extend({
-    logo: logoCreateSchema.nullable(),
+    logo: logoCreateSchema.nullish(),
+    customerId: z.string({
+        required_error: 'please enter the customer ID'
+    }),
     address: addressFormSchema,
     phones: phonesFormSchema,
     emails: emailsFormSchema,

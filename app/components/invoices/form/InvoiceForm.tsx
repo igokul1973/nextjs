@@ -33,7 +33,6 @@ import { FC, useState } from 'react';
 import {
     Control,
     Controller,
-    FieldError,
     FieldValues,
     FormProvider,
     useFieldArray,
@@ -200,7 +199,7 @@ const InvoiceForm: FC<IProps> = ({
         <>
             <Totals>
                 <Box>
-                    {capitalize(t('invoice subtotal'))}:{' '}
+                    {capitalize(t('subtotal (before tax and discount)'))}:{' '}
                     <Box component='span' color='secondary.main'>
                         {formatCurrencyAsCents(invoiceSubtotal, locale)}
                     </Box>
@@ -279,6 +278,7 @@ const InvoiceForm: FC<IProps> = ({
                                                     helperText={
                                                         !!customerError &&
                                                         'message' in customerError &&
+                                                        customerError.message &&
                                                         capitalize(customerError.message)
                                                     }
                                                     label={capitalize(t('customer'))}
@@ -301,7 +301,9 @@ const InvoiceForm: FC<IProps> = ({
                                 placeholder={capitalize(t('enter the invoice number'))}
                                 required
                                 error={!!errors.number}
-                                helperText={!!errors.number && capitalize(errors.number?.message)}
+                                helperText={
+                                    !!errors.number?.message && capitalize(errors.number.message)
+                                }
                                 {...register('number')}
                             />
                         </FormControl>
@@ -324,7 +326,9 @@ const InvoiceForm: FC<IProps> = ({
                             control={control as unknown as Control<FieldValues>}
                             required
                             error={!!errors.status}
-                            helperText={!!errors.status && capitalize(errors.status?.message)}
+                            helperText={
+                                !!errors.status?.message && capitalize(errors.status.message)
+                            }
                         >
                             {statuses.map((status) => {
                                 return (
@@ -387,7 +391,8 @@ const InvoiceForm: FC<IProps> = ({
                             startAdornment={<PhoneIcon />}
                             error={!!errors.providerPhone}
                             helperText={
-                                !!errors.providerPhone && capitalize(errors.providerPhone.message)
+                                !!errors.providerPhone?.message &&
+                                capitalize(errors.providerPhone.message)
                             }
                         >
                             <MenuItem disabled>{capitalize(t('select your phone'))}</MenuItem>
@@ -428,7 +433,8 @@ const InvoiceForm: FC<IProps> = ({
                             startAdornment={<EmailIcon />}
                             error={!!errors.providerEmail}
                             helperText={
-                                !!errors.providerEmail && capitalize(errors.providerEmail.message)
+                                !!errors.providerEmail?.message &&
+                                capitalize(errors.providerEmail.message)
                             }
                         >
                             <MenuItem disabled>{capitalize(t('select your email'))}</MenuItem>
@@ -471,7 +477,8 @@ const InvoiceForm: FC<IProps> = ({
                                 )}
                                 error={!!errors.paymentInfo}
                                 helperText={
-                                    !!errors.paymentInfo && capitalize(errors.paymentInfo.message)
+                                    !!errors.paymentInfo?.message &&
+                                    capitalize(errors.paymentInfo.message)
                                 }
                                 {...register('paymentInfo')}
                             />
@@ -486,7 +493,7 @@ const InvoiceForm: FC<IProps> = ({
                                 placeholder={capitalize(t('enter payment terms'))}
                                 error={!!errors.additionalInformation}
                                 helperText={
-                                    !!errors.additionalInformation &&
+                                    !!errors.additionalInformation?.message &&
                                     capitalize(errors.additionalInformation.message)
                                 }
                                 {...register('paymentTerms')}
@@ -502,7 +509,7 @@ const InvoiceForm: FC<IProps> = ({
                                 placeholder={capitalize(t('delivery terms'))}
                                 error={!!errors.deliveryTerms}
                                 helperText={
-                                    !!errors.deliveryTerms &&
+                                    !!errors.deliveryTerms?.message &&
                                     capitalize(errors.deliveryTerms.message)
                                 }
                                 {...register('deliveryTerms')}
@@ -517,7 +524,9 @@ const InvoiceForm: FC<IProps> = ({
                                 variant='outlined'
                                 placeholder={capitalize(t('enter additional terms'))}
                                 error={!!errors.terms}
-                                helperText={!!errors.terms && capitalize(errors.terms.message)}
+                                helperText={
+                                    !!errors.terms?.message && capitalize(errors.terms.message)
+                                }
                                 {...register('terms')}
                             />
                         </FormControl>
@@ -534,8 +543,8 @@ const InvoiceForm: FC<IProps> = ({
                                 )}
                                 error={!!errors.additionalInformation}
                                 helperText={
-                                    !!errors.additionalInformation &&
-                                    capitalize(errors.number?.message)
+                                    !!errors.additionalInformation?.message &&
+                                    capitalize(errors.additionalInformation.message)
                                 }
                                 {...register('additionalInformation')}
                             />
@@ -593,7 +602,7 @@ const InvoiceForm: FC<IProps> = ({
                                                     {...params}
                                                     error={!!errors.purchaseOrderNumbers}
                                                     helperText={
-                                                        !!errors.purchaseOrderNumbers
+                                                        !!errors.purchaseOrderNumbers?.message
                                                             ? capitalize(
                                                                   errors.purchaseOrderNumbers
                                                                       .message
@@ -651,7 +660,7 @@ const InvoiceForm: FC<IProps> = ({
                                                     {...params}
                                                     error={!!errors.manufacturerInvoiceNumbers}
                                                     helperText={
-                                                        !!errors.manufacturerInvoiceNumbers
+                                                        !!errors.manufacturerInvoiceNumbers?.message
                                                             ? capitalize(
                                                                   errors.manufacturerInvoiceNumbers
                                                                       .message
@@ -693,10 +702,11 @@ const InvoiceForm: FC<IProps> = ({
                                 label={capitalize(t('notes'))}
                                 variant='outlined'
                                 placeholder={capitalize(t('enter notes (for internal use)'))}
-                                error={!!errors.additionalInformation}
+                                error={!!errors.notes}
                                 helperText={
-                                    !!errors.additionalInformation &&
-                                    capitalize(errors.number?.message)
+                                    !!errors.notes?.message
+                                        ? capitalize(errors.notes.message)
+                                        : capitalize(t('your internal notes'))
                                 }
                                 {...register('notes')}
                             />

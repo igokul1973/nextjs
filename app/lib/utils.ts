@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { ChangeEvent } from 'react';
 import { SafeParseReturnType, z } from 'zod';
 import {
+    individualCreateSchema,
     individualUpdateSchema,
     individualUpdateSchemaEmptyLogo
 } from '../components/individuals/form/formSchema.ts';
@@ -15,6 +16,7 @@ import {
 } from '../components/individuals/form/types.ts';
 import { TCustomerOutput } from '../components/invoices/form/types';
 import {
+    organizationCreateSchema,
     organizationUpdateSchema,
     organizationUpdateSchemaEmptyLogo
 } from '../components/organizations/form/formSchema.ts';
@@ -24,7 +26,7 @@ import {
 } from '../components/organizations/form/types.ts';
 import { IUserState } from '../context/user/types';
 import { getIndividualFullNameString, getUserProvider } from './commonUtils.ts';
-import { TCustomerPayload, TCustomerWithInvoicesPayload } from './data/customer/types';
+import { TCustomerPayload } from './data/customer/types';
 import { TTransformedInvoice } from './data/invoice/types.ts';
 import { TGetUserWithRelationsPayload } from './data/user/types';
 import { TDirtyFields, TEntities, TIndividual } from './types';
@@ -139,9 +141,7 @@ export function useDebounce<T>(f: (...args: T[]) => unknown, ms = 500) {
     };
 }
 
-export function flattenCustomer(
-    rawCustomer: TCustomerPayload | TCustomerWithInvoicesPayload
-): TCustomerOutput {
+export function flattenCustomer(rawCustomer: TCustomerPayload): TCustomerOutput {
     const entity = rawCustomer.individual ?? rawCustomer.organization;
     if (!entity) {
         throw Error('The customer organization or individual is not found. Please add one first.');
@@ -167,6 +167,7 @@ export function flattenCustomer(
 
     return {
         customerId: rawCustomer.id,
+        customerCode: rawCustomer.code,
         customerName,
         customerType,
         customerAddressLine1: customerAddress.addressLine1,
@@ -595,21 +596,22 @@ export const getUser = async () => {
 };
 
 export const getLogoCreateOrUpdate = async (
-    changedFields: Partial<TIndividualFormOutput | TOrganizationFormOutput>,
-    userId: string
+    logo: TIndividualFormOutput['logo'] | undefined,
+    userId: string,
+    isUpdate = true
 ) => {
-    const logoFile = changedFields.logo?.data;
+    const logoFile = logo?.data;
     const logoArrayBuffer = await logoFile?.arrayBuffer();
 
     const buffer = logoArrayBuffer && Buffer.from(logoArrayBuffer);
     let logoCreateOrUpdate: Prisma.fileUpdateOneWithoutProfileNestedInput | undefined = undefined;
 
-    if (changedFields.logo && buffer) {
-        if ('id' in changedFields.logo && changedFields.logo.id) {
+    if (logo && buffer) {
+        if ('id' in logo && logo.id) {
             logoCreateOrUpdate = {
                 update: {
                     data: {
-                        ...changedFields.logo,
+                        ...logo,
                         data: buffer,
                         updatedBy: userId
                     }
@@ -618,20 +620,43 @@ export const getLogoCreateOrUpdate = async (
         } else {
             logoCreateOrUpdate = {
                 create: {
-                    ...changedFields.logo,
+                    ...logo,
                     data: buffer,
                     createdBy: userId,
                     updatedBy: userId
                 }
             };
         }
-    } else if (changedFields.logo === null) {
+    } else if (logo === null && isUpdate) {
         logoCreateOrUpdate = {
             delete: true
         };
     }
 
     return logoCreateOrUpdate;
+};
+
+const getEntityValidationSchema = (
+    formData: T,
+    logoFormData?: {
+        [k: string]: FormDataEntryValue;
+    } | null,
+    isIndividual?: boolean
+) => {
+    const isEdit = 'id' in formData && formData.id;
+    const isLogo = logoFormData?.id;
+
+    return isIndividual
+        ? isEdit
+            ? isLogo
+                ? individualUpdateSchema
+                : individualUpdateSchemaEmptyLogo
+            : individualCreateSchema
+        : isEdit
+          ? isLogo
+              ? organizationUpdateSchema
+              : organizationUpdateSchemaEmptyLogo
+          : organizationCreateSchema;
 };
 
 export const validateEntityFormData = <
@@ -645,17 +670,11 @@ export const validateEntityFormData = <
     T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] }
 > => {
     const logoFormData = rawLogoFormData ? Object.fromEntries(rawLogoFormData.entries()) : null;
-    const preValidatedFormData = { ...formData, logo: logoFormData };
+    const formDataWithLogo = { ...formData, logo: logoFormData };
 
-    const validationSchema = isIndividual
-        ? logoFormData?.id
-            ? individualUpdateSchema
-            : individualUpdateSchemaEmptyLogo
-        : logoFormData?.id
-          ? organizationUpdateSchema
-          : organizationUpdateSchemaEmptyLogo;
+    const validationSchema = getEntityValidationSchema(formData, logoFormData, isIndividual);
 
-    return validationSchema.safeParse(preValidatedFormData) as SafeParseReturnType<
+    return validationSchema.safeParse(formDataWithLogo) as SafeParseReturnType<
         T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] },
         T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] }
     >;

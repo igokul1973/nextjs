@@ -96,7 +96,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         error={!!errors.name}
                         required
                         helperText={
-                            !!errors.name
+                            !!errors.name?.message
                                 ? capitalize(errors.name.message)
                                 : capitalize(t('must be less than characters', { count: 80 }))
                         }
@@ -111,7 +111,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                     control={control as unknown as Control<FieldValues>}
                     required
                     error={!!errors.typeId}
-                    helperText={!!errors.typeId && capitalize(errors.typeId.message)}
+                    helperText={!!errors.typeId?.message && capitalize(errors.typeId.message)}
                 >
                     {types.map((type) => {
                         return (
@@ -133,7 +133,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         required
                         error={!!errors.price}
                         helperText={
-                            !!errors.price
+                            !!errors.price?.message
                                 ? capitalize(errors.price.message)
                                 : capitalize(t('price cannot be more than 999 999 999 999.99'))
                         }
@@ -171,7 +171,8 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         placeholder={capitalize(t('external code'))}
                         error={!!errors.externalCode}
                         helperText={
-                            !!errors.externalCode && capitalize(errors.externalCode?.message)
+                            !!errors.externalCode?.message &&
+                            capitalize(errors.externalCode?.message)
                         }
                         {...register('externalCode')}
                     />
@@ -183,7 +184,8 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         placeholder={capitalize(t('internal code'))}
                         error={!!errors.internalCode}
                         helperText={
-                            !!errors.internalCode && capitalize(errors.internalCode?.message)
+                            !!errors.internalCode?.message &&
+                            capitalize(errors.internalCode?.message)
                         }
                         {...register('internalCode')}
                     />
@@ -195,8 +197,8 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         placeholder={capitalize(t('manufacturer code'))}
                         error={!!errors.manufacturerCode}
                         helperText={
-                            !!errors.manufacturerCode &&
-                            capitalize(errors.manufacturerCode?.message)
+                            !!errors.manufacturerCode?.message &&
+                            capitalize(errors.manufacturerCode.message)
                         }
                         {...register('manufacturerCode')}
                     />
@@ -211,7 +213,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                         required
                         error={!!errors.manufacturerPrice}
                         helperText={
-                            !!errors.manufacturerPrice
+                            !!errors.manufacturerPrice?.message
                                 ? capitalize(errors.manufacturerPrice.message)
                                 : capitalize(t('price cannot be more than 999 999 999 999.99'))
                         }

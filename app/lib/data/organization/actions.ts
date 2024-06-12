@@ -28,7 +28,7 @@ export async function createOrganization(
 
     const validatedData = validatedFormData.data;
 
-    const logoCreateOrUpdate = await getLogoCreateOrUpdate(validatedData, userId);
+    const logoCreateOrUpdate = await getLogoCreateOrUpdate(validatedData.logo, userId, false);
 
     try {
         const {
@@ -114,7 +114,7 @@ export async function updateOrganization(
             return null;
         }
 
-        const logoCreateOrUpdate = await getLogoCreateOrUpdate(changedFields, userId);
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(changedFields.logo, userId, true);
 
         const {
             id,

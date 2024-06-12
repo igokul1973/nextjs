@@ -14,6 +14,7 @@ const getBaseInvoiceFormSchema = (t: TTranslateFn) =>
                             required_error: t('please enter a customer')
                         })
                         .min(1, { message: t('must be at least characters', { count: 1 }) }),
+                    customerCode: z.string().nullish(),
                     customerType: z.string().optional(),
                     customerName: z.string().min(1),
                     customerAddressLine1: z.string().min(1),

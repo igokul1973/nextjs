@@ -7,10 +7,10 @@ import {
     TPhone
 } from '@/app/components/individuals/form/types';
 import prisma from '@/app/lib/prisma';
+import { TDirtyFields } from '@/app/lib/types';
 import { getDirtyValues, getLogoCreateOrUpdate, validateEntityFormData } from '@/app/lib/utils';
 import { AccountRelationEnum, EmailTypeEnum, PhoneTypeEnum, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
-import { TDirtyFields } from '@/app/lib/types';
 
 export async function createIndividual(
     rawFormData: TIndividualFormOutput,
@@ -30,7 +30,7 @@ export async function createIndividual(
 
         const validatedData = validatedFormData.data;
 
-        const logoCreateOrUpdate = await getLogoCreateOrUpdate(validatedData, userId);
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(validatedData.logo, userId, false);
 
         const {
             address,
@@ -117,7 +117,7 @@ export async function updateIndividual(
             return null;
         }
 
-        const logoCreateOrUpdate = await getLogoCreateOrUpdate(changedFields, userId);
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(changedFields.logo, userId, true);
 
         const {
             id,

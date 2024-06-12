@@ -56,7 +56,7 @@ const UpdateCustomerFormData: FC<IProps> = async ({ params: { id, locale } }) =>
         return notFound();
     }
 
-    const { individual, organization } = rawCustomer;
+    const { code, individual, organization } = rawCustomer;
     const entity = individual || organization;
 
     if (!entity) {
@@ -72,6 +72,7 @@ const UpdateCustomerFormData: FC<IProps> = async ({ params: { id, locale } }) =>
         : undefined;
 
     const form = {
+        code,
         ...entityFields,
         address: {
             ...addressFields

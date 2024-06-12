@@ -76,6 +76,8 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     // Individual
     individual: 'enskild',
     individuals: 'enskilda',
+    'customer number': 'kundnummer',
+    'enter customer number': 'ange kundnummer',
     'first name': 'fornamn',
     'last name': 'efternamn',
     'middle name': 'mellanamn',
@@ -160,6 +162,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     discount: 'rabatt',
     'item subtotal': 'delpris',
     notes: 'anteckningar',
+    'your internal notes': 'dina interna anteckningar',
     unit: 'enhet',
     'measurement unit': 'enhet',
     'enter tax': 'ange moms/VAT',

@@ -112,6 +112,19 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                 )}
                 <FormControl>
                     <TextField
+                        label={capitalize(t('customer number'))}
+                        placeholder={capitalize(t('enter customer number'))}
+                        variant='outlined'
+                        error={!!errors.code}
+                        helperText={
+                            !!errors.code &&
+                            capitalize(t(errors.code?.message as TSingleTranslationKey))
+                        }
+                        {...register('code')}
+                    />
+                </FormControl>
+                <FormControl>
+                    <TextField
                         label={capitalize(t('first name'))}
                         placeholder={capitalize(t('first name'))}
                         variant='outlined'

@@ -73,6 +73,8 @@ export const enSingle = {
     // Individual
     individual: 'individual',
     individuals: 'individuals',
+    'customer number': 'customer number',
+    'enter customer number': 'enter customer number',
     'first name': 'first name',
     'last name': 'last name',
     'middle name': 'middle name',
@@ -157,6 +159,7 @@ export const enSingle = {
     discount: 'discount',
     'item subtotal': 'item subtotal',
     notes: 'notes',
+    'your internal notes': 'your internal notes',
     unit: 'unit',
     'measurement unit': 'measurement unit',
     'enter tax': 'enter tax',

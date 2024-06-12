@@ -14,6 +14,7 @@ export const getDefaultFormValues = (
 ): TOrganizationForm => {
     return {
         id: '',
+        code: '',
         accountRelation: AccountRelationEnum.customer,
         accountId: accountId,
         customerId: '',
