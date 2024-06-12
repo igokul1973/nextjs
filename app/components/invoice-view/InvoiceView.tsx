@@ -25,7 +25,12 @@ import {
 } from './styled';
 import { IProps } from './types';
 
-const InvoiceView: FC<IProps> = async ({ invoice, locale }) => {
+const InvoiceView: FC<IProps> = async ({
+    invoice,
+    locale,
+    isDisplayCustomerLocalIdentifier,
+    isDisplayProviderLocalIdentifier
+}) => {
     const t = await getI18n();
     const l = invoice.providerLogo;
     const b = l && Buffer.from(l.data);
@@ -74,32 +79,38 @@ const InvoiceView: FC<IProps> = async ({ invoice, locale }) => {
             <Box sx={{ display: 'flex' }}>
                 <Box sx={{ flex: 1, display: 'flex', gap: '4rem' }}>
                     <Box>
-                        {invoice.customerRef && (
-                            <Typography>{capitalize(t('our reference'))}:</Typography>
-                        )}
                         {invoice.providerRef && (
                             <Typography>{capitalize(t('your reference'))}:</Typography>
                         )}
-                        {invoice.customerLocalIdentifierValue && (
-                            <Typography>
-                                {capitalize(t('our'))} {invoice.customerLocalIdentifierNameAbbrev}:
-                            </Typography>
+                        {invoice.customerRef && (
+                            <Typography>{capitalize(t('our reference'))}:</Typography>
                         )}
-                        {invoice.providerLocalIdentifierValue && (
-                            <Typography>
-                                {capitalize(t('your'))} {invoice.customerLocalIdentifierNameAbbrev}:
-                            </Typography>
-                        )}
+                        {invoice.customerLocalIdentifierValue &&
+                            isDisplayCustomerLocalIdentifier && (
+                                <Typography>
+                                    {capitalize(t('your'))}{' '}
+                                    {invoice.customerLocalIdentifierNameAbbrev}:
+                                </Typography>
+                            )}
+                        {invoice.providerLocalIdentifierValue &&
+                            isDisplayProviderLocalIdentifier && (
+                                <Typography>
+                                    {capitalize(t('our'))}{' '}
+                                    {invoice.providerLocalIdentifierNameAbbrev}:
+                                </Typography>
+                            )}
                     </Box>
                     <Box>
                         {invoice.customerRef && <Typography>{invoice.customerRef}</Typography>}
                         {invoice.providerRef && <Typography>{invoice.providerRef}</Typography>}
-                        {invoice.customerLocalIdentifierValue && (
-                            <Typography>{invoice.customerLocalIdentifierValue}</Typography>
-                        )}
-                        {invoice.providerLocalIdentifierValue && (
-                            <Typography>{invoice.providerLocalIdentifierValue}</Typography>
-                        )}
+                        {invoice.customerLocalIdentifierValue &&
+                            isDisplayCustomerLocalIdentifier && (
+                                <Typography>{invoice.customerLocalIdentifierValue}</Typography>
+                            )}
+                        {invoice.providerLocalIdentifierValue &&
+                            isDisplayProviderLocalIdentifier && (
+                                <Typography>{invoice.providerLocalIdentifierValue}</Typography>
+                            )}
                     </Box>
                 </Box>
                 <Box sx={{ flex: 1, display: 'flex', gap: '4rem' }}>

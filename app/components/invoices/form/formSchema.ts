@@ -24,7 +24,9 @@ const getBaseInvoiceFormSchema = (t: TTranslateFn) =>
                     customerPostCode: z.string().min(1),
                     customerCountry: z.string().min(1),
                     customerPhone: z.string().min(1),
-                    customerEmail: z.string().min(1)
+                    customerEmail: z.string().min(1),
+                    customerLocalIdentifierNameAbbrev: z.string().optional(),
+                    customerLocalIdentifierValue: z.string().optional()
                 },
                 {
                     errorMap: (issue, ctx) => {
@@ -106,6 +108,12 @@ const getBaseInvoiceFormSchema = (t: TTranslateFn) =>
         purchaseOrderNumbers: z.array(z.string()).optional(),
         manufacturerInvoiceNumbers: z.array(z.string()).optional(),
         additionalInformation: z.string().optional(),
+        customerRef: z.string().optional(),
+        providerRef: z.string().optional(),
+        customerLocalIdentifierNameAbbrev: z.string().optional(),
+        providerLocalIdentifierNameAbbrev: z.string().optional(),
+        customerLocalIdentifierValue: z.string().optional(),
+        providerLocalIdentifierValue: z.string().optional(),
         // This is an example of the Date picker
         // field which can have default value null and is MANDATORY.
         payBy: isValidDate(t('invalid date'))

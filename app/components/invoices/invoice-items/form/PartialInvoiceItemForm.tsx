@@ -229,7 +229,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                         variant='outlined'
                         required
                         error={!!priceError}
-                        helperText={!!priceError && capitalize(priceError.message)}
+                        helperText={!!priceError?.message && capitalize(priceError.message)}
                         {...register(`invoiceItems.${index}.price`, {
                             onChange: (e) => {
                                 maskPrice(e);

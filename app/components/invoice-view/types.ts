@@ -9,6 +9,8 @@ type IViewInvoice = Omit<TTransformedInvoice, 'date' | 'payBy' | 'paidOn'> & {
 export interface IProps {
     invoice: IViewInvoice;
     locale: string;
+    isDisplayCustomerLocalIdentifier: boolean;
+    isDisplayProviderLocalIdentifier: boolean;
 }
 
 export interface IInvoiceItemsTableProps {

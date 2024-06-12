@@ -35,11 +35,25 @@ const CreateInvoiceFormData: FC<IProps> = async ({ params: { locale } }) => {
         itemsPerPage: 50
     });
 
-    const [measurementUnits, customers, inventory] = await Promise.all([
+    const [measurementUnits, customers, rawInventory] = await Promise.all([
         measurementUnitsPromise,
         customersPromise,
         inventoryPromise
     ]);
+
+    const inventory = rawInventory.map((rawInventoryItem) => {
+        const {
+            price: rawPrice,
+            manufacturerPrice: rawManufacturerPrice,
+            ...partialInventoryItem
+        } = rawInventoryItem;
+
+        return {
+            price: rawPrice / 100,
+            manufacturerPrice: rawManufacturerPrice === null ? null : rawManufacturerPrice / 100,
+            ...partialInventoryItem
+        };
+    });
 
     const defaultValues = getDefaultFormValues(user.id, provider);
     return (

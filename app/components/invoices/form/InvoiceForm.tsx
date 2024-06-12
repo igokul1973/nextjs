@@ -33,6 +33,7 @@ import { FC, useState } from 'react';
 import {
     Control,
     Controller,
+    FieldError,
     FieldValues,
     FormProvider,
     useFieldArray,
@@ -148,6 +149,19 @@ const InvoiceForm: FC<IProps> = ({
 
     const debouncedHandleGetCustomers = useDebounce<string>(getCustomers, 300);
 
+    const setAdditionalCustomerValues = (customer: TInvoiceForm['customer'] | null) => {
+        if (customer?.customerLocalIdentifierNameAbbrev) {
+            setValue(
+                'customerLocalIdentifierNameAbbrev',
+                customer.customerLocalIdentifierNameAbbrev
+            );
+            setValue('customerLocalIdentifierValue', customer.customerLocalIdentifierValue);
+        } else {
+            setValue('customerLocalIdentifierNameAbbrev', '');
+            setValue('customerLocalIdentifierValue', '');
+        }
+    };
+
     const onSubmit = async (formData: TInvoiceFormOutput) => {
         try {
             if (isEdit) {
@@ -250,8 +264,9 @@ const InvoiceForm: FC<IProps> = ({
                                                 }
                                             }}
                                             getOptionLabel={(option) => option.customerName}
-                                            onChange={(_, b) => {
-                                                onChange(b);
+                                            onChange={(_, customer) => {
+                                                setAdditionalCustomerValues(customer);
+                                                onChange(customer);
                                             }}
                                             renderInput={(params) => (
                                                 <TextField
@@ -526,14 +541,19 @@ const InvoiceForm: FC<IProps> = ({
                             />
                         </FormControl>
                         <FormControl>
-                            <DateInput
-                                label={capitalize(t('paid on date'))}
-                                name='paidOn'
-                                control={control as unknown as Control<FieldValues>}
-                                format='YYYY-MM-DD'
-                                helperText={capitalize(
-                                    t('enter the date the invoice have been paid on')
-                                )}
+                            <TextField
+                                label={capitalize(t('provider reference'))}
+                                variant='outlined'
+                                placeholder={capitalize(t('provider reference for this invoice'))}
+                                {...register('providerRef')}
+                            />
+                        </FormControl>
+                        <FormControl>
+                            <TextField
+                                label={capitalize(t('customer reference'))}
+                                variant='outlined'
+                                placeholder={capitalize(t('customer reference for this invoice'))}
+                                {...register('customerRef')}
                             />
                         </FormControl>
 
@@ -652,6 +672,17 @@ const InvoiceForm: FC<IProps> = ({
                                         />
                                     );
                                 }}
+                            />
+                        </FormControl>
+                        <FormControl>
+                            <DateInput
+                                label={capitalize(t('paid on date'))}
+                                name='paidOn'
+                                control={control as unknown as Control<FieldValues>}
+                                format='YYYY-MM-DD'
+                                helperText={capitalize(
+                                    t('enter the date the invoice have been paid on')
+                                )}
                             />
                         </FormControl>
                         <FormControl>

@@ -26,6 +26,10 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
     const t = await getI18n();
     setStaticParamsLocale(locale);
 
+    // TODO: this should come from the account settings
+    const isDisplayCustomerLocalIdentifier = false;
+    const isDisplayProviderLocalIdentifier = true;
+
     const { provider, account } = await getUser();
     const userAccountCountry = provider?.address?.country;
 
@@ -79,7 +83,7 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
     const invoiceSubtotal = invoiceTotal - taxTotal + discountTotal;
 
     try {
-        const d = {
+        let d: Record<string, unknown> = {
             // logo: invoice.providerLogo,
             // logo: 'logo',
             providerName: invoice.providerName,
@@ -146,10 +150,6 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
             customerReference: invoice.customerRef,
             providerReferenceTitle: capitalize(t('our reference')) + ':',
             providerReference: invoice.providerRef,
-            customerLocalIdentifierTitle: `${capitalize(t('your'))} ${invoice.customerLocalIdentifierNameAbbrev}:`,
-            customerLocalIdentifierValue: invoice.customerLocalIdentifierValue,
-            providerLocalIdentifierTitle: `${capitalize(t('our'))} ${invoice.providerLocalIdentifierNameAbbrev}:`,
-            providerLocalIdentifierValue: invoice.providerLocalIdentifierValue,
             paymentTermsTitle: capitalize(t('payment terms')) + ':',
             termsTitle: capitalize(t('terms')) + ':',
             terms: invoice.terms,
@@ -168,6 +168,21 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
                 ${invoice.paymentInfo}
                 `
         };
+
+        if (isDisplayCustomerLocalIdentifier) {
+            d = {
+                ...d,
+                customerLocalIdentifierTitle: `${capitalize(t('your'))} ${invoice.customerLocalIdentifierNameAbbrev}:`,
+                customerLocalIdentifierValue: invoice.customerLocalIdentifierValue
+            };
+        }
+        if (isDisplayProviderLocalIdentifier) {
+            d = {
+                ...d,
+                providerLocalIdentifierTitle: `${capitalize(t('our'))} ${invoice.providerLocalIdentifierNameAbbrev}:`,
+                providerLocalIdentifierValue: invoice.providerLocalIdentifierValue
+            };
+        }
         const url = isPdf && (await fetchPdfUrl(d));
 
         return (
@@ -175,7 +190,12 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
                 {url ? (
                     <InvoicePdfView src={url} />
                 ) : (
-                    <InvoiceView invoice={invoice} locale={userAccountCountry.locale} />
+                    <InvoiceView
+                        invoice={invoice}
+                        locale={userAccountCountry.locale}
+                        isDisplayCustomerLocalIdentifier={isDisplayCustomerLocalIdentifier}
+                        isDisplayProviderLocalIdentifier={isDisplayProviderLocalIdentifier}
+                    />
                 )}
             </Box>
         );

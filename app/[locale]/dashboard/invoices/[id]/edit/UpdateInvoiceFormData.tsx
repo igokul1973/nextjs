@@ -77,6 +77,8 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
         customerCountry,
         customerPhone,
         customerEmail,
+        customerLocalIdentifierNameAbbrev,
+        customerLocalIdentifierValue,
         ...rawForm
     } = invoice;
 
@@ -113,7 +115,9 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
         customerPostCode,
         customerCountry,
         customerPhone,
-        customerEmail
+        customerEmail,
+        customerLocalIdentifierNameAbbrev,
+        customerLocalIdentifierValue
     };
 
     const form = { ...rawForm, customer, date: new Date(date), invoiceItems: preparedInvoiceItems };

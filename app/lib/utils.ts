@@ -142,7 +142,7 @@ export function useDebounce<T>(f: (...args: T[]) => unknown, ms = 500) {
 export function flattenCustomer(
     rawCustomer: TCustomerPayload | TCustomerWithInvoicesPayload
 ): TCustomerOutput {
-    const entity = rawCustomer.individual || rawCustomer.organization;
+    const entity = rawCustomer.individual ?? rawCustomer.organization;
     if (!entity) {
         throw Error('The customer organization or individual is not found. Please add one first.');
     }
@@ -156,9 +156,14 @@ export function flattenCustomer(
         'firstName' in entity ? EntitiesEnum.individual : EntitiesEnum.organization;
     const customerAddress =
         'firstName' in entity ? rawCustomer.individual?.address : rawCustomer.organization?.address;
+    // const customerLocalIdentifierNameAbbrev = 'firstName' in entity ? entity : 'ACN';
     if (!customerAddress) {
         throw Error('Something is not right with the customer address.');
     }
+
+    const nameOrAbbrev = entity.localIdentifierName.abbreviation
+        ? entity.localIdentifierName.abbreviation
+        : entity.localIdentifierName.name;
 
     return {
         customerId: rawCustomer.id,
@@ -174,7 +179,9 @@ export function flattenCustomer(
         customerPhone: entity.phones.length
             ? `+${entity.phones[0].countryCode}-${entity.phones[0].number}`
             : 'no phone provided',
-        customerEmail: entity.emails.length ? entity.emails[0].email : 'no email provided'
+        customerEmail: entity.emails.length ? entity.emails[0].email : 'no email provided',
+        customerLocalIdentifierNameAbbrev: entity.localIdentifierValue ? nameOrAbbrev : '',
+        customerLocalIdentifierValue: entity.localIdentifierValue ?? ''
     };
 }
 

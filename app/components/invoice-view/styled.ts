@@ -1,8 +1,8 @@
 'use client';
 
 import { styled } from '@mui/material';
-import TableCell from '@mui/material/TableCell';
 import Box from '@mui/material/Box';
+import TableCell from '@mui/material/TableCell';
 import BaseLinkButton from '../buttons/base/BaseLinkButton';
 
 export const StyledInvoice = styled(Box, {
@@ -121,9 +121,9 @@ export const StyledFooter = styled(Box, {
 })`
     margin-top: auto;
     padding-top: 1rem;
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
     border-top: 1px solid lightgray;
 `;
 

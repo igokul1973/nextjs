@@ -1,7 +1,7 @@
 import { TCustomerOutput } from '@/app/components/invoices/form/types';
 import { InvoiceStatusEnum, Prisma } from '@prisma/client';
-import { includeEntityRelations } from '../user/types';
 import { TMeasurementUnit } from '../../types';
+import { includeEntityRelations } from '../user/types';
 
 export const getInvoiceSelect = {
     id: true,
@@ -122,6 +122,11 @@ export const getQueryFilterWhereClause = (
                         email: {
                             contains: query
                         }
+                    }
+                },
+                {
+                    number: {
+                        contains: query
                     }
                 },
                 {
