@@ -27,7 +27,7 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
     setStaticParamsLocale(locale);
 
     // TODO: this should come from the account settings
-    const isDisplayCustomerLocalIdentifier = false;
+    const isDisplayCustomerLocalIdentifier = true;
     const isDisplayProviderLocalIdentifier = true;
 
     const { provider, account } = await getUser();
