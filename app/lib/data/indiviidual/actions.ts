@@ -7,18 +7,20 @@ import {
     TPhone
 } from '@/app/components/individuals/form/types';
 import prisma from '@/app/lib/prisma';
-import { TDirtyFields } from '@/app/lib/types';
+import { TDirtyFields, TTranslateFn } from '@/app/lib/types';
 import { getDirtyValues, getLogoCreateOrUpdate, validateEntityFormData } from '@/app/lib/utils';
 import { AccountRelationEnum, EmailTypeEnum, PhoneTypeEnum, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 export async function createIndividual(
+    t: TTranslateFn,
     rawFormData: TIndividualFormOutput,
     userId: string,
     rawLogoFormData?: FormData
 ) {
     try {
         const validatedFormData = validateEntityFormData<TIndividualFormOutputWithoutLogo>(
+            t,
             rawFormData,
             rawLogoFormData,
             true
@@ -93,6 +95,7 @@ export async function createIndividual(
     }
 }
 export async function updateIndividual(
+    t: TTranslateFn,
     rawFormData: TIndividualFormOutputWithoutLogo,
     dirtyFields: TDirtyFields<TIndividualFormOutput>,
     userId: string,
@@ -100,6 +103,7 @@ export async function updateIndividual(
 ) {
     try {
         const validatedFormData = validateEntityFormData<TIndividualFormOutputWithoutLogo>(
+            t,
             rawFormData,
             rawLogoFormData,
             true

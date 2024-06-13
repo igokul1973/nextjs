@@ -1,7 +1,7 @@
 import { TGetLocalIdentifierNamePayload } from '@/app/lib/data/local-identifier-name/types';
 import { Control, FieldValues } from 'react-hook-form';
 import { z } from 'zod';
-import { organizationUpdateSchema } from './formSchema';
+import { getOrganizationUpdateSchema } from './formSchema';
 
 export interface IProps {
     localIdentifierName: TGetLocalIdentifierNamePayload;
@@ -10,8 +10,8 @@ export interface IProps {
     onSubmit: (formData: TOrganizationFormOutput) => Promise<void>;
 }
 
-export type TOrganizationForm = z.input<typeof organizationUpdateSchema>;
-export type TOrganizationFormOutput = z.output<typeof organizationUpdateSchema>;
+export type TOrganizationForm = z.input<ReturnType<typeof getOrganizationUpdateSchema>>;
+export type TOrganizationFormOutput = z.output<ReturnType<typeof getOrganizationUpdateSchema>>;
 export type TOrganizationFormOutputWithoutLogo = Omit<TOrganizationFormOutput, 'logo'>;
 export type TOrganizationFormControl = Control<TOrganizationForm> & Control<FieldValues>;
 export type TPhone = TOrganizationFormOutput['phones'][number];

@@ -5,7 +5,7 @@ import { UseFormRegister } from 'react-hook-form';
 
 export interface ICustomerTable {
     customerId: string;
-    customerCode: string;
+    customerCode?: string | null;
     customerType: EntitiesEnum;
     customerName: string;
     customerEmail: string;

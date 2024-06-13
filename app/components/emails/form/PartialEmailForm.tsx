@@ -2,7 +2,6 @@
 
 import FormSelect from '@/app/components/form-select/FormSelect';
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
@@ -45,9 +44,7 @@ const PartialEmailForm = <T,>({
                     control={control}
                     required
                     error={!!typeError}
-                    helperText={
-                        !!typeError && capitalize(t(typeError?.message as TSingleTranslationKey))
-                    }
+                    helperText={!!typeError?.message && capitalize(typeError.message)}
                 >
                     {types.map((type) => {
                         return (
@@ -74,10 +71,7 @@ const PartialEmailForm = <T,>({
                         error={!!emailError}
                         onInvalid={onInvalidEmail}
                         onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
-                        helperText={
-                            !!emailError &&
-                            capitalize(t(emailError?.message as TSingleTranslationKey))
-                        }
+                        helperText={!!emailError?.message && capitalize(emailError.message)}
                         {...register(`emails.${index}.email`)}
                     />
                     {count > 1 && (

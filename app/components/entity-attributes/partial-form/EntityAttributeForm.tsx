@@ -1,7 +1,6 @@
 'use client';
 
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
@@ -44,9 +43,7 @@ const PartialAttributeForm = <T,>({ register, control, errors, index, remove }: 
                     control={control}
                     required
                     error={!!typeError}
-                    helperText={
-                        !!typeError && capitalize(t(typeError?.message as TSingleTranslationKey))
-                    }
+                    helperText={!!typeError?.message && capitalize(typeError.message)}
                 >
                     {types.map((type, index) => {
                         return (
@@ -72,10 +69,7 @@ const PartialAttributeForm = <T,>({ register, control, errors, index, remove }: 
                         error={!!nameError}
                         onInvalid={onInvalidAttributeName}
                         onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
-                        helperText={
-                            !!nameError &&
-                            capitalize(t(nameError?.message as TSingleTranslationKey))
-                        }
+                        helperText={!!nameError?.message && capitalize(nameError.message)}
                         {...register(`attributes.${index}.name`)}
                     />
                 </FormControl>
@@ -95,10 +89,7 @@ const PartialAttributeForm = <T,>({ register, control, errors, index, remove }: 
                         error={!!valueError}
                         onInvalid={onInvalidAttributeValue}
                         onInput={(e) => (e.target as HTMLInputElement).setCustomValidity('')}
-                        helperText={
-                            !!valueError &&
-                            capitalize(t(valueError?.message as TSingleTranslationKey))
-                        }
+                        helperText={!!valueError?.message && capitalize(valueError.message)}
                         {...register(`attributes.${index}.value`)}
                     />
                 </FormControl>

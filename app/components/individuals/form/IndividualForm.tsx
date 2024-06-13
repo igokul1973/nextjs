@@ -116,10 +116,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                         placeholder={capitalize(t('enter customer number'))}
                         variant='outlined'
                         error={!!errors.code}
-                        helperText={
-                            !!errors.code &&
-                            capitalize(t(errors.code?.message as TSingleTranslationKey))
-                        }
+                        helperText={!!errors.code?.message && capitalize(errors.code.message)}
                         {...register('code')}
                     />
                 </FormControl>
@@ -131,8 +128,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                         error={!!errors.firstName}
                         required
                         helperText={
-                            !!errors.firstName &&
-                            capitalize(t(errors.firstName?.message as TSingleTranslationKey))
+                            !!errors.firstName?.message && capitalize(errors.firstName.message)
                         }
                         {...register('firstName')}
                     />
@@ -145,8 +141,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                         required
                         error={!!errors.lastName}
                         helperText={
-                            !!errors.lastName &&
-                            capitalize(t(errors.lastName?.message as TSingleTranslationKey))
+                            !!errors.lastName?.message && capitalize(errors.lastName.message)
                         }
                         {...register('lastName')}
                     />

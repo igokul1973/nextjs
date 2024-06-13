@@ -23,7 +23,7 @@ const getBaseInventoryFormSchema = (t: TTranslateFn) =>
             .number({
                 invalid_type_error: t('must be a number')
             })
-            .gte(0.01, { message: t('must be more than', { count: 0.01 }) })
+            .gte(0.01, { message: t('must be greater than', { count: 0.01 }) })
             .lte(99999999999999, { message: t('price cannot be more than 999 999 999 999.99') })
             .nullable()
             .transform((val, ctx) => {

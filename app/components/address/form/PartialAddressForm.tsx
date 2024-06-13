@@ -1,7 +1,6 @@
 'use client';
 
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKey } from '@/locales/types';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import MenuItem from '@mui/material/MenuItem';
@@ -29,8 +28,7 @@ const PartialAddressForm = <T,>({ register, countries, control, errors }: IProps
                     required
                     error={!!addressLine1Error}
                     helperText={
-                        !!addressLine1Error &&
-                        capitalize(t(addressLine1Error?.message as TSingleTranslationKey))
+                        !!addressLine1Error?.message && capitalize(addressLine1Error.message)
                     }
                     {...register('address.addressLine1')}
                 />
@@ -61,10 +59,7 @@ const PartialAddressForm = <T,>({ register, countries, control, errors }: IProps
                     variant='outlined'
                     required
                     error={!!localityError}
-                    helperText={
-                        !!localityError &&
-                        capitalize(t(localityError?.message as TSingleTranslationKey))
-                    }
+                    helperText={!!localityError?.message && capitalize(localityError.message)}
                     {...register('address.locality')}
                 />
             </FormControl>
@@ -85,10 +80,7 @@ const PartialAddressForm = <T,>({ register, countries, control, errors }: IProps
                     variant='outlined'
                     required
                     error={!!postCodeError}
-                    helperText={
-                        !!postCodeError &&
-                        capitalize(t(postCodeError?.message as TSingleTranslationKey))
-                    }
+                    helperText={!!postCodeError?.message && capitalize(postCodeError.message)}
                     {...register('address.postcode')}
                 />
             </FormControl>
@@ -99,10 +91,7 @@ const PartialAddressForm = <T,>({ register, countries, control, errors }: IProps
                 control={control}
                 required
                 error={!!countryIdError}
-                helperText={
-                    !!countryIdError &&
-                    capitalize(t(countryIdError?.message as TSingleTranslationKey))
-                }
+                helperText={!!countryIdError?.message && capitalize(countryIdError.message)}
             >
                 {countries.map((country) => {
                     return (

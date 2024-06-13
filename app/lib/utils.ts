@@ -6,9 +6,9 @@ import { redirect } from 'next/navigation';
 import { ChangeEvent } from 'react';
 import { SafeParseReturnType, z } from 'zod';
 import {
-    individualCreateSchema,
-    individualUpdateSchema,
-    individualUpdateSchemaEmptyLogo
+    getIndividualCreateSchema,
+    getIndividualUpdateSchema,
+    getIndividualUpdateSchemaEmptyLogo
 } from '../components/individuals/form/formSchema.ts';
 import {
     TIndividualFormOutput,
@@ -16,9 +16,9 @@ import {
 } from '../components/individuals/form/types.ts';
 import { TCustomerOutput } from '../components/invoices/form/types';
 import {
-    organizationCreateSchema,
-    organizationUpdateSchema,
-    organizationUpdateSchemaEmptyLogo
+    getOrganizationCreateSchema,
+    getOrganizationUpdateSchema,
+    getOrganizationUpdateSchemaEmptyLogo
 } from '../components/organizations/form/formSchema.ts';
 import {
     TOrganizationFormOutput,
@@ -29,7 +29,7 @@ import { getIndividualFullNameString, getUserProvider } from './commonUtils.ts';
 import { TCustomerPayload } from './data/customer/types';
 import { TTransformedInvoice } from './data/invoice/types.ts';
 import { TGetUserWithRelationsPayload } from './data/user/types';
-import { TDirtyFields, TEntities, TIndividual } from './types';
+import { TDirtyFields, TEntities, TIndividual, TTranslateFn } from './types';
 
 export {
     getEntityFirstEmailString,
@@ -636,7 +636,9 @@ export const getLogoCreateOrUpdate = async (
     return logoCreateOrUpdate;
 };
 
-const getEntityValidationSchema = (
+const getEntityValidationSchema = <
+    T extends TIndividualFormOutputWithoutLogo | TOrganizationFormOutputWithoutLogo
+>(
     formData: T,
     logoFormData?: {
         [k: string]: FormDataEntryValue;
@@ -649,19 +651,20 @@ const getEntityValidationSchema = (
     return isIndividual
         ? isEdit
             ? isLogo
-                ? individualUpdateSchema
-                : individualUpdateSchemaEmptyLogo
-            : individualCreateSchema
+                ? getIndividualUpdateSchema
+                : getIndividualUpdateSchemaEmptyLogo
+            : getIndividualCreateSchema
         : isEdit
           ? isLogo
-              ? organizationUpdateSchema
-              : organizationUpdateSchemaEmptyLogo
-          : organizationCreateSchema;
+              ? getOrganizationUpdateSchema
+              : getOrganizationUpdateSchemaEmptyLogo
+          : getOrganizationCreateSchema;
 };
 
 export const validateEntityFormData = <
     T extends TIndividualFormOutputWithoutLogo | TOrganizationFormOutputWithoutLogo
 >(
+    t: TTranslateFn,
     formData: T,
     rawLogoFormData?: FormData,
     isIndividual?: boolean
@@ -674,7 +677,7 @@ export const validateEntityFormData = <
 
     const validationSchema = getEntityValidationSchema(formData, logoFormData, isIndividual);
 
-    return validationSchema.safeParse(formDataWithLogo) as SafeParseReturnType<
+    return validationSchema(t).safeParse(formDataWithLogo) as SafeParseReturnType<
         T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] },
         T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] }
     >;

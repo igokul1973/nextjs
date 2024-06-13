@@ -3,9 +3,9 @@
 import { components } from '@/app/components/dashboard/avatar-menu/constants';
 import IndividualForm from '@/app/components/individuals/form/IndividualForm';
 import {
-    individualCreateSchema,
-    individualUpdateSchema,
-    individualUpdateSchemaEmptyLogo
+    getIndividualCreateSchema,
+    getIndividualUpdateSchema,
+    getIndividualUpdateSchemaEmptyLogo
 } from '@/app/components/individuals/form/formSchema';
 import { TIndividualForm, TIndividualFormOutput } from '@/app/components/individuals/form/types';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
@@ -59,9 +59,9 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
         resolver: zodResolver(
             isEdit
                 ? defaultValues.logo
-                    ? individualUpdateSchema
-                    : individualUpdateSchemaEmptyLogo
-                : individualCreateSchema
+                    ? getIndividualUpdateSchema(t)
+                    : getIndividualUpdateSchemaEmptyLogo(t)
+                : getIndividualCreateSchema(t)
         ),
         reValidateMode: 'onChange',
         defaultValues
@@ -86,6 +86,7 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
             }
             if (isEdit) {
                 const updatedProvider = await updateIndividual(
+                    t,
                     formDataWithoutLogo,
                     dirtyFields as TDirtyFields<TIndividualFormOutput>,
                     userId,
@@ -98,7 +99,7 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
 
                 openSnackbar(capitalize(t('successfully updated provider')));
             } else {
-                const createdProvider = await createIndividual(formData, userId, logoFormData);
+                const createdProvider = await createIndividual(t, formData, userId, logoFormData);
                 if (!createdProvider) {
                     throw new Error(capitalize(t('could not create provider')));
                 }

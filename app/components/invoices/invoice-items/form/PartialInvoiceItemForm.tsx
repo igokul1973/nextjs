@@ -76,7 +76,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
         } else {
             setItemSubtotal(formatCurrency(0, locale));
         }
-    }, [quantityWatch, taxWatch, discountWatch, priceWatch, locale]);
+    }, [quantityWatch, taxWatch, discountWatch, priceWatch, locale, recalculateTotals]);
 
     const getInventory = async (query: string) => {
         if (!query) {
@@ -143,11 +143,11 @@ const PartialInvoiceItemForm: FC<IProps> = ({
     };
 
     const getInventoryItemErrorMessage = (error: NonNullable<typeof inventoryItemError>) => {
-        if ('message' in error) {
+        if ('message' in error && error.message) {
             return capitalize(error.message);
-        } else if ('id' in error && error.id) {
+        } else if ('id' in error && error.id?.message) {
             return capitalize(error.id.message);
-        } else if ('name' in error && error.name) {
+        } else if ('name' in error && error.name?.message) {
             return capitalize(error.name.message);
         } else {
             return '';
@@ -261,7 +261,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                     variant='outlined'
                     required
                     error={!!quantityError}
-                    helperText={!!quantityError && capitalize(quantityError.message)}
+                    helperText={!!quantityError?.message && capitalize(quantityError.message)}
                     {...register(`invoiceItems.${index}.quantity`, {
                         onChange: (e) => {
                             mask3DecimalPlaces(e);
@@ -321,7 +321,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                                             {...params}
                                             error={!!measurementUnitError}
                                             helperText={
-                                                !!measurementUnitError &&
+                                                !!measurementUnitError?.message &&
                                                 capitalize(measurementUnitError.message)
                                             }
                                             required
@@ -360,7 +360,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                         variant='outlined'
                         required
                         error={!!discountError}
-                        helperText={!!discountError && capitalize(discountError.message)}
+                        helperText={!!discountError?.message && capitalize(discountError.message)}
                         {...register(`invoiceItems.${index}.discount`, {
                             onChange: (e) => {
                                 maskPercentage(e);
@@ -402,7 +402,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                         variant='outlined'
                         required
                         error={!!salesTaxError}
-                        helperText={!!salesTaxError && capitalize(salesTaxError.message)}
+                        helperText={!!salesTaxError?.message && capitalize(salesTaxError.message)}
                         {...register(`invoiceItems.${index}.salesTax`, {
                             onChange: (e) => {
                                 maskPercentage(e);

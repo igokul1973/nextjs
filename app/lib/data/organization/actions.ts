@@ -6,17 +6,19 @@ import {
     TOrganizationFormOutputWithoutLogo
 } from '@/app/components/organizations/form/types';
 import prisma from '@/app/lib/prisma';
+import { TDirtyFields, TTranslateFn } from '@/app/lib/types';
 import { getDirtyValues, getLogoCreateOrUpdate, validateEntityFormData } from '@/app/lib/utils';
 import { AccountRelationEnum, EmailTypeEnum, PhoneTypeEnum, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
-import { TDirtyFields } from '@/app/lib/types';
 
 export async function createOrganization(
+    t: TTranslateFn,
     rawFormData: TOrganizationFormOutputWithoutLogo,
     userId: string,
     rawLogoFormData?: FormData
 ) {
     const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
+        t,
         rawFormData,
         rawLogoFormData,
         false
@@ -90,6 +92,7 @@ export async function createOrganization(
     }
 }
 export async function updateOrganization(
+    t: TTranslateFn,
     rawFormData: TOrganizationFormOutputWithoutLogo,
     dirtyFields: TDirtyFields<TOrganizationFormOutput>,
     userId: string,
@@ -97,6 +100,7 @@ export async function updateOrganization(
 ) {
     try {
         const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
+            t,
             rawFormData,
             rawLogoFormData,
             false

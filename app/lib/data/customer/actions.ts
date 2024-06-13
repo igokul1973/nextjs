@@ -11,19 +11,21 @@ import {
     TOrganizationFormOutputWithoutLogo
 } from '@/app/components/organizations/form/types';
 import prisma from '@/app/lib/prisma';
-import { TDirtyFields } from '@/app/lib/types';
+import { TDirtyFields, TTranslateFn } from '@/app/lib/types';
 import { getDirtyValues, getLogoCreateOrUpdate, validateEntityFormData } from '@/app/lib/utils';
 import { AccountRelationEnum, EmailTypeEnum, PhoneTypeEnum, Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { revalidatePath } from 'next/cache';
 
 export async function createIndividualCustomer(
+    t: TTranslateFn,
     rawFormData: TIndividualFormOutput,
     userId: string,
     rawLogoFormData?: FormData
 ) {
     try {
         const validatedFormData = validateEntityFormData<TIndividualFormOutputWithoutLogo>(
+            t,
             rawFormData,
             rawLogoFormData,
             true
@@ -112,12 +114,14 @@ export async function createIndividualCustomer(
 }
 
 export async function createOrganizationCustomer(
+    t: TTranslateFn,
     rawFormData: TOrganizationFormOutputWithoutLogo,
     userId: string,
     rawLogoFormData?: FormData
 ) {
     try {
         const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
+            t,
             rawFormData,
             rawLogoFormData,
             false
@@ -217,6 +221,7 @@ export async function createOrganizationCustomer(
     }
 }
 export async function updateIndividualCustomer(
+    t: TTranslateFn,
     rawFormData: TIndividualFormOutputWithoutLogo,
     dirtyFields: TDirtyFields<TIndividualFormOutput>,
     userId: string,
@@ -224,6 +229,7 @@ export async function updateIndividualCustomer(
 ) {
     try {
         const validatedFormData = validateEntityFormData<TIndividualFormOutputWithoutLogo>(
+            t,
             rawFormData,
             rawLogoFormData,
             true
@@ -355,6 +361,7 @@ export async function updateIndividualCustomer(
     }
 }
 export async function updateOrganizationCustomer(
+    t: TTranslateFn,
     rawFormData: TOrganizationFormOutputWithoutLogo,
     dirtyFields: TDirtyFields<TOrganizationFormOutput>,
     userId: string,
@@ -362,6 +369,7 @@ export async function updateOrganizationCustomer(
 ) {
     try {
         const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
+            t,
             rawFormData,
             rawLogoFormData,
             false

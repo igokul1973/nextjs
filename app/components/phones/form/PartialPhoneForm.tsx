@@ -3,7 +3,6 @@
 import FormSelect from '@/app/components/form-select/FormSelect';
 import { maskMax3Digits } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKey } from '@/locales/types';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -41,9 +40,7 @@ const PartialPhoneForm = <T,>({
                     control={control}
                     required
                     error={!!typeError}
-                    helperText={
-                        !!typeError && capitalize(t(typeError.message as TSingleTranslationKey))
-                    }
+                    helperText={!!typeError?.message && capitalize(typeError.message)}
                 >
                     {types.map((type) => {
                         return (
@@ -73,8 +70,7 @@ const PartialPhoneForm = <T,>({
                         required
                         error={!!countryCodeError}
                         helperText={
-                            !!countryCodeError &&
-                            capitalize(t(countryCodeError.message as TSingleTranslationKey))
+                            !!countryCodeError?.message && capitalize(countryCodeError.message)
                         }
                         {...register(`phones.${index}.countryCode`, {
                             onChange: maskMax3Digits
@@ -96,10 +92,7 @@ const PartialPhoneForm = <T,>({
                         variant='outlined'
                         required
                         error={!!numberError}
-                        helperText={
-                            !!numberError &&
-                            capitalize(t(numberError.message as TSingleTranslationKey))
-                        }
+                        helperText={!!numberError?.message && capitalize(numberError.message)}
                         {...register(`phones.${index}.number`)}
                     />
                 </FormControl>

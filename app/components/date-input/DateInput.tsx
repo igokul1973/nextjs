@@ -1,5 +1,3 @@
-import { useI18n } from '@/locales/client';
-import { TSingleTranslationKey } from '@/locales/types';
 import { BaseTextFieldProps, capitalize } from '@mui/material';
 import { DatePicker, DatePickerProps } from '@mui/x-date-pickers/DatePicker';
 import { BaseNonStaticPickerProps } from '@mui/x-date-pickers/internals';
@@ -13,8 +11,6 @@ const DateInput: FC<
         UseControllerProps &
         DatePickerProps<Dayjs, boolean>
 > = ({ name, label, required, control, helperText, format, slotProps }) => {
-    const t = useI18n();
-
     return (
         <Controller
             name={name}

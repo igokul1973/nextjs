@@ -3,9 +3,9 @@
 import { components } from '@/app/components/dashboard/avatar-menu/constants';
 import OrganizationForm from '@/app/components/organizations/form/OrganizationForm';
 import {
-    organizationCreateSchema,
-    organizationUpdateSchema,
-    organizationUpdateSchemaEmptyLogo
+    getOrganizationCreateSchema,
+    getOrganizationUpdateSchema,
+    getOrganizationUpdateSchemaEmptyLogo
 } from '@/app/components/organizations/form/formSchema';
 import {
     TOrganizationForm,
@@ -61,9 +61,9 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps> = ({
         resolver: zodResolver(
             isEdit
                 ? defaultValues.logo
-                    ? organizationUpdateSchema
-                    : organizationUpdateSchemaEmptyLogo
-                : organizationCreateSchema
+                    ? getOrganizationUpdateSchema(t)
+                    : getOrganizationUpdateSchemaEmptyLogo(t)
+                : getOrganizationCreateSchema(t)
         ),
         reValidateMode: 'onChange',
         defaultValues
@@ -88,6 +88,7 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps> = ({
             }
             if (isEdit) {
                 const updatedProvider = await updateOrganization(
+                    t,
                     formDataWithoutLogo,
                     dirtyFields,
                     userId,
@@ -100,7 +101,7 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps> = ({
 
                 openSnackbar(capitalize(t('successfully updated provider')));
             } else {
-                const createdProvider = await createOrganization(formData, userId, logoFormData);
+                const createdProvider = await createOrganization(t, formData, userId, logoFormData);
                 if (!createdProvider) {
                     throw new Error(capitalize(t('could not create provider')));
                 }

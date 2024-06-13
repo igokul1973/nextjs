@@ -2,9 +2,9 @@
 
 import OrganizationForm from '@/app/components/organizations/form/OrganizationForm';
 import {
-    organizationCreateSchema,
-    organizationUpdateSchema,
-    organizationUpdateSchemaEmptyLogo
+    getOrganizationCreateSchema,
+    getOrganizationUpdateSchema,
+    getOrganizationUpdateSchemaEmptyLogo
 } from '@/app/components/organizations/form/formSchema';
 import {
     TOrganizationForm,
@@ -61,9 +61,9 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
         resolver: zodResolver(
             isEdit
                 ? defaultValues.logo
-                    ? organizationUpdateSchema
-                    : organizationUpdateSchemaEmptyLogo
-                : organizationCreateSchema
+                    ? getOrganizationUpdateSchema(t)
+                    : getOrganizationUpdateSchemaEmptyLogo(t)
+                : getOrganizationCreateSchema(t)
         ),
         reValidateMode: 'onChange',
         defaultValues
@@ -88,6 +88,7 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
             }
             if (isEdit) {
                 const updatedCustomer = await updateOrganizationCustomer(
+                    t,
                     formDataWithoutLogo,
                     dirtyFields,
                     userId,
@@ -101,6 +102,7 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
                 openSnackbar(capitalize(t('successfully updated customer')));
             } else {
                 const createdCustomer = await createOrganizationCustomer(
+                    t,
                     formData,
                     userId,
                     logoFormData

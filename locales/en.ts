@@ -6,8 +6,8 @@ export const enPlural = {
     'must be less than characters#other': 'must be less than {count} characters long',
     'must be less than#other': 'must be less than {count}',
     'must be less than or equal to#other': 'must be less than or equal to {count}',
-    'must be more than#other': 'must be more than {count}',
-    'must be more than or equal to#other': 'must be more than or equal to {count}',
+    'must be greater than#other': 'must be greater than {count}',
+    'must be greater than or equal to#other': 'must be greater than or equal to {count}',
     'price cannot be more than 999 999 999 999.99': 'price cannot be more than 999 999 999 999.99',
     'file size must be less than kb#other': 'filen måste vara mindre än {count} KB',
     'file size must be less than mb#other': 'filen måste vara mindre än {count} MB',
@@ -261,6 +261,7 @@ export const enSingle = {
     'the tax cannot be more than 100': 'the tax cannot be more than 100',
     'the discount cannot be less than 0': 'the discount cannot be less than 0',
     'the discount cannot be more than 100': 'the discount cannot be more than 100',
+    'customer ID is missing': 'customer ID is missing',
     'select inventory item to get the price or enter one manually':
         'select inventory item to get the price or enter one manually',
     'please enter a customer': 'please enter a customer',

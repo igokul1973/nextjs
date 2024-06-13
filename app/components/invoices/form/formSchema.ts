@@ -225,7 +225,7 @@ const getBaseInvoiceItemFormSchema = (t: TTranslateFn) =>
                     .number({
                         invalid_type_error: t('must be a number')
                     })
-                    .min(0, { message: t('must be more than or equal to', { count: 0 }) })
+                    .min(0, { message: t('must be greater than or equal to', { count: 0 }) })
                     .max(10000, { message: t('must be less than or equal to', { count: 100 }) })
                     .transform((val, ctx) => {
                         if (val === null) {
@@ -245,7 +245,7 @@ const getBaseInvoiceItemFormSchema = (t: TTranslateFn) =>
                     .number({
                         invalid_type_error: t('must be a number')
                     })
-                    .min(0, { message: t('must be more than or equal to', { count: 0 }) })
+                    .min(0, { message: t('must be greater than or equal to', { count: 0 }) })
                     .max(100000, { message: t('must be less than or equal to', { count: 100 }) })
                     .transform((val, ctx) => {
                         if (val === null) {
@@ -263,7 +263,7 @@ const getBaseInvoiceItemFormSchema = (t: TTranslateFn) =>
                     .number({
                         invalid_type_error: t('must be a number')
                     })
-                    .gt(0, { message: t('must be more than', { count: 0 }) })
+                    .gt(0, { message: t('must be greater than', { count: 0 }) })
                     .nullable()
                     .transform((val, ctx) => {
                         if (val === null) {

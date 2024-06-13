@@ -29,7 +29,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { InvoiceStatusEnum } from '@prisma/client';
 import NextLink from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { FC, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 import {
     Control,
     Controller,
@@ -110,7 +110,7 @@ const InvoiceForm: FC<IProps> = ({
         control
     });
 
-    const recalculateTotals = () => {
+    const recalculateTotals = useCallback(() => {
         const data = form.invoiceItems.map((ii) => {
             return {
                 price: Number(ii.price || 0),
@@ -125,7 +125,7 @@ const InvoiceForm: FC<IProps> = ({
         setInvoiceSubtotal(subtotal);
         setTaxTotal(taxTotal);
         setDiscountTotal(discountTotal);
-    };
+    }, [form.invoiceItems]);
 
     const statuses = Object.values(InvoiceStatusEnum);
 

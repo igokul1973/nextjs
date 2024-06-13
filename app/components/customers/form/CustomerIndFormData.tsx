@@ -2,9 +2,9 @@
 
 import IndividualForm from '@/app/components/individuals/form/IndividualForm';
 import {
-    individualCreateSchema,
-    individualUpdateSchema,
-    individualUpdateSchemaEmptyLogo
+    getIndividualCreateSchema,
+    getIndividualUpdateSchema,
+    getIndividualUpdateSchemaEmptyLogo
 } from '@/app/components/individuals/form/formSchema';
 import { TIndividualForm, TIndividualFormOutput } from '@/app/components/individuals/form/types';
 import { useSnackbar } from '@/app/context/snackbar/provider';
@@ -59,9 +59,9 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
         resolver: zodResolver(
             isEdit
                 ? defaultValues.logo
-                    ? individualUpdateSchema
-                    : individualUpdateSchemaEmptyLogo
-                : individualCreateSchema
+                    ? getIndividualUpdateSchema(t)
+                    : getIndividualUpdateSchemaEmptyLogo(t)
+                : getIndividualCreateSchema(t)
         ),
         reValidateMode: 'onChange',
         defaultValues
@@ -89,6 +89,7 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
 
             if (isEdit) {
                 const updatedCustomer = await updateIndividualCustomer(
+                    t,
                     formDataWithoutLogo,
                     dirtyFields as TDirtyFields<TIndividualFormOutput>,
                     userId,
@@ -100,6 +101,7 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
                 openSnackbar(capitalize(t('successfully updated customer')));
             } else {
                 const createdCustomer = await createIndividualCustomer(
+                    t,
                     formData,
                     userId,
                     logoFormData

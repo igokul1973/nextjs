@@ -44,17 +44,17 @@ import {
 
 const headCells: readonly IHeadCell[] = [
     {
+        id: 'customerName',
+        isNumeric: false,
+        disablePadding: true,
+        label: 'name',
+        align: 'left'
+    },
+    {
         id: 'customerCode',
         isNumeric: false,
         disablePadding: true,
         label: 'number',
-        align: 'left'
-    },
-    {
-        id: 'customerId',
-        isNumeric: false,
-        disablePadding: true,
-        label: 'name',
         align: 'left'
     },
     {
