@@ -126,7 +126,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'additional attributes': 'ytterligare attribut',
     'add another attribute': 'lägg till ett annat attribut',
     'add attribute': 'lägg till en attribut',
-    'you have not attributes. Add one by clicking button below.':
+    'you have no attributes. Add one by clicking button below.':
         'du har inte attribut. Lägg till en genom att klicka på knappen nedan.',
     text: 'text',
     value: 'värde',
@@ -314,48 +314,33 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'successfully updated customer': 'kunden har uppdaterats',
     'could not create customer': 'kunde inte skapa kunden',
     'could not update customer': 'kunde inte uppdatera kunden',
-    'database error: failed to create customer': 'databas fel: kunde inte skapa kunden',
-    'database error: failed to update customer': 'databas fel: kunde inte uppdatera kunden',
-    'database error: failed to delete customer': 'databas fel: kunde inte ta bort kunden',
+    'could not delete customer': 'kunde inte ta bort kunden',
     'cannot delete customer because it has associated invoices':
         'kunde inte ta bort kunden eftersom den har associerade fakturor',
     'successfully created provider': 'leverantören har skapats',
     'successfully updated provider': 'leverantören har uppdaterats',
     'could not create provider': 'kunde inte skapa leverantören',
     'could not update provider': 'kunde inte uppdatera leverantören',
-    'database error: failed to create provider': 'databasfel: kunde inte skapa leverantören',
-    'database error: failed to update provider': 'databasfel: kunde inte uppdatera leverantören',
-    'database error: failed to delete provider': 'databasfel: kunde inte ta bort leverantören',
+    'could not delete provider': 'kunde inte ta bort leverantören',
     'successfully created invoice': 'fakturan har skapats',
     'successfully updated invoice': 'fakturan har uppdaterats',
     'successfully deleted invoice': 'fakturan har borttagits',
     'could not create invoice': 'kunde inte skapa fakturan',
     'could not update invoice': 'kunde inte uppdatera fakturan',
-    'database error: failed to create invoice': 'databasfel: kunde inte skapa fakturan',
-    'database error: failed to update invoice': 'databasfel: kunde inte uppdatera fakturan',
-    'database error: failed to delete invoice': 'databasfel: kunde inte ta bort fakturan',
+    'could not delete invoice': 'kunde inte ta bort fakturan',
     'successfully created inventory item': 'inventeringsobjektet har skapats',
     'successfully updated inventory item': 'inventeringsobjektet har uppdaterats',
     'could not create inventory item': 'kunde inte skapa inventeringsobjektet',
     'could not update inventory item': 'kunde inte uppdatera inventeringsobjektet',
-    'database error: failed to create inventory item':
-        'databasfel: kunde inte skapa inventeringsobjektet',
-    'database error: failed to update inventory item':
-        'databasfel: kunde inte uppdatera inventeringsobjektet',
-    'database error: failed to delete inventory item':
-        'databasfel: kunde inte ta bort inventeringsobjektet',
+    'could not delete inventory item': 'kunde inte ta bort inventeringsobjektet',
     'cannot delete inventory item because it has associated invoices':
         'kunde inte ta bort inventeringsobjektet eftersom den har associerade fakturor',
     'successfully created user profile': 'användarprofilen har skapats',
     'successfully updated user profile': ' användarprofilen har uppdaterats',
     'could not create user profile': 'kunde inte skapa användarprofilen',
     'could not update user profile': 'kunde inte uppdatera användarprofilen',
-    'database error: failed to create user profile':
-        'databasfel: kunde inte skapa användarprofilen',
-    'database error: failed to update user profile':
-        'databasfel: kunde inte uppdatera användarprofilen',
-    'database error: failed to delete user profile':
-        'databasfel: kunde inte ta bort användarprofilen',
+    'could not delete user profile': 'kunde inte ta bort användarprofilen',
+    'could not upload avatar': 'kunde inte ladda upp avatar',
     // Miscellaneous
     search: 'sök',
     'search customers': 'sök kunder',
@@ -365,6 +350,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'please create user profile first': 'var god skapa användarprofil',
     'click icon to the right to upload avatar': 'klicka på ikonen för att ladda upp avatar',
     'click icon to the right to upload logo': 'klicka på ikonen för att ladda upp logo',
+    'no logo provided': 'ingen logo har angivits',
     'before creating customers please register yourself as a Service Provider':
         'för att skapa kunder du skall registreras som leverantör'
 };

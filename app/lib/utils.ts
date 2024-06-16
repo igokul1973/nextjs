@@ -1,3 +1,4 @@
+import { baseUrl } from '@/app/lib/constants';
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
 import { auth } from '@/auth';
 import { EntitiesEnum, Prisma } from '@prisma/client';
@@ -6,6 +7,8 @@ import { redirect } from 'next/navigation';
 import { ChangeEvent } from 'react';
 import { SafeParseReturnType, z } from 'zod';
 import {
+    getCustomerIndUpdateSchema,
+    getCustomerIndUpdateSchemaEmptyLogo,
     getIndividualCreateSchema,
     getIndividualUpdateSchema,
     getIndividualUpdateSchemaEmptyLogo
@@ -16,6 +19,8 @@ import {
 } from '../components/individuals/form/types.ts';
 import { TCustomerOutput } from '../components/invoices/form/types';
 import {
+    getCustomerOrgUpdateSchema,
+    getCustomerOrgUpdateSchemaEmptyLogo,
     getOrganizationCreateSchema,
     getOrganizationUpdateSchema,
     getOrganizationUpdateSchemaEmptyLogo
@@ -576,7 +581,7 @@ export const getUser = async () => {
     const dbUser = await getUserWithRelationsByEmail(sessionUser.email);
 
     if (!dbUser) {
-        redirect('/');
+        return redirect('/');
     }
 
     const provider = getUserProvider(dbUser);
@@ -596,23 +601,30 @@ export const getUser = async () => {
 };
 
 export const getLogoCreateOrUpdate = async (
-    logo: TIndividualFormOutput['logo'] | undefined,
+    logoWithData: TIndividualFormOutput['logo'] | undefined,
     userId: string,
-    isUpdate = true
+    accountId: string,
+    entityId: string,
+    isUpdate = true,
+    oldLogoName?: string
 ) => {
-    const logoFile = logo?.data;
-    const logoArrayBuffer = await logoFile?.arrayBuffer();
-
-    const buffer = logoArrayBuffer && Buffer.from(logoArrayBuffer);
     let logoCreateOrUpdate: Prisma.fileUpdateOneWithoutProfileNestedInput | undefined = undefined;
 
-    if (logo && buffer) {
+    if (logoWithData) {
+        const { data, ...logo } = logoWithData;
+        // Deleting old file upload first
+        if (oldLogoName) {
+            await deleteFile(oldLogoName, 'images', accountId, entityId);
+        }
+        // Uploading new file and getting its URL
+        const { url } = await uploadFileAndGetUrl(data, 'images', accountId, entityId);
+
         if ('id' in logo && logo.id) {
             logoCreateOrUpdate = {
                 update: {
                     data: {
                         ...logo,
-                        data: buffer,
+                        url,
                         updatedBy: userId
                     }
                 }
@@ -621,13 +633,17 @@ export const getLogoCreateOrUpdate = async (
             logoCreateOrUpdate = {
                 create: {
                     ...logo,
-                    data: buffer,
+                    url,
                     createdBy: userId,
                     updatedBy: userId
                 }
             };
         }
-    } else if (logo === null && isUpdate) {
+    } else if (logoWithData === null && isUpdate) {
+        // Deleting old file upload first
+        if (oldLogoName) {
+            await deleteFile(oldLogoName, 'images', accountId, entityId);
+        }
         logoCreateOrUpdate = {
             delete: true
         };
@@ -640,10 +656,13 @@ const getEntityValidationSchema = <
     T extends TIndividualFormOutputWithoutLogo | TOrganizationFormOutputWithoutLogo
 >(
     formData: T,
-    logoFormData?: {
-        [k: string]: FormDataEntryValue;
-    } | null,
-    isIndividual?: boolean
+    logoFormData:
+        | {
+              [k: string]: FormDataEntryValue;
+          }
+        | undefined,
+    isIndividual: boolean,
+    isCustomer: boolean
 ) => {
     const isEdit = 'id' in formData && formData.id;
     const isLogo = logoFormData?.id;
@@ -651,13 +670,21 @@ const getEntityValidationSchema = <
     return isIndividual
         ? isEdit
             ? isLogo
-                ? getIndividualUpdateSchema
-                : getIndividualUpdateSchemaEmptyLogo
+                ? isCustomer
+                    ? getCustomerIndUpdateSchema
+                    : getIndividualUpdateSchema
+                : isCustomer
+                  ? getCustomerIndUpdateSchemaEmptyLogo
+                  : getIndividualUpdateSchemaEmptyLogo
             : getIndividualCreateSchema
         : isEdit
           ? isLogo
-              ? getOrganizationUpdateSchema
-              : getOrganizationUpdateSchemaEmptyLogo
+              ? isCustomer
+                  ? getCustomerOrgUpdateSchema
+                  : getOrganizationUpdateSchema
+              : isCustomer
+                ? getCustomerOrgUpdateSchemaEmptyLogo
+                : getOrganizationUpdateSchemaEmptyLogo
           : getOrganizationCreateSchema;
 };
 
@@ -665,19 +692,25 @@ export const validateEntityFormData = <
     T extends TIndividualFormOutputWithoutLogo | TOrganizationFormOutputWithoutLogo
 >(
     t: TTranslateFn,
-    formData: T,
-    rawLogoFormData?: FormData,
-    isIndividual?: boolean
+    formDataWithoutLogo: T,
+    rawLogoFormData: FormData | undefined,
+    isIndividual: boolean,
+    isCustomer: boolean
 ): SafeParseReturnType<
     T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] },
     T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] }
 > => {
     const logoFormData = rawLogoFormData ? Object.fromEntries(rawLogoFormData.entries()) : null;
-    const formDataWithLogo = { ...formData, logo: logoFormData };
+    const formData = { ...formDataWithoutLogo, logo: logoFormData };
 
-    const validationSchema = getEntityValidationSchema(formData, logoFormData, isIndividual);
+    const validationSchema = getEntityValidationSchema(
+        formDataWithoutLogo,
+        logoFormData,
+        isIndividual,
+        isCustomer
+    );
 
-    return validationSchema(t).safeParse(formDataWithLogo) as SafeParseReturnType<
+    return validationSchema(t).safeParse(formData) as SafeParseReturnType<
         T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] },
         T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] }
     >;
@@ -1052,4 +1085,49 @@ export const getInvoiceSubtotalTaxAndDiscount = (
             discountTotal: 0
         }
     );
+};
+
+export const uploadFileAndGetUrl = async (
+    file: Blob | undefined,
+    bucket: string,
+    accountId: string,
+    entityId: string
+) => {
+    if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('bucket', bucket);
+        formData.append('accountId', accountId);
+        formData.append('entityId', entityId);
+
+        const fileUploadRes = await fetch(`${baseUrl}/api/file`, {
+            method: 'POST',
+            body: formData
+        });
+
+        return await fileUploadRes?.json();
+    }
+    return null;
+};
+
+export const deleteFile = async (
+    fileName: string,
+    bucket: string,
+    accountId: string,
+    entityId: string
+) => {
+    const fileUploadRes = await fetch(`${baseUrl}/api/file`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            fileName,
+            bucket,
+            accountId,
+            entityId
+        })
+    });
+
+    return await fileUploadRes?.text();
 };

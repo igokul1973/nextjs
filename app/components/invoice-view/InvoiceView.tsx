@@ -1,4 +1,3 @@
-// import { useLogo } from '@/app/lib/hooks/useLogo';
 import {
     capitalize,
     formatCurrencyAsCents,
@@ -32,8 +31,8 @@ const InvoiceView: FC<IProps> = async ({
     isDisplayProviderLocalIdentifier
 }) => {
     const t = await getI18n();
-    const l = invoice.providerLogo;
-    const b = l && Buffer.from(l.data);
+    const logo = invoice.providerLogo;
+    const url = logo?.url;
     const { customer, invoiceItems } = invoice;
     const numberSymbol = formatNumeroSign(locale);
 
@@ -45,7 +44,7 @@ const InvoiceView: FC<IProps> = async ({
                 color='secondary'
             />
             <StyledHeader component='section' className='provider-info'>
-                {l && b && <ImageView image={b} name={l.name} type={l.type} />}
+                {url && <ImageView url={url} />}
                 <Typography variant='h3'>{invoice.providerName.toUpperCase()}</Typography>
             </StyledHeader>
             <Box sx={{ display: 'flex' }}>

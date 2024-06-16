@@ -10,7 +10,6 @@ import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { TDirtyFields } from '@/app/lib/types';
 import { populateForm } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -21,9 +20,9 @@ import { FC, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Warning from '../../warning/Warning';
 import {
-    profileCreateSchema,
-    profileUpdateSchema,
-    profileUpdateSchemaEmptyAvatar
+    getProfileCreateSchema,
+    getProfileUpdateSchema,
+    getProfileUpdateSchemaEmptyAvatar
 } from './formSchema';
 import { StyledForm } from './styled';
 import { IProps, TProfileForm, TProfileFormOutput } from './types';
@@ -33,7 +32,7 @@ const ProfileForm: FC<IProps> = () => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const {
-        state: { user, profile: rawProfile },
+        state: { user, profile },
         dispatch: userDispatch
     } = useUser();
     const { dispatch: rightDrawerDispatch } = useRightDrawerState();
@@ -41,25 +40,7 @@ const ProfileForm: FC<IProps> = () => {
     // FIXME: isEdit === true for now...
     const isEdit = true;
 
-    // let avatar = null;
-    // if (isEdit) {
-
-    // }
-    const avatarFile = !rawProfile?.avatar
-        ? null
-        : new File([rawProfile?.avatar.data], rawProfile?.avatar.name, {
-              type: rawProfile?.avatar.type
-          });
-
-    const profile = {
-        ...rawProfile,
-        avatar:
-            rawProfile?.avatar === null || avatarFile === null
-                ? null
-                : { ...rawProfile?.avatar, data: avatarFile }
-    };
-
-    const defaultValues = populateForm<TProfileForm>(getDefaultValues(user.id), profile);
+    const defaultValues = populateForm<TProfileForm>(getDefaultValues(user.id), profile || {});
 
     const {
         watch,
@@ -73,9 +54,9 @@ const ProfileForm: FC<IProps> = () => {
         resolver: zodResolver(
             isEdit
                 ? defaultValues.avatar
-                    ? profileUpdateSchema
-                    : profileUpdateSchemaEmptyAvatar
-                : profileCreateSchema
+                    ? getProfileUpdateSchema(t)
+                    : getProfileUpdateSchemaEmptyAvatar(t)
+                : getProfileCreateSchema(t)
         ),
         reValidateMode: 'onChange',
         defaultValues,
@@ -95,7 +76,7 @@ const ProfileForm: FC<IProps> = () => {
 
     useScrollToFormError(errors, canFocus, setCanFocus);
 
-    if (!rawProfile) {
+    if (!profile) {
         return <Warning>{capitalize(t('please create user profile first'))}</Warning>;
     }
 
@@ -114,29 +95,25 @@ const ProfileForm: FC<IProps> = () => {
 
     const onSubmit = async (formData: TProfileFormOutput) => {
         try {
-            if (isEdit) {
-                const newFormData = new FormData();
-                Object.entries(formData).forEach(([key, value]) => {
-                    newFormData.append(key, value as FormDataEntryValue);
+            const { avatar, ...formDataWithoutAvatar } = formData;
+
+            let avatarFormData: FormData | undefined;
+
+            if (avatar) {
+                avatarFormData = new FormData();
+                Object.entries(avatar).forEach(([key, value]) => {
+                    (avatarFormData as FormData).append(key, value as FormDataEntryValue);
                 });
-
-                let avatarFormData: FormData | undefined = undefined;
-                if (formData.avatar) {
-                    avatarFormData = new FormData();
-                    Object.entries(formData.avatar).forEach(([key, value]) => {
-                        (avatarFormData as FormData).append(key, value as FormDataEntryValue);
-                    });
-                }
-
+            }
+            if (isEdit) {
                 const updatedProfile = await updateProfile(
-                    newFormData,
+                    formDataWithoutAvatar,
                     dirtyFields as TDirtyFields<TProfileFormOutput>,
-                    user.id,
                     avatarFormData
                 );
 
                 if (!updatedProfile) {
-                    throw Error('failed to update user profile.');
+                    throw Error(t('could not update user profile'));
                 }
 
                 userDispatch({ type: 'setProfile', payload: { profile: updatedProfile } });
@@ -149,7 +126,7 @@ const ProfileForm: FC<IProps> = () => {
             }
         } catch (error) {
             if (error instanceof Error) {
-                openSnackbar(capitalize(t(error.message as TSingleTranslationKey)), 'error');
+                openSnackbar(capitalize(error.message), 'error');
             }
         }
     };
@@ -175,8 +152,7 @@ const ProfileForm: FC<IProps> = () => {
                         error={!!errors.firstName}
                         required
                         helperText={
-                            !!errors.firstName &&
-                            capitalize(t(errors.firstName?.message as TSingleTranslationKey))
+                            !!errors.firstName?.message && capitalize(errors.firstName.message)
                         }
                         {...register('firstName')}
                     />
@@ -189,8 +165,7 @@ const ProfileForm: FC<IProps> = () => {
                         required
                         error={!!errors.lastName}
                         helperText={
-                            !!errors.lastName &&
-                            capitalize(t(errors.lastName?.message as TSingleTranslationKey))
+                            !!errors.lastName?.message && capitalize(errors.lastName.message)
                         }
                         {...register('lastName')}
                     />
@@ -203,12 +178,7 @@ const ProfileForm: FC<IProps> = () => {
                         {...register('middleName')}
                     />
                 </FormControl>
-                <FileInput
-                    inputName='avatar'
-                    label={capitalize(t('avatar'))}
-                    user={user}
-                    maxFileSize={200}
-                />
+                <FileInput inputName='avatar' label={capitalize(t('avatar'))} user={user} />
                 <Box className='action-buttons'>
                     <Button type='button' onClick={goBack} variant='outlined' color='warning'>
                         {capitalize(t('cancel'))}

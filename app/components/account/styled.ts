@@ -28,7 +28,7 @@ export const StyledAccountAttributeLogo = styled(Box, {
     display: flex;
     flex-direction: row;
     gap: 1rem;
-    align-items: start;
+    align-items: center;
     & div: {
         border: 1px solid gray;
     }

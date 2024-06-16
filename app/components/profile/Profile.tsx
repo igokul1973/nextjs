@@ -4,12 +4,10 @@ import { components } from '@/app/components/dashboard/avatar-menu/constants';
 import Warning from '@/app/components/warning/Warning';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useUser } from '@/app/context/user/provider';
-import { useAvatar } from '@/app/lib/hooks/useAvatar';
 import { useI18n } from '@/locales/client';
 import { Box, capitalize } from '@mui/material';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import Image from 'next/image';
 import { FC } from 'react';
 import {
     StyledProfile,
@@ -38,7 +36,7 @@ const Profile: FC = () => {
         });
     };
 
-    const [avatarUrl] = useAvatar(profile);
+    const avatarUrl = profile?.avatar?.url;
 
     if (!profile)
         return <Warning variant='h4'>The user has no profile. Please create one.</Warning>;
@@ -52,8 +50,21 @@ const Profile: FC = () => {
                 {avatarUrl && (
                     <StyledProfileAttributeAlignTop>
                         <Typography variant='h6'>{capitalize(t('avatar'))}:</Typography>
-                        <Box sx={{ width: '100px', position: 'relative', aspectRatio: '1/1' }}>
-                            <Image src={avatarUrl} fill alt='Picture of the author' />
+                        <Box
+                            sx={{
+                                height: '80px',
+                                width: '80px'
+                            }}
+                        >
+                            <Box
+                                component='img'
+                                src={avatarUrl}
+                                alt='User profile avatar'
+                                sx={{
+                                    width: '100%',
+                                    objectFit: 'contain'
+                                }}
+                            />
                         </Box>
                     </StyledProfileAttributeAlignTop>
                 )}

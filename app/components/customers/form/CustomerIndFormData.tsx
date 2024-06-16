@@ -2,20 +2,18 @@
 
 import IndividualForm from '@/app/components/individuals/form/IndividualForm';
 import {
-    getIndividualCreateSchema,
-    getIndividualUpdateSchema,
-    getIndividualUpdateSchemaEmptyLogo
+    getCustomerIndUpdateSchema,
+    getCustomerIndUpdateSchemaEmptyLogo,
+    getIndividualCreateSchema
 } from '@/app/components/individuals/form/formSchema';
 import { TIndividualForm, TIndividualFormOutput } from '@/app/components/individuals/form/types';
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { useUser } from '@/app/context/user/provider';
 import {
     createIndividualCustomer,
     updateIndividualCustomer
 } from '@/app/lib/data/customer/actions';
 import { TDirtyFields } from '@/app/lib/types';
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, capitalize } from '@mui/material';
 import NextLink from 'next/link';
@@ -30,10 +28,6 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
     isEdit
 }) => {
     const t = useI18n();
-    const {
-        state: { user }
-    } = useUser();
-    const userId = user.id;
     const { openSnackbar } = useSnackbar();
     const { push } = useRouter();
 
@@ -59,8 +53,8 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
         resolver: zodResolver(
             isEdit
                 ? defaultValues.logo
-                    ? getIndividualUpdateSchema(t)
-                    : getIndividualUpdateSchemaEmptyLogo(t)
+                    ? getCustomerIndUpdateSchema(t)
+                    : getCustomerIndUpdateSchemaEmptyLogo(t)
                 : getIndividualCreateSchema(t)
         ),
         reValidateMode: 'onChange',
@@ -89,32 +83,26 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
 
             if (isEdit) {
                 const updatedCustomer = await updateIndividualCustomer(
-                    t,
                     formDataWithoutLogo,
                     dirtyFields as TDirtyFields<TIndividualFormOutput>,
-                    userId,
+                    logo?.name,
                     logoFormData
                 );
                 if (!updatedCustomer) {
-                    throw new Error('could not update customer');
+                    throw new Error(t('could not update customer'));
                 }
                 openSnackbar(capitalize(t('successfully updated customer')));
             } else {
-                const createdCustomer = await createIndividualCustomer(
-                    t,
-                    formData,
-                    userId,
-                    logoFormData
-                );
+                const createdCustomer = await createIndividualCustomer(formData, logoFormData);
                 if (!createdCustomer) {
-                    throw new Error(capitalize(t('could not create customer')));
+                    throw new Error(t('could not create customer'));
                 }
                 openSnackbar(capitalize(t('successfully created customer')));
             }
             push('/dashboard/customers');
         } catch (error) {
             if (error instanceof Error) {
-                openSnackbar(capitalize(t(error.message as TSingleTranslationKey)), 'error');
+                openSnackbar(capitalize(error.message), 'error');
             }
         }
     };

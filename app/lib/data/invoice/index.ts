@@ -1,8 +1,8 @@
 import { DEFAULT_ITEMS_PER_PAGE } from '@/app/[locale]/dashboard/invoices/constants';
 import prisma from '@/app/lib/prisma';
 import { IBaseDataFilterArgs } from '@/app/lib/types';
-import { unstable_noStore as noStore } from 'next/cache';
 import { flattenCustomer, getInvoiceTotal } from '@/app/lib/utils';
+import { unstable_noStore as noStore } from 'next/cache';
 import {
     TGetInvoiceWithRelationsPayloadRaw,
     TTransformedInvoice,
@@ -64,7 +64,7 @@ export async function getInvoiceById(
         return transformInvoice(invoice);
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get invoice.');
+        throw new Error('could not get invoice.');
     }
 }
 
@@ -81,7 +81,7 @@ export async function getFilteredInvoicesByAccountId({
     const offset = page * itemsPerPage;
 
     try {
-        const rawInvoices = await prisma.invoice.findMany({
+        const invoices = await prisma.invoice.findMany({
             relationLoadStrategy: 'join',
             take: itemsPerPage,
             skip: offset,
@@ -91,15 +91,14 @@ export async function getFilteredInvoicesByAccountId({
             include: invoicesInclude,
             where: getQueryFilterWhereClause(accountId, query)
         });
-        // Adding invoice amount
-        const invoices = rawInvoices.map((invoice) => {
+
+        // Adding invoice amount and returning
+        return invoices.map((invoice) => {
             return transformInvoice(invoice);
         });
-
-        return invoices;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get invoices.');
+        throw new Error('could not get invoices.');
     }
 }
 
@@ -107,15 +106,11 @@ export async function getFilteredInvoicesByAccountIdCount(accountId: string, que
     noStore();
 
     try {
-        // const status = Object.values(InvoiceStatusEnum).find((s) => s.includes(query));
-
-        const count = await prisma.invoice.count({
+        return await prisma.invoice.count({
             where: getQueryFilterWhereClause(accountId, query)
         });
-
-        return count;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get total number of invoices.');
+        throw new Error('could not get total number of invoices.');
     }
 }

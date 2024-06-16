@@ -16,6 +16,6 @@ export async function getIndividualById(
         });
     } catch (err) {
         console.error('Database Error:', err);
-        throw new Error('Failed to fetch individual.');
+        throw new Error('could not fetch individual.');
     }
 }

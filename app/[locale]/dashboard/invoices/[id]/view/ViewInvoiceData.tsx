@@ -1,7 +1,10 @@
 import InvoiceView from '@/app/components/invoice-view/InvoiceView';
 import InvoicePdfView from '@/app/components/pdf/InvoicePdfView';
 import Warning from '@/app/components/warning/Warning';
+import { baseUrl } from '@/app/lib/constants';
 import { getInvoiceById } from '@/app/lib/data/invoice';
+import { TTransformedInvoice } from '@/app/lib/data/invoice/types';
+import { TTranslateFn } from '@/app/lib/types';
 import {
     capitalize,
     formatCurrencyAsCents,
@@ -19,26 +22,136 @@ import Box from '@mui/material/Box';
 import { setStaticParamsLocale } from 'next-international/server';
 import { notFound } from 'next/navigation';
 import { FC } from 'react';
-import { baseUrl } from './constants';
 import { IProps } from './types';
 
-const fetchPdfUrl = async (d: Record<string, unknown>): Promise<string> => {
-    'use server';
-    const r = await fetch(`${baseUrl}/api/create/pdf`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
+const getInvoiceDefinition = ({
+    invoice,
+    numberSymbol,
+    locale,
+    invoiceTotal,
+    invoiceSubtotal,
+    discountTotal,
+    taxTotal,
+    t
+}: {
+    invoice: Omit<TTransformedInvoice, 'date' | 'payBy' | 'paidOn'> & {
+        date: string;
+        payBy: string;
+        paidOn: string | null;
+    };
+    numberSymbol: string;
+    locale: string;
+    invoiceTotal: number;
+    invoiceSubtotal: number;
+    discountTotal: number;
+    taxTotal: number;
+    t: TTranslateFn;
+}): Record<string, unknown> => {
+    return {
+        logo: invoice.providerLogo?.url,
+        providerName: invoice.providerName,
+        invoiceTitle: `${t('invoice').toUpperCase()} ${numberSymbol}`,
+        customerInfo: `${invoice.customerName}
+                ${invoice.customerAddressLine1}${invoice.customerAddressLine2 ? '\n' + invoice.customerAddressLine2 : ''}${invoice.customerAddressLine3 ? '\n' + invoice.customerAddressLine3 : ''}
+                ${invoice.customerLocality} ${invoice.customerRegion ? invoice.customerRegion + ' ' : ''}${invoice.customerPostCode}
+                ${invoice.customerCountry}
+                `,
+        providerAddress: `${invoice.providerAddressLine1}${invoice.providerAddressLine2 ? '\n' + invoice.providerAddressLine2 : ''}${invoice.providerAddressLine3 ? '\n' + invoice.providerAddressLine3 : ''}
+                ${invoice.providerLocality} ${invoice.providerRegion ? invoice.providerRegion + ' ' : ''}${invoice.providerPostCode}
+                ${invoice.providerCountry}
+                `,
+        invoiceTable: {
+            headerRow: ['#', 'Name', 'Quantity', 'Units', 'Price', 'Discount', 'Tax', 'Item total'],
+            dataRows: invoice.invoiceItems.map((ii, i) => {
+                const itemSubtotal = getInvoiceItemSubtotalAfterTax({
+                    price: ii.price,
+                    discountPercent: ii.discount,
+                    taxPercent: ii.salesTax,
+                    quantity: ii.quantity
+                });
+                return [
+                    i.toString(),
+                    ii.name,
+                    formatQuantity(ii.quantity).toString(),
+                    ii.measurementUnit.abbreviation,
+                    formatCurrencyAsCents(ii.price, locale),
+                    `${formatDiscount(ii.discount)}%`,
+                    `${formatSalesTax(ii.salesTax)}%`,
+                    formatCurrencyAsCents(itemSubtotal, locale)
+                ];
+            }),
+            totalRows: [
+                [
+                    capitalize(t('subtotal (before tax and discount)')),
+                    formatCurrencyAsCents(invoiceSubtotal, locale)
+                ],
+                [capitalize(t('discount')), formatCurrencyAsCents(discountTotal, locale)],
+                [capitalize(t('sales tax')), formatCurrencyAsCents(taxTotal, locale)],
+                [
+                    { text: capitalize(t('total')), bold: true },
+                    { text: formatCurrencyAsCents(invoiceTotal, locale), bold: true }
+                ]
+            ]
         },
-        body: JSON.stringify({
-            pageSettings: {
-                pageMargins: [20, 80, 20, 100]
-            },
-            data: d
-        }),
-        cache: 'no-store'
-    });
+        paymentAmountTitle: capitalize(t('payment amount')) + ':',
+        paymentAmount: formatCurrencyAsCents(invoiceTotal, locale),
+        invoiceNumber: invoice.number,
+        customerCodeTitle: `${capitalize(t('customer'))} ${numberSymbol}`,
+        customerCode: invoice.customerCode,
+        invoiceDateTitle: capitalize(t('date')),
+        invoiceDate: invoice.date,
+        customerReferenceTitle: capitalize(t('your reference')) + ':',
+        customerReference: invoice.customerRef,
+        providerReferenceTitle: capitalize(t('our reference')) + ':',
+        providerReference: invoice.providerRef,
+        paymentTermsTitle: capitalize(t('payment terms')) + ':',
+        termsTitle: capitalize(t('terms')) + ':',
+        terms: invoice.terms,
+        paymentTerms: invoice.paymentTerms,
+        payByTitle: capitalize(t('pay by date')) + ':',
+        payBy: invoice.payBy,
+        deliveryTermsTitle: capitalize(t('delivery terms')),
+        deliveryTerms: invoice.terms,
+        additionalInfoTitle: capitalize(t('additional information')) + ':',
+        additionalInfo: invoice.additionalInformation,
+        providerPhones: `${capitalize(t('for billing inquiries'))}:
+                ${invoice.providerPhone}
+                ${invoice.providerEmail}
+                `,
+        bankingInfo: `${capitalize(t('payment information'))}:
+                ${invoice.paymentInfo}
+                `
+    };
+};
 
-    return (await r.json()).url;
+const fetchPdfUrl = async (d: Record<string, unknown>) => {
+    'use server';
+    try {
+        const r = await fetch(`${baseUrl}/api/create/pdf`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                pageSettings: {
+                    pageMargins: [20, 80, 20, 100]
+                },
+                data: d
+            }),
+            cache: 'no-store'
+        });
+
+        const json = await r.json();
+
+        if (!r.ok) {
+            throw new Error(json.error);
+        }
+
+        return json.url;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
 };
 
 const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParams: { isPdf } }) => {
@@ -83,91 +196,16 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
     const invoiceSubtotal = invoiceTotal - taxTotal + discountTotal;
 
     try {
-        let d: Record<string, unknown> = {
-            // logo: invoice.providerLogo,
-            // logo: 'logo',
-            providerName: invoice.providerName,
-            invoiceTitle: `${t('invoice').toUpperCase()} ${numberSymbol}`,
-            customerInfo: `${invoice.customerName}
-                ${invoice.customerAddressLine1}${invoice.customerAddressLine2 ? '\n' + invoice.customerAddressLine2 : ''}${invoice.customerAddressLine3 ? '\n' + invoice.customerAddressLine3 : ''}
-                ${invoice.customerLocality} ${invoice.customerRegion ? invoice.customerRegion + ' ' : ''}${invoice.customerPostCode}
-                ${invoice.customerCountry}
-                `,
-            providerAddress: `${invoice.providerAddressLine1}${invoice.providerAddressLine2 ? '\n' + invoice.providerAddressLine2 : ''}${invoice.providerAddressLine3 ? '\n' + invoice.providerAddressLine3 : ''}
-                ${invoice.providerLocality} ${invoice.providerRegion ? invoice.providerRegion + ' ' : ''}${invoice.providerPostCode}
-                ${invoice.providerCountry}
-                `,
-            invoiceTable: {
-                headerRow: [
-                    '#',
-                    'Name',
-                    'Quantity',
-                    'Units',
-                    'Price',
-                    'Discount',
-                    'Tax',
-                    'Item total'
-                ],
-                dataRows: invoice.invoiceItems.map((ii, i) => {
-                    const itemSubtotal = getInvoiceItemSubtotalAfterTax({
-                        price: ii.price,
-                        discountPercent: ii.discount,
-                        taxPercent: ii.salesTax,
-                        quantity: ii.quantity
-                    });
-                    return [
-                        i.toString(),
-                        ii.name,
-                        formatQuantity(ii.quantity).toString(),
-                        ii.measurementUnit.abbreviation,
-                        formatCurrencyAsCents(ii.price, locale),
-                        `${formatDiscount(ii.discount)}%`,
-                        `${formatSalesTax(ii.salesTax)}%`,
-                        formatCurrencyAsCents(itemSubtotal, locale)
-                    ];
-                }),
-                totalRows: [
-                    [
-                        capitalize(t('subtotal (before tax and discount)')),
-                        formatCurrencyAsCents(invoiceSubtotal, locale)
-                    ],
-                    [capitalize(t('discount')), formatCurrencyAsCents(discountTotal, locale)],
-                    [capitalize(t('sales tax')), formatCurrencyAsCents(taxTotal, locale)],
-                    [
-                        { text: capitalize(t('total')), bold: true },
-                        { text: formatCurrencyAsCents(invoiceTotal, locale), bold: true }
-                    ]
-                ]
-            },
-            paymentAmountTitle: capitalize(t('payment amount')) + ':',
-            paymentAmount: formatCurrencyAsCents(invoiceTotal, locale),
-            invoiceNumber: invoice.number,
-            customerCodeTitle: `${capitalize(t('customer'))} ${numberSymbol}`,
-            customerCode: invoice.customerCode,
-            invoiceDateTitle: capitalize(t('date')),
-            invoiceDate: invoice.date,
-            customerReferenceTitle: capitalize(t('your reference')) + ':',
-            customerReference: invoice.customerRef,
-            providerReferenceTitle: capitalize(t('our reference')) + ':',
-            providerReference: invoice.providerRef,
-            paymentTermsTitle: capitalize(t('payment terms')) + ':',
-            termsTitle: capitalize(t('terms')) + ':',
-            terms: invoice.terms,
-            paymentTerms: invoice.paymentTerms,
-            payByTitle: capitalize(t('pay by date')) + ':',
-            payBy: invoice.payBy,
-            deliveryTermsTitle: capitalize(t('delivery terms')),
-            deliveryTerms: invoice.terms,
-            additionalInfoTitle: capitalize(t('additional information')) + ':',
-            additionalInfo: invoice.additionalInformation,
-            providerPhones: `${capitalize(t('for billing inquiries'))}:
-                ${invoice.providerPhone}
-                ${invoice.providerEmail}
-                `,
-            bankingInfo: `${capitalize(t('payment information'))}:
-                ${invoice.paymentInfo}
-                `
-        };
+        let d = getInvoiceDefinition({
+            invoice,
+            numberSymbol,
+            locale,
+            invoiceTotal,
+            invoiceSubtotal,
+            discountTotal,
+            taxTotal,
+            t
+        });
 
         if (isDisplayCustomerLocalIdentifier) {
             d = {
@@ -183,7 +221,10 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
                 providerLocalIdentifierValue: invoice.providerLocalIdentifierValue
             };
         }
+
         const url = isPdf && (await fetchPdfUrl(d));
+
+        console.log(invoice.providerLogo?.url);
 
         return (
             <Box component='article'>

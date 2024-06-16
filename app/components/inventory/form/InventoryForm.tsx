@@ -2,7 +2,6 @@
 
 import { StyledBox } from '@/app/[locale]/dashboard/inventory/create/styled';
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { useUser } from '@/app/context/user/provider';
 import { createInventoryItem, updateInventoryItem } from '@/app/lib/data/inventory/actions';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { anyTrue, maskPrice } from '@/app/lib/utils';
@@ -23,12 +22,7 @@ import { IProps, TInventoryForm, TInventoryFormOutput } from './types';
 
 const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
     const t = useI18n();
-
     const { openSnackbar } = useSnackbar();
-    const {
-        state: { user }
-    } = useUser();
-    const userId = user.id;
     const { push } = useRouter();
 
     const {
@@ -62,13 +56,9 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
     const onSubmit = async (formData: TInventoryFormOutput) => {
         try {
             if (isEdit) {
-                const updatedInventoryItem = await updateInventoryItem(
-                    formData,
-                    dirtyFields,
-                    userId
-                );
+                const updatedInventoryItem = await updateInventoryItem(formData, dirtyFields);
                 if (!updatedInventoryItem) {
-                    throw new Error('could not update inventory item');
+                    throw new Error(t('could not update inventory item'));
                 }
                 openSnackbar(capitalize(t('successfully updated inventory item')));
             } else {
@@ -78,7 +68,7 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
             push('/dashboard/inventory');
         } catch (error) {
             if (error instanceof Error) {
-                openSnackbar(capitalize(t(error.message as TSingleTranslationKey)), 'error');
+                openSnackbar(capitalize(error.message), 'error');
             }
         }
     };

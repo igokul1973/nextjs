@@ -13,10 +13,10 @@ export interface IProviderEntityFormDataProps {
     isEdit: boolean;
 }
 export interface IProviderIndFormDataProps extends IProviderEntityFormDataProps {
-    rawDefaultValues: TIndividualForm;
+    defaultValues: TIndividualForm;
 }
 export interface IProviderOrgFormDataProps extends IProviderEntityFormDataProps {
-    rawDefaultValues: TOrganizationForm;
+    defaultValues: TOrganizationForm;
 }
 
 export type TProfileForm = z.input<typeof profileUpdateSchema>;

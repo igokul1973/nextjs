@@ -9,8 +9,8 @@ export const enPlural = {
     'must be greater than#other': 'must be greater than {count}',
     'must be greater than or equal to#other': 'must be greater than or equal to {count}',
     'price cannot be more than 999 999 999 999.99': 'price cannot be more than 999 999 999 999.99',
-    'file size must be less than kb#other': 'filen måste vara mindre än {count} KB',
-    'file size must be less than mb#other': 'filen måste vara mindre än {count} MB',
+    'file size must be less than kb#other': 'file size must be less than {count} KB',
+    'file size must be less than mb#other': 'file size must be less than {count} MB',
     'square picture (png, jpg, jpeg, webp, or svg) with max file size: kb#other':
         'square picture with max file size: {count} KB',
     'square picture (png, jpg, jpeg, webp, or svg) with max file size mb#other':
@@ -123,8 +123,8 @@ export const enSingle = {
     'additional attributes': 'additional attributes',
     'add another attribute': 'add another attribute',
     'add attribute': 'add attribute',
-    'you have not attributes. Add one by clicking button below.':
-        'you have not attributes. Add one by clicking button below.',
+    'you have no attributes. Add one by clicking button below.':
+        'you have no attributes. Add one by clicking button below.',
     text: 'text',
     value: 'value',
     // Inventory
@@ -309,48 +309,33 @@ export const enSingle = {
     'successfully updated customer': 'successfully updated customer',
     'could not create customer': 'could not create customer',
     'could not update customer': 'could not update customer',
-    'database error: failed to create customer': 'database error: failed to create customer',
-    'database error: failed to update customer': 'database error: failed to update customer',
-    'database error: failed to delete customer': 'database error: failed to delete customer',
+    'could not delete customer': 'could not delete customer',
     'cannot delete customer because it has associated invoices':
         'cannot delete customer because it has associated invoices',
     'successfully created provider': 'successfully created provider',
     'successfully updated provider': 'successfully updated provider',
     'could not create provider': 'could not create provider',
     'could not update provider': 'could not update provider',
-    'database error: failed to create provider': 'database error: failed to create provider',
-    'database error: failed to update provider': 'database error: failed to update provider',
-    'database error: failed to delete provider': 'database error: failed to delete provider',
+    'could not delete provider': 'could not delete provider',
     'successfully created invoice': 'successfully created invoice',
     'successfully updated invoice': 'successfully updated invoice',
     'successfully deleted invoice': 'successfully deleted invoice',
     'could not create invoice': 'could not create invoice',
     'could not update invoice': 'could not update invoice',
-    'database error: failed to create invoice': 'database error: failed to create invoice',
-    'database error: failed to update invoice': 'database error: failed to update invoice',
-    'database error: failed to delete invoice': 'database error: failed to delete invoice',
+    'could not delete invoice': 'could not delete invoice',
     'successfully created inventory item': 'successfully created inventory item',
     'successfully updated inventory item': 'successfully updated inventory item',
     'could not create inventory item': 'could not create inventory item',
     'could not update inventory item': 'could not update inventory item',
-    'database error: failed to create inventory item':
-        'database error: failed to create inventory item',
-    'database error: failed to update inventory item':
-        'database error: failed to update inventory item',
-    'database error: failed to delete inventory item':
-        'database error: failed to delete inventory item',
+    'could not delete inventory item': 'could not delete inventory item',
     'cannot delete inventory item because it has associated invoices':
         'cannot delete inventory item because it has associated invoices',
     'successfully created user profile': 'successfully created user profile',
     'successfully updated user profile': 'successfully updated user profile',
     'could not create user profile': 'could not create user profile',
     'could not update user profile': 'could not update user profile',
-    'database error: failed to create user profile':
-        'database error: failed to create user profile',
-    'database error: failed to update user profile':
-        'database error: failed to update user profile',
-    'database error: failed to delete user profile':
-        'database error: failed to delete user profile',
+    'could not delete user profile': 'could not delete user profile',
+    'could not upload avatar': 'could not upload avatar',
     // Miscellaneous
     search: 'search',
     'search customers': 'search customers',
@@ -360,6 +345,7 @@ export const enSingle = {
     'please create user profile first': 'please create user profile first',
     'click icon to the right to upload avatar': 'click icon to the right to upload avatar',
     'click icon to the right to upload logo': 'click icon to the right to upload logo',
+    'no logo provided': 'no logo provided',
     'before creating customers please register yourself as a Service Provider':
         'before creating customers please register yourself as a Service Provider'
 };

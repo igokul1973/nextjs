@@ -109,12 +109,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
     return (
         <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
             {!isCustomer && (
-                <FileInput
-                    inputName='logo'
-                    label={capitalize(t('logo'))}
-                    user={user}
-                    maxFileSize={200}
-                />
+                <FileInput inputName='logo' label={capitalize(t('logo'))} user={user} />
             )}
             <FormControl>
                 <TextField
@@ -122,10 +117,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                     placeholder={capitalize(t('enter customer number'))}
                     variant='outlined'
                     error={!!errors.code}
-                    helperText={
-                        !!errors.code &&
-                        capitalize(t(errors.code?.message as TSingleTranslationKey))
-                    }
+                    helperText={!!errors.code?.message && capitalize(errors.code.message)}
                     {...register('code')}
                 />
             </FormControl>
@@ -136,10 +128,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                     variant='outlined'
                     required
                     error={!!errors.name}
-                    helperText={
-                        !!errors.name &&
-                        capitalize(t(errors.name?.message as TSingleTranslationKey))
-                    }
+                    helperText={!!errors.name?.message && capitalize(errors.name.message)}
                     {...register('name')}
                 />
             </FormControl>
@@ -299,7 +288,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                 ))
             ) : (
                 <Box>
-                    {capitalize(t('you have not attributes. Add one by clicking button below.'))}
+                    {capitalize(t('you have no attributes. Add one by clicking button below.'))}
                 </Box>
             )}
             <Button

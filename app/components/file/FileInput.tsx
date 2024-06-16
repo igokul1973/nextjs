@@ -1,6 +1,6 @@
 import { TFile } from '@/app/lib/types';
 import { useI18n } from '@/locales/client';
-import { TPluralTranslationKey, TSingleTranslationKey } from '@/locales/types';
+import { TSingleTranslationKey } from '@/locales/types';
 import { FileUploadOutlined } from '@mui/icons-material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { TextField, capitalize } from '@mui/material';
@@ -8,10 +8,10 @@ import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import { ChangeEvent, FC, useRef } from 'react';
-import { Controller, FieldError, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext } from 'react-hook-form';
 import { IProps } from './types';
 
-const FileInput: FC<IProps> = ({ inputName, label, user, maxFileSize }) => {
+const FileInput: FC<IProps> = ({ inputName, label, user }) => {
     const {
         control,
         setValue,
@@ -57,20 +57,26 @@ const FileInput: FC<IProps> = ({ inputName, label, user, maxFileSize }) => {
     const fileError = errors[inputName];
 
     const getFileErrorMessage = (error: NonNullable<typeof fileError>) => {
-        if ('message' in error) {
-            return capitalize(t(error.message as TSingleTranslationKey));
-        } else if ('id' in error && error.id) {
-            return capitalize(t(error.id.message as TSingleTranslationKey));
-        } else if ('name' in error && error.name) {
-            return capitalize(t(error.name.message as TSingleTranslationKey));
-        } else if ('size' in error && error.size) {
-            return capitalize(t(error.size.message as TSingleTranslationKey));
-        } else if ('type' in error && error.type) {
-            return capitalize(t((error.type as FieldError).message as TSingleTranslationKey));
-        } else if ('data' in error && error.data) {
-            return capitalize(
-                t(error.data.message as TPluralTranslationKey, { count: maxFileSize })
-            );
+        if ('message' in error && typeof error?.message === 'string') {
+            return capitalize(error.message);
+        } else if ('id' in error && typeof error.id?.message === 'string') {
+            return capitalize(error.id?.message);
+        } else if ('name' in error && typeof error.name?.message === 'string') {
+            return capitalize(error.name.message);
+        } else if ('size' in error && typeof error.size?.message === 'string') {
+            return capitalize(error.size.message);
+        } else if (
+            'type' in error &&
+            typeof error.type !== 'string' &&
+            error.type &&
+            'message' in error.type &&
+            typeof error.type?.message === 'string'
+        ) {
+            return capitalize(error.type.message);
+        } else if ('data' in error && typeof error.data?.message === 'string') {
+            return capitalize(error.data.message);
+        } else if ('url' in error && typeof error.url?.message === 'string') {
+            return capitalize(error.url.message);
         } else {
             return '';
         }

@@ -26,30 +26,13 @@ import { IProviderOrgFormDataProps } from './types';
 
 const ProviderOrgFormData: FC<IProviderOrgFormDataProps> = ({
     localIdentifierName,
-    rawDefaultValues,
+    defaultValues,
     isEdit
 }) => {
     const t = useI18n();
-    const {
-        state: { user }
-    } = useUser();
-    const userId = user.id;
     const { openSnackbar } = useSnackbar();
+    const { state: user, dispatch: dispatchUserState } = useUser();
     const { dispatch: rightDrawerDispatch } = useRightDrawerState();
-
-    const logoFile = !rawDefaultValues.logo
-        ? null
-        : new File([rawDefaultValues.logo.data], rawDefaultValues.logo.name, {
-              type: rawDefaultValues.logo.type
-          });
-
-    const defaultValues = {
-        ...rawDefaultValues,
-        logo:
-            rawDefaultValues.logo === null || logoFile === null
-                ? null
-                : { ...rawDefaultValues.logo, data: logoFile }
-    };
 
     const {
         watch,
@@ -88,23 +71,35 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps> = ({
             }
             if (isEdit) {
                 const updatedProvider = await updateOrganization(
-                    t,
                     formDataWithoutLogo,
                     dirtyFields,
-                    userId,
+                    logo?.name,
                     logoFormData
                 );
 
                 if (!updatedProvider) {
                     throw new Error('could not update provider');
                 }
-
+                dispatchUserState({
+                    type: 'update',
+                    payload: {
+                        ...user,
+                        provider: updatedProvider
+                    }
+                });
                 openSnackbar(capitalize(t('successfully updated provider')));
             } else {
-                const createdProvider = await createOrganization(t, formData, userId, logoFormData);
+                const createdProvider = await createOrganization(formData, logoFormData);
                 if (!createdProvider) {
                     throw new Error(capitalize(t('could not create provider')));
                 }
+                dispatchUserState({
+                    type: 'update',
+                    payload: {
+                        ...user,
+                        provider: createdProvider
+                    }
+                });
                 openSnackbar(capitalize(t('successfully created provider')));
             }
             goBack();

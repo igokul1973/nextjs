@@ -3,12 +3,10 @@
 import Provider from '@/app/components/provider/Provider';
 import Warning from '@/app/components/warning/Warning';
 import { useUser } from '@/app/context/user/provider';
-import { useLogo } from '@/app/lib/hooks/useLogo';
 import { capitalize } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { Box } from '@mui/material';
 import Typography from '@mui/material/Typography';
-import Image from 'next/image';
 import { FC } from 'react';
 import { StyledProfile } from '../profile/styled';
 import UpdateProviderButton from './UpdateProviderButton';
@@ -21,19 +19,34 @@ const Account: FC<IProps> = () => {
         state: { account, provider, providerType }
     } = useUser();
 
-    const [logoUrl] = useLogo(provider);
+    const logoUrl = provider?.logo?.url;
 
     return (
         <StyledAccountWrapper component='article'>
             <StyledProfile>
-                {logoUrl && (
-                    <StyledAccountAttributeLogo>
-                        <Typography variant='h6'>{capitalize(t('logo'))}:</Typography>
-                        <Box sx={{ width: '100px', position: 'relative', aspectRatio: '1/1' }}>
-                            <Image src={logoUrl} fill alt='Logo' />
+                <StyledAccountAttributeLogo>
+                    <Typography variant='h6'>{capitalize(t('logo'))}:</Typography>
+                    {logoUrl ? (
+                        <Box
+                            sx={{
+                                height: '50px',
+                                width: '100%'
+                            }}
+                        >
+                            <Box
+                                component='img'
+                                src={logoUrl}
+                                alt='Logo'
+                                sx={{
+                                    height: '100%',
+                                    objectFit: 'contain'
+                                }}
+                            />
                         </Box>
-                    </StyledAccountAttributeLogo>
-                )}
+                    ) : (
+                        <Box>{capitalize(t('no logo provided'))}</Box>
+                    )}
+                </StyledAccountAttributeLogo>
                 <StyledAccountAttribute>
                     <Typography variant='h6'>
                         {`${capitalize(t('account'))} ${t('id').toLocaleUpperCase()}`}:

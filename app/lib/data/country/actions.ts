@@ -17,7 +17,7 @@ export async function createCountry(formData: FormData): Promise<ICreateCountryS
     if (!validatedForm.success) {
         return {
             errors: validatedForm.error.flatten().fieldErrors,
-            message: 'Missing fields, failed to create inventoryItem'
+            message: 'Missing fields, could not create inventoryItem'
         };
     }
     // Creating country in DB
@@ -30,7 +30,7 @@ export async function createCountry(formData: FormData): Promise<ICreateCountryS
     } catch (error) {
         console.error('Database Error:', error);
         return {
-            message: 'Database Error: Failed to create country.'
+            message: 'could not create country.'
         };
     }
     revalidatePath('/dashboard/countries');
@@ -54,7 +54,7 @@ export async function updateCountry(id: string, formData: FormData) {
         console.log('Successfully updated country.');
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to delete country.');
+        throw new Error('could not delete country.');
     }
     revalidatePath('/dashboard/countries');
     redirect('/dashboard/countries');
@@ -75,7 +75,7 @@ export async function deleteCountry(id: string): Promise<{ message: string }> {
         return { message: successMessage };
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Database Error: failed to delete the country.');
+        throw new Error('could not delete the country.');
     }
 }
 export async function deleteCountryItemById(id: string) {

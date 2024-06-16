@@ -18,7 +18,7 @@ export async function getInventoryTypeById(id: string): Promise<TGetInventoryTyp
         return inventoryTypeType;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get inventoryTypeType.');
+        throw new Error('could not get inventoryTypeType.');
     }
 }
 
@@ -35,6 +35,6 @@ export async function getInventoryTypes(): Promise<TGetInventoryTypePayload[]> {
         return inventoryTypeTypes;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get inventoryTypeTypes.');
+        throw new Error('could not get inventoryTypeTypes.');
     }
 }

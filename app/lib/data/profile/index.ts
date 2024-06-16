@@ -12,7 +12,7 @@ export async function getUserProfile(userId: string): Promise<TProfile | null> {
             }
         });
     } catch (error) {
-        console.log('Failed to fetch user: ', error);
-        throw new Error('Failed to fetch user profile.');
+        console.log('could not fetch user: ', error);
+        throw new Error('could not fetch user profile.');
     }
 }

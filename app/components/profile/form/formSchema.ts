@@ -1,3 +1,4 @@
+import { TTranslateFn } from '@/app/lib/types';
 import { z } from 'zod';
 
 const validateBEFile = (file: object | undefined) => {
@@ -13,88 +14,101 @@ export const ACCEPTED_FILE_TYPES = [
     'image/svg+xml'
 ];
 
-const fileSchema = z
-    .instanceof(typeof File === 'undefined' ? Blob : File)
-    .refine((file) => {
-        if (!file) {
-            return true;
-        } else if (
-            (typeof File !== 'undefined' && !(file instanceof File)) ||
-            (typeof File === 'undefined' && !validateBEFile(file))
-        ) {
-            return false;
-        }
-        return file.size <= MAX_UPLOAD_SIZE;
-    }, 'file size must be less than kb#other')
-    .refine((file) => {
-        if (!file) {
-            return true;
-        } else if (
-            (typeof File !== 'undefined' && !(file instanceof File)) ||
-            (typeof File === 'undefined' && !validateBEFile(file))
-        ) {
-            return false;
-        }
-        return ACCEPTED_FILE_TYPES.includes(file.type);
-    }, 'file must be a PNG, JPG, JPEG, WEBP, or SVG image')
-    .transform((val, ctx) => {
-        if (
-            (val !== null && typeof File !== 'undefined' && !(val instanceof File)) ||
-            (typeof File === 'undefined' && !validateBEFile(val))
-        ) {
-            ctx.addIssue({
-                code: 'invalid_type',
-                expected: 'object',
-                received: typeof val
-            });
-            return z.NEVER;
-        }
-        return val;
+const getFileSchema = (t: TTranslateFn) =>
+    z
+        .instanceof(typeof File === 'undefined' ? Blob : File)
+        .refine(
+            (file) => {
+                if (!file) {
+                    return true;
+                } else if (
+                    (typeof File !== 'undefined' && !(file instanceof File)) ||
+                    (typeof File === 'undefined' && !validateBEFile(file))
+                ) {
+                    return false;
+                }
+                return file.size <= MAX_UPLOAD_SIZE;
+            },
+            t('file size must be less than kb', { count: MAX_UPLOAD_SIZE })
+        )
+        .refine((file) => {
+            if (!file) {
+                return true;
+            } else if (
+                (typeof File !== 'undefined' && !(file instanceof File)) ||
+                (typeof File === 'undefined' && !validateBEFile(file))
+            ) {
+                return false;
+            }
+            return ACCEPTED_FILE_TYPES.includes(file.type);
+        }, t('file must be a PNG, JPG, JPEG, WEBP, or SVG image'))
+        .transform((val, ctx) => {
+            if (
+                (val !== null && typeof File !== 'undefined' && !(val instanceof File)) ||
+                (typeof File === 'undefined' && !validateBEFile(val))
+            ) {
+                ctx.addIssue({
+                    code: 'invalid_type',
+                    expected: 'object',
+                    received: typeof val
+                });
+                return z.NEVER;
+            }
+            return val;
+        });
+
+export const getAvatarUpdateSchema = (t: TTranslateFn) =>
+    z.object({
+        id: z.string(),
+        name: z.string().min(5, { message: t('must be at least characters', { count: 5 }) }),
+        size: z.coerce.number().gt(0, { message: t('must be greater than', { count: 0 }) }),
+        type: z.string().min(1),
+        data: getFileSchema(t),
+        url: z.string().min(20, { message: t('must be greater than', { count: 0 }) }),
+        createdBy: z.string(),
+        updatedBy: z.string()
     });
 
-export const avatarUpdateSchema = z.object({
-    id: z.string(),
-    name: z.string().min(5),
-    size: z.coerce.number().gt(0),
-    type: z.string().min(1),
-    data: fileSchema,
-    createdBy: z.string(),
-    updatedBy: z.string()
-});
+export const getAvatarCreateSchema = (t: TTranslateFn) =>
+    getAvatarUpdateSchema(t).omit({ id: true, url: true });
 
-export const avatarCreateSchema = avatarUpdateSchema.omit({ id: true });
+const getBaseProfileSchema = (t: TTranslateFn) =>
+    z.object({
+        id: z.string(),
+        firstName: z
+            .string({
+                required_error: t('please enter the first name'),
+                invalid_type_error: t('please enter the first name')
+            })
+            .min(1, { message: t('please enter the first name') }),
+        lastName: z
+            .string({
+                required_error: t('please enter the last name'),
+                invalid_type_error: t('please enter the last name')
+            })
+            .min(1, { message: t('please enter the last name') }),
+        middleName: z.string().nullish(),
+        userId: z.string({
+            required_error: t('please enter the user ID'),
+            invalid_type_error: t('please enter the user ID')
+        }),
+        createdBy: z.string(),
+        updatedBy: z.string()
+    });
 
-const baseProfileSchema = z.object({
-    id: z.string(),
-    firstName: z
-        .string({
-            required_error: 'please enter the first name',
-            invalid_type_error: 'please enter the first name'
-        })
-        .min(1, { message: 'please enter the first name' }),
-    lastName: z
-        .string({
-            required_error: 'please enter the last name',
-            invalid_type_error: 'please enter the last name'
-        })
-        .min(1, { message: 'please enter the last name' }),
-    middleName: z.string().nullish(),
-    userId: z.string({
-        required_error: 'please enter the user ID',
-        invalid_type_error: 'please enter the user ID'
-    }),
-    createdBy: z.string(),
-    updatedBy: z.string()
-});
+export const getProfileCreateSchema = (t: TTranslateFn) =>
+    getBaseProfileSchema(t)
+        .omit({ id: true })
+        .extend({
+            avatar: getAvatarCreateSchema(t).nullable()
+        });
 
-export const profileCreateSchema = baseProfileSchema.omit({ id: true }).extend({
-    avatar: avatarCreateSchema.nullable()
-});
+export const getProfileUpdateSchema = (t: TTranslateFn) =>
+    getBaseProfileSchema(t).extend({
+        avatar: getAvatarUpdateSchema(t).nullable()
+    });
 
-export const profileUpdateSchema = baseProfileSchema.extend({
-    avatar: avatarUpdateSchema.nullable()
-});
-
-export const profileUpdateSchemaEmptyAvatar = baseProfileSchema.extend({
-    avatar: avatarCreateSchema.nullable()
-});
+export const getProfileUpdateSchemaEmptyAvatar = (t: TTranslateFn) =>
+    getBaseProfileSchema(t).extend({
+        avatar: getAvatarCreateSchema(t).nullable()
+    });

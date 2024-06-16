@@ -10,7 +10,6 @@ import {
 import { TIndividualForm, TIndividualFormOutput } from '@/app/components/individuals/form/types';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { useUser } from '@/app/context/user/provider';
 import { createIndividual, updateIndividual } from '@/app/lib/data/indiviidual/actions';
 import { TDirtyFields } from '@/app/lib/types';
 import { useI18n } from '@/locales/client';
@@ -21,33 +20,17 @@ import Button from '@mui/material/Button';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { IProviderIndFormDataProps } from './types';
+import { useUser } from '@/app/context/user/provider';
 
 const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
     localIdentifierName,
-    rawDefaultValues,
+    defaultValues,
     isEdit
 }) => {
     const t = useI18n();
-    const {
-        state: { user }
-    } = useUser();
-    const userId = user.id;
     const { openSnackbar } = useSnackbar();
+    const { state: user, dispatch: dispatchUserState } = useUser();
     const { dispatch: rightDrawerDispatch } = useRightDrawerState();
-
-    const logoFile = !rawDefaultValues.logo
-        ? null
-        : new File([rawDefaultValues.logo.data], rawDefaultValues.logo.name, {
-              type: rawDefaultValues.logo.type
-          });
-
-    const defaultValues = {
-        ...rawDefaultValues,
-        logo:
-            rawDefaultValues.logo === null || logoFile === null
-                ? null
-                : { ...rawDefaultValues.logo, data: logoFile }
-    };
 
     const {
         watch,
@@ -86,23 +69,36 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
             }
             if (isEdit) {
                 const updatedProvider = await updateIndividual(
-                    t,
                     formDataWithoutLogo,
                     dirtyFields as TDirtyFields<TIndividualFormOutput>,
-                    userId,
+                    logo?.name,
                     logoFormData
                 );
 
                 if (!updatedProvider) {
                     throw new Error('could not update provider');
                 }
+                dispatchUserState({
+                    type: 'update',
+                    payload: {
+                        ...user,
+                        provider: updatedProvider
+                    }
+                });
 
                 openSnackbar(capitalize(t('successfully updated provider')));
             } else {
-                const createdProvider = await createIndividual(t, formData, userId, logoFormData);
+                const createdProvider = await createIndividual(formData, logoFormData);
                 if (!createdProvider) {
                     throw new Error(capitalize(t('could not create provider')));
                 }
+                dispatchUserState({
+                    type: 'update',
+                    payload: {
+                        ...user,
+                        provider: createdProvider
+                    }
+                });
                 openSnackbar(capitalize(t('successfully created provider')));
             }
             goBack();

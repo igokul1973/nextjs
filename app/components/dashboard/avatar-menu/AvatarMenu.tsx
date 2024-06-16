@@ -3,7 +3,6 @@
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useUser } from '@/app/context/user/provider';
 import { logOut } from '@/app/lib/data/user/actions';
-import { useAvatar } from '@/app/lib/hooks/useAvatar';
 import { useI18n } from '@/locales/client';
 import AccountIcon from '@mui/icons-material/AccountBalance';
 import Logout from '@mui/icons-material/Logout';
@@ -31,7 +30,7 @@ const AvatarMenu: FC = () => {
     const { dispatch } = useRightDrawerState();
     const open = Boolean(anchorEl);
 
-    const [avatarUrl] = useAvatar(userProfile);
+    const avatarUrl = userProfile?.avatar?.url;
 
     const handleClick = (event: MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);

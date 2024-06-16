@@ -11,8 +11,8 @@ export async function getUsersByEmail(email: string): Promise<TUser[]> {
             }
         });
     } catch (error) {
-        console.log('Failed to fetch user: ', error);
-        throw new Error('Failed to fetch user.');
+        console.log('could not fetch user: ', error);
+        throw new Error('could not fetch user.');
     }
 }
 
@@ -26,8 +26,8 @@ export async function getUserByEmail(email: string): Promise<TGetUserPayload | n
         });
         return user;
     } catch (error) {
-        console.log('Failed to fetch user: ', error);
-        throw new Error('Failed to fetch user.');
+        console.log('could not fetch user: ', error);
+        throw new Error('could not fetch user.');
     }
 }
 
@@ -45,8 +45,8 @@ export async function getUserWithRelationsByEmail(
         });
         return user;
     } catch (error) {
-        console.log('Failed to fetch user: ', error);
-        throw new Error('Failed to fetch user.');
+        console.log('could not fetch user: ', error);
+        throw new Error('could not fetch user.');
     }
 }
 
@@ -63,7 +63,7 @@ export async function getUserById(id: string): Promise<{ id: string; email: stri
         });
         return user;
     } catch (error) {
-        console.log('Failed to fetch user: ', error);
-        throw new Error('Failed to fetch user.');
+        console.log('could not fetch user: ', error);
+        throw new Error('could not fetch user.');
     }
 }

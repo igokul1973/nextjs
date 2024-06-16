@@ -34,7 +34,7 @@ CREATE TABLE "files" (
     "name" VARCHAR(255) NOT NULL,
     "size" INTEGER NOT NULL,
     "type" VARCHAR(255) NOT NULL,
-    "data" BYTEA NOT NULL,
+    "url" VARCHAR(512) NOT NULL,
     "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ(3) NOT NULL,
     "created_by" UUID NOT NULL,

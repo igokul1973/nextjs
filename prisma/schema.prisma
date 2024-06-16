@@ -76,7 +76,8 @@ model file {
   name         String        @db.VarChar(255)
   size         Int           @db.Integer
   type         String        @db.VarChar(255)
-  data         Bytes         @db.ByteA()
+  // data         Bytes         @db.ByteA()
+  url          String        @db.VarChar(512)
   createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
   updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
   createdBy    String        @map("created_by") @db.Uuid

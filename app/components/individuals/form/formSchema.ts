@@ -72,11 +72,13 @@ export const getLogoUpdateSchema = (t: TTranslateFn) =>
         size: z.coerce.number().gt(0, { message: t('must be greater than', { count: 0 }) }),
         type: z.string().min(1),
         data: getFileSchema(t),
+        url: z.string().min(20, { message: t('must be greater than', { count: 0 }) }),
         createdBy: z.string(),
         updatedBy: z.string()
     });
 
-export const getLogoCreateSchema = (t: TTranslateFn) => getLogoUpdateSchema(t).omit({ id: true });
+export const getLogoCreateSchema = (t: TTranslateFn) =>
+    getLogoUpdateSchema(t).omit({ id: true, url: true });
 
 const getBaseIndividualFormSchema = (t: TTranslateFn) =>
     z.object({
@@ -129,9 +131,6 @@ export const getIndividualCreateSchema = (t: TTranslateFn) =>
 export const getIndividualUpdateSchema = (t: TTranslateFn) =>
     getBaseIndividualFormSchema(t).extend({
         logo: getLogoUpdateSchema(t).nullish(),
-        customerId: z.string({
-            required_error: t('customer ID is missing')
-        }),
         address: addressFormSchema,
         phones: phonesFormSchema,
         emails: emailsFormSchema,
@@ -141,11 +140,26 @@ export const getIndividualUpdateSchema = (t: TTranslateFn) =>
 export const getIndividualUpdateSchemaEmptyLogo = (t: TTranslateFn) =>
     getBaseIndividualFormSchema(t).extend({
         logo: getLogoCreateSchema(t).nullish(),
-        customerId: z.string({
-            required_error: t('customer ID is missing')
-        }),
         address: addressFormSchema,
         phones: phonesFormSchema,
         emails: emailsFormSchema,
         attributes: attributesFormSchema
+    });
+
+export const getCustomerIndUpdateSchema = (t: TTranslateFn) =>
+    getIndividualUpdateSchema(t).extend({
+        customerId: z
+            .string({
+                required_error: t('customer ID is missing')
+            })
+            .min(1, { message: t('customer ID is missing') })
+    });
+
+export const getCustomerIndUpdateSchemaEmptyLogo = (t: TTranslateFn) =>
+    getIndividualUpdateSchemaEmptyLogo(t).extend({
+        customerId: z
+            .string({
+                required_error: t('customer ID is missing')
+            })
+            .min(1, { message: t('customer ID is missing') })
     });

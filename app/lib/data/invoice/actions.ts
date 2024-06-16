@@ -4,10 +4,12 @@ import { TInvoiceFormOutput } from '@/app/components/invoices/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TFile } from '@/app/lib/types';
 import { getDirtyValues, getUser } from '@/app/lib/utils';
+import { getI18n } from '@/locales/server';
 import { InvoiceStatusEnum, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 export async function createInvoice(formData: TInvoiceFormOutput): Promise<void> {
+    const t = await getI18n();
     try {
         const { provider } = await getUser();
         const { customer: rawCustomer, createdBy, updatedBy, ...invoice } = formData;
@@ -71,21 +73,22 @@ export async function createInvoice(formData: TInvoiceFormOutput): Promise<void>
         revalidatePath('/dashboard/invoices');
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('database error: failed to create invoice');
+        throw new Error(t('could not create invoice'));
     }
 }
 
 export async function updateInvoice(
     formData: TInvoiceFormOutput,
-    dirtyFields: TDirtyFields<TInvoiceFormOutput>,
-    userId: string
+    dirtyFields: TDirtyFields<TInvoiceFormOutput>
 ) {
-    'use server';
+    const t = await getI18n();
     try {
+        const { user } = await getUser();
+        const userId = user.id;
         const changedFields = getDirtyValues<TInvoiceFormOutput>(dirtyFields, formData);
 
         if (!changedFields) {
-            return null;
+            throw Error('No changes detected');
         }
 
         const { provider } = await getUser();
@@ -127,14 +130,6 @@ export async function updateInvoice(
                     create: providerLogo,
                     update: providerLogo
                 }
-                // create: !!!formData.providerLogoId && providerLogo,
-                // update: !!formData.providerLogoId &&
-                //     providerLogo && {
-                //         data: providerLogo,
-                //         where: {
-                //             id: formData.providerLogoId
-                //         }
-                //     }
             },
             updatedByUser: {
                 connect: {
@@ -195,20 +190,23 @@ export async function updateInvoice(
         return updatedInvoice;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('database error: failed to update invoice');
+        throw new Error(t('could not update invoice'));
     }
 }
 
 export async function deleteInvoiceById(id: string, status: InvoiceStatusEnum): Promise<void> {
-    'use server';
-    if (!id) {
-        throw Error('The id must be a valid UUID');
-    }
-    if (status === InvoiceStatusEnum.paid) {
-        throw new Error(`The invoice with ID: ${id} has already been paid and cannot be deleted.`);
-    }
-
+    const t = await getI18n();
     try {
+        if (!id) {
+            throw Error('The id must be a valid UUID');
+        }
+
+        if (status === InvoiceStatusEnum.paid) {
+            throw new Error(
+                `The invoice with ID: ${id} has already been paid and cannot be deleted.`
+            );
+        }
+
         await prisma.invoice.delete({
             where: {
                 id
@@ -219,7 +217,7 @@ export async function deleteInvoiceById(id: string, status: InvoiceStatusEnum): 
 
         revalidatePath('/dashboard/invoices');
     } catch (error) {
-        console.error('Database Error:', error);
-        throw new Error(`database error: failed to delete invoice`);
+        console.error('Error:', error);
+        throw new Error(t('could not delete invoice'));
     }
 }

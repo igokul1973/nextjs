@@ -7,23 +7,33 @@ import {
     TPhone
 } from '@/app/components/individuals/form/types';
 import prisma from '@/app/lib/prisma';
-import { TDirtyFields, TTranslateFn } from '@/app/lib/types';
-import { getDirtyValues, getLogoCreateOrUpdate, validateEntityFormData } from '@/app/lib/utils';
+import { TDirtyFields } from '@/app/lib/types';
+import {
+    getDirtyValues,
+    getLogoCreateOrUpdate,
+    getUser,
+    validateEntityFormData
+} from '@/app/lib/utils';
+import { getI18n } from '@/locales/server';
 import { AccountRelationEnum, EmailTypeEnum, PhoneTypeEnum, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
+import { includeIndividualRelations } from './types';
 
 export async function createIndividual(
-    t: TTranslateFn,
     rawFormData: TIndividualFormOutput,
-    userId: string,
     rawLogoFormData?: FormData
 ) {
+    const t = await getI18n();
+    const { user, account } = await getUser();
+    const userId = user?.id;
+
     try {
         const validatedFormData = validateEntityFormData<TIndividualFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
-            true
+            true,
+            false
         );
 
         if (!validatedFormData.success) {
@@ -32,9 +42,8 @@ export async function createIndividual(
 
         const validatedData = validatedFormData.data;
 
-        const logoCreateOrUpdate = await getLogoCreateOrUpdate(validatedData.logo, userId, false);
-
         const {
+            logo,
             address,
             phones,
             emails,
@@ -48,7 +57,6 @@ export async function createIndividual(
 
         const createEntityObject = {
             ...entity,
-            logo: logoCreateOrUpdate,
             accountRelation: accountRelation as AccountRelationEnum,
             account: {
                 connect: {
@@ -78,39 +86,66 @@ export async function createIndividual(
         data = createEntityObject;
 
         if (!data) {
-            throw new Error('failed to create provider');
+            throw new Error('could not create provider');
         }
 
-        const newOrg = await prisma.individual.create({
-            data
+        const createdIndividual = await prisma.individual.create({
+            data,
+            include: includeIndividualRelations
         });
 
-        console.log('Successfully created new individual: ', newOrg);
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(
+            logo,
+            userId,
+            account.id,
+            createdIndividual.id,
+            false
+        );
 
-        revalidatePath('/dashboard/customers');
-        return newOrg;
+        if (logoCreateOrUpdate) {
+            await prisma.individual.update({
+                data: {
+                    logo: logoCreateOrUpdate
+                },
+                where: {
+                    id: createdIndividual.id
+                },
+                select: {
+                    id: true
+                }
+            });
+        }
+
+        console.log('Successfully created new individual: ', createdIndividual);
+
+        revalidatePath('/', 'layout');
+        return createdIndividual;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('database error: failed to create provider');
+        throw new Error('could not create provider');
     }
 }
 export async function updateIndividual(
-    t: TTranslateFn,
     rawFormData: TIndividualFormOutputWithoutLogo,
     dirtyFields: TDirtyFields<TIndividualFormOutput>,
-    userId: string,
+    oldLogoName?: string,
     rawLogoFormData?: FormData
 ) {
+    const t = await getI18n();
     try {
+        const { user, account } = await getUser();
+        const userId = user.id;
+
         const validatedFormData = validateEntityFormData<TIndividualFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
-            true
+            true,
+            false
         );
 
         if (!validatedFormData.success) {
-            return null;
+            throw Error('Form is invalid');
         }
 
         const validatedData = validatedFormData.data;
@@ -118,10 +153,17 @@ export async function updateIndividual(
         const changedFields = getDirtyValues<TIndividualFormOutput>(dirtyFields, validatedData);
 
         if (!changedFields) {
-            return null;
+            throw Error('No changes detected');
         }
 
-        const logoCreateOrUpdate = await getLogoCreateOrUpdate(changedFields.logo, userId, true);
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(
+            changedFields.logo,
+            userId,
+            account.id,
+            validatedData.id,
+            true,
+            oldLogoName
+        );
 
         const {
             id,
@@ -204,19 +246,15 @@ export async function updateIndividual(
                 id: rawFormData.id
             },
             data,
-            include: {
-                address: true,
-                phones: true,
-                emails: true
-            }
+            include: includeIndividualRelations
         });
 
         console.log('Successfully updated individual with ID:', updatedIndividual.id);
 
-        revalidatePath('/dashboard/customers');
+        revalidatePath('/', 'layout');
         return updatedIndividual;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('database error: failed to update provider');
+        throw new Error('could not update provider');
     }
 }

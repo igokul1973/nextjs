@@ -20,7 +20,7 @@ export async function getCountryById(id: string): Promise<TCountry | null> {
         return country;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get country.');
+        throw new Error('could not get country.');
     }
 }
 
@@ -34,7 +34,7 @@ export async function getCountries(): Promise<TCountry[]> {
         return countries;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get countries.');
+        throw new Error('could not get countries.');
     }
 }
 
@@ -53,7 +53,7 @@ export async function getFilteredCountries(query: string) {
         return countries;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get inventory.');
+        throw new Error('could not get inventory.');
     }
 }
 
@@ -68,6 +68,6 @@ export async function getFilteredCountriesCount(query: string) {
         return count;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get total number of inventory.');
+        throw new Error('could not get total number of inventory.');
     }
 }

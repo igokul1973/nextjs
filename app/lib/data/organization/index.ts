@@ -16,6 +16,6 @@ export async function getOrganizationById(
         });
     } catch (err) {
         console.error('Database Error:', err);
-        throw new Error('Failed to fetch organization.');
+        throw new Error('could not fetch organization.');
     }
 }

@@ -6,6 +6,10 @@ type IViewInvoice = Omit<TTransformedInvoice, 'date' | 'payBy' | 'paidOn'> & {
     paidOn: string | null;
 };
 
+export interface IImageViewProps {
+    url: string;
+}
+
 export interface IProps {
     invoice: IViewInvoice;
     locale: string;

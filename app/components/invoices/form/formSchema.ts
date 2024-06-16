@@ -11,9 +11,9 @@ const getBaseInvoiceFormSchema = (t: TTranslateFn) =>
                 {
                     customerId: z
                         .string({
-                            required_error: t('please enter a customer')
+                            required_error: t('customer ID is missing')
                         })
-                        .min(1, { message: t('must be at least characters', { count: 1 }) }),
+                        .min(1, { message: t('customer ID is missing') }),
                     customerCode: z.string().nullish(),
                     customerType: z.string().optional(),
                     customerName: z.string().min(1),

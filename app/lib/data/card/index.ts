@@ -65,6 +65,6 @@ export async function getCardData() {
         };
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to fetch card data.');
+        throw new Error('could not fetch card data.');
     }
 }

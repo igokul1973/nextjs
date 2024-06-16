@@ -164,7 +164,7 @@ const InvoiceForm: FC<IProps> = ({
     const onSubmit = async (formData: TInvoiceFormOutput) => {
         try {
             if (isEdit) {
-                const updatedInvoice = await updateInvoice(formData, dirtyFields, userId);
+                const updatedInvoice = await updateInvoice(formData, dirtyFields);
                 if (!updatedInvoice) {
                     throw new Error('could not update invoice');
                 }

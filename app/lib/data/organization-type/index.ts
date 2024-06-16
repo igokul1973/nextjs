@@ -38,7 +38,7 @@ export async function getOrganizationTypeById(
         return organizationType;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get organizationType.');
+        throw new Error('could not get organizationType.');
     }
 }
 
@@ -55,7 +55,7 @@ export async function getOrganizationTypes(): Promise<TGetOrganizationTypePayloa
         return organizationTypes;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get organizationTypes.');
+        throw new Error('could not get organizationTypes.');
     }
 }
 
@@ -75,7 +75,7 @@ export async function getFilteredOrganizationTypes(query: string) {
         return organizationTypes;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get inventory.');
+        throw new Error('could not get inventory.');
     }
 }
 
@@ -90,7 +90,7 @@ export async function getFilteredOrganizationTypesCount(query: string) {
         return count;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get total number of inventory.');
+        throw new Error('could not get total number of inventory.');
     }
 }
 
@@ -116,7 +116,7 @@ export async function createOrganizationType(
     if (!validatedForm.success) {
         return {
             errors: validatedForm.error.flatten().fieldErrors,
-            message: 'Missing fields, failed to create inventoryItem'
+            message: 'Missing fields, could not create inventoryItem'
         };
     }
     // Creating organizationType in DB
@@ -127,7 +127,7 @@ export async function createOrganizationType(
     } catch (error) {
         console.error('Database Error:', error);
         return {
-            message: 'Database Error: Failed to create organizationType.'
+            message: 'could not create organizationType.'
         };
     }
     revalidatePath('/dashboard/organizationTypes');
@@ -150,7 +150,7 @@ export async function updateOrganizationType(id: string, formData: FormData) {
         console.log('Successfully updated organizationType.');
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to delete organizationType.');
+        throw new Error('could not delete organizationType.');
     }
     revalidatePath('/dashboard/organizationTypes');
     redirect('/dashboard/organizationTypes');
@@ -171,6 +171,6 @@ export async function deleteOrganizationType(id: string): Promise<{ message: str
         return { message: successMessage };
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Database Error: failed to delete the organizationType.');
+        throw new Error('could not delete the organizationType.');
     }
 }

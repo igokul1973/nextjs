@@ -39,7 +39,7 @@ export async function getInventoryItemById(
         };
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get inventoryItem.');
+        throw new Error('could not get inventoryItem.');
     }
 }
 
@@ -133,6 +133,6 @@ export async function getFilteredInventoryCount(accountId: string, query: string
         return count;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get total number of inventory.');
+        throw new Error('could not get total number of inventory.');
     }
 }

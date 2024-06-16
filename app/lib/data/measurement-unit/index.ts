@@ -51,6 +51,6 @@ export async function getFilteredMeasurementUnitsByAccount({
         });
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get measurementUnits.');
+        throw new Error('could not get measurementUnits.');
     }
 }

@@ -38,7 +38,7 @@ export async function getLocalIdentifierNamesByCountryId(
         return localIdentifierName;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get localIdentifierName.');
+        throw new Error('could not get localIdentifierName.');
     }
 }
 
@@ -52,7 +52,7 @@ export async function getLocalIdentifierNames(): Promise<TGetLocalIdentifierName
         return localIdentifierNames;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get local identifier names.');
+        throw new Error('could not get local identifier names.');
     }
 }
 
@@ -72,7 +72,7 @@ export async function getFilteredLocalIdentifierNames(query: string) {
         return localIdentifiers;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get inventory.');
+        throw new Error('could not get inventory.');
     }
 }
 
@@ -87,7 +87,7 @@ export async function getFilteredLocalIdentifierNamesCount(query: string) {
         return count;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to get total number of inventory.');
+        throw new Error('could not get total number of inventory.');
     }
 }
 
@@ -113,7 +113,7 @@ export async function createLocalIdentifier(
     if (!validatedForm.success) {
         return {
             errors: validatedForm.error.flatten().fieldErrors,
-            message: 'Missing fields, failed to create inventoryItem'
+            message: 'Missing fields, could not create inventoryItem'
         };
     }
     // Creating localIdentifierName in DB
@@ -124,7 +124,7 @@ export async function createLocalIdentifier(
     } catch (error) {
         console.error('Database Error:', error);
         return {
-            message: 'Database Error: Failed to create localIdentifierName.'
+            message: 'could not create localIdentifierName.'
         };
     }
     revalidatePath('/dashboard/localIdentifiers');
@@ -147,7 +147,7 @@ export async function updateLocalIdentifier(id: string, formData: FormData) {
         console.log('Successfully updated localIdentifierName.');
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to delete localIdentifierName.');
+        throw new Error('could not delete localIdentifierName.');
     }
     revalidatePath('/dashboard/localIdentifiers');
     redirect('/dashboard/localIdentifiers');
@@ -168,6 +168,6 @@ export async function deleteLocalIdentifier(id: string): Promise<{ message: stri
         return { message: successMessage };
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Database Error: failed to delete the localIdentifierName.');
+        throw new Error('could not delete the localIdentifierName.');
     }
 }

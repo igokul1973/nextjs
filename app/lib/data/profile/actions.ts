@@ -1,8 +1,8 @@
 'use server';
 
 import {
-    profileUpdateSchema,
-    profileUpdateSchemaEmptyAvatar
+    getProfileUpdateSchema,
+    getProfileUpdateSchemaEmptyAvatar
 } from '@/app/components/profile/form/formSchema';
 import {
     TProfileFormOutput,
@@ -10,8 +10,9 @@ import {
 } from '@/app/components/profile/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields } from '@/app/lib/types';
+import { deleteFile, getDirtyValues, getUser, uploadFileAndGetUrl } from '@/app/lib/utils';
+import { getI18n } from '@/locales/server';
 import { Prisma } from '@prisma/client';
-import { getDirtyValues } from '../../utils';
 
 export async function createProfile(formData: TProfileFormOutput) {
     try {
@@ -22,32 +23,28 @@ export async function createProfile(formData: TProfileFormOutput) {
         // console.log('Successfully created new inventory item: ', newProfile);
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('database error: failed to create user profile');
+        throw new Error('could not create user profile');
     }
 }
 
 export async function updateProfile(
-    rawFormData: FormData,
+    formDataWithoutAvatar: Omit<TProfileFormOutput, 'avatar'>,
     dirtyFields: TDirtyFields<TProfileFormOutput>,
-    userId: string,
     rawAvatarFormData?: FormData
 ) {
+    const t = await getI18n();
     try {
-        const formData = Object.fromEntries(rawFormData.entries()) as unknown as TProfileFormOutput;
-        if (typeof formData.avatar === 'string' && formData.avatar === 'null') {
-            formData.avatar = null;
-        }
+        const { user, account, profile } = await getUser();
+        const userId = user.id;
 
-        if (rawAvatarFormData && formData.avatar) {
-            const avatarFormData = Object.fromEntries(
-                rawAvatarFormData.entries()
-            ) as unknown as TProfileFormOutput['avatar'];
-            formData.avatar = avatarFormData;
-        }
+        const avatarFormData = rawAvatarFormData
+            ? Object.fromEntries(rawAvatarFormData.entries())
+            : null;
+        const formData = { ...formDataWithoutAvatar, avatar: avatarFormData };
 
         const validationSchema = formData.avatar?.id
-            ? profileUpdateSchema
-            : profileUpdateSchemaEmptyAvatar;
+            ? getProfileUpdateSchema(t)
+            : getProfileUpdateSchemaEmptyAvatar(t);
 
         const validatedFormData = validationSchema.safeParse(formData);
 
@@ -63,39 +60,65 @@ export async function updateProfile(
         );
 
         if (!changedFields) {
-            return null;
+            throw Error('No changes detected');
         }
-
-        const avatarFile = changedFields.avatar?.data;
-        const avatarArrayBuffer = await avatarFile?.arrayBuffer();
-
-        const buffer = avatarArrayBuffer && Buffer.from(avatarArrayBuffer);
 
         let avatarCreateOrUpdate: Prisma.fileUpdateOneWithoutProfileNestedInput | undefined =
             undefined;
 
-        if (changedFields.avatar && buffer) {
-            if ('id' in changedFields.avatar && changedFields.avatar.id) {
-                avatarCreateOrUpdate = {
-                    update: {
-                        data: {
-                            ...changedFields.avatar,
-                            data: buffer,
+        if (changedFields.avatar?.name && changedFields.avatar?.data) {
+            const { data, ...avatar } = changedFields.avatar;
+            // Deleting old file upload first
+            if (profile?.avatar?.name) {
+                await deleteFile(
+                    profile?.avatar?.name,
+                    'images',
+                    account.id,
+                    formDataWithoutAvatar.id
+                );
+            }
+            // Uploading new file and getting its URL
+            const { url } = await uploadFileAndGetUrl(
+                data,
+                'images',
+                account.id,
+                formDataWithoutAvatar.id
+            );
+
+            if (url) {
+                if ('id' in avatar && avatar.id) {
+                    avatarCreateOrUpdate = {
+                        update: {
+                            data: {
+                                ...avatar,
+                                url,
+                                updatedBy: userId
+                            }
+                        }
+                    };
+                } else {
+                    avatarCreateOrUpdate = {
+                        create: {
+                            ...avatar,
+                            url,
+                            createdBy: userId,
                             updatedBy: userId
                         }
-                    }
-                };
+                    };
+                }
             } else {
-                avatarCreateOrUpdate = {
-                    create: {
-                        ...changedFields.avatar,
-                        data: buffer,
-                        createdBy: userId,
-                        updatedBy: userId
-                    }
-                };
+                throw new Error(t('could not upload avatar'));
             }
         } else if (changedFields.avatar === null) {
+            // Deleting old file upload first
+            if (profile?.avatar?.name) {
+                await deleteFile(
+                    profile?.avatar?.name,
+                    'images',
+                    account.id,
+                    formDataWithoutAvatar.id
+                );
+            }
             avatarCreateOrUpdate = {
                 delete: true
             };
@@ -121,7 +144,7 @@ export async function updateProfile(
 
         return updatedProfile;
     } catch (error) {
-        console.error('Database Error:', error);
-        throw new Error('database error: failed to update user profile');
+        console.error('Error: ', error);
+        throw new Error(t('could not update user profile'));
     }
 }

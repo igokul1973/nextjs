@@ -103,12 +103,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
         <LocalizationProvider dateAdapter={AdapterDayjs}>
             <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
                 {!isCustomer && (
-                    <FileInput
-                        inputName='logo'
-                        label={capitalize(t('logo'))}
-                        user={user}
-                        maxFileSize={200}
-                    />
+                    <FileInput inputName='logo' label={capitalize(t('logo'))} user={user} />
                 )}
                 <FormControl>
                     <TextField
@@ -255,9 +250,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                     ))
                 ) : (
                     <Box>
-                        {capitalize(
-                            t('you have not attributes. Add one by clicking button below.')
-                        )}
+                        {capitalize(t('you have no attributes. Add one by clicking button below.'))}
                     </Box>
                 )}
                 <Button onClick={() => appendAttribute(getEmptyAttribute(userId))}>

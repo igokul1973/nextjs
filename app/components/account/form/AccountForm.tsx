@@ -82,13 +82,13 @@ const AccountForm: FC<IProps> = () => {
     return isIndividual ? (
         <ProviderIndFormData
             localIdentifierName={localIdentifierName}
-            rawDefaultValues={defaultValues as TIndividualForm}
+            defaultValues={defaultValues as TIndividualForm}
             isEdit={isEdit}
         />
     ) : (
         <ProviderOrgFormData
             localIdentifierName={localIdentifierName}
-            rawDefaultValues={defaultValues as TOrganizationForm}
+            defaultValues={defaultValues as TOrganizationForm}
             isEdit={isEdit}
         />
     );

@@ -48,7 +48,7 @@ export async function getCustomerById(
         });
     } catch (err) {
         console.error('Database Error:', err);
-        throw new Error('Failed to fetch customer.');
+        throw new Error('could not fetch customer.');
     }
 }
 
@@ -109,7 +109,7 @@ export async function getCustomersByAccountId(accountId: string) {
             });
     } catch (err) {
         console.error('Database Error:', err);
-        throw new Error('Failed to fetch all customers.');
+        throw new Error('could not fetch all customers.');
     }
 }
 
@@ -203,7 +203,7 @@ export async function getFilteredCustomersByAccountId({
         return customers;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to fetch customer table.');
+        throw new Error('could not fetch customer table.');
     }
 }
 
@@ -220,6 +220,6 @@ export async function getFilteredCustomersCountByAccountId(
         });
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('Failed to fetch customers count.');
+        throw new Error('could not fetch customers count.');
     }
 }

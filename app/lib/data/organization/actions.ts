@@ -6,34 +6,43 @@ import {
     TOrganizationFormOutputWithoutLogo
 } from '@/app/components/organizations/form/types';
 import prisma from '@/app/lib/prisma';
-import { TDirtyFields, TTranslateFn } from '@/app/lib/types';
-import { getDirtyValues, getLogoCreateOrUpdate, validateEntityFormData } from '@/app/lib/utils';
+import { TDirtyFields } from '@/app/lib/types';
+import {
+    getDirtyValues,
+    getLogoCreateOrUpdate,
+    getUser,
+    validateEntityFormData
+} from '@/app/lib/utils';
+import { getI18n } from '@/locales/server';
 import { AccountRelationEnum, EmailTypeEnum, PhoneTypeEnum, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
+import { includeOrganizationRelations } from './types';
 
 export async function createOrganization(
-    t: TTranslateFn,
     rawFormData: TOrganizationFormOutputWithoutLogo,
-    userId: string,
     rawLogoFormData?: FormData
 ) {
-    const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
-        t,
-        rawFormData,
-        rawLogoFormData,
-        false
-    );
-
-    if (!validatedFormData.success) {
-        return null;
-    }
-
-    const validatedData = validatedFormData.data;
-
-    const logoCreateOrUpdate = await getLogoCreateOrUpdate(validatedData.logo, userId, false);
+    const t = await getI18n();
 
     try {
+        const { user, account } = await getUser();
+        const userId = user.id;
+
+        const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
+            t,
+            rawFormData,
+            rawLogoFormData,
+            false,
+            false
+        );
+
+        if (!validatedFormData.success) {
+            return null;
+        }
+
+        const validatedData = validatedFormData.data;
         const {
+            logo,
             typeId,
             address,
             phones,
@@ -46,7 +55,6 @@ export async function createOrganization(
 
         const data: Prisma.organizationCreateInput = {
             ...entity,
-            logo: logoCreateOrUpdate,
             type: {
                 connect: {
                     id: typeId
@@ -79,30 +87,57 @@ export async function createOrganization(
         };
 
         const newOrg = await prisma.organization.create({
-            data
+            data,
+            include: includeOrganizationRelations
         });
+
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(
+            logo,
+            userId,
+            account.id,
+            newOrg.id,
+            false
+        );
+
+        if (logoCreateOrUpdate) {
+            await prisma.individual.update({
+                data: {
+                    logo: logoCreateOrUpdate
+                },
+                where: {
+                    id: newOrg.id
+                },
+                select: {
+                    id: true
+                }
+            });
+        }
 
         console.log('Successfully created new organization: ', newOrg);
 
-        revalidatePath('/dashboard/customers');
+        revalidatePath('/', 'layout');
         return newOrg;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('database error: failed to create provider');
+        throw new Error('could not create provider');
     }
 }
 export async function updateOrganization(
-    t: TTranslateFn,
     rawFormData: TOrganizationFormOutputWithoutLogo,
     dirtyFields: TDirtyFields<TOrganizationFormOutput>,
-    userId: string,
+    oldLogoName?: string,
     rawLogoFormData?: FormData
 ) {
+    const t = await getI18n();
     try {
+        const { user, account } = await getUser();
+        const userId = user.id;
+
         const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
+            false,
             false
         );
 
@@ -115,10 +150,17 @@ export async function updateOrganization(
         const changedFields = getDirtyValues<TOrganizationFormOutput>(dirtyFields, validatedData);
 
         if (!changedFields) {
-            return null;
+            throw Error('No changes detected');
         }
 
-        const logoCreateOrUpdate = await getLogoCreateOrUpdate(changedFields.logo, userId, true);
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(
+            changedFields.logo,
+            userId,
+            account.id,
+            validatedData.id,
+            true,
+            oldLogoName
+        );
 
         const {
             id,
@@ -211,19 +253,15 @@ export async function updateOrganization(
                 id: rawFormData.id
             },
             data,
-            include: {
-                address: true,
-                phones: true,
-                emails: true
-            }
+            include: includeOrganizationRelations
         });
 
         console.log('Successfully updated organization with ID:', updatedOrganization.id);
 
-        revalidatePath('/dashboard/customers');
+        revalidatePath('/', 'layout');
         return updatedOrganization;
     } catch (error) {
-        console.error('Database Error:', error);
-        throw new Error('database error: failed to update provider');
+        console.error('Error:', error);
+        throw new Error(t('could not update provider'));
     }
 }

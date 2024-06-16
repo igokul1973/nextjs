@@ -2,6 +2,8 @@
 
 import OrganizationForm from '@/app/components/organizations/form/OrganizationForm';
 import {
+    getCustomerOrgUpdateSchema,
+    getCustomerOrgUpdateSchemaEmptyLogo,
     getOrganizationCreateSchema,
     getOrganizationUpdateSchema,
     getOrganizationUpdateSchemaEmptyLogo
@@ -11,13 +13,11 @@ import {
     TOrganizationFormOutput
 } from '@/app/components/organizations/form/types';
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { useUser } from '@/app/context/user/provider';
 import {
     createOrganizationCustomer,
     updateOrganizationCustomer
 } from '@/app/lib/data/customer/actions';
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, capitalize } from '@mui/material';
 import NextLink from 'next/link';
@@ -32,10 +32,6 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
     isEdit
 }) => {
     const t = useI18n();
-    const {
-        state: { user }
-    } = useUser();
-    const userId = user.id;
     const { openSnackbar } = useSnackbar();
     const { push } = useRouter();
 
@@ -61,8 +57,8 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
         resolver: zodResolver(
             isEdit
                 ? defaultValues.logo
-                    ? getOrganizationUpdateSchema(t)
-                    : getOrganizationUpdateSchemaEmptyLogo(t)
+                    ? getCustomerOrgUpdateSchema(t)
+                    : getCustomerOrgUpdateSchemaEmptyLogo(t)
                 : getOrganizationCreateSchema(t)
         ),
         reValidateMode: 'onChange',
@@ -88,10 +84,9 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
             }
             if (isEdit) {
                 const updatedCustomer = await updateOrganizationCustomer(
-                    t,
                     formDataWithoutLogo,
                     dirtyFields,
-                    userId,
+                    logo?.name,
                     logoFormData
                 );
 
@@ -101,12 +96,7 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
 
                 openSnackbar(capitalize(t('successfully updated customer')));
             } else {
-                const createdCustomer = await createOrganizationCustomer(
-                    t,
-                    formData,
-                    userId,
-                    logoFormData
-                );
+                const createdCustomer = await createOrganizationCustomer(formData, logoFormData);
                 if (!createdCustomer) {
                     throw new Error(capitalize(t('could not create customer')));
                 }
@@ -115,7 +105,7 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
             push('/dashboard/customers');
         } catch (error) {
             if (error instanceof Error) {
-                openSnackbar(capitalize(t(error.message as TSingleTranslationKey)), 'error');
+                openSnackbar(capitalize(error.message), 'error');
             }
         }
     };

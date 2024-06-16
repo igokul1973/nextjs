@@ -11,23 +11,31 @@ import {
     TOrganizationFormOutputWithoutLogo
 } from '@/app/components/organizations/form/types';
 import prisma from '@/app/lib/prisma';
-import { TDirtyFields, TTranslateFn } from '@/app/lib/types';
-import { getDirtyValues, getLogoCreateOrUpdate, validateEntityFormData } from '@/app/lib/utils';
+import { TDirtyFields } from '@/app/lib/types';
+import {
+    getDirtyValues,
+    getLogoCreateOrUpdate,
+    getUser,
+    validateEntityFormData
+} from '@/app/lib/utils';
+import { getI18n } from '@/locales/server';
 import { AccountRelationEnum, EmailTypeEnum, PhoneTypeEnum, Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { revalidatePath } from 'next/cache';
 
 export async function createIndividualCustomer(
-    t: TTranslateFn,
     rawFormData: TIndividualFormOutput,
-    userId: string,
     rawLogoFormData?: FormData
 ) {
+    const t = await getI18n();
     try {
+        const { user, account } = await getUser();
+        const userId = user.id;
         const validatedFormData = validateEntityFormData<TIndividualFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
+            true,
             true
         );
 
@@ -36,8 +44,6 @@ export async function createIndividualCustomer(
         }
 
         const validatedData = validatedFormData.data;
-
-        const logoCreateOrUpdate = await getLogoCreateOrUpdate(validatedData.logo, userId, false);
 
         const {
             code,
@@ -55,7 +61,7 @@ export async function createIndividualCustomer(
 
         const createIndividualObject: Prisma.individualCreateWithoutCustomerInput = {
             ...entity,
-            logo: logoCreateOrUpdate,
+            // logo: logoCreateOrUpdate,
             accountRelation: accountRelation as AccountRelationEnum,
             account: {
                 connect: {
@@ -90,7 +96,7 @@ export async function createIndividualCustomer(
         };
 
         if (!data) {
-            throw new Error('Failed to create customer.');
+            throw new Error('could not create customer.');
         }
 
         const newCustomer = await prisma.customer.create({
@@ -98,33 +104,56 @@ export async function createIndividualCustomer(
             select: {
                 id: true,
                 isActive: true,
-                organization: true,
                 individual: true
             }
         });
+
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(
+            validatedData.logo,
+            userId,
+            account.id,
+            newCustomer.individual!.id,
+            false
+        );
+
+        if (logoCreateOrUpdate) {
+            await prisma.individual.update({
+                data: {
+                    logo: logoCreateOrUpdate
+                },
+                where: {
+                    id: newCustomer.individual!.id
+                },
+                select: {
+                    id: true
+                }
+            });
+        }
 
         console.log('Successfully created new individual customer: ', newCustomer);
 
         revalidatePath('/dashboard/customers');
         return newCustomer;
     } catch (error) {
-        console.error('Database Error:', error);
-        throw new Error('Database Error: Failed to create individual customer.');
+        console.error('Error:', error);
+        throw new Error(t('could not create customer'));
     }
 }
 
 export async function createOrganizationCustomer(
-    t: TTranslateFn,
     rawFormData: TOrganizationFormOutputWithoutLogo,
-    userId: string,
     rawLogoFormData?: FormData
 ) {
+    const t = await getI18n();
     try {
+        const { user, account } = await getUser();
+        const userId = user.id;
         const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
-            false
+            false,
+            true
         );
 
         if (!validatedFormData.success) {
@@ -132,8 +161,6 @@ export async function createOrganizationCustomer(
         }
 
         const validatedData = validatedFormData.data;
-
-        const logoCreateOrUpdate = await getLogoCreateOrUpdate(validatedData.logo, userId, false);
 
         const {
             code,
@@ -152,7 +179,6 @@ export async function createOrganizationCustomer(
 
         const createEntityObject = {
             ...entity,
-            logo: logoCreateOrUpdate,
             type: {
                 connect: {
                     id: typeId
@@ -192,51 +218,69 @@ export async function createOrganizationCustomer(
         };
 
         if (!data) {
-            throw new Error('Failed to create customer.');
+            throw new Error('could not create customer.');
         }
 
         const newCustomer = await prisma.customer.create({
             data,
-            include: {
-                organization: {
-                    include: {
-                        logo: true
-                    }
-                },
-                individual: {
-                    include: {
-                        logo: true
-                    }
-                }
+            select: {
+                id: true,
+                isActive: true,
+                organization: true
             }
         });
+
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(
+            validatedData.logo,
+            userId,
+            account.id,
+            newCustomer.organization!.id,
+            false
+        );
+
+        if (logoCreateOrUpdate) {
+            await prisma.organization.update({
+                data: {
+                    logo: logoCreateOrUpdate
+                },
+                where: {
+                    id: newCustomer.organization!.id
+                },
+                select: {
+                    id: true
+                }
+            });
+        }
 
         console.log('Successfully created new organization customer: ', newCustomer);
 
         revalidatePath('/dashboard/customers');
         return newCustomer;
     } catch (error) {
-        console.error('Database Error:', error);
-        throw new Error('database error: failed to create customer.');
+        console.error('Error:', error);
+        throw new Error(t('could not create customer'));
     }
 }
 export async function updateIndividualCustomer(
-    t: TTranslateFn,
     rawFormData: TIndividualFormOutputWithoutLogo,
     dirtyFields: TDirtyFields<TIndividualFormOutput>,
-    userId: string,
+    oldLogoName?: string,
     rawLogoFormData?: FormData
 ) {
+    const t = await getI18n();
     try {
+        const { user, account } = await getUser();
+        const userId = user.id;
         const validatedFormData = validateEntityFormData<TIndividualFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
+            true,
             true
         );
 
         if (!validatedFormData.success) {
-            return null;
+            throw Error('Form is invalid');
         }
 
         const validatedData = validatedFormData.data;
@@ -244,10 +288,17 @@ export async function updateIndividualCustomer(
         const changedFields = getDirtyValues<TIndividualFormOutput>(dirtyFields, validatedData);
 
         if (!changedFields) {
-            return null;
+            throw Error('No changes detected');
         }
 
-        const logoCreateOrUpdate = await getLogoCreateOrUpdate(changedFields.logo, userId, true);
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(
+            changedFields.logo,
+            userId,
+            account.id,
+            validatedData.id,
+            true,
+            oldLogoName
+        );
 
         const customerId = validatedData.customerId;
 
@@ -357,26 +408,29 @@ export async function updateIndividualCustomer(
         return updatedCustomer;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('database error: failed to update customer');
+        throw new Error(t('could not update customer'));
     }
 }
 export async function updateOrganizationCustomer(
-    t: TTranslateFn,
     rawFormData: TOrganizationFormOutputWithoutLogo,
     dirtyFields: TDirtyFields<TOrganizationFormOutput>,
-    userId: string,
+    oldLogoName?: string,
     rawLogoFormData?: FormData
 ) {
+    const t = await getI18n();
     try {
+        const { user, account } = await getUser();
+        const userId = user.id;
         const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
-            false
+            false,
+            true
         );
 
         if (!validatedFormData.success) {
-            return null;
+            throw Error('Form is invalid');
         }
 
         const validatedData = validatedFormData.data;
@@ -384,10 +438,17 @@ export async function updateOrganizationCustomer(
         const changedFields = getDirtyValues<TOrganizationFormOutput>(dirtyFields, validatedData);
 
         if (!changedFields) {
-            return null;
+            throw Error('No changes detected');
         }
 
-        const logoCreateOrUpdate = await getLogoCreateOrUpdate(changedFields.logo, userId, true);
+        const logoCreateOrUpdate = await getLogoCreateOrUpdate(
+            changedFields.logo,
+            userId,
+            account.id,
+            validatedData.id,
+            true,
+            oldLogoName
+        );
 
         const customerId = validatedData.customerId;
 
@@ -507,16 +568,17 @@ export async function updateOrganizationCustomer(
         return updatedCustomer;
     } catch (error) {
         console.error('Database Error:', error);
-        throw new Error('database error: failed to update customer');
+        throw new Error(t('could not update customer'));
     }
 }
 export async function deleteCustomerById(id: string): Promise<void> {
-    if (!id) {
-        throw Error('The id must be a valid UUID');
-    }
-
+    const t = await getI18n();
     // Creating customer in DB
     try {
+        if (!id) {
+            throw Error('The id must be a valid UUID');
+        }
+
         await prisma.customer.delete({
             where: {
                 id
@@ -527,14 +589,14 @@ export async function deleteCustomerById(id: string): Promise<void> {
 
         revalidatePath('/dashboard/customers');
     } catch (error: unknown) {
-        console.error('Database Error:', error);
+        console.error('Error:', error);
         if (
             error instanceof PrismaClientKnownRequestError &&
             error.message.toLocaleLowerCase().includes('foreign key constraint') &&
             error.message.toLocaleLowerCase().includes('invoices')
         ) {
-            throw new Error('cannot delete customer because it has associated invoices');
+            throw new Error(t('cannot delete customer because it has associated invoices'));
         }
-        throw new Error('database error: failed to delete customer');
+        throw new Error(t('could not delete customer'));
     }
 }

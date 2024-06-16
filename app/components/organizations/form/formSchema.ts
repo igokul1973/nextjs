@@ -70,15 +70,17 @@ export const getLogoUpdateSchema = (t: TTranslateFn) =>
         size: z.coerce.number().gt(0, { message: t('must be greater than', { count: 0 }) }),
         type: z.string().min(1),
         data: getFileSchema(t),
+        url: z.string().min(20, { message: t('must be greater than', { count: 0 }) }),
         createdBy: z.string(),
         updatedBy: z.string()
     });
 
-export const getLogoCreateSchema = (t: TTranslateFn) => getLogoUpdateSchema(t).omit({ id: true });
+export const getLogoCreateSchema = (t: TTranslateFn) =>
+    getLogoUpdateSchema(t).omit({ id: true, url: true });
 
 const getBaseOrganizationFormSchema = (t: TTranslateFn) =>
     z.object({
-        id: z.string().optional(),
+        id: z.string(),
         code: z
             .string()
             .max(50, { message: t('must be less than characters', { count: 50 }) })
@@ -115,11 +117,6 @@ export const getOrganizationCreateSchema = (t: TTranslateFn) =>
 export const getOrganizationUpdateSchema = (t: TTranslateFn) =>
     getBaseOrganizationFormSchema(t).extend({
         logo: getLogoUpdateSchema(t).nullish(),
-        customerId: z
-            .string({
-                required_error: t('customer ID is missing')
-            })
-            .min(1, { message: t('customer ID is missing') }),
         address: addressFormSchema,
         phones: phonesFormSchema,
         emails: emailsFormSchema,
@@ -129,13 +126,26 @@ export const getOrganizationUpdateSchema = (t: TTranslateFn) =>
 export const getOrganizationUpdateSchemaEmptyLogo = (t: TTranslateFn) =>
     getBaseOrganizationFormSchema(t).extend({
         logo: getLogoCreateSchema(t).nullish(),
-        customerId: z
-            .string({
-                required_error: t('customer ID is missing')
-            })
-            .min(1, { message: t('customer ID is missing') }),
         address: addressFormSchema,
         phones: phonesFormSchema,
         emails: emailsFormSchema,
         attributes: attributesFormSchema
+    });
+
+export const getCustomerOrgUpdateSchema = (t: TTranslateFn) =>
+    getOrganizationUpdateSchema(t).extend({
+        customerId: z
+            .string({
+                required_error: t('customer ID is missing')
+            })
+            .min(1, { message: t('customer ID is missing') })
+    });
+
+export const getCustomerOrgUpdateSchemaEmptyLogo = (t: TTranslateFn) =>
+    getOrganizationUpdateSchemaEmptyLogo(t).extend({
+        customerId: z
+            .string({
+                required_error: t('customer ID is missing')
+            })
+            .min(1, { message: t('customer ID is missing') })
     });

@@ -13,7 +13,7 @@ export async function getUserAccount(userId: string): Promise<TAccount | null> {
             }
         });
     } catch (error) {
-        console.log('Failed to fetch user: ', error);
-        throw new Error('Failed to fetch user account.');
+        console.log('could not fetch user: ', error);
+        throw new Error('could not fetch user account.');
     }
 }
