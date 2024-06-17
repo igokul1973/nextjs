@@ -47,7 +47,7 @@ const headCells: readonly IHeadCell[] = [
         id: 'customerName',
         isNumeric: false,
         disablePadding: false,
-        label: 'Customer name',
+        label: 'customer name',
         align: 'left'
     },
     {

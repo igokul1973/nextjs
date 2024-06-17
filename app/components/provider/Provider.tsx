@@ -4,14 +4,37 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { EntitiesEnum } from '@prisma/client';
 import { FC } from 'react';
-import { StyledProviderAttribute } from './styled';
+import { StyledProviderAttribute, StyledProviderAttributeLogo } from './styled';
 import { IProps } from './types';
 
-const Provider: FC<IProps> = ({ provider, providerType }) => {
+const Provider: FC<IProps> = ({ provider, providerType, logoUrl }) => {
     const t = useI18n();
 
     return (
         <Box component='article' sx={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+            <StyledProviderAttributeLogo>
+                <Typography variant='h6'>{capitalize(t('logo'))}:</Typography>
+                {logoUrl ? (
+                    <Box
+                        sx={{
+                            height: '50px',
+                            width: '100%'
+                        }}
+                    >
+                        <Box
+                            component='img'
+                            src={logoUrl}
+                            alt='Logo'
+                            sx={{
+                                height: '100%',
+                                objectFit: 'contain'
+                            }}
+                        />
+                    </Box>
+                ) : (
+                    <Box>{capitalize(t('no logo provided'))}</Box>
+                )}
+            </StyledProviderAttributeLogo>
             <StyledProviderAttribute>
                 <Typography variant='h6'>{capitalize(t('provider type'))}:</Typography>
                 <Typography variant='body1'>{capitalize(t(providerType))}</Typography>

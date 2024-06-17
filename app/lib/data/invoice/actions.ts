@@ -1,6 +1,7 @@
 'use server';
 
 import { TInvoiceFormOutput } from '@/app/components/invoices/form/types';
+import { baseUrl } from '@/app/lib/constants';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TFile } from '@/app/lib/types';
 import { getDirtyValues, getUser } from '@/app/lib/utils';
@@ -221,3 +222,40 @@ export async function deleteInvoiceById(id: string, status: InvoiceStatusEnum): 
         throw new Error(t('could not delete invoice'));
     }
 }
+
+export const fetchPdfUrl = async (
+    accountId: string,
+    entityId: string,
+    d: Record<string, unknown>
+) => {
+    'use server';
+    try {
+        const r = await fetch(`${baseUrl}/api/create/pdf`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                bucket: 'invoices',
+                accountId: accountId,
+                entityId: entityId,
+                pageSettings: {
+                    pageMargins: [20, 80, 20, 100]
+                },
+                data: d
+            }),
+            cache: 'no-store'
+        });
+
+        const json = await r.json();
+
+        if (!r.ok) {
+            throw new Error(json.error);
+        }
+
+        return json.url;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};

@@ -24,29 +24,6 @@ const Account: FC<IProps> = () => {
     return (
         <StyledAccountWrapper component='article'>
             <StyledProfile>
-                <StyledAccountAttributeLogo>
-                    <Typography variant='h6'>{capitalize(t('logo'))}:</Typography>
-                    {logoUrl ? (
-                        <Box
-                            sx={{
-                                height: '50px',
-                                width: '100%'
-                            }}
-                        >
-                            <Box
-                                component='img'
-                                src={logoUrl}
-                                alt='Logo'
-                                sx={{
-                                    height: '100%',
-                                    objectFit: 'contain'
-                                }}
-                            />
-                        </Box>
-                    ) : (
-                        <Box>{capitalize(t('no logo provided'))}</Box>
-                    )}
-                </StyledAccountAttributeLogo>
                 <StyledAccountAttribute>
                     <Typography variant='h6'>
                         {`${capitalize(t('account'))} ${t('id').toLocaleUpperCase()}`}:
@@ -58,7 +35,7 @@ const Account: FC<IProps> = () => {
                     {capitalize(t('provider'))}:
                 </Typography>
                 {!!provider && !!providerType ? (
-                    <Provider provider={provider} providerType={providerType} />
+                    <Provider provider={provider} providerType={providerType} logoUrl={logoUrl} />
                 ) : (
                     <Warning variant='body1'>No provider found. Please create one.</Warning>
                 )}

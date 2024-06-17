@@ -612,7 +612,7 @@ export const getLogoCreateOrUpdate = async (
 
     if (logoWithData) {
         const { data, ...logo } = logoWithData;
-        // Deleting old file upload first
+        // Deleting old file upload first, if it does not exist on old invoices
         if (oldLogoName) {
             await deleteFile(oldLogoName, 'images', accountId, entityId);
         }

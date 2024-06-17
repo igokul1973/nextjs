@@ -1,7 +1,6 @@
 import InvoiceView from '@/app/components/invoice-view/InvoiceView';
 import InvoicePdfView from '@/app/components/pdf/InvoicePdfView';
 import Warning from '@/app/components/warning/Warning';
-import { baseUrl } from '@/app/lib/constants';
 import { getInvoiceById } from '@/app/lib/data/invoice';
 import { TTransformedInvoice } from '@/app/lib/data/invoice/types';
 import { TTranslateFn } from '@/app/lib/types';
@@ -23,6 +22,7 @@ import { setStaticParamsLocale } from 'next-international/server';
 import { notFound } from 'next/navigation';
 import { FC } from 'react';
 import { IProps } from './types';
+import { fetchPdfUrl } from '@/app/lib/data/invoice/actions';
 
 const getInvoiceDefinition = ({
     invoice,
@@ -124,36 +124,6 @@ const getInvoiceDefinition = ({
     };
 };
 
-const fetchPdfUrl = async (d: Record<string, unknown>) => {
-    'use server';
-    try {
-        const r = await fetch(`${baseUrl}/api/create/pdf`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                pageSettings: {
-                    pageMargins: [20, 80, 20, 100]
-                },
-                data: d
-            }),
-            cache: 'no-store'
-        });
-
-        const json = await r.json();
-
-        if (!r.ok) {
-            throw new Error(json.error);
-        }
-
-        return json.url;
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }
-};
-
 const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParams: { isPdf } }) => {
     const t = await getI18n();
     setStaticParamsLocale(locale);
@@ -222,9 +192,7 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
             };
         }
 
-        const url = isPdf && (await fetchPdfUrl(d));
-
-        console.log(invoice.providerLogo?.url);
+        const url = isPdf && (await fetchPdfUrl(account.id, invoice.id, d));
 
         return (
             <Box component='article'>

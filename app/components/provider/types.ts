@@ -4,4 +4,5 @@ import { EntitiesEnum } from '@prisma/client';
 export interface IProps {
     provider: TEntity;
     providerType: EntitiesEnum;
+    logoUrl?: string;
 }

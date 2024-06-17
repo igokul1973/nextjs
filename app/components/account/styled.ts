@@ -21,19 +21,6 @@ export const StyledAccount = styled(Box, {
     gap: 0.5rem;
 `;
 
-export const StyledAccountAttributeLogo = styled(Box, {
-    name: 'Styled Account Attribute',
-    slot: 'Root'
-})`
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    align-items: center;
-    & div: {
-        border: 1px solid gray;
-    }
-`;
-
 export const StyledAccountAttribute = styled(Box, {
     name: 'Styled Account Attribute',
     slot: 'Root'
