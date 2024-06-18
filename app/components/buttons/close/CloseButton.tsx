@@ -11,7 +11,7 @@ const CloseRightDrawerButton: FC<IProps> = ({ className }) => {
     return (
         <StyledCloseButton
             className={className}
-            onClick={() => dispatch({ payload: { childComponent: null }, type: 'close' })}
+            onClick={() => dispatch({ payload: { childComponentName: null }, type: 'close' })}
         >
             <CloseIcon />
         </StyledCloseButton>

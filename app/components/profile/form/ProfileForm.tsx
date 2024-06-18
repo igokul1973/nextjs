@@ -1,6 +1,5 @@
 'use client';
 
-import { components } from '@/app/components/dashboard/avatar-menu/constants';
 import FileInput from '@/app/components/file/FileInput';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
@@ -85,10 +84,8 @@ const ProfileForm: FC<IProps> = () => {
     };
 
     const goBack = () => {
-        const { component, title, icon } = components.profile;
-
         rightDrawerDispatch({
-            payload: { childComponent: component, title, icon },
+            payload: { childComponentName: 'profile' },
             type: 'open'
         });
     };

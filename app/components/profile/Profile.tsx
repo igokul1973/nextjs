@@ -1,6 +1,5 @@
 'use client';
 
-import { components } from '@/app/components/dashboard/avatar-menu/constants';
 import Warning from '@/app/components/warning/Warning';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useUser } from '@/app/context/user/provider';
@@ -25,13 +24,10 @@ const Profile: FC = () => {
     const { dispatch } = useRightDrawerState();
 
     const onUpdateProfile = () => {
-        const { component, title, icon } = components.updateProfile;
         dispatch({
             type: 'open',
             payload: {
-                childComponent: component,
-                title: capitalize(t(title)),
-                icon
+                childComponentName: 'profileForm'
             }
         });
     };

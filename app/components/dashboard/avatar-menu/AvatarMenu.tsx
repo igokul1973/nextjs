@@ -18,8 +18,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Tooltip from '@mui/material/Tooltip';
 import Image from 'next/image';
 import { FC, MouseEvent, useState } from 'react';
-import { components } from './constants';
-import { TComponentName } from './types';
+import { TComponentName } from '../../right-drawer/types';
 
 const AvatarMenu: FC = () => {
     const t = useI18n();
@@ -40,13 +39,10 @@ const AvatarMenu: FC = () => {
     };
 
     const openRightPanel = (componentName: TComponentName) => {
-        const { component, title, icon } = components[componentName];
         dispatch({
             type: 'open',
             payload: {
-                childComponent: component,
-                title: capitalize(t(title)),
-                icon
+                childComponentName: componentName
             }
         });
         handleClose();

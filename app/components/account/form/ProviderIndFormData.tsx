@@ -1,6 +1,5 @@
 'use client';
 
-import { components } from '@/app/components/dashboard/avatar-menu/constants';
 import IndividualForm from '@/app/components/individuals/form/IndividualForm';
 import {
     getIndividualCreateSchema,
@@ -10,6 +9,7 @@ import {
 import { TIndividualForm, TIndividualFormOutput } from '@/app/components/individuals/form/types';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
+import { useUser } from '@/app/context/user/provider';
 import { createIndividual, updateIndividual } from '@/app/lib/data/indiviidual/actions';
 import { TDirtyFields } from '@/app/lib/types';
 import { useI18n } from '@/locales/client';
@@ -20,7 +20,6 @@ import Button from '@mui/material/Button';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { IProviderIndFormDataProps } from './types';
-import { useUser } from '@/app/context/user/provider';
 
 const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
     localIdentifierName,
@@ -110,10 +109,8 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
     };
 
     const goBack = () => {
-        const { component, title, icon } = components.account;
-
         rightDrawerDispatch({
-            payload: { childComponent: component, title, icon },
+            payload: { childComponentName: 'account' },
             type: 'open'
         });
     };

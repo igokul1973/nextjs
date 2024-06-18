@@ -5,34 +5,34 @@ import Settings from '@/app/components/settings/Settings';
 import AccountIcon from '@mui/icons-material/AccountCircleOutlined';
 import ProfileIcon from '@mui/icons-material/PersonOutlineOutlined';
 import SettingsIconOutlined from '@mui/icons-material/SettingsOutlined';
-import { FC } from 'react';
-import ProviderForm from '../../account/form/AccountForm';
+import ProviderForm from '@/app/components/account/form/AccountForm';
 import { TComponents } from './types';
+import { FC } from 'react';
 
 export const components: TComponents = {
     account: {
         title: 'account',
-        icon: AccountIcon,
-        component: Account as FC
+        component: Account as FC,
+        icon: AccountIcon
     },
-    updateProvider: {
+    providerForm: {
         title: 'update provider',
-        icon: AccountIcon,
-        component: ProviderForm
+        component: ProviderForm,
+        icon: AccountIcon
     },
     profile: {
         title: 'user profile',
-        icon: ProfileIcon,
-        component: Profile
+        component: Profile,
+        icon: ProfileIcon
     },
-    updateProfile: {
+    profileForm: {
         title: 'update user profile',
-        icon: ProfileIcon,
-        component: ProfileForm
+        component: ProfileForm,
+        icon: ProfileIcon
     },
     settings: {
         title: 'account settings',
-        icon: SettingsIconOutlined,
-        component: Settings
+        component: Settings,
+        icon: SettingsIconOutlined
     }
 };

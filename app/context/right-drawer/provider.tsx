@@ -12,19 +12,15 @@ const rightDrawerReducer = (
             return {
                 ...state,
                 isOpen: true,
-                childComponent: action.payload.childComponent,
-                data: action.payload.data,
-                title: action.payload.title,
-                icon: action.payload.icon
+                childComponentName: action.payload.childComponentName,
+                data: action.payload.data
             };
         case 'close':
             return {
                 ...state,
                 isOpen: false,
-                childComponent: action.payload.childComponent,
-                data: undefined,
-                title: undefined,
-                icon: undefined
+                childComponentName: action.payload.childComponentName,
+                data: undefined
             };
         default:
             throw new Error(`Unhandled action type: ${action.type}`);
@@ -42,7 +38,7 @@ export const NavContext = createContext<
 const RightDrawerProvider: FC<PropsWithChildren> = ({ children }) => {
     const [state, dispatch] = useReducer(rightDrawerReducer, {
         isOpen: false,
-        childComponent: null
+        childComponentName: null
     });
     const value = { state, dispatch };
     return <NavContext.Provider value={value}>{children}</NavContext.Provider>;

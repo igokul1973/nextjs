@@ -1,3 +1,5 @@
+'use client';
+
 import { useI18n } from '@/locales/client';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -7,8 +9,9 @@ import { FC } from 'react';
 import { StyledProviderAttribute, StyledProviderAttributeLogo } from './styled';
 import { IProps } from './types';
 
-const Provider: FC<IProps> = ({ provider, providerType, logoUrl }) => {
+const Provider: FC<IProps> = ({ provider, providerType }) => {
     const t = useI18n();
+    const logoUrl = provider?.logo?.url;
 
     return (
         <Box component='article' sx={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>

@@ -4,15 +4,10 @@ import { FC } from 'react';
 
 export interface IComponent {
     title: TSingleTranslationKey;
-    icon: TMuiIcon;
     component: FC;
+    icon?: TMuiIcon;
 }
 
-export type TComponentName =
-    | 'account'
-    | 'profile'
-    | 'settings'
-    | 'updateProfile'
-    | 'updateProvider';
+export type TComponentName = 'account' | 'profile' | 'settings' | 'profileForm' | 'providerForm';
 
 export type TComponents = Record<TComponentName, IComponent>;

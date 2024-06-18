@@ -1,6 +1,5 @@
 'use client';
 
-import { components } from '@/app/components/dashboard/avatar-menu/constants';
 import OrganizationForm from '@/app/components/organizations/form/OrganizationForm';
 import {
     getOrganizationCreateSchema,
@@ -111,10 +110,8 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps> = ({
     };
 
     const goBack = () => {
-        const { component, title, icon } = components.account;
-
         rightDrawerDispatch({
-            payload: { childComponent: component, title, icon },
+            payload: { childComponentName: 'account' },
             type: 'open'
         });
     };

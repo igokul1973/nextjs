@@ -1,12 +1,9 @@
-import { TMuiIcon } from '@/app/lib/types';
-import { FC } from 'react';
+import { TComponentName } from '@/app/components/right-drawer/types';
 
 export interface IRightDrawerState {
     isOpen: boolean;
-    childComponent: FC | null;
+    childComponentName: TComponentName | null;
     data?: Record<string, unknown>;
-    title?: string;
-    icon?: TMuiIcon;
 }
 
 export interface IRightDrawerAction {

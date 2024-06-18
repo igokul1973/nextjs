@@ -5,12 +5,11 @@ import Warning from '@/app/components/warning/Warning';
 import { useUser } from '@/app/context/user/provider';
 import { capitalize } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
-import { Box } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { FC } from 'react';
 import { StyledProfile } from '../profile/styled';
 import UpdateProviderButton from './UpdateProviderButton';
-import { StyledAccountAttribute, StyledAccountAttributeLogo, StyledAccountWrapper } from './styled';
+import { StyledAccountAttribute, StyledAccountWrapper } from './styled';
 import { IProps } from './types';
 
 const Account: FC<IProps> = () => {
@@ -18,8 +17,6 @@ const Account: FC<IProps> = () => {
     const {
         state: { account, provider, providerType }
     } = useUser();
-
-    const logoUrl = provider?.logo?.url;
 
     return (
         <StyledAccountWrapper component='article'>
@@ -35,7 +32,7 @@ const Account: FC<IProps> = () => {
                     {capitalize(t('provider'))}:
                 </Typography>
                 {!!provider && !!providerType ? (
-                    <Provider provider={provider} providerType={providerType} logoUrl={logoUrl} />
+                    <Provider provider={provider} providerType={providerType} />
                 ) : (
                     <Warning variant='body1'>No provider found. Please create one.</Warning>
                 )}
