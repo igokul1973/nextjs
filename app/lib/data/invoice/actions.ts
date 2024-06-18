@@ -13,13 +13,13 @@ import { getI18n } from '@/locales/server';
 import { InvoiceStatusEnum, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
-export async function createInvoice(formData: TInvoiceFormOutput): Promise<void> {
+export async function createInvoice(formData: TInvoiceFormOutput) {
     const t = await getI18n();
     try {
         const { account, provider } = await getUser();
 
         if (!provider) {
-            throw new Error('No provider was found, redirecting...', { cause: 'NO_PROVIDER' });
+            throw new Error(t('no provider was found, redirecting...'), { cause: 'NO_PROVIDER' });
         }
 
         const validationSchema = getInvoiceCreateSchema(t);
@@ -34,51 +34,6 @@ export async function createInvoice(formData: TInvoiceFormOutput): Promise<void>
 
         const { customer: rawCustomer, createdBy, updatedBy, ...invoice } = validatedData;
         const { customerId, customerType, ...customer } = rawCustomer;
-
-        let providerLogo: Omit<TFile, 'id' | 'createdAt' | 'updatedAt'> | undefined = undefined;
-
-        if (provider?.logo) {
-            const {
-                id,
-                createdBy: createdByLogo,
-                updatedBy: updatedByLogo,
-                createdAt,
-                updatedAt,
-                ...logo
-            } = provider.logo;
-            providerLogo = {
-                ...logo,
-                createdBy: createdBy,
-                updatedBy: updatedBy
-            };
-        }
-
-        // Now copying the provider logo in file storage and getting its URL
-        // in order to save it in DB as the invoice provider logo
-        // In other words, the logo files for the provider and the invoice
-        // are 2 separate files having 2 different URLs.
-        const sourcePath = provider?.logo?.url.split('/').slice(-2).join('/');
-
-        // TODO: Continue here...
-        // The same problem as before - no entity ID until the invoice is created.
-        // Therefore I must save the invoice in DB first, get its ID, then
-        // copy the logo in file storage and then save it in DB.
-        if (sourcePath && provider.logo) {
-            const url = await copyFileInStorage(
-                sourcePath,
-                'images',
-                account.id,
-                validatedData.id,
-                provider.logo.name
-            );
-
-            if (url && providerLogo) {
-                providerLogo = {
-                    ...providerLogo,
-                    url
-                };
-            }
-        }
 
         const { invoiceItems, status, ...partialInvoice } = invoice;
 
@@ -103,9 +58,6 @@ export async function createInvoice(formData: TInvoiceFormOutput): Promise<void>
                     id: createdBy
                 }
             },
-            providerLogo: providerLogo && {
-                create: providerLogo
-            },
             ...customer,
             customer: {
                 connect: {
@@ -114,12 +66,73 @@ export async function createInvoice(formData: TInvoiceFormOutput): Promise<void>
             },
             ...partialInvoice
         };
+        debugger;
 
-        const d = await prisma.invoice.create({ data });
-        console.log('Successfully created invoice: ', d);
+        const createdInvoice = await prisma.invoice.create({ data });
+        // Saving the provider logo, if any, to storage and DB
+        let providerLogo: Omit<TFile, 'id' | 'createdAt' | 'updatedAt'> | undefined = undefined;
+
+        if (provider?.logo) {
+            const {
+                id,
+                createdBy: createdByLogo,
+                updatedBy: updatedByLogo,
+                createdAt,
+                updatedAt,
+                ...logo
+            } = provider.logo;
+
+            providerLogo = {
+                ...logo,
+                createdBy: createdBy,
+                updatedBy: updatedBy
+            };
+        }
+
+        // Copying the provider logo in file storage and getting its URL
+        // in order to save it in DB as the invoice provider logo
+        // In other words, the logo files for the provider and the invoice
+        // are 2 separate files having 2 different URLs.
+        const sourcePath = provider?.logo?.url.split('/').slice(-2).join('/');
+
+        if (sourcePath && provider.logo) {
+            const url = await copyFileInStorage(
+                sourcePath,
+                'images',
+                account.id,
+                createdInvoice.id,
+                provider.logo.name
+            );
+
+            if (url && providerLogo) {
+                providerLogo = {
+                    ...providerLogo,
+                    url
+                };
+            }
+        }
+
+        const updatedInvoice = await prisma.invoice.update({
+            data: {
+                providerLogo: providerLogo && {
+                    create: providerLogo
+                }
+            },
+            where: {
+                id: createdInvoice.id
+            }
+        });
+
+        console.log('Successfully created invoice: ', updatedInvoice);
         revalidatePath('/dashboard/invoices');
+
+        return updatedInvoice;
     } catch (error) {
         console.error('Database Error:', error);
+
+        if (error instanceof Error && error.cause === 'NO_PROVIDER') {
+            throw new Error(error.message, { cause: 'NO_PROVIDER' });
+        }
         throw new Error(t('could not create invoice'));
     }
 }
@@ -146,11 +159,11 @@ export async function updateInvoice(
         const changedFields = getDirtyValues<TInvoiceFormOutput>(dirtyFields, validatedData);
 
         if (!changedFields) {
-            throw Error('No changes detected');
+            throw Error(t('no changes detected'));
         }
 
         if (!provider) {
-            throw new Error('No provider was found, redirecting...', { cause: 'NO_PROVIDER' });
+            throw new Error(t('no provider was found, redirecting...'), { cause: 'NO_PROVIDER' });
         }
 
         let providerLogo: Omit<TFile, 'id' | 'createdAt' | 'updatedAt'> | undefined = undefined;
@@ -281,22 +294,45 @@ export async function updateInvoice(
         revalidatePath('/dashboard/invoices');
         return updatedInvoice;
     } catch (error) {
-        console.error('Database Error:', error);
+        console.error('Error:', error);
+        if (error instanceof Error && error.cause === 'NO_PROVIDER') {
+            throw new Error(error.message, { cause: 'NO_PROVIDER' });
+        }
         throw new Error(t('could not update invoice'));
     }
 }
 
-export async function deleteInvoiceById(id: string, status: InvoiceStatusEnum): Promise<void> {
+export async function deleteInvoiceById(id: string): Promise<void> {
     const t = await getI18n();
+    const { account } = await getUser();
+
     try {
         if (!id) {
             throw Error('The id must be a valid UUID');
         }
 
-        if (status === InvoiceStatusEnum.paid) {
+        const invoice = await prisma.invoice.findUnique({
+            include: {
+                providerLogo: true
+            },
+            where: {
+                id
+            }
+        });
+
+        if (!invoice) {
+            throw new Error('invoice not found');
+        }
+
+        if (invoice.status === InvoiceStatusEnum.paid) {
             throw new Error(
-                `The invoice with ID: ${id} has already been paid and cannot be deleted.`
+                `The invoice with ID: ${id} has already been paid and cannot be deleted.`,
+                { cause: 'ALREADY_PAID' }
             );
+        }
+
+        if (invoice.providerLogo) {
+            await deleteFileInStorage(invoice.providerLogo.name, 'images', account.id, id);
         }
 
         await prisma.invoice.delete({
@@ -304,12 +340,18 @@ export async function deleteInvoiceById(id: string, status: InvoiceStatusEnum): 
                 id
             }
         });
+
         const successMessage = `Successfully deleted invoice with ID: ${id}.`;
         console.log(successMessage);
 
         revalidatePath('/dashboard/invoices');
     } catch (error) {
         console.error('Error:', error);
+        if (error instanceof Error && error.cause === 'ALREADY_PAID') {
+            throw new Error(t('invoice cannot be deleted because it was already paid'), {
+                cause: 'ALREADY_PAID'
+            });
+        }
         throw new Error(t('could not delete invoice'));
     }
 }

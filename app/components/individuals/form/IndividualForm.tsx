@@ -111,16 +111,18 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                 {!isCustomer && (
                     <FileInput inputName='logo' label={capitalize(t('logo'))} user={user} />
                 )}
-                <FormControl>
-                    <TextField
-                        label={capitalize(t('customer number'))}
-                        placeholder={capitalize(t('enter customer number'))}
-                        variant='outlined'
-                        error={!!errors.code}
-                        helperText={!!errors.code?.message && capitalize(errors.code.message)}
-                        {...register('code')}
-                    />
-                </FormControl>
+                {isCustomer && (
+                    <FormControl>
+                        <TextField
+                            label={capitalize(t('customer number'))}
+                            placeholder={capitalize(t('enter customer number'))}
+                            variant='outlined'
+                            error={!!errors.code}
+                            helperText={!!errors.code?.message && capitalize(errors.code.message)}
+                            {...register('code')}
+                        />
+                    </FormControl>
+                )}
                 <FormControl>
                     <TextField
                         label={capitalize(t('first name'))}

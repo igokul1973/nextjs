@@ -222,8 +222,13 @@ export const enSingle = {
     'enter inventory item name': 'enter inventory item name',
     'for billing inquiries': 'for billing inquiries',
     // Errors
+    'no changes detected': 'no changes detected',
+    'no provider was found, redirecting...': 'no provider was found, redirecting...',
     'must be a number': 'must be a number',
     'must be a date': 'must be a date',
+    'invoice not found': 'invoice not found',
+    'invoice cannot be deleted because it was already paid':
+        'invoice cannot be deleted because it was already paid',
     'could not load data': 'could not load data',
     'please enter at least one character': 'please enter at least one character',
     'please enter the name': 'please enter the name',
@@ -265,8 +270,8 @@ export const enSingle = {
     'select inventory item to get the price or enter one manually':
         'select inventory item to get the price or enter one manually',
     'please enter a customer': 'please enter a customer',
-    'file must be a PNG, JPG, JPEG, WEBP, or SVG image':
-        'file must be a PNG, JPG, JPEG, WEBP, or SVG image',
+    'file must be a PNG, JPG, JPEG, WEBP or SVG image':
+        'file must be a PNG, JPG, JPEG, WEBP or SVG image',
     'file must be a PNG, JPG, JPEG or SVG image': 'file must be a PNG, JPG, JPEG or SVG image',
     'enter the unit': 'enter the unit',
     'unit type is incorrect': 'unit type is incorrect',

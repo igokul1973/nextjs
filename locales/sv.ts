@@ -225,8 +225,13 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'enter inventory item name': 'ange inventeringsobjektnamn',
     'for billing inquiries': 'för faktureringsförslag',
     // Errors
+    'no changes detected': 'ingen ändring hittades',
+    'no provider was found, redirecting...': 'ingen leverantör hittades, omdirigerar...',
     'must be a number': 'måste vara ett nummer',
     'must be a date': 'måste vara ett datum',
+    'invoice not found': 'fakturan hittades inte',
+    'invoice cannot be deleted because it was already paid':
+        'fakturan kan inte raderas eftersom den redan har blivit betald',
     'could not load data': 'kunde inte ladda data',
     'please enter at least one character': 'var god ange minst ett tecken',
     'please enter the name': 'var god ange namnet',
@@ -269,7 +274,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'select inventory item to get the price or enter one manually':
         'val ett inventeringsobjectetsnamn för att fa priset eller ange det manuellt',
     'please enter a customer': 'var god ange en kund',
-    'file must be a PNG, JPG, JPEG, WEBP, or SVG image':
+    'file must be a PNG, JPG, JPEG, WEBP or SVG image':
         'filen måste vara en PNG, JPG, JPEG, WEBP eller SVG bild',
     'file must be a PNG, JPG, JPEG or SVG image':
         'filen måste vara en PNG, JPG, JPEG eller SVG bild',

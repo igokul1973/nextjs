@@ -1,11 +1,8 @@
 import { TTranslateFn } from '@/app/lib/types';
+import { getFileSchema } from '@/app/lib/utils';
 import { z } from 'zod';
 
-const validateBEFile = (file: object | undefined) => {
-    return !!file && 'lastModified' in file && 'name' in file && file instanceof Blob;
-};
-
-export const MAX_UPLOAD_SIZE = 1024 * 150; // 150KB
+export const MAX_UPLOAD_SIZE = 1024 * 100; // 100KB
 export const ACCEPTED_FILE_TYPES = [
     'image/png',
     'image/jpeg',
@@ -14,56 +11,18 @@ export const ACCEPTED_FILE_TYPES = [
     'image/svg+xml'
 ];
 
-const getFileSchema = (t: TTranslateFn) =>
-    z
-        .instanceof(typeof File === 'undefined' ? Blob : File)
-        .refine(
-            (file) => {
-                if (!file) {
-                    return true;
-                } else if (
-                    (typeof File !== 'undefined' && !(file instanceof File)) ||
-                    (typeof File === 'undefined' && !validateBEFile(file))
-                ) {
-                    return false;
-                }
-                return file.size <= MAX_UPLOAD_SIZE;
-            },
-            t('file size must be less than kb', { count: MAX_UPLOAD_SIZE })
-        )
-        .refine((file) => {
-            if (!file) {
-                return true;
-            } else if (
-                (typeof File !== 'undefined' && !(file instanceof File)) ||
-                (typeof File === 'undefined' && !validateBEFile(file))
-            ) {
-                return false;
-            }
-            return ACCEPTED_FILE_TYPES.includes(file.type);
-        }, t('file must be a PNG, JPG, JPEG, WEBP, or SVG image'))
-        .transform((val, ctx) => {
-            if (
-                (val !== null && typeof File !== 'undefined' && !(val instanceof File)) ||
-                (typeof File === 'undefined' && !validateBEFile(val))
-            ) {
-                ctx.addIssue({
-                    code: 'invalid_type',
-                    expected: 'object',
-                    received: typeof val
-                });
-                return z.NEVER;
-            }
-            return val;
-        });
-
 export const getAvatarUpdateSchema = (t: TTranslateFn) =>
     z.object({
         id: z.string(),
         name: z.string().min(5, { message: t('must be at least characters', { count: 5 }) }),
         size: z.coerce.number().gt(0, { message: t('must be greater than', { count: 0 }) }),
         type: z.string().min(1),
-        data: getFileSchema(t),
+        data: getFileSchema(
+            t,
+            ACCEPTED_FILE_TYPES,
+            'file must be a PNG, JPG, JPEG, WEBP or SVG image',
+            MAX_UPLOAD_SIZE
+        ),
         url: z.string().min(20, { message: t('must be greater than', { count: 0 }) }),
         createdBy: z.string(),
         updatedBy: z.string()

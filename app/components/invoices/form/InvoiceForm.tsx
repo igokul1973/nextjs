@@ -166,17 +166,20 @@ const InvoiceForm: FC<IProps> = ({
             if (isEdit) {
                 const updatedInvoice = await updateInvoice(formData, dirtyFields);
                 if (!updatedInvoice) {
-                    throw new Error('could not update invoice');
+                    throw new Error(t('could not update invoice'));
                 }
                 openSnackbar(capitalize(t('successfully updated invoice')));
             } else {
-                await createInvoice(formData);
+                const createdInvoice = await createInvoice(formData);
+                if (!createdInvoice) {
+                    throw new Error(t('could not create invoice'));
+                }
                 openSnackbar(capitalize(t('successfully created invoice')));
             }
             push('/dashboard/invoices');
         } catch (error) {
             if (error instanceof Error) {
-                openSnackbar(capitalize(t(error.message as TSingleTranslationKey)), 'error');
+                openSnackbar(capitalize(error.message), 'error');
                 if (error.cause === 'NO_PROVIDER') {
                     // FIXME: Gotta redirect to create provider page
                     push('/dashboard');

@@ -239,9 +239,9 @@ const InvoicesTable: FC<IProps> = ({
     // Avoid a layout jump when reaching the last page with empty rows.
     const emptyRows = pageNumber > 0 ? Math.max(0, rowsPerPage - invoices.length) : 0;
 
-    const deleteInvoice = async (id: string, number: string, status: InvoiceStatusEnum) => {
+    const deleteInvoice = async (id: string, number: string) => {
         try {
-            await deleteInvoiceById(id, status);
+            await deleteInvoiceById(id);
             openSnackbar(`Successfully deleted invoice #: ${number}`);
         } catch (error) {
             if (error instanceof Error) {
@@ -328,11 +328,7 @@ const InvoicesTable: FC<IProps> = ({
                                                         color='warning'
                                                         aria-label='edit'
                                                         onClick={() =>
-                                                            deleteInvoice(
-                                                                row.id,
-                                                                row.number,
-                                                                row.status
-                                                            )
+                                                            deleteInvoice(row.id, row.number)
                                                         }
                                                     >
                                                         <DeleteIcon />

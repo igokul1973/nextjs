@@ -1,6 +1,7 @@
 import { baseUrl } from '@/app/lib/constants';
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
 import { auth } from '@/auth';
+import { TSingleTranslationKey } from '@/locales/types.ts';
 import { EntitiesEnum, Prisma } from '@prisma/client';
 import dayjs, { Dayjs } from 'dayjs';
 import { redirect } from 'next/navigation';
@@ -1155,4 +1156,61 @@ export const deleteFileInStorage = async (
     });
 
     return await fileUploadRes?.text();
+};
+
+const validateBEFile = (file: object) => {
+    return 'lastModified' in file && 'name' in file && file instanceof Blob;
+};
+
+export const getFileSchema = (
+    t: TTranslateFn,
+    acceptedFileTypes: string[],
+    acceptedFileTypesError: TSingleTranslationKey,
+    maxFileSize: number
+) => {
+    return z
+        .any()
+        .optional()
+        .refine(
+            (file) => {
+                if (!file) {
+                    return true;
+                } else if (
+                    (typeof File !== 'undefined' && !(file instanceof File)) ||
+                    (typeof File === 'undefined' && !validateBEFile(file))
+                ) {
+                    return false;
+                }
+                return file.size <= maxFileSize;
+            },
+            t('file size must be less than kb', { count: maxFileSize })
+        )
+        .refine((file) => {
+            if (!file) {
+                return true;
+            } else if (
+                (typeof File !== 'undefined' && !(file instanceof File)) ||
+                (typeof File === 'undefined' && !validateBEFile(file))
+            ) {
+                return false;
+            }
+            return acceptedFileTypes.includes(file.type);
+        }, t(acceptedFileTypesError))
+        .transform((file, ctx) => {
+            if (file) {
+                const isFileInstanceOfFileInBrowser =
+                    typeof File !== 'undefined' && !(file instanceof File);
+                const isFileInstanceOfFileOnBE =
+                    typeof File === 'undefined' && !validateBEFile(file);
+                if (isFileInstanceOfFileInBrowser || isFileInstanceOfFileOnBE) {
+                    ctx.addIssue({
+                        code: 'invalid_type',
+                        expected: 'object',
+                        received: typeof file
+                    });
+                    return z.NEVER;
+                }
+            }
+            return file;
+        });
 };
