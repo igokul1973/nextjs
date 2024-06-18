@@ -12,8 +12,9 @@ import FileInput from '@/app/components/file/FileInput';
 import FormSelect from '@/app/components/form-select/FormSelect';
 import {
     IProps,
-    TOrganizationFormControl,
-    TOrganizationFormOutput
+    TCustomerOrgForm,
+    TCustomerOrgFormOutput,
+    TOrganizationFormControl
 } from '@/app/components/organizations/form/types';
 import PartialPhoneForm from '@/app/components/phones/form/PartialPhoneForm';
 import { useData } from '@/app/context/data/provider';
@@ -36,7 +37,7 @@ import { FC, PropsWithChildren, useState } from 'react';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import { StyledForm } from './styled';
-import { TOrganizationForm } from './types';
+import { TProviderOrgForm } from './types';
 
 const OrganizationForm: FC<IProps & PropsWithChildren> = ({
     localIdentifierName,
@@ -56,7 +57,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
         register,
         formState: { errors, isDirty },
         handleSubmit
-    } = useFormContext<TOrganizationForm, null, TOrganizationFormOutput>();
+    } = useFormContext<TCustomerOrgForm, null, TCustomerOrgFormOutput>();
 
     const phoneTypes = Object.values(PhoneTypeEnum);
     const emailTypes = Object.values(EmailTypeEnum);
@@ -223,7 +224,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
             <Box component={'h5'} sx={{ margin: 0 }}>
                 {capitalize(t('address'))}:
             </Box>
-            <PartialAddressForm<TOrganizationForm>
+            <PartialAddressForm<TProviderOrgForm>
                 countries={countries}
                 register={register as TEntityFormRegister}
                 control={control as TOrganizationFormControl}
@@ -234,7 +235,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                 {capitalize(t('phones'))}:
             </Box>
             {phones.map((phone, index) => (
-                <PartialPhoneForm<TOrganizationForm>
+                <PartialPhoneForm<TProviderOrgForm>
                     key={phone.id}
                     index={index}
                     types={phoneTypes}
@@ -255,7 +256,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                 {capitalize(t('email addresses'))}:
             </Box>
             {emails.map((email, index) => (
-                <PartialEmailForm<TOrganizationForm>
+                <PartialEmailForm<TProviderOrgForm>
                     key={email.id}
                     index={index}
                     types={emailTypes}
@@ -277,7 +278,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
             </Box>
             {attributes.length ? (
                 attributes.map((attribute, index) => (
-                    <PartialAttributeForm<TOrganizationForm>
+                    <PartialAttributeForm<TProviderOrgForm>
                         key={attribute.id}
                         index={index}
                         register={register as TEntityFormRegister}

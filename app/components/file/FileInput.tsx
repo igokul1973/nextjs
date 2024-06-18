@@ -100,13 +100,13 @@ const FileInput: FC<IProps> = ({ inputName, label, user }) => {
                             value={value && 'name' in value ? value.name : ''}
                             error={!!fileError}
                             helperText={
-                                !!fileError
+                                fileError
                                     ? getFileErrorMessage(fileError)
                                     : capitalize(
                                           t(
-                                              'square picture (png, jpg, jpeg, webp, or svg) with max file size: kb',
+                                              'square picture (png, jpg, jpeg or svg) with max file size: kb',
                                               {
-                                                  count: 200
+                                                  count: 100
                                               }
                                           )
                                       )

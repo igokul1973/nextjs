@@ -3,12 +3,12 @@
 import OrganizationForm from '@/app/components/organizations/form/OrganizationForm';
 import {
     getOrganizationCreateSchema,
-    getOrganizationUpdateSchema,
-    getOrganizationUpdateSchemaEmptyLogo
+    getProviderOrgUpdateSchema,
+    getProviderOrgUpdateSchemaEmptyLogo
 } from '@/app/components/organizations/form/formSchema';
 import {
-    TOrganizationForm,
-    TOrganizationFormOutput
+    TProviderOrgForm,
+    TProviderOrgFormOutput
 } from '@/app/components/organizations/form/types';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
@@ -39,12 +39,12 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps> = ({
         handleSubmit,
         formState: { errors, isDirty, dirtyFields, ...formState },
         ...methods
-    } = useForm<TOrganizationForm, unknown, TOrganizationFormOutput>({
+    } = useForm<TProviderOrgForm, unknown, TProviderOrgFormOutput>({
         resolver: zodResolver(
             isEdit
                 ? defaultValues.logo
-                    ? getOrganizationUpdateSchema(t)
-                    : getOrganizationUpdateSchemaEmptyLogo(t)
+                    ? getProviderOrgUpdateSchema(t)
+                    : getProviderOrgUpdateSchemaEmptyLogo(t)
                 : getOrganizationCreateSchema(t)
         ),
         reValidateMode: 'onChange',
@@ -58,7 +58,7 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps> = ({
     //     console.error('Errors:', errors);
     // }, [errors, w]);
 
-    const onSubmit = async (formData: TOrganizationFormOutput) => {
+    const onSubmit = async (formData: TProviderOrgFormOutput) => {
         try {
             const { logo, ...formDataWithoutLogo } = formData;
             let logoFormData: FormData | undefined = undefined;

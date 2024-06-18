@@ -81,7 +81,7 @@ const headCells: readonly IHeadCell[] = [
     }
 ];
 
-function EnhancedTableHead(props: IEnhancedTableProps) {
+function EnhancedTableHead(props: Readonly<IEnhancedTableProps>) {
     const t = useI18n();
     const { order, orderBy, onRequestSort } = props;
     const createSortHandler = (property: keyof IInvoiceTable) => (event: MouseEvent<unknown>) => {

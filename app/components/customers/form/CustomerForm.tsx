@@ -1,6 +1,11 @@
 'use client';
 
 import { StyledBox } from '@/app/[locale]/dashboard/customers/create/styled';
+import { TProviderIndForm } from '@/app/components/individuals/form/types';
+import { getCustomerIndDefaultFormValues } from '@/app/components/individuals/utils';
+import { TProviderOrgForm } from '@/app/components/organizations/form/types';
+import { getCustomerOrgDefaultFormValues } from '@/app/components/organizations/utils';
+import Warning from '@/app/components/warning/Warning';
 import { useUser } from '@/app/context/user/provider';
 import { useI18n } from '@/locales/client';
 import Business from '@mui/icons-material/Business';
@@ -13,11 +18,6 @@ import MenuItem from '@mui/material/MenuItem';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { EntitiesEnum } from '@prisma/client';
 import { FC, useEffect, useState } from 'react';
-import { TIndividualForm } from '../../individuals/form/types';
-import { getDefaultFormValues as getDefaultIndividualFormValues } from '../../individuals/utils';
-import { TOrganizationForm } from '../../organizations/form/types';
-import { getDefaultFormValues as getDefaultOrganizationFormValues } from '../../organizations/utils';
-import Warning from '../../warning/Warning';
 import CustomerIndFormData from './CustomerIndFormData';
 import CustomerOrgFormData from './CustomerOrgFormData';
 import { ICustomerFormProps } from './types';
@@ -29,11 +29,11 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
     } = useUser();
     const [customerType, setCustomerType] = useState<EntitiesEnum | ''>('');
 
-    const [defaultIndividualValues, setDefaultIndividualValues] = useState<TIndividualForm | null>(
+    const [defaultIndividualValues, setDefaultIndividualValues] = useState<TProviderIndForm | null>(
         null
     );
     const [defaultOrganizationValues, setDefaultOrganizationValues] =
-        useState<TOrganizationForm | null>(null);
+        useState<TProviderOrgForm | null>(null);
 
     const entities = Object.values(EntitiesEnum).map((entity) => {
         return {
@@ -53,7 +53,7 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
     useEffect(() => {
         if (customerType && individualLocalIdentifierName && organizationLocalIdentifierName) {
             if (customerType === EntitiesEnum.individual) {
-                const defaultValues = getDefaultIndividualFormValues(
+                const defaultValues = getCustomerIndDefaultFormValues(
                     account.id,
                     user.id,
                     userAccountCountry.id,
@@ -62,7 +62,7 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
                 setDefaultOrganizationValues(null);
                 setDefaultIndividualValues(defaultValues);
             } else {
-                const defaultValues = getDefaultOrganizationFormValues(
+                const defaultValues = getCustomerOrgDefaultFormValues(
                     account.id,
                     user.id,
                     userAccountCountry.id,

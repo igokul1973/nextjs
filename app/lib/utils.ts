@@ -10,24 +10,24 @@ import {
     getCustomerIndUpdateSchema,
     getCustomerIndUpdateSchemaEmptyLogo,
     getIndividualCreateSchema,
-    getIndividualUpdateSchema,
-    getIndividualUpdateSchemaEmptyLogo
+    getProviderIndUpdateSchema,
+    getProviderIndUpdateSchemaEmptyLogo
 } from '../components/individuals/form/formSchema.ts';
 import {
-    TIndividualFormOutput,
-    TIndividualFormOutputWithoutLogo
+    TProviderIndFormOutput,
+    TProviderIndFormOutputWithoutLogo
 } from '../components/individuals/form/types.ts';
 import { TCustomerOutput } from '../components/invoices/form/types';
 import {
     getCustomerOrgUpdateSchema,
     getCustomerOrgUpdateSchemaEmptyLogo,
     getOrganizationCreateSchema,
-    getOrganizationUpdateSchema,
-    getOrganizationUpdateSchemaEmptyLogo
+    getProviderOrgUpdateSchema,
+    getProviderOrgUpdateSchemaEmptyLogo
 } from '../components/organizations/form/formSchema.ts';
 import {
-    TOrganizationFormOutput,
-    TOrganizationFormOutputWithoutLogo
+    TProviderOrgFormOutput,
+    TProviderOrgFormOutputWithoutLogo
 } from '../components/organizations/form/types.ts';
 import { IUserState } from '../context/user/types';
 import { getIndividualFullNameString, getUserProvider } from './commonUtils.ts';
@@ -601,7 +601,7 @@ export const getUser = async () => {
 };
 
 export const getLogoCreateOrUpdate = async (
-    logoWithData: TIndividualFormOutput['logo'] | undefined,
+    logoWithData: TProviderIndFormOutput['logo'] | undefined,
     userId: string,
     accountId: string,
     entityId: string,
@@ -614,7 +614,7 @@ export const getLogoCreateOrUpdate = async (
         const { data, ...logo } = logoWithData;
         // Deleting old file upload first, if it does not exist on old invoices
         if (oldLogoName) {
-            await deleteFile(oldLogoName, 'images', accountId, entityId);
+            await deleteFileInStorage(oldLogoName, 'images', accountId, entityId);
         }
         // Uploading new file and getting its URL
         const { url } = await uploadFileAndGetUrl(data, 'images', accountId, entityId);
@@ -642,7 +642,7 @@ export const getLogoCreateOrUpdate = async (
     } else if (logoWithData === null && isUpdate) {
         // Deleting old file upload first
         if (oldLogoName) {
-            await deleteFile(oldLogoName, 'images', accountId, entityId);
+            await deleteFileInStorage(oldLogoName, 'images', accountId, entityId);
         }
         logoCreateOrUpdate = {
             delete: true
@@ -653,14 +653,15 @@ export const getLogoCreateOrUpdate = async (
 };
 
 const getEntityValidationSchema = <
-    T extends TIndividualFormOutputWithoutLogo | TOrganizationFormOutputWithoutLogo
+    T extends TProviderIndFormOutputWithoutLogo | TProviderOrgFormOutputWithoutLogo
 >(
     formData: T,
     logoFormData:
         | {
               [k: string]: FormDataEntryValue;
           }
-        | undefined,
+        | undefined
+        | null,
     isIndividual: boolean,
     isCustomer: boolean
 ) => {
@@ -672,24 +673,24 @@ const getEntityValidationSchema = <
             ? isLogo
                 ? isCustomer
                     ? getCustomerIndUpdateSchema
-                    : getIndividualUpdateSchema
+                    : getProviderIndUpdateSchema
                 : isCustomer
                   ? getCustomerIndUpdateSchemaEmptyLogo
-                  : getIndividualUpdateSchemaEmptyLogo
+                  : getProviderIndUpdateSchemaEmptyLogo
             : getIndividualCreateSchema
         : isEdit
           ? isLogo
               ? isCustomer
                   ? getCustomerOrgUpdateSchema
-                  : getOrganizationUpdateSchema
+                  : getProviderOrgUpdateSchema
               : isCustomer
                 ? getCustomerOrgUpdateSchemaEmptyLogo
-                : getOrganizationUpdateSchemaEmptyLogo
+                : getProviderOrgUpdateSchemaEmptyLogo
           : getOrganizationCreateSchema;
 };
 
 export const validateEntityFormData = <
-    T extends TIndividualFormOutputWithoutLogo | TOrganizationFormOutputWithoutLogo
+    T extends TProviderIndFormOutputWithoutLogo | TProviderOrgFormOutputWithoutLogo
 >(
     t: TTranslateFn,
     formDataWithoutLogo: T,
@@ -697,8 +698,8 @@ export const validateEntityFormData = <
     isIndividual: boolean,
     isCustomer: boolean
 ): SafeParseReturnType<
-    T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] },
-    T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] }
+    T & { logo: TProviderIndFormOutput['logo'] | TProviderOrgFormOutput['logo'] },
+    T & { logo: TProviderIndFormOutput['logo'] | TProviderOrgFormOutput['logo'] }
 > => {
     const logoFormData = rawLogoFormData ? Object.fromEntries(rawLogoFormData.entries()) : null;
     const formData = { ...formDataWithoutLogo, logo: logoFormData };
@@ -711,8 +712,8 @@ export const validateEntityFormData = <
     );
 
     return validationSchema(t).safeParse(formData) as SafeParseReturnType<
-        T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] },
-        T & { logo: TIndividualFormOutput['logo'] | TOrganizationFormOutput['logo'] }
+        T & { logo: TProviderIndFormOutput['logo'] | TProviderOrgFormOutput['logo'] },
+        T & { logo: TProviderIndFormOutput['logo'] | TProviderOrgFormOutput['logo'] }
     >;
 };
 
@@ -1110,7 +1111,31 @@ export const uploadFileAndGetUrl = async (
     return null;
 };
 
-export const deleteFile = async (
+export const copyFileInStorage = async (
+    sourcePath: string,
+    bucket: string,
+    accountId: string,
+    entityId: string,
+    fileName: string
+): Promise<string | undefined> => {
+    const r = await fetch(`${baseUrl}/api/file/copy`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            sourcePath,
+            bucket,
+            accountId,
+            entityId,
+            fileName
+        })
+    });
+    const { url } = await r.json();
+    return url;
+};
+
+export const deleteFileInStorage = async (
     fileName: string,
     bucket: string,
     accountId: string,

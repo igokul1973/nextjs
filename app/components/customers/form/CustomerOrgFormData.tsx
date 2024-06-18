@@ -4,13 +4,11 @@ import OrganizationForm from '@/app/components/organizations/form/OrganizationFo
 import {
     getCustomerOrgUpdateSchema,
     getCustomerOrgUpdateSchemaEmptyLogo,
-    getOrganizationCreateSchema,
-    getOrganizationUpdateSchema,
-    getOrganizationUpdateSchemaEmptyLogo
+    getOrganizationCreateSchema
 } from '@/app/components/organizations/form/formSchema';
 import {
-    TOrganizationForm,
-    TOrganizationFormOutput
+    TCustomerOrgForm,
+    TCustomerOrgFormOutput
 } from '@/app/components/organizations/form/types';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import {
@@ -53,7 +51,7 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
         watch,
         formState: { errors, dirtyFields, isDirty, ...formState },
         ...methods
-    } = useForm<TOrganizationForm, unknown, TOrganizationFormOutput>({
+    } = useForm<TCustomerOrgForm, unknown, TCustomerOrgFormOutput>({
         resolver: zodResolver(
             isEdit
                 ? defaultValues.logo
@@ -72,7 +70,7 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
     //     console.error('Errors:', errors);
     // }, [errors, w]);
 
-    const onSubmit = async (formData: TOrganizationFormOutput) => {
+    const onSubmit = async (formData: TCustomerOrgFormOutput) => {
         try {
             const { logo, ...formDataWithoutLogo } = formData;
             let logoFormData: FormData | undefined = undefined;

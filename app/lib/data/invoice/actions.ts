@@ -1,10 +1,14 @@
 'use server';
 
+import {
+    getInvoiceCreateSchema,
+    getInvoiceUpdateSchema
+} from '@/app/components/invoices/form/formSchema';
 import { TInvoiceFormOutput } from '@/app/components/invoices/form/types';
 import { baseUrl } from '@/app/lib/constants';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TFile } from '@/app/lib/types';
-import { getDirtyValues, getUser } from '@/app/lib/utils';
+import { copyFileInStorage, deleteFileInStorage, getDirtyValues, getUser } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
 import { InvoiceStatusEnum, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
@@ -12,8 +16,23 @@ import { revalidatePath } from 'next/cache';
 export async function createInvoice(formData: TInvoiceFormOutput): Promise<void> {
     const t = await getI18n();
     try {
-        const { provider } = await getUser();
-        const { customer: rawCustomer, createdBy, updatedBy, ...invoice } = formData;
+        const { account, provider } = await getUser();
+
+        if (!provider) {
+            throw new Error('No provider was found, redirecting...', { cause: 'NO_PROVIDER' });
+        }
+
+        const validationSchema = getInvoiceCreateSchema(t);
+
+        const validatedFormData = validationSchema.safeParse(formData);
+
+        if (!validatedFormData.success) {
+            throw Error('Form is invalid');
+        }
+
+        const validatedData = validatedFormData.data;
+
+        const { customer: rawCustomer, createdBy, updatedBy, ...invoice } = validatedData;
         const { customerId, customerType, ...customer } = rawCustomer;
 
         let providerLogo: Omit<TFile, 'id' | 'createdAt' | 'updatedAt'> | undefined = undefined;
@@ -32,6 +51,33 @@ export async function createInvoice(formData: TInvoiceFormOutput): Promise<void>
                 createdBy: createdBy,
                 updatedBy: updatedBy
             };
+        }
+
+        // Now copying the provider logo in file storage and getting its URL
+        // in order to save it in DB as the invoice provider logo
+        // In other words, the logo files for the provider and the invoice
+        // are 2 separate files having 2 different URLs.
+        const sourcePath = provider?.logo?.url.split('/').slice(-2).join('/');
+
+        // TODO: Continue here...
+        // The same problem as before - no entity ID until the invoice is created.
+        // Therefore I must save the invoice in DB first, get its ID, then
+        // copy the logo in file storage and then save it in DB.
+        if (sourcePath && provider.logo) {
+            const url = await copyFileInStorage(
+                sourcePath,
+                'images',
+                account.id,
+                validatedData.id,
+                provider.logo.name
+            );
+
+            if (url && providerLogo) {
+                providerLogo = {
+                    ...providerLogo,
+                    url
+                };
+            }
         }
 
         const { invoiceItems, status, ...partialInvoice } = invoice;
@@ -84,21 +130,32 @@ export async function updateInvoice(
 ) {
     const t = await getI18n();
     try {
-        const { user } = await getUser();
+        const { user, account, provider } = await getUser();
         const userId = user.id;
-        const changedFields = getDirtyValues<TInvoiceFormOutput>(dirtyFields, formData);
+
+        const validationSchema = getInvoiceUpdateSchema(t);
+
+        const validatedFormData = validationSchema.safeParse(formData);
+
+        if (!validatedFormData.success) {
+            throw Error('Form is invalid');
+        }
+
+        const validatedData = validatedFormData.data;
+
+        const changedFields = getDirtyValues<TInvoiceFormOutput>(dirtyFields, validatedData);
 
         if (!changedFields) {
             throw Error('No changes detected');
         }
 
-        const { provider } = await getUser();
+        if (!provider) {
+            throw new Error('No provider was found, redirecting...', { cause: 'NO_PROVIDER' });
+        }
 
         let providerLogo: Omit<TFile, 'id' | 'createdAt' | 'updatedAt'> | undefined = undefined;
 
-        if (!provider) {
-            throw new Error('No provider was found, redirecting...', { cause: 'NO_PROVIDER' });
-        } else if (provider.logo) {
+        if (provider.logo) {
             const {
                 id,
                 createdBy: createdByLogo,
@@ -123,14 +180,48 @@ export async function updateInvoice(
             ...partialChangedFields
         } = changedFields;
 
+        // Removing provider logo from file storage if it exists
+        if (validatedData.providerLogoId) {
+            const file = await prisma.file.findUnique({
+                where: {
+                    id: validatedData.providerLogoId
+                }
+            });
+            if (file) {
+                await deleteFileInStorage(file.name, 'images', account.id, validatedData.id);
+            }
+        }
+
+        // Now copying the provider logo in file storage and getting its URL
+        // in order to save it in DB as the invoice provider logo
+        // In other words, the logo files for the provider and the invoice
+        // are 2 separate files having 2 different URLs.
+        const sourcePath = provider.logo?.url.split('/').slice(-2).join('/');
+        if (sourcePath && provider.logo) {
+            const url = await copyFileInStorage(
+                sourcePath,
+                'images',
+                account.id,
+                validatedData.id,
+                provider.logo.name
+            );
+
+            if (url && providerLogo) {
+                providerLogo = {
+                    ...providerLogo,
+                    url
+                };
+            }
+        }
+
         let data: Prisma.invoiceUpdateInput = {
             ...partialChangedFields,
             providerLogo: {
-                delete: !!formData.providerLogoId,
-                upsert: providerLogo && {
-                    create: providerLogo,
-                    update: providerLogo
-                }
+                // Removing provider logo from DB if it exists
+                delete: !!validatedData.providerLogoId,
+                // Creating again because we do not
+                // know if the provider had it changed
+                create: providerLogo
             },
             updatedByUser: {
                 connect: {
@@ -158,7 +249,7 @@ export async function updateInvoice(
             const invoiceItemsData = {
                 invoiceItems: {
                     deleteMany: {
-                        invoiceId: formData.id
+                        invoiceId: validatedData.id
                     },
                     createMany: {
                         data: preparedInvoiceItems
@@ -181,7 +272,7 @@ export async function updateInvoice(
 
         const updatedInvoice = await prisma.invoice.update({
             where: {
-                id: formData.id
+                id: validatedData.id
             },
             data
         });

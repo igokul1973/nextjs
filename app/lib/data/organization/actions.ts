@@ -2,8 +2,8 @@
 
 import { TEmail, TPhone } from '@/app/components/individuals/form/types';
 import {
-    TOrganizationFormOutput,
-    TOrganizationFormOutputWithoutLogo
+    TProviderOrgFormOutput,
+    TProviderOrgFormOutputWithoutLogo
 } from '@/app/components/organizations/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields } from '@/app/lib/types';
@@ -19,7 +19,7 @@ import { revalidatePath } from 'next/cache';
 import { includeOrganizationRelations } from './types';
 
 export async function createOrganization(
-    rawFormData: TOrganizationFormOutputWithoutLogo,
+    rawFormData: TProviderOrgFormOutputWithoutLogo,
     rawLogoFormData?: FormData
 ) {
     const t = await getI18n();
@@ -28,7 +28,7 @@ export async function createOrganization(
         const { user, account } = await getUser();
         const userId = user.id;
 
-        const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
+        const validatedFormData = validateEntityFormData<TProviderOrgFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
@@ -123,8 +123,8 @@ export async function createOrganization(
     }
 }
 export async function updateOrganization(
-    rawFormData: TOrganizationFormOutputWithoutLogo,
-    dirtyFields: TDirtyFields<TOrganizationFormOutput>,
+    rawFormData: TProviderOrgFormOutputWithoutLogo,
+    dirtyFields: TDirtyFields<TProviderOrgFormOutput>,
     oldLogoName?: string,
     rawLogoFormData?: FormData
 ) {
@@ -133,7 +133,7 @@ export async function updateOrganization(
         const { user, account } = await getUser();
         const userId = user.id;
 
-        const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
+        const validatedFormData = validateEntityFormData<TProviderOrgFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
@@ -147,7 +147,7 @@ export async function updateOrganization(
 
         const validatedData = validatedFormData.data;
 
-        const changedFields = getDirtyValues<TOrganizationFormOutput>(dirtyFields, validatedData);
+        const changedFields = getDirtyValues<TProviderOrgFormOutput>(dirtyFields, validatedData);
 
         if (!changedFields) {
             throw Error('No changes detected');

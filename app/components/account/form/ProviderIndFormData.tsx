@@ -3,10 +3,10 @@
 import IndividualForm from '@/app/components/individuals/form/IndividualForm';
 import {
     getIndividualCreateSchema,
-    getIndividualUpdateSchema,
-    getIndividualUpdateSchemaEmptyLogo
+    getProviderIndUpdateSchema,
+    getProviderIndUpdateSchemaEmptyLogo
 } from '@/app/components/individuals/form/formSchema';
-import { TIndividualForm, TIndividualFormOutput } from '@/app/components/individuals/form/types';
+import { TProviderIndForm, TProviderIndFormOutput } from '@/app/components/individuals/form/types';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
@@ -37,12 +37,12 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
         handleSubmit,
         formState: { errors, isDirty, dirtyFields, ...formState },
         ...methods
-    } = useForm<TIndividualForm, unknown, TIndividualFormOutput>({
+    } = useForm<TProviderIndForm, unknown, TProviderIndFormOutput>({
         resolver: zodResolver(
             isEdit
                 ? defaultValues.logo
-                    ? getIndividualUpdateSchema(t)
-                    : getIndividualUpdateSchemaEmptyLogo(t)
+                    ? getProviderIndUpdateSchema(t)
+                    : getProviderIndUpdateSchemaEmptyLogo(t)
                 : getIndividualCreateSchema(t)
         ),
         reValidateMode: 'onChange',
@@ -56,7 +56,7 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
     //     console.error('Errors:', errors);
     // }, [errors, w]);
 
-    const onSubmit = async (formData: TIndividualFormOutput) => {
+    const onSubmit = async (formData: TProviderIndFormOutput) => {
         try {
             const { logo, ...formDataWithoutLogo } = formData;
             let logoFormData: FormData | undefined = undefined;
@@ -69,7 +69,7 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
             if (isEdit) {
                 const updatedProvider = await updateIndividual(
                     formDataWithoutLogo,
-                    dirtyFields as TDirtyFields<TIndividualFormOutput>,
+                    dirtyFields as TDirtyFields<TProviderIndFormOutput>,
                     logo?.name,
                     logoFormData
                 );

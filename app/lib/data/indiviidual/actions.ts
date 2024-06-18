@@ -2,9 +2,9 @@
 
 import {
     TEmail,
-    TIndividualFormOutput,
-    TIndividualFormOutputWithoutLogo,
-    TPhone
+    TPhone,
+    TProviderIndFormOutput,
+    TProviderIndFormOutputWithoutLogo
 } from '@/app/components/individuals/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields } from '@/app/lib/types';
@@ -20,7 +20,7 @@ import { revalidatePath } from 'next/cache';
 import { includeIndividualRelations } from './types';
 
 export async function createIndividual(
-    rawFormData: TIndividualFormOutput,
+    rawFormData: TProviderIndFormOutput,
     rawLogoFormData?: FormData
 ) {
     const t = await getI18n();
@@ -28,7 +28,7 @@ export async function createIndividual(
     const userId = user?.id;
 
     try {
-        const validatedFormData = validateEntityFormData<TIndividualFormOutputWithoutLogo>(
+        const validatedFormData = validateEntityFormData<TProviderIndFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
@@ -126,8 +126,8 @@ export async function createIndividual(
     }
 }
 export async function updateIndividual(
-    rawFormData: TIndividualFormOutputWithoutLogo,
-    dirtyFields: TDirtyFields<TIndividualFormOutput>,
+    rawFormData: TProviderIndFormOutputWithoutLogo,
+    dirtyFields: TDirtyFields<TProviderIndFormOutput>,
     oldLogoName?: string,
     rawLogoFormData?: FormData
 ) {
@@ -136,7 +136,7 @@ export async function updateIndividual(
         const { user, account } = await getUser();
         const userId = user.id;
 
-        const validatedFormData = validateEntityFormData<TIndividualFormOutputWithoutLogo>(
+        const validatedFormData = validateEntityFormData<TProviderIndFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
@@ -150,7 +150,7 @@ export async function updateIndividual(
 
         const validatedData = validatedFormData.data;
 
-        const changedFields = getDirtyValues<TIndividualFormOutput>(dirtyFields, validatedData);
+        const changedFields = getDirtyValues<TProviderIndFormOutput>(dirtyFields, validatedData);
 
         if (!changedFields) {
             throw Error('No changes detected');

@@ -1,8 +1,8 @@
 import { TEntityFormRegister } from '@/app/components/customers/types';
-import { TIndividualForm, TIndividualFormControl } from '@/app/components/individuals/form/types';
+import { TIndividualFormControl, TProviderIndForm } from '@/app/components/individuals/form/types';
 import {
-    TOrganizationForm,
-    TOrganizationFormControl
+    TOrganizationFormControl,
+    TProviderOrgForm
 } from '@/app/components/organizations/form/types';
 import { FieldErrors, UseFieldArrayRemove } from 'react-hook-form';
 
@@ -15,15 +15,15 @@ export enum AttributeTypeEnum {
 export interface IProps<T> {
     index: number;
     register: TEntityFormRegister;
-    control: T extends TIndividualForm
+    control: T extends TProviderIndForm
         ? TIndividualFormControl
-        : T extends TOrganizationForm
+        : T extends TProviderOrgForm
           ? TOrganizationFormControl
           : never;
-    errors: T extends TIndividualForm
-        ? FieldErrors<TIndividualForm>
-        : T extends TOrganizationForm
-          ? FieldErrors<TOrganizationForm>
+    errors: T extends TProviderIndForm
+        ? FieldErrors<TProviderIndForm>
+        : T extends TProviderOrgForm
+          ? FieldErrors<TProviderOrgForm>
           : never;
     remove: UseFieldArrayRemove;
 }

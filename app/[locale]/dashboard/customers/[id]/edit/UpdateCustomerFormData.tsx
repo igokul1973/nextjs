@@ -1,9 +1,9 @@
 import CustomerIndFormData from '@/app/components/customers/form/CustomerIndFormData';
 import CustomerOrgFormData from '@/app/components/customers/form/CustomerOrgFormData';
-import { TAttribute, TIndividualForm } from '@/app/components/individuals/form/types';
-import { getDefaultFormValues as getDefaultIndividualFormValues } from '@/app/components/individuals/utils';
-import { TOrganizationForm } from '@/app/components/organizations/form/types';
-import { getDefaultFormValues as getDefaultOrganizationFormValues } from '@/app/components/organizations/utils';
+import { TAttribute, TProviderIndForm } from '@/app/components/individuals/form/types';
+import { getCustomerIndDefaultFormValues } from '@/app/components/individuals/utils';
+import { TProviderOrgForm } from '@/app/components/organizations/form/types';
+import { getCustomerOrgDefaultFormValues } from '@/app/components/organizations/utils';
 import Warning from '@/app/components/warning/Warning';
 import { getCustomerById } from '@/app/lib/data/customer';
 import { getLocalIdentifierNamesByCountryId } from '@/app/lib/data/local-identifier-name';
@@ -82,13 +82,13 @@ const UpdateCustomerFormData: FC<IProps> = async ({ params: { id, locale } }) =>
     };
 
     const defaultForm = isIndividual
-        ? getDefaultIndividualFormValues(
+        ? getCustomerIndDefaultFormValues(
               account.id,
               user.id,
               userAccountCountry.id,
               individualLocalIdentifierName.id
           )
-        : getDefaultOrganizationFormValues(
+        : getCustomerOrgDefaultFormValues(
               account.id,
               user.id,
               userAccountCountry.id,
@@ -99,18 +99,18 @@ const UpdateCustomerFormData: FC<IProps> = async ({ params: { id, locale } }) =>
     // some keys at all, but the form expects certain values to be set
     // in order to later calculate the dirty values, we need to convert them where
     // appropriate to default values.
-    const defaultValues = populateForm<TIndividualForm | TOrganizationForm>(defaultForm, form);
+    const defaultValues = populateForm<TProviderIndForm | TProviderOrgForm>(defaultForm, form);
 
     return isIndividual ? (
         <CustomerIndFormData
             localIdentifierName={individualLocalIdentifierName}
-            rawDefaultValues={defaultValues as TIndividualForm}
+            rawDefaultValues={defaultValues as TProviderIndForm}
             isEdit
         />
     ) : (
         <CustomerOrgFormData
             localIdentifierName={individualLocalIdentifierName}
-            rawDefaultValues={defaultValues as TOrganizationForm}
+            rawDefaultValues={defaultValues as TProviderOrgForm}
             isEdit
         />
     );

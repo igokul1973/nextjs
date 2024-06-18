@@ -4,20 +4,19 @@ import {
     getPhonesInitial
 } from '@/app/[locale]/dashboard/customers/utils';
 import { AccountRelationEnum } from '@prisma/client';
-import { TOrganizationForm } from './form/types';
+import { TCustomerOrgForm, TProviderOrgForm } from './form/types';
 
-export const getDefaultFormValues = (
+export const getProviderOrgDefaultFormValues = (
     accountId: string,
     userId: string,
     userAccountCountryId: string,
     localIdentifierNameId: string
-): TOrganizationForm => {
+): TProviderOrgForm => {
     return {
         id: '',
         code: '',
         accountRelation: AccountRelationEnum.customer,
         accountId: accountId,
-        customerId: '',
         logo: null,
         name: '',
         localIdentifierNameId: localIdentifierNameId,
@@ -42,5 +41,22 @@ export const getDefaultFormValues = (
         attributes: attributesInitial,
         createdBy: userId,
         updatedBy: userId
+    };
+};
+
+export const getCustomerOrgDefaultFormValues = (
+    accountId: string,
+    userId: string,
+    userAccountCountryId: string,
+    localIdentifierNameId: string
+): TCustomerOrgForm => {
+    return {
+        ...getProviderOrgDefaultFormValues(
+            accountId,
+            userId,
+            userAccountCountryId,
+            localIdentifierNameId
+        ),
+        customerId: ''
     };
 };

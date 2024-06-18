@@ -14,10 +14,10 @@ const svPlural: Record<TPluralTranslationKeyRaw, string> = {
         'priset kan inte vara mer än 999 999 999 999.99',
     'file size must be less than kb#other': 'filen måste vara mindre än {count} KB',
     'file size must be less than mb#other': 'filen måste vara mindre än {count} MB',
-    'square picture (png, jpg, jpeg, webp, or svg) with max file size: kb#other':
-        'fyrkantig bild (png, jpg, jpeg, webp, eller svg) med maximal filstorlek: {count} KB',
-    'square picture (png, jpg, jpeg, webp, or svg) with max file size mb#other':
-        'fyrkantig bild (png, jpg, jpeg, webp, eller svg) med maximal filstorlek: {count} MB'
+    'square picture (png, jpg, jpeg or svg) with max file size: kb#other':
+        'fyrkantig bild (png, jpg, jpeg eller svg) med maximal filstorlek: {count} KB',
+    'square picture (png, jpg, jpeg or svg) with max file size mb#other':
+        'fyrkantig bild (png, jpg, jpeg eller svg) med maximal filstorlek: {count} MB'
 };
 
 const svSingle: Record<TSingleTranslationKey, string> = {
@@ -270,7 +270,9 @@ const svSingle: Record<TSingleTranslationKey, string> = {
         'val ett inventeringsobjectetsnamn för att fa priset eller ange det manuellt',
     'please enter a customer': 'var god ange en kund',
     'file must be a PNG, JPG, JPEG, WEBP, or SVG image':
-        'filen måste vara en PNG, JPG, JPEG, WEBP, eller SVG bild',
+        'filen måste vara en PNG, JPG, JPEG, WEBP eller SVG bild',
+    'file must be a PNG, JPG, JPEG or SVG image':
+        'filen måste vara en PNG, JPG, JPEG eller SVG bild',
     'enter the unit': 'ange enhet',
     'unit type is incorrect': 'enhettypen är felaktig',
     'enter additional terms': 'ange ytterligare villkor',

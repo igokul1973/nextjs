@@ -1,9 +1,7 @@
-import { TOrganizationForm } from '@/app/components/organizations/form/types';
+import { TProviderOrgForm } from '@/app/components/organizations/form/types';
 import { TGetLocalIdentifierNamePayload } from '@/app/lib/data/local-identifier-name/types';
 import { TProfile } from '@/app/lib/types';
-import { z } from 'zod';
-import { TIndividualForm } from '../../individuals/form/types';
-import { profileUpdateSchema } from './formSchema';
+import { TProviderIndForm } from '../../individuals/form/types';
 
 export interface IProps {
     profile?: TProfile;
@@ -13,11 +11,8 @@ export interface IProviderEntityFormDataProps {
     isEdit: boolean;
 }
 export interface IProviderIndFormDataProps extends IProviderEntityFormDataProps {
-    defaultValues: TIndividualForm;
+    defaultValues: TProviderIndForm;
 }
 export interface IProviderOrgFormDataProps extends IProviderEntityFormDataProps {
-    defaultValues: TOrganizationForm;
+    defaultValues: TProviderOrgForm;
 }
-
-export type TProfileForm = z.input<typeof profileUpdateSchema>;
-export type TProfileFormOutput = z.output<typeof profileUpdateSchema>;

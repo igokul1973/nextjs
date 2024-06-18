@@ -29,7 +29,13 @@ import { TEntityFormRegister } from '../../customers/types';
 import FileInput from '../../file/FileInput';
 import PartialPhoneForm from '../../phones/form/PartialPhoneForm';
 import { StyledForm } from './styled';
-import { IProps, TIndividualForm, TIndividualFormControl, TIndividualFormOutput } from './types';
+import {
+    IProps,
+    TCustomerIndForm,
+    TCustomerIndFormOutput,
+    TIndividualFormControl,
+    TProviderIndForm
+} from './types';
 
 const IndividualForm: FC<IProps & PropsWithChildren> = ({
     localIdentifierName,
@@ -49,7 +55,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
         register,
         formState: { errors, isDirty },
         handleSubmit
-    } = useFormContext<TIndividualForm, null, TIndividualFormOutput>();
+    } = useFormContext<TCustomerIndForm, null, TCustomerIndFormOutput>();
 
     const phoneTypes = Object.values(PhoneTypeEnum);
     const emailTypes = Object.values(EmailTypeEnum);
@@ -185,7 +191,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                 <Box component={'h5'} sx={{ margin: 0 }}>
                     {capitalize(t('address'))}:
                 </Box>
-                <PartialAddressForm<TIndividualForm>
+                <PartialAddressForm<TProviderIndForm>
                     countries={countries}
                     register={register as TEntityFormRegister}
                     control={control as TIndividualFormControl}
@@ -196,7 +202,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                     {capitalize(t('phones'))}:
                 </Box>
                 {phones.map((phone, index) => (
-                    <PartialPhoneForm<TIndividualForm>
+                    <PartialPhoneForm<TProviderIndForm>
                         key={phone.id}
                         index={index}
                         count={phones.length}
@@ -217,7 +223,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                     {capitalize(t('email addresses'))}:
                 </Box>
                 {emails.map((email, index) => (
-                    <PartialEmailForm<TIndividualForm>
+                    <PartialEmailForm<TProviderIndForm>
                         key={email.id}
                         index={index}
                         count={emails.length}
@@ -239,7 +245,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                 </Box>
                 {attributes.length ? (
                     attributes.map((attribute, index) => (
-                        <PartialAttributeForm<TIndividualForm>
+                        <PartialAttributeForm<TProviderIndForm>
                             key={attribute.id}
                             index={index}
                             register={register as TEntityFormRegister}

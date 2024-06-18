@@ -1,14 +1,14 @@
 'use server';
 
 import {
+    TCustomerIndFormOutput,
+    TCustomerIndFormOutputWithoutLogo,
     TEmail,
-    TIndividualFormOutput,
-    TIndividualFormOutputWithoutLogo,
     TPhone
 } from '@/app/components/individuals/form/types';
 import {
-    TOrganizationFormOutput,
-    TOrganizationFormOutputWithoutLogo
+    TCustomerOrgFormOutput,
+    TCustomerOrgFormOutputWithoutLogo
 } from '@/app/components/organizations/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields } from '@/app/lib/types';
@@ -24,14 +24,14 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { revalidatePath } from 'next/cache';
 
 export async function createIndividualCustomer(
-    rawFormData: TIndividualFormOutput,
+    rawFormData: TCustomerIndFormOutput,
     rawLogoFormData?: FormData
 ) {
     const t = await getI18n();
     try {
         const { user, account } = await getUser();
         const userId = user.id;
-        const validatedFormData = validateEntityFormData<TIndividualFormOutputWithoutLogo>(
+        const validatedFormData = validateEntityFormData<TCustomerIndFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
@@ -141,14 +141,14 @@ export async function createIndividualCustomer(
 }
 
 export async function createOrganizationCustomer(
-    rawFormData: TOrganizationFormOutputWithoutLogo,
+    rawFormData: TCustomerOrgFormOutputWithoutLogo,
     rawLogoFormData?: FormData
 ) {
     const t = await getI18n();
     try {
         const { user, account } = await getUser();
         const userId = user.id;
-        const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
+        const validatedFormData = validateEntityFormData<TCustomerOrgFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
@@ -262,8 +262,8 @@ export async function createOrganizationCustomer(
     }
 }
 export async function updateIndividualCustomer(
-    rawFormData: TIndividualFormOutputWithoutLogo,
-    dirtyFields: TDirtyFields<TIndividualFormOutput>,
+    rawFormData: TCustomerIndFormOutputWithoutLogo,
+    dirtyFields: TDirtyFields<TCustomerIndFormOutput>,
     oldLogoName?: string,
     rawLogoFormData?: FormData
 ) {
@@ -271,7 +271,7 @@ export async function updateIndividualCustomer(
     try {
         const { user, account } = await getUser();
         const userId = user.id;
-        const validatedFormData = validateEntityFormData<TIndividualFormOutputWithoutLogo>(
+        const validatedFormData = validateEntityFormData<TCustomerIndFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
@@ -285,7 +285,7 @@ export async function updateIndividualCustomer(
 
         const validatedData = validatedFormData.data;
 
-        const changedFields = getDirtyValues<TIndividualFormOutput>(dirtyFields, validatedData);
+        const changedFields = getDirtyValues<TCustomerIndFormOutput>(dirtyFields, validatedData);
 
         if (!changedFields) {
             throw Error('No changes detected');
@@ -412,8 +412,8 @@ export async function updateIndividualCustomer(
     }
 }
 export async function updateOrganizationCustomer(
-    rawFormData: TOrganizationFormOutputWithoutLogo,
-    dirtyFields: TDirtyFields<TOrganizationFormOutput>,
+    rawFormData: TCustomerOrgFormOutputWithoutLogo,
+    dirtyFields: TDirtyFields<TCustomerOrgFormOutput>,
     oldLogoName?: string,
     rawLogoFormData?: FormData
 ) {
@@ -421,7 +421,7 @@ export async function updateOrganizationCustomer(
     try {
         const { user, account } = await getUser();
         const userId = user.id;
-        const validatedFormData = validateEntityFormData<TOrganizationFormOutputWithoutLogo>(
+        const validatedFormData = validateEntityFormData<TCustomerOrgFormOutputWithoutLogo>(
             t,
             rawFormData,
             rawLogoFormData,
@@ -435,7 +435,7 @@ export async function updateOrganizationCustomer(
 
         const validatedData = validatedFormData.data;
 
-        const changedFields = getDirtyValues<TOrganizationFormOutput>(dirtyFields, validatedData);
+        const changedFields = getDirtyValues<TCustomerOrgFormOutput>(dirtyFields, validatedData);
 
         if (!changedFields) {
             throw Error('No changes detected');

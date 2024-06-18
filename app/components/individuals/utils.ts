@@ -4,20 +4,19 @@ import {
     getPhonesInitial
 } from '@/app/[locale]/dashboard/customers/utils';
 import { AccountRelationEnum } from '@prisma/client';
-import { TIndividualForm } from './form/types';
+import { TCustomerIndForm, TProviderIndForm } from './form/types';
 
-export const getDefaultFormValues = (
+export const getProviderIndDefaultFormValues = (
     accountId: string,
     userId: string,
     userAccountCountryId: string,
     localIdentifierNameId: string
-): TIndividualForm => {
+): TProviderIndForm => {
     return {
         id: '',
         code: '',
         accountRelation: AccountRelationEnum.customer,
         accountId: accountId,
-        customerId: '',
         logo: null,
         firstName: '',
         lastName: '',
@@ -43,5 +42,22 @@ export const getDefaultFormValues = (
         attributes: attributesInitial,
         createdBy: userId,
         updatedBy: userId
+    };
+};
+
+export const getCustomerIndDefaultFormValues = (
+    accountId: string,
+    userId: string,
+    userAccountCountryId: string,
+    localIdentifierNameId: string
+): TCustomerIndForm => {
+    return {
+        ...getProviderIndDefaultFormValues(
+            accountId,
+            userId,
+            userAccountCountryId,
+            localIdentifierNameId
+        ),
+        customerId: ''
     };
 };

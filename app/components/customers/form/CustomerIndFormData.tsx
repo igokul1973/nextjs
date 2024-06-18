@@ -6,7 +6,7 @@ import {
     getCustomerIndUpdateSchemaEmptyLogo,
     getIndividualCreateSchema
 } from '@/app/components/individuals/form/formSchema';
-import { TIndividualForm, TIndividualFormOutput } from '@/app/components/individuals/form/types';
+import { TCustomerIndForm, TCustomerIndFormOutput } from '@/app/components/individuals/form/types';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import {
     createIndividualCustomer,
@@ -49,7 +49,7 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
         watch,
         formState: { errors, dirtyFields, isDirty, ...formState },
         ...methods
-    } = useForm<TIndividualForm, unknown, TIndividualFormOutput>({
+    } = useForm<TCustomerIndForm, unknown, TCustomerIndFormOutput>({
         resolver: zodResolver(
             isEdit
                 ? defaultValues.logo
@@ -70,7 +70,7 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
     // console.error('Errors:', errors);
     // }, [errors, w]);
 
-    const onSubmit = async (formData: TIndividualFormOutput) => {
+    const onSubmit = async (formData: TCustomerIndFormOutput) => {
         try {
             const { logo, ...formDataWithoutLogo } = formData;
             let logoFormData: FormData | undefined = undefined;
@@ -84,7 +84,7 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
             if (isEdit) {
                 const updatedCustomer = await updateIndividualCustomer(
                     formDataWithoutLogo,
-                    dirtyFields as TDirtyFields<TIndividualFormOutput>,
+                    dirtyFields as TDirtyFields<TCustomerIndFormOutput>,
                     logo?.name,
                     logoFormData
                 );

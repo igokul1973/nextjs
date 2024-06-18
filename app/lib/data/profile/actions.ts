@@ -10,7 +10,7 @@ import {
 } from '@/app/components/profile/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields } from '@/app/lib/types';
-import { deleteFile, getDirtyValues, getUser, uploadFileAndGetUrl } from '@/app/lib/utils';
+import { deleteFileInStorage, getDirtyValues, getUser, uploadFileAndGetUrl } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
 import { Prisma } from '@prisma/client';
 
@@ -49,7 +49,7 @@ export async function updateProfile(
         const validatedFormData = validationSchema.safeParse(formData);
 
         if (!validatedFormData.success) {
-            return null;
+            throw Error('Form is invalid');
         }
 
         const validatedData = validatedFormData.data;
@@ -70,7 +70,7 @@ export async function updateProfile(
             const { data, ...avatar } = changedFields.avatar;
             // Deleting old file upload first
             if (profile?.avatar?.name) {
-                await deleteFile(
+                await deleteFileInStorage(
                     profile?.avatar?.name,
                     'images',
                     account.id,
@@ -112,7 +112,7 @@ export async function updateProfile(
         } else if (changedFields.avatar === null) {
             // Deleting old file upload first
             if (profile?.avatar?.name) {
-                await deleteFile(
+                await deleteFileInStorage(
                     profile?.avatar?.name,
                     'images',
                     account.id,

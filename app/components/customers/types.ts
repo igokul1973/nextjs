@@ -1,5 +1,5 @@
-import { TIndividualForm } from '@/app/components/individuals/form/types';
-import { TOrganizationForm } from '@/app/components/organizations/form/types';
+import { TProviderIndForm } from '@/app/components/individuals/form/types';
+import { TProviderOrgForm } from '@/app/components/organizations/form/types';
 import { EntitiesEnum } from '@prisma/client';
 import { UseFormRegister } from 'react-hook-form';
 
@@ -16,6 +16,6 @@ export interface ICustomerTable {
     actions?: string;
 }
 
-export type TEntityForm = TIndividualForm | TOrganizationForm;
-export type TEntityFormRegister = UseFormRegister<TIndividualForm> &
-    UseFormRegister<TOrganizationForm>;
+export type TEntityForm = TProviderIndForm | TProviderOrgForm;
+export type TEntityFormRegister = UseFormRegister<TProviderIndForm> &
+    UseFormRegister<TProviderOrgForm>;

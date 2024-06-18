@@ -11,9 +11,9 @@ export const enPlural = {
     'price cannot be more than 999 999 999 999.99': 'price cannot be more than 999 999 999 999.99',
     'file size must be less than kb#other': 'file size must be less than {count} KB',
     'file size must be less than mb#other': 'file size must be less than {count} MB',
-    'square picture (png, jpg, jpeg, webp, or svg) with max file size: kb#other':
-        'square picture with max file size: {count} KB',
-    'square picture (png, jpg, jpeg, webp, or svg) with max file size mb#other':
+    'square picture (png, jpg, jpeg or svg) with max file size: kb#other':
+        'square picture (png, jpg, jpeg or svg) with max file size: {count} KB',
+    'square picture (png, jpg, jpeg or svg) with max file size mb#other':
         'square picture with max file size: {count} MB'
 };
 
@@ -267,6 +267,7 @@ export const enSingle = {
     'please enter a customer': 'please enter a customer',
     'file must be a PNG, JPG, JPEG, WEBP, or SVG image':
         'file must be a PNG, JPG, JPEG, WEBP, or SVG image',
+    'file must be a PNG, JPG, JPEG or SVG image': 'file must be a PNG, JPG, JPEG or SVG image',
     'enter the unit': 'enter the unit',
     'unit type is incorrect': 'unit type is incorrect',
     'enter additional terms': 'enter additional terms',

@@ -1,9 +1,9 @@
 'use client';
 
-import { TAttribute, TIndividualForm } from '@/app/components/individuals/form/types';
-import { getDefaultFormValues as getDefaultIndividualFormValues } from '@/app/components/individuals/utils';
-import { TOrganizationForm } from '@/app/components/organizations/form/types';
-import { getDefaultFormValues as getDefaultOrganizationFormValues } from '@/app/components/organizations/utils';
+import { TAttribute, TProviderIndForm } from '@/app/components/individuals/form/types';
+import { getProviderIndDefaultFormValues } from '@/app/components/individuals/utils';
+import { TProviderOrgForm } from '@/app/components/organizations/form/types';
+import { getProviderOrgDefaultFormValues } from '@/app/components/organizations/utils';
 import Warning from '@/app/components/warning/Warning';
 import { useUser } from '@/app/context/user/provider';
 import { populateForm } from '@/app/lib/utils';
@@ -61,20 +61,20 @@ const AccountForm: FC<IProps> = () => {
     }
 
     const defaultForm = isIndividual
-        ? getDefaultIndividualFormValues(
+        ? getProviderIndDefaultFormValues(
               account.id,
               user.id,
               userAccountCountry.id,
               localIdentifierName.id
           )
-        : getDefaultOrganizationFormValues(
+        : getProviderOrgDefaultFormValues(
               account.id,
               user.id,
               userAccountCountry.id,
               localIdentifierName.id
           );
 
-    const defaultValues = populateForm<TIndividualForm | TOrganizationForm>(defaultForm, form);
+    const defaultValues = populateForm<TProviderIndForm | TProviderOrgForm>(defaultForm, form);
 
     // FIXME: isEdit === true for now...
     const isEdit = true;
@@ -82,13 +82,13 @@ const AccountForm: FC<IProps> = () => {
     return isIndividual ? (
         <ProviderIndFormData
             localIdentifierName={localIdentifierName}
-            defaultValues={defaultValues as TIndividualForm}
+            defaultValues={defaultValues as TProviderIndForm}
             isEdit={isEdit}
         />
     ) : (
         <ProviderOrgFormData
             localIdentifierName={localIdentifierName}
-            defaultValues={defaultValues as TOrganizationForm}
+            defaultValues={defaultValues as TProviderOrgForm}
             isEdit={isEdit}
         />
     );

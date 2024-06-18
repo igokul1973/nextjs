@@ -13,7 +13,7 @@ const validateBEFile = (file: object | undefined) => {
     return !!file && 'lastModified' in file && 'name' in file && file instanceof Blob;
 };
 
-export const MAX_UPLOAD_SIZE = 1024 * 200; // 200KB
+export const MAX_UPLOAD_SIZE = 1024 * 100; // 100KB
 export const ACCEPTED_FILE_TYPES = [
     'image/png',
     'image/jpeg',
@@ -49,7 +49,7 @@ const getFileSchema = (t: TTranslateFn) =>
                 return false;
             }
             return ACCEPTED_FILE_TYPES.includes(file.type);
-        }, t('file must be a PNG, JPG, JPEG, WEBP, or SVG image'))
+        }, t('file must be a PNG, JPG, JPEG or SVG image'))
         .transform((val, ctx) => {
             if (
                 (val !== null && typeof File !== 'undefined' && !(val instanceof File)) ||
@@ -128,7 +128,7 @@ export const getIndividualCreateSchema = (t: TTranslateFn) =>
             attributes: attributesFormSchema
         });
 
-export const getIndividualUpdateSchema = (t: TTranslateFn) =>
+export const getProviderIndUpdateSchema = (t: TTranslateFn) =>
     getBaseIndividualFormSchema(t).extend({
         logo: getLogoUpdateSchema(t).nullish(),
         address: addressFormSchema,
@@ -137,7 +137,7 @@ export const getIndividualUpdateSchema = (t: TTranslateFn) =>
         attributes: attributesFormSchema
     });
 
-export const getIndividualUpdateSchemaEmptyLogo = (t: TTranslateFn) =>
+export const getProviderIndUpdateSchemaEmptyLogo = (t: TTranslateFn) =>
     getBaseIndividualFormSchema(t).extend({
         logo: getLogoCreateSchema(t).nullish(),
         address: addressFormSchema,
@@ -147,7 +147,7 @@ export const getIndividualUpdateSchemaEmptyLogo = (t: TTranslateFn) =>
     });
 
 export const getCustomerIndUpdateSchema = (t: TTranslateFn) =>
-    getIndividualUpdateSchema(t).extend({
+    getProviderIndUpdateSchema(t).extend({
         customerId: z
             .string({
                 required_error: t('customer ID is missing')
@@ -156,7 +156,7 @@ export const getCustomerIndUpdateSchema = (t: TTranslateFn) =>
     });
 
 export const getCustomerIndUpdateSchemaEmptyLogo = (t: TTranslateFn) =>
-    getIndividualUpdateSchemaEmptyLogo(t).extend({
+    getProviderIndUpdateSchemaEmptyLogo(t).extend({
         customerId: z
             .string({
                 required_error: t('customer ID is missing')

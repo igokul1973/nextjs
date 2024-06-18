@@ -5,7 +5,7 @@ const validateBEFile = (file: object | undefined) => {
     return !!file && 'lastModified' in file && 'name' in file && file instanceof Blob;
 };
 
-export const MAX_UPLOAD_SIZE = 1024 * 200; // 200KB
+export const MAX_UPLOAD_SIZE = 1024 * 150; // 150KB
 export const ACCEPTED_FILE_TYPES = [
     'image/png',
     'image/jpeg',
