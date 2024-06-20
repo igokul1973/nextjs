@@ -162,9 +162,9 @@ export function flattenCustomer(rawCustomer: TCustomerPayload): TCustomerOutput 
         'firstName' in entity ? EntitiesEnum.individual : EntitiesEnum.organization;
     const customerAddress =
         'firstName' in entity ? rawCustomer.individual?.address : rawCustomer.organization?.address;
-    // const customerLocalIdentifierNameAbbrev = 'firstName' in entity ? entity : 'ACN';
+
     if (!customerAddress) {
-        throw Error('Something is not right with the customer address.');
+        throw Error('Something is not right with the customer address');
     }
 
     const nameOrAbbrev = entity.localIdentifierName.abbreviation
@@ -577,7 +577,9 @@ export const populateForm = <R extends Record<string, unknown>>(
 export const getUser = async () => {
     const session = await auth();
     const sessionUser = session?.user;
-    if (!session || !sessionUser) redirect('/');
+    if (!session || !sessionUser) {
+        return redirect('/');
+    }
 
     const dbUser = await getUserWithRelationsByEmail(sessionUser.email);
 

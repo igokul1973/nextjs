@@ -7,6 +7,7 @@ import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory';
 import { getInvoiceById } from '@/app/lib/data/invoice';
 import { getFilteredMeasurementUnitsByAccount } from '@/app/lib/data/measurement-unit';
 import { getUser, populateForm } from '@/app/lib/utils';
+import { InvoiceStatusEnum } from '@prisma/client';
 import { setStaticParamsLocale } from 'next-international/server';
 import { notFound } from 'next/navigation';
 import { FC } from 'react';
@@ -17,6 +18,7 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
 
     const { user, provider, account } = await getUser();
     const userAccountCountry = provider && provider.address?.country;
+    let error: string | null = null;
 
     if (!userAccountCountry) {
         return (
@@ -45,7 +47,7 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
         inventoryPromise
     ]);
 
-    if (!invoice) {
+    if (!invoice || invoice.status !== InvoiceStatusEnum.draft) {
         notFound();
     }
 
@@ -63,7 +65,7 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
         };
     });
 
-    const {
+    let {
         date,
         invoiceItems,
         customerId,
@@ -104,7 +106,7 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
         };
     });
 
-    const customer = {
+    let customer: NonNullable<TInvoiceForm['customer']> = {
         customerId,
         customerName,
         customerAddressLine1,
@@ -120,15 +122,61 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
         customerLocalIdentifierValue
     };
 
-    const form = { ...rawForm, customer, date: new Date(date), invoiceItems: preparedInvoiceItems };
+    const defaultFormValues = getDefaultFormValues(user.id, provider);
+
+    // If the invoice is a draft, we need to set the customer and provider
+    // fields' values anew because we do not know if those fields have changed
+    // in Customer or Provider respectively from the point in time the invoice
+    // was created and now.
+    // Else (for all other statuses) - the customer and provider fields' values
+    // will stay the same because we fixate all other invoice fields values to
+    // a point of time when status changed from the DRAFT to anything else.
+    if (invoice.status === InvoiceStatusEnum.draft) {
+        // Find customer
+        const invoiceCustomer = customers.find((c) => c.customerId === customer.customerId);
+        if (!invoiceCustomer) {
+            error = 'Invoice customer not found';
+        } else {
+            customer = invoiceCustomer;
+            customerLocalIdentifierNameAbbrev =
+                invoiceCustomer.customerLocalIdentifierNameAbbrev ?? null;
+            customerLocalIdentifierValue = invoiceCustomer.customerLocalIdentifierValue ?? null;
+            // Emptying the provider values because the populateForm() below
+            // will eventually add the correct provider values.
+            rawForm.providerName = '';
+            rawForm.providerAddressLine1 = '';
+            rawForm.providerAddressLine2 = null;
+            rawForm.providerAddressLine3 = null;
+            rawForm.providerLocality = '';
+            rawForm.providerRegion = null;
+            rawForm.providerPostCode = '';
+            rawForm.providerCountry = '';
+            rawForm.providerPhone = '';
+            rawForm.providerEmail = '';
+            rawForm.providerLogoId = '';
+            rawForm.providerLocalIdentifierNameAbbrev = null;
+            rawForm.providerLocalIdentifierValue = null;
+        }
+    }
+
+    const form = {
+        ...rawForm,
+        customer,
+        customerLocalIdentifierNameAbbrev,
+        customerLocalIdentifierValue,
+        date: new Date(date),
+        invoiceItems: preparedInvoiceItems
+    };
 
     // Since the DB may return some empty (null, undefined) values or not return
     // some keys at all, but the form expects certain values to be set
     // in order to later calculate the dirty values, we need to convert them where
     // appropriate to default values.
-    const defaultValues = populateForm<TInvoiceForm>(getDefaultFormValues(user.id, provider), form);
+    const defaultValues = populateForm<TInvoiceForm>(defaultFormValues, form);
 
-    return (
+    return error ? (
+        <Warning variant='h4'>{error}</Warning>
+    ) : (
         <InvoiceForm
             customers={customers}
             inventory={inventory}

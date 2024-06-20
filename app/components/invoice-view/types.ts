@@ -23,5 +23,5 @@ export interface IInvoiceItemsTableProps {
 }
 
 export interface ICustomerTableProps {
-    customer: TTransformedInvoice['customer'];
+    invoice: IViewInvoice;
 }

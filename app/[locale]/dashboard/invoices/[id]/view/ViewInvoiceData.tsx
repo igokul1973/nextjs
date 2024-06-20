@@ -2,6 +2,7 @@ import InvoiceView from '@/app/components/invoice-view/InvoiceView';
 import InvoicePdfView from '@/app/components/pdf/InvoicePdfView';
 import Warning from '@/app/components/warning/Warning';
 import { getInvoiceById } from '@/app/lib/data/invoice';
+import { fetchPdfUrl } from '@/app/lib/data/invoice/actions';
 import { TTransformedInvoice } from '@/app/lib/data/invoice/types';
 import { TTranslateFn } from '@/app/lib/types';
 import {
@@ -18,11 +19,17 @@ import {
 } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
 import Box from '@mui/material/Box';
+import { InvoiceStatusEnum } from '@prisma/client';
 import { setStaticParamsLocale } from 'next-international/server';
 import { notFound } from 'next/navigation';
 import { FC } from 'react';
+import {
+    StyledButtonsContainer,
+    StyledUpdateInvoiceBtn,
+    StyledViewHtmlBtn,
+    StyledViewPdfBtn
+} from './styled';
 import { IProps } from './types';
-import { fetchPdfUrl } from '@/app/lib/data/invoice/actions';
 
 const getInvoiceDefinition = ({
     invoice,
@@ -195,18 +202,42 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
         const url = isPdf && (await fetchPdfUrl(account.id, invoice.id, d));
 
         return (
-            <Box component='article'>
-                {url ? (
-                    <InvoicePdfView src={url} />
-                ) : (
-                    <InvoiceView
-                        invoice={invoice}
-                        locale={userAccountCountry.locale}
-                        isDisplayCustomerLocalIdentifier={isDisplayCustomerLocalIdentifier}
-                        isDisplayProviderLocalIdentifier={isDisplayProviderLocalIdentifier}
-                    />
-                )}
-            </Box>
+            <>
+                <StyledButtonsContainer>
+                    {invoice.status === InvoiceStatusEnum.draft && (
+                        <StyledUpdateInvoiceBtn
+                            size='large'
+                            href={`/dashboard/invoices/${id}/edit?number=${invoice.number}`}
+                            name={capitalize(t('update invoice'))}
+                        />
+                    )}
+                    {url ? (
+                        <StyledViewHtmlBtn
+                            href={`/dashboard/invoices/${invoice.id}/view?number=${invoice.number}`}
+                            name='View HTML'
+                            color='secondary'
+                        />
+                    ) : (
+                        <StyledViewPdfBtn
+                            href={`/dashboard/invoices/${invoice.id}/view?number=${invoice.number}&isPdf=true`}
+                            name='View PDF'
+                            color='secondary'
+                        />
+                    )}
+                </StyledButtonsContainer>
+                <Box component='article' sx={{ position: 'relative' }}>
+                    {url ? (
+                        <InvoicePdfView src={url} />
+                    ) : (
+                        <InvoiceView
+                            invoice={invoice}
+                            locale={userAccountCountry.locale}
+                            isDisplayCustomerLocalIdentifier={isDisplayCustomerLocalIdentifier}
+                            isDisplayProviderLocalIdentifier={isDisplayProviderLocalIdentifier}
+                        />
+                    )}
+                </Box>
+            </>
         );
     } catch (error) {
         if (error instanceof Error) {

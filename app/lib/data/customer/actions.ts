@@ -11,17 +11,127 @@ import {
     TCustomerOrgFormOutputWithoutLogo
 } from '@/app/components/organizations/form/types';
 import prisma from '@/app/lib/prisma';
-import { TDirtyFields } from '@/app/lib/types';
+import { IBaseDataFilterArgs, TDirtyFields } from '@/app/lib/types';
 import {
+    flattenCustomer,
     getDirtyValues,
+    getInvoiceTotal,
     getLogoCreateOrUpdate,
     getUser,
     validateEntityFormData
 } from '@/app/lib/utils';
+import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
-import { AccountRelationEnum, EmailTypeEnum, PhoneTypeEnum, Prisma } from '@prisma/client';
+import {
+    AccountRelationEnum,
+    EmailTypeEnum,
+    InvoiceStatusEnum,
+    PhoneTypeEnum,
+    Prisma
+} from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { revalidatePath } from 'next/cache';
+import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+import { customerWithInvoicesSelect, getFilteredCustomersWhereClause } from './types';
+
+export async function getFilteredCustomersByAccountId({
+    accountId,
+    query,
+    page = 0,
+    itemsPerPage = 5,
+    orderBy = 'name',
+    order = 'asc',
+    showOrg = true,
+    showInd = true
+}: IBaseDataFilterArgs & {
+    showOrg?: boolean;
+    showInd?: boolean;
+}) {
+    noStore();
+
+    try {
+        // Auth check
+        const session = await auth();
+        const sessionUser = session?.user;
+        if (!session || !sessionUser) return redirect('/');
+
+        const offset = page * itemsPerPage;
+        let orderByClause = { [orderBy]: order } as
+            | Prisma.customerOrderByWithRelationInput
+            | Prisma.customerOrderByWithRelationInput[];
+
+        if (orderBy === 'name') {
+            orderByClause = [
+                {
+                    organization: {
+                        name: order
+                    }
+                },
+                {
+                    individual: {
+                        lastName: order
+                    }
+                }
+            ];
+        }
+
+        const whereClause = getFilteredCustomersWhereClause(query, accountId, showOrg, showInd);
+
+        const rawCustomers = await prisma.customer.findMany({
+            relationLoadStrategy: 'join',
+            take: itemsPerPage,
+            skip: offset,
+            orderBy: orderByClause,
+            select: customerWithInvoicesSelect,
+            where: whereClause
+        });
+
+        // Preparing customer objejct
+        const customers = rawCustomers.map((rawCustomer) => {
+            const { invoices: rawInvoices, ...partialCustomer } = rawCustomer;
+            const invoices = rawInvoices.map((rawInvoice) => {
+                const { invoiceItems: rawInvoiceItemss, ...partialInvoice } = rawInvoice;
+                const invoiceItems = rawInvoice.invoiceItems.map((ii) => {
+                    return {
+                        ...ii,
+                        price: Number(ii.price)
+                    };
+                });
+                return {
+                    ...partialInvoice,
+                    invoiceItems
+                };
+            });
+            const { totalPending, totalPaid } = invoices.reduce(
+                ({ totalPending, totalPaid }, i) => {
+                    const invoiceTotal = getInvoiceTotal(i.invoiceItems);
+                    if (i.status === InvoiceStatusEnum.pending) {
+                        return { totalPending: totalPending + invoiceTotal, totalPaid };
+                    } else if (i.status === InvoiceStatusEnum.paid) {
+                        return { totalPending, totalPaid: totalPaid + invoiceTotal };
+                    }
+                    return { totalPending, totalPaid };
+                },
+                { totalPending: 0, totalPaid: 0 }
+            );
+
+            const customer = flattenCustomer(partialCustomer);
+
+            return {
+                ...customer,
+                invoices,
+                totalPending,
+                totalPaid,
+                totalInvoices: rawCustomer._count.invoices
+            };
+        });
+
+        return customers;
+    } catch (error) {
+        console.error('Database Error:', error);
+        throw new Error('could not fetch customer table.');
+    }
+}
 
 export async function createIndividualCustomer(
     rawFormData: TCustomerIndFormOutput,
@@ -499,7 +609,7 @@ export async function updateOrganizationCustomer(
                                       data: {
                                           ...addressWithoutCountryId,
                                           updatedBy: userId,
-                                          country: !!countryId
+                                          country: countryId
                                               ? {
                                                     connect: {
                                                         id: countryId

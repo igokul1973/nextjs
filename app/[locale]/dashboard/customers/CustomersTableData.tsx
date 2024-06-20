@@ -1,9 +1,7 @@
 import CustomersTable from '@/app/components/customers/customers-table/CustomersTable';
 import Warning from '@/app/components/warning/Warning';
-import {
-    getFilteredCustomersByAccountId,
-    getFilteredCustomersCountByAccountId
-} from '@/app/lib/data/customer';
+import { getFilteredCustomersCountByAccountId } from '@/app/lib/data/customer';
+import { getFilteredCustomersByAccountId } from '@/app/lib/data/customer/actions';
 import { formatCurrencyAsCents, getUser } from '@/app/lib/utils';
 import { EntitiesEnum } from '@prisma/client';
 import { FC } from 'react';

@@ -66,7 +66,6 @@ export async function createInvoice(formData: TInvoiceFormOutput) {
             },
             ...partialInvoice
         };
-        debugger;
 
         const createdInvoice = await prisma.invoice.create({ data });
         // Saving the provider logo, if any, to storage and DB
@@ -156,7 +155,7 @@ export async function updateInvoice(
 
         const validatedData = validatedFormData.data;
 
-        const changedFields = getDirtyValues<TInvoiceFormOutput>(dirtyFields, validatedData);
+        let changedFields = getDirtyValues<TInvoiceFormOutput>(dirtyFields, validatedData);
 
         if (!changedFields) {
             throw Error(t('no changes detected'));
@@ -166,23 +165,94 @@ export async function updateInvoice(
             throw new Error(t('no provider was found, redirecting...'), { cause: 'NO_PROVIDER' });
         }
 
+        // Making sure this endpoint cannot be hit for invoices
+        // whose status was not DRAFT.
+        const invoice = await prisma.invoice.findUnique({
+            select: {
+                status: true
+            },
+            where: {
+                id: validatedData.id
+            }
+        });
+
+        if (!invoice) {
+            throw new Error(t('no invoice was found, redirecting...'), { cause: 'NO_INVOICE' });
+        }
+
+        if (invoice.status !== InvoiceStatusEnum.draft) {
+            throw new Error(
+                'Attempt to update Invoice whose status is not "DRAFT". Forbidden by business logic!'
+            );
+        }
+
+        // If the invoice is a 'draft', or it is changing status (most probably to something
+        // other than 'draft') we need to set the customer and provider
+        // fields' values for the invoice in the DB anew because we do not know if
+        // those fields have changed in Customer or Provider respectively from
+        // the point in time the invoice was initially created and now.
+        // Else (for all other statuses) - the customer and provider fields' values
+        // will stay the same because we fixate all other invoice fields values to
+        // a point of time when status changed from the DRAFT to anything else.
         let providerLogo: Omit<TFile, 'id' | 'createdAt' | 'updatedAt'> | undefined = undefined;
 
-        if (provider.logo) {
+        if (
+            formData.status === InvoiceStatusEnum.draft ||
+            ('status' in changedFields && changedFields.status)
+        ) {
             const {
-                id,
-                createdBy: createdByLogo,
-                updatedBy: updatedByLogo,
-                createdAt,
-                updatedAt,
-                ...logo
-            } = provider.logo;
+                customer,
+                customerLocalIdentifierNameAbbrev,
+                customerLocalIdentifierValue,
+                providerName,
+                providerAddressLine1,
+                providerAddressLine2,
+                providerAddressLine3,
+                providerLocality,
+                providerRegion,
+                providerPostCode,
+                providerCountry,
+                providerPhone,
+                providerEmail,
+                providerLocalIdentifierNameAbbrev,
+                providerLocalIdentifierValue
+            } = validatedData;
 
-            providerLogo = {
-                ...logo,
-                createdBy: userId,
-                updatedBy: userId
+            changedFields = {
+                ...changedFields,
+                customer,
+                customerLocalIdentifierNameAbbrev,
+                customerLocalIdentifierValue,
+                providerName,
+                providerAddressLine1,
+                providerAddressLine2,
+                providerAddressLine3,
+                providerLocality,
+                providerRegion,
+                providerPostCode,
+                providerCountry,
+                providerPhone,
+                providerEmail,
+                providerLocalIdentifierNameAbbrev,
+                providerLocalIdentifierValue
             };
+
+            if (provider.logo) {
+                const {
+                    id,
+                    createdBy: createdByLogo,
+                    updatedBy: updatedByLogo,
+                    createdAt,
+                    updatedAt,
+                    ...logo
+                } = provider.logo;
+
+                providerLogo = {
+                    ...logo,
+                    createdBy: userId,
+                    updatedBy: userId
+                };
+            }
         }
 
         const {
@@ -296,7 +366,13 @@ export async function updateInvoice(
     } catch (error) {
         console.error('Error:', error);
         if (error instanceof Error && error.cause === 'NO_PROVIDER') {
-            throw new Error(error.message, { cause: 'NO_PROVIDER' });
+            if (
+                error.cause === 'NO_PROVIDER' ||
+                error.cause === 'NO_CUSTOMER' ||
+                error.cause === 'NO_INVOICE'
+            ) {
+                throw error;
+            }
         }
         throw new Error(t('could not update invoice'));
     }
@@ -311,6 +387,8 @@ export async function deleteInvoiceById(id: string): Promise<void> {
             throw Error('The id must be a valid UUID');
         }
 
+        // Making sure this endpoint cannot be hit for invoices
+        // whose status was not DRAFT.
         const invoice = await prisma.invoice.findUnique({
             include: {
                 providerLogo: true
@@ -324,10 +402,9 @@ export async function deleteInvoiceById(id: string): Promise<void> {
             throw new Error('invoice not found');
         }
 
-        if (invoice.status === InvoiceStatusEnum.paid) {
+        if (invoice.status !== InvoiceStatusEnum.draft) {
             throw new Error(
-                `The invoice with ID: ${id} has already been paid and cannot be deleted.`,
-                { cause: 'ALREADY_PAID' }
+                'Attempt to update Invoice whose status is not "DRAFT". Forbidden by business logic!'
             );
         }
 
@@ -347,11 +424,6 @@ export async function deleteInvoiceById(id: string): Promise<void> {
         revalidatePath('/dashboard/invoices');
     } catch (error) {
         console.error('Error:', error);
-        if (error instanceof Error && error.cause === 'ALREADY_PAID') {
-            throw new Error(t('invoice cannot be deleted because it was already paid'), {
-                cause: 'ALREADY_PAID'
-            });
-        }
         throw new Error(t('could not delete invoice'));
     }
 }

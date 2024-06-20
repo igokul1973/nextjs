@@ -367,8 +367,12 @@ model customer {
   @@map("customers")
 }
 
-// One has to create logic where the invoice and its items cannot change
-// as soon as it received status 'paid'.
+// One must create app business logic where an invoice and its items
+// cannot change as soon as it leaves status DRAFT.
+// In other words, the INVOICE can only be changed in its DRAFT status.
+// As soon as that status changes, the invoice cannot be edited, and
+// if editing is necessary - the invoice must be cancelled and a new
+// one created.
 model invoice {
   id                                String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   // Number assigned to invoice for internal purposes
@@ -391,6 +395,8 @@ model invoice {
   customerRef                       String?           @map("customer_ref") @db.VarChar(255)
   customerCode                      String?           @map("customer_code") @db.VarChar(255)
   customerId                        String            @map("customer_id") @db.Uuid
+  // Customer fields above MUST be used for output.
+  // `customer` is only for reference.
   customer                          customer          @relation(fields: [customerId], references: [id], onDelete: Restrict)
   providerLogoId                    String?           @unique @map("provider_logo_id") @db.Uuid
   providerLogo                      file?             @relation(fields: [providerLogoId], references: [id])

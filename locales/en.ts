@@ -224,6 +224,8 @@ export const enSingle = {
     // Errors
     'no changes detected': 'no changes detected',
     'no provider was found, redirecting...': 'no provider was found, redirecting...',
+    'no customer was found, redirecting...': 'no customer was found, redirecting...',
+    'no invoice was found, redirecting...': 'no invoice was found, redirecting...',
     'must be a number': 'must be a number',
     'must be a date': 'must be a date',
     'invoice not found': 'invoice not found',

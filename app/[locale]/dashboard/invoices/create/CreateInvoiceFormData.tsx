@@ -56,6 +56,7 @@ const CreateInvoiceFormData: FC<IProps> = async ({ params: { locale } }) => {
     });
 
     const defaultValues = getDefaultFormValues(user.id, provider);
+
     return (
         <InvoiceForm
             customers={customers}

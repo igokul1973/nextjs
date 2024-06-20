@@ -2,7 +2,7 @@
 
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { getFilteredCustomersByAccountId } from '@/app/lib/data/customer';
+import { getFilteredCustomersByAccountId } from '@/app/lib/data/customer/actions';
 import { createInvoice, updateInvoice } from '@/app/lib/data/invoice/actions';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import {
@@ -180,8 +180,13 @@ const InvoiceForm: FC<IProps> = ({
         } catch (error) {
             if (error instanceof Error) {
                 openSnackbar(capitalize(error.message), 'error');
-                if (error.cause === 'NO_PROVIDER') {
-                    // FIXME: Gotta redirect to create provider page
+                if (
+                    error.cause === 'NO_PROVIDER' ||
+                    error.cause === 'NO_CUSTOMER' ||
+                    error.cause === 'NO_INVOICE'
+                ) {
+                    // FIXME: Gotta redirect to create provider page in case
+                    // there is not provider
                     push('/dashboard');
                 }
             }

@@ -3,18 +3,29 @@
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import NextLink from 'next/link';
-import { useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { IBaseLinkButtonProps } from '../types';
 
-export default function BaseLinkButton({
+const BaseLinkButton: FC<IBaseLinkButtonProps> = ({
     href,
     name,
     endIcon,
     color = 'primary',
     variant = 'contained',
     ...rest
-}: IBaseLinkButtonProps) {
+}) => {
     const [isLoading, setIsLoading] = useState(false);
+
+    // Taking care of situations when the redirect did not
+    // take place and the isLoading indicator is spinning
+    // indefinitely...
+    useEffect(() => {
+        if (isLoading) {
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 3000);
+        }
+    }, [isLoading, setIsLoading]);
 
     return (
         <Button
@@ -32,4 +43,6 @@ export default function BaseLinkButton({
             {isLoading && <CircularProgress color='inherit' size={16} sx={{ ml: 1 }} />}
         </Button>
     );
-}
+};
+
+export default BaseLinkButton;

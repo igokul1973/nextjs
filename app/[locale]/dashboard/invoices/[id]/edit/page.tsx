@@ -1,4 +1,4 @@
-import { ViewButton } from '@/app/components/buttons/view/ViewButton';
+import ViewButton from '@/app/components/buttons/view/ViewButton';
 import Loading from '@/app/components/loading/Loading';
 import { capitalize } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
@@ -26,6 +26,7 @@ const Page: FC<IProps> = async ({ params: { id, locale }, searchParams: { number
                 <ViewButton
                     href={`/dashboard/invoices/${id}/view?number=${number}`}
                     name={capitalize(t('view invoice'))}
+                    size='large'
                 />
             </StyledHeader>
             <Breadcrumbs aria-label='breadcrumb'>

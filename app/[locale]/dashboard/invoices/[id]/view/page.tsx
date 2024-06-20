@@ -1,4 +1,3 @@
-import { UpdateButton } from '@/app/components/buttons/update/UpdateButton';
 import Loading from '@/app/components/loading/Loading';
 import { capitalize } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
@@ -23,10 +22,6 @@ const Page: FC<IProps> = async ({ params: { id, locale }, searchParams: { number
                 <Typography variant='h1'>
                     {capitalize(t('view invoice'))} # {number}
                 </Typography>
-                <UpdateButton
-                    href={`/dashboard/invoices/${id}/edit?number=${number}`}
-                    name={capitalize(t('update invoice'))}
-                />
             </StyledHeader>
             <Breadcrumbs aria-label='breadcrumb'>
                 <Link

@@ -33,16 +33,11 @@ const InvoiceView: FC<IProps> = async ({
     const t = await getI18n();
     const logo = invoice.providerLogo;
     const url = logo?.url;
-    const { customer, invoiceItems } = invoice;
+    const { invoiceItems } = invoice;
     const numberSymbol = formatNumeroSign(locale);
 
     return (
         <StyledInvoice component={Paper} className='invoice-view'>
-            <StyledViewPdfBtn
-                href={`/dashboard/invoices/${invoice.id}/view?number=${invoice.number}&isPdf=true`}
-                name='View PDF'
-                color='secondary'
-            />
             <StyledHeader component='section' className='provider-info'>
                 {url && <ImageView url={url} />}
                 <Typography variant='h3'>{invoice.providerName.toUpperCase()}</Typography>
@@ -71,8 +66,7 @@ const InvoiceView: FC<IProps> = async ({
                     </Box>
                 </StyledInvoiceInfo>
                 <StyledCustomerInfo component='section' className='customer-info'>
-                    <CustomerTable customer={customer} />
-                    {/* <Debug debugObject={invoice.customer} /> */}
+                    <CustomerTable invoice={invoice} />
                 </StyledCustomerInfo>
             </Box>
             <Box sx={{ display: 'flex' }}>

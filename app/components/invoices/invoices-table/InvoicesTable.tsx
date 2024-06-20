@@ -319,7 +319,7 @@ const InvoicesTable: FC<IProps> = ({
                                             <ViewIconButton
                                                 href={`/dashboard/invoices/${row.id}/view?number=${row.number}`}
                                             />
-                                            {row.status !== InvoiceStatusEnum.paid && (
+                                            {row.status === InvoiceStatusEnum.draft && (
                                                 <>
                                                     <UpdateIconButton
                                                         href={`/dashboard/invoices/${row.id}/edit?number=${row.number}`}

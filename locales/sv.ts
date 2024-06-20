@@ -227,6 +227,8 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     // Errors
     'no changes detected': 'ingen ändring hittades',
     'no provider was found, redirecting...': 'ingen leverantör hittades, omdirigerar...',
+    'no customer was found, redirecting...': 'ingen kund hittades, omdirigerar...',
+    'no invoice was found, redirecting...': 'ingen faktura hittades, omdirigerar...',
     'must be a number': 'måste vara ett nummer',
     'must be a date': 'måste vara ett datum',
     'invoice not found': 'fakturan hittades inte',

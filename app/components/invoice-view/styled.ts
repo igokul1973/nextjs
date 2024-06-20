@@ -3,7 +3,6 @@
 import { styled } from '@mui/material';
 import Box from '@mui/material/Box';
 import TableCell from '@mui/material/TableCell';
-import BaseLinkButton from '../buttons/base/BaseLinkButton';
 
 export const StyledInvoice = styled(Box, {
     name: 'Styled Invoice',
@@ -35,14 +34,6 @@ export const StyledInvoice = styled(Box, {
     p {
         font-size: 1.2vw;
     }
-`;
-export const StyledViewPdfBtn = styled(BaseLinkButton, {
-    name: 'Styled View Pdf Btn',
-    slot: 'Root'
-})`
-    position: absolute;
-    top: 2rem;
-    right: 2rem;
 `;
 
 export const StyledHeader = styled(Box, {
