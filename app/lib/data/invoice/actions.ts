@@ -186,7 +186,7 @@ export async function updateInvoice(
             );
         }
 
-        // If the invoice is a 'draft', or it is changing status (most probably to something
+        // If the invoice is a 'draft', or it is changing status (to something
         // other than 'draft') we need to set the customer and provider
         // fields' values for the invoice in the DB anew because we do not know if
         // those fields have changed in Customer or Provider respectively from
@@ -198,7 +198,7 @@ export async function updateInvoice(
 
         if (
             formData.status === InvoiceStatusEnum.draft ||
-            ('status' in changedFields && changedFields.status)
+            invoice.status === InvoiceStatusEnum.draft
         ) {
             const {
                 customer,
@@ -404,7 +404,7 @@ export async function deleteInvoiceById(id: string): Promise<void> {
 
         if (invoice.status !== InvoiceStatusEnum.draft) {
             throw new Error(
-                'Attempt to update Invoice whose status is not "DRAFT". Forbidden by business logic!'
+                'Attempt to delete Invoice whose status is not "DRAFT". Forbidden by business logic!'
             );
         }
 

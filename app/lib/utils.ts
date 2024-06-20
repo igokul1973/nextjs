@@ -1,4 +1,4 @@
-import { baseUrl } from '@/app/lib/constants';
+import { baseUrl, localeToCurrencyCode, localeToNumeroSign } from '@/app/lib/constants';
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
 import { auth } from '@/auth';
 import { TSingleTranslationKey } from '@/locales/types.ts';
@@ -48,22 +48,6 @@ export {
     isIndHasCustomer,
     isOrgHasCustomer
 } from './commonUtils.ts';
-
-const localeToCurrencyCode: Record<string, string> = {
-    'en-US': 'USD',
-    'en-GB': 'GBP',
-    'sv-SE': 'SEK',
-    'ru-RU': 'RUB'
-    // Add more mappings here...
-};
-
-const localeToNumeroSign: Record<string, string> = {
-    'en-US': '#',
-    'en-GB': 'No.',
-    'sv-SE': 'nr.',
-    'ru-RU': '№'
-    // Add more mappings here...
-};
 
 export const objectKeys = Object.keys as unknown as <T>(o: T) => (keyof T)[];
 
@@ -592,10 +576,14 @@ export const getUser = async () => {
 
     const userAccountProvider = provider && providerType && provider[providerType];
 
+    const { account: rawAccount, profile, ...user } = dbUser;
+    const { settings, ...account } = rawAccount;
+
     const userState: IUserState = {
-        user: dbUser,
-        account: dbUser.account,
-        profile: dbUser.profile,
+        user,
+        account: account,
+        profile: profile,
+        settings,
         provider: userAccountProvider,
         providerType
     };

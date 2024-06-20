@@ -14,7 +14,8 @@ const drawerWidth = 600;
 
 const RightDrawer: FC = () => {
     const {
-        state: { isOpen, childComponentName }
+        state: { isOpen, childComponentName },
+        dispatch
     } = useRightDrawerState();
 
     const title = childComponentName && components[childComponentName].title;
@@ -28,9 +29,15 @@ const RightDrawer: FC = () => {
                     width: drawerWidth
                 }
             }}
-            variant='persistent'
+            variant='temporary'
             anchor='right'
             open={isOpen}
+            onClose={() =>
+                dispatch({
+                    type: 'close',
+                    payload: { childComponentName: null }
+                })
+            }
         >
             <DrawerHeader />
             <Box className='drawer-content'>

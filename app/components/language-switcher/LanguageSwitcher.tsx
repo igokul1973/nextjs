@@ -11,7 +11,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { MouseEvent, useState } from 'react';
 
 export default function LanguageSwitcher() {
-    const changeLocale = useChangeLocale();
+    const changeLocale = useChangeLocale({ preserveSearchParams: true });
     const currentLocale = useCurrentLocale();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);

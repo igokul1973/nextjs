@@ -58,6 +58,7 @@ const getInvoiceDefinition = ({
         logo: invoice.providerLogo?.url,
         providerName: invoice.providerName,
         invoiceTitle: `${t('invoice').toUpperCase()} ${numberSymbol}`,
+        billToTitle: capitalize(t('bill to')) + ':',
         customerInfo: `${invoice.customerName}
                 ${invoice.customerAddressLine1}${invoice.customerAddressLine2 ? '\n' + invoice.customerAddressLine2 : ''}${invoice.customerAddressLine3 ? '\n' + invoice.customerAddressLine3 : ''}
                 ${invoice.customerLocality} ${invoice.customerRegion ? invoice.customerRegion + ' ' : ''}${invoice.customerPostCode}
@@ -135,20 +136,19 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
     const t = await getI18n();
     setStaticParamsLocale(locale);
 
-    // TODO: this should come from the account settings
-    const isDisplayCustomerLocalIdentifier = true;
-    const isDisplayProviderLocalIdentifier = true;
-
-    const { provider, account } = await getUser();
+    const { provider, account, settings } = await getUser();
     const userAccountCountry = provider?.address?.country;
 
-    if (!userAccountCountry) {
+    if (!userAccountCountry || !settings) {
         return (
             <Warning variant='h4'>
-                Before listing invoices please register yourself as a Provider.
+                Before viewing an invoice please register yourself as a Provider and make sure
+                you've set up the Account Settings.
             </Warning>
         );
     }
+
+    const { isDisplayCustomerLocalIdentifier, isDisplayProviderLocalIdentifier } = settings;
 
     const rawInvoice = await getInvoiceById(id, account.id);
 

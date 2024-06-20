@@ -13,9 +13,8 @@ import { EntitiesEnum } from '@prisma/client';
 import { FC } from 'react';
 import ProviderIndFormData from './ProviderIndFormData';
 import ProviderOrgFormData from './ProviderOrgFormData';
-import { IProps } from './types';
 
-const AccountForm: FC<IProps> = () => {
+const AccountForm: FC = () => {
     const t = useI18n();
     const {
         state: { user, account, provider }

@@ -44,6 +44,28 @@ CREATE TABLE "files" (
 );
 
 -- CreateTable
+CREATE TABLE "settings" (
+    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "is_display_customer_local_identifier" BOOLEAN NOT NULL DEFAULT false,
+    "is_display_provider_local_identifier" BOOLEAN NOT NULL DEFAULT false,
+    "date_format" VARCHAR(12) NOT NULL DEFAULT 'YYYY/MM/DD',
+    "provider_invoice_phone_type" "PhoneTypeEnum" NOT NULL DEFAULT 'invoicing',
+    "provider_invoice_email_type" "EmailTypeEnum" NOT NULL DEFAULT 'invoicing',
+    "payment_information" VARCHAR(255) NOT NULL DEFAULT '',
+    "payment_terms" VARCHAR(255) NOT NULL DEFAULT '',
+    "delivery_terms" VARCHAR(255) NOT NULL DEFAULT '',
+    "terms" VARCHAR(255) NOT NULL DEFAULT '',
+    "sales_tax" INTEGER NOT NULL DEFAULT 0,
+    "account_id" UUID NOT NULL,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(3) NOT NULL,
+    "created_by" UUID,
+    "updated_by" UUID,
+
+    CONSTRAINT "settings_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "users" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "email" TEXT NOT NULL,
@@ -364,6 +386,9 @@ CREATE TABLE "invoice_items" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "settings_account_id_key" ON "settings"("account_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
@@ -401,6 +426,9 @@ CREATE UNIQUE INDEX "invoice_provider_logo_id_key" ON "invoice"("provider_logo_i
 
 -- CreateIndex
 CREATE UNIQUE INDEX "invoice_items_name_invoice_id_key" ON "invoice_items"("name", "invoice_id");
+
+-- AddForeignKey
+ALTER TABLE "settings" ADD CONSTRAINT "settings_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "users" ADD CONSTRAINT "users_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -34,7 +34,8 @@ export const getUserWithRelations = {
             individuals: {
                 include: includeEntityRelations
             },
-            measurementUnits: true
+            measurementUnits: true,
+            settings: true
         }
     }
 } satisfies Prisma.userInclude;
@@ -58,6 +59,7 @@ export const getUserWithRelationsAndInventory = {
                 include: includeEntityRelations
             },
             inventory: true,
+            settings: true,
             measurementUnits: true
         }
     }

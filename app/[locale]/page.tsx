@@ -4,7 +4,7 @@ import { Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { setStaticParamsLocale } from 'next-international/server';
 import Link from 'next/link';
-import { FC } from 'react';
+import { FC, Suspense } from 'react';
 import LanguageSwitcher from '../components/language-switcher/LanguageSwitcher';
 import { ContainerBox } from './styled';
 import { IProps } from './types';
@@ -19,7 +19,9 @@ const Page: FC<IProps> = ({ params: { locale } }) => {
                     <Box component='header' className='header'>
                         <InvoiceMeLogo color={colors.orange} />
                         <Box component='nav' className='nav'>
-                            <LanguageSwitcher />
+                            <Suspense>
+                                <LanguageSwitcher />
+                            </Suspense>
                             <Typography component={Link} href='#about'>
                                 About
                             </Typography>

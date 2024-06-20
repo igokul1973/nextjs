@@ -26,10 +26,14 @@ const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
         redirect('/');
     }
 
-    const { account, profile, ...user } = dbUser;
+    const { account: rawAccount, profile, ...user } = dbUser;
+    const { settings, ...account } = rawAccount;
 
     const provider = getUserProvider(dbUser);
-    const concreteProvider = provider?.individual || provider?.organization;
+    const concreteProvider = provider?.individual ?? provider?.organization;
+    // TODO: Somewhere here I should make sure the concrete provider and
+    // settings are never undefined. If so, however, here I should probably
+    // redirect back to registration form.
 
     const providerType = getUserProviderType(provider);
 
@@ -42,7 +46,8 @@ const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
                             user,
                             profile,
                             account,
-                            provider: concreteProvider as TEntity,
+                            settings,
+                            provider: concreteProvider as TEntity | undefined,
                             providerType
                         }}
                     >

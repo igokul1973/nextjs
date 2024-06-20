@@ -4,13 +4,14 @@ import { EntitiesEnum } from '@prisma/client';
 
 export interface IUserState {
     user: TUser;
-    account: TGetUserWithRelationsPayload['account'];
+    account: Omit<TGetUserWithRelationsPayload['account'], 'settings'>;
     profile?: TGetUserWithRelationsPayload['profile'] | null;
+    settings?: TGetUserWithRelationsPayload['account']['settings'] | null;
     provider?: TEntity | null;
     providerType?: EntitiesEnum;
 }
 
 export interface IUserAction {
-    type: 'update' | 'setProfile';
+    type: 'update' | 'setProfile' | 'setSettings';
     payload: Partial<IUserState>;
 }

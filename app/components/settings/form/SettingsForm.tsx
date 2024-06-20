@@ -1,10 +1,11 @@
 'use client';
 
 import FileInput from '@/app/components/file/FileInput';
+import Warning from '@/app/components/warning/Warning';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { updateProfile } from '@/app/lib/data/profile/actions';
+import { updateSettings } from '@/app/lib/data/settings/actions';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { TDirtyFields } from '@/app/lib/types';
 import { populateForm } from '@/app/lib/utils';
@@ -17,17 +18,12 @@ import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import { FC, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import Warning from '../../warning/Warning';
-import {
-    getProfileCreateSchema,
-    getProfileUpdateSchema,
-    getProfileUpdateSchemaEmptyAvatar
-} from './formSchema';
+import { getSettingsCreateSchema, getSettingsUpdateSchema } from './formSchema';
 import { StyledForm } from './styled';
-import { TProfileForm, TProfileFormOutput } from './types';
+import { TSettingsForm, TSettingsFormOutput } from './types';
 import { getDefaultValues } from './utils';
 
-const ProfileForm: FC = () => {
+const SettingsForm: FC<IProps> = () => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const {
@@ -39,7 +35,7 @@ const ProfileForm: FC = () => {
     // FIXME: isEdit === true for now...
     const isEdit = true;
 
-    const defaultValues = populateForm<TProfileForm>(getDefaultValues(user.id), profile || {});
+    const defaultValues = populateForm<TSettingsForm>(getDefaultValues(user.id), profile || {});
 
     const {
         watch,
@@ -49,14 +45,8 @@ const ProfileForm: FC = () => {
         control,
         setValue,
         ...methods
-    } = useForm<TProfileForm, unknown, TProfileFormOutput>({
-        resolver: zodResolver(
-            isEdit
-                ? defaultValues.avatar
-                    ? getProfileUpdateSchema(t)
-                    : getProfileUpdateSchemaEmptyAvatar(t)
-                : getProfileCreateSchema(t)
-        ),
+    } = useForm<TSettingsForm, unknown, TSettingsFormOutput>({
+        resolver: zodResolver(isEdit ? getSettingsUpdateSchema(t) : getSettingsCreateSchema(t)),
         reValidateMode: 'onChange',
         defaultValues,
         shouldFocusError: false
@@ -76,7 +66,7 @@ const ProfileForm: FC = () => {
     useScrollToFormError(errors, canFocus, setCanFocus);
 
     if (!profile) {
-        return <Warning>{capitalize(t('please create user profile first'))}</Warning>;
+        return <Warning>{capitalize(t('please create account settings first'))}</Warning>;
     }
 
     const onError = () => {
@@ -85,41 +75,33 @@ const ProfileForm: FC = () => {
 
     const goBack = () => {
         rightDrawerDispatch({
-            payload: { childComponentName: 'profile' },
+            payload: { childComponentName: 'settings' },
             type: 'open'
         });
     };
 
-    const onSubmit = async (formData: TProfileFormOutput) => {
+    const onSubmit = async (formData: TSettingsFormOutput) => {
         try {
-            const { avatar, ...formDataWithoutAvatar } = formData;
-
             let avatarFormData: FormData | undefined;
 
-            if (avatar) {
-                avatarFormData = new FormData();
-                Object.entries(avatar).forEach(([key, value]) => {
-                    (avatarFormData as FormData).append(key, value as FormDataEntryValue);
-                });
-            }
             if (isEdit) {
-                const updatedProfile = await updateProfile(
-                    formDataWithoutAvatar,
-                    dirtyFields as TDirtyFields<TProfileFormOutput>,
+                const updatedSettings = await updateSettings(
+                    formData,
+                    dirtyFields as TDirtyFields<TSettingsFormOutput>,
                     avatarFormData
                 );
 
-                if (!updatedProfile) {
-                    throw Error(t('could not update user profile'));
+                if (!updatedSettings) {
+                    throw Error(t('could not update account settings'));
                 }
 
-                userDispatch({ type: 'setProfile', payload: { profile: updatedProfile } });
-                openSnackbar(capitalize(t('successfully updated user profile')));
+                userDispatch({ type: 'setSettings', payload: { settings: updatedSettings } });
+                openSnackbar(capitalize(t('successfully updated account settings')));
 
                 goBack();
             } else {
-                // await createProfile(formData);
-                openSnackbar(capitalize(t('successfully created user profile')));
+                // await createSettings(formData);
+                openSnackbar(capitalize(t('successfully created account settings')));
             }
         } catch (error) {
             if (error instanceof Error) {
@@ -186,7 +168,7 @@ const ProfileForm: FC = () => {
                         color='primary'
                         disabled={!isSubmittable}
                     >
-                        {capitalize(t(isEdit ? 'update profile' : 'create profile'))}
+                        {capitalize(t(isEdit ? 'update settings' : 'create settings'))}
                     </Button>
                 </Box>
             </StyledForm>
@@ -194,4 +176,4 @@ const ProfileForm: FC = () => {
     );
 };
 
-export default ProfileForm;
+export default SettingsForm;

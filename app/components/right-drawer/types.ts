@@ -8,6 +8,12 @@ export interface IComponent {
     icon?: TMuiIcon;
 }
 
-export type TComponentName = 'account' | 'profile' | 'settings' | 'profileForm' | 'providerForm';
+export type TComponentName =
+    | 'account'
+    | 'profile'
+    | 'settings'
+    | 'profileForm'
+    | 'providerForm'
+    | 'settingsForm';
 
 export type TComponents = Record<TComponentName, IComponent>;

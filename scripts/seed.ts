@@ -204,27 +204,25 @@ async function seedProfiles() {
     return prisma.profile.createMany({ data });
 }
 
-async function seedCountries() {
-    console.log('Seeding countries...');
-    const supervisor = await getSupervisor();
-    const queries = countries.map((c) => {
-        const { localIdentifierNames, ...country } = c;
-        const sanitizedLocalIdentifierNames = c.localIdentifierNames.map((lin) => ({
-            ...lin,
-            createdBy: supervisor.id,
-            updatedBy: supervisor.id
-        }));
-        return prisma.country.create({
+async function seedSettings() {
+    console.log('Seeding account settings...');
+    const admins = await getAdmins();
+    const queryPromises = admins.map((admin, index) => {
+        return prisma.settings.create({
             data: {
-                ...country,
-                localIdentifierNames: {
-                    create: sanitizedLocalIdentifierNames
-                }
+                accountId: admin.account.id,
+                isDisplayCustomerLocalIdentifier: index === 0,
+                isDisplayProviderLocalIdentifier: index === 0,
+                dateFormat: index === 0 ? 'DD/MM/YYYY' : 'YYYY/MM/DD',
+                salesTax: index === 0 ? 0 : 25,
+                paymentTerms: index === 0 ? '30 days from the invoice date' : '',
+                createdBy: admin.id,
+                updatedBy: admin.id
             }
         });
     });
 
-    return Promise.all(queries);
+    return Promise.all(queryPromises);
 }
 
 async function seedOrganizationTypes() {
@@ -452,6 +450,29 @@ async function seedAccountOrgsOrIndividualProviders() {
     });
 
     return Promise.all([createOrgPromise, createIndPromise]);
+}
+
+async function seedCountries() {
+    console.log('Seeding countries...');
+    const supervisor = await getSupervisor();
+    const queries = countries.map((c) => {
+        const { localIdentifierNames, ...country } = c;
+        const sanitizedLocalIdentifierNames = c.localIdentifierNames.map((lin) => ({
+            ...lin,
+            createdBy: supervisor.id,
+            updatedBy: supervisor.id
+        }));
+        return prisma.country.create({
+            data: {
+                ...country,
+                localIdentifierNames: {
+                    create: sanitizedLocalIdentifierNames
+                }
+            }
+        });
+    });
+
+    return Promise.all(queries);
 }
 
 async function seedCustomers() {
@@ -971,6 +992,10 @@ async function seedDatabase() {
     await seedAccountOrgsOrIndividualProviders();
     console.log('--------------------------------');
     console.log('Seeded account orgs and individuals');
+    console.log('--------------------------------\n');
+    await seedSettings();
+    console.log('--------------------------------');
+    console.log('Seeded account settings');
     console.log('--------------------------------\n');
     await seedCustomers();
     console.log('--------------------------------');

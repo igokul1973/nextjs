@@ -11,7 +11,7 @@ export const StyledInvoice = styled(Box, {
     position: relative;
     display: flex;
     flex-direction: column;
-    row-gap: 3rem;
+    row-gap: 4vw;
     border: 1px solid lightgray;
     width: 100%;
     aspect-ratio: 8.286 / 11.693; // letterhead size (for now)

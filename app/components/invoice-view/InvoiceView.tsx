@@ -19,8 +19,7 @@ import {
     StyledHeader,
     StyledInvoice,
     StyledInvoiceInfo,
-    StyledInvoiceItems,
-    StyledViewPdfBtn
+    StyledInvoiceItems
 } from './styled';
 import { IProps } from './types';
 

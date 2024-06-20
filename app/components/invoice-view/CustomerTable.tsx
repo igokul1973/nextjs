@@ -16,6 +16,11 @@ const CustomerTable: FC<ICustomerTableProps> = async ({ invoice }) => {
             <Table size='small' sx={{ minWidth: 400 }} aria-label='spanning table'>
                 <TableBody>
                     <TableRow>
+                        <StyledTableCell colSpan={2} sx={{ fontWeight: 500 }}>
+                            {capitalize(t('bill to'))}:
+                        </StyledTableCell>
+                    </TableRow>
+                    <TableRow>
                         <StyledTableCell>{capitalize(t('customer name'))}:</StyledTableCell>
                         <StyledTableCell align='left'>{invoice.customerName}</StyledTableCell>
                     </TableRow>

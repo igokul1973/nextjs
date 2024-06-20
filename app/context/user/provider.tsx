@@ -15,6 +15,11 @@ const userStateReducer = (state: IUserState, action: IUserAction): IUserState =>
                 ...state,
                 profile: action.payload.profile
             };
+        case 'setSettings':
+            return {
+                ...state,
+                settings: action.payload.settings
+            };
         default:
             throw new Error(`Unhandled action type: ${action.type}`);
     }
