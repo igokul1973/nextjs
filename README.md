@@ -1,10 +1,8 @@
 ## Next.js App Router INVOICEME Project
 
-This is a project showcasing the system allowing to invoice one's customers.
+This project showcases an invoicing system.
 
 It is created with Next.js, Typescript, Prisma, MUI and PostgreSQL.
-
-For more information, see the [course curriculum](https://nextjs.org/learn) on the Next.js Website.
 
 ### Prerequisites:
 
