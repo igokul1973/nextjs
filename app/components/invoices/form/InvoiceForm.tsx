@@ -29,7 +29,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { InvoiceStatusEnum } from '@prisma/client';
 import NextLink from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 import {
     Control,
     Controller,
@@ -68,7 +68,7 @@ const InvoiceForm: FC<IProps> = ({
     const { locale } = useParams<{ locale: string }>();
     const { openSnackbar } = useSnackbar();
     const {
-        state: { user, account }
+        state: { user, account, settings }
     } = useUser();
     const userId = user.id;
     const { push } = useRouter();
@@ -95,11 +95,11 @@ const InvoiceForm: FC<IProps> = ({
 
     const form = watch();
 
-    // useEffect(() => {
-    // console.log('DirtyFields:', dirtyFields);
-    // console.log('Watch:', form);
-    // console.error('Errors:', errors);
-    // }, [errors, form, dirtyFields]);
+    useEffect(() => {
+        console.log('DirtyFields:', dirtyFields);
+        console.log('Watch:', form);
+        console.error('Errors:', errors);
+    }, [errors, form, dirtyFields]);
 
     const {
         fields: invoiceItems,
@@ -322,7 +322,6 @@ const InvoiceForm: FC<IProps> = ({
                                 required
                                 name='date'
                                 control={control as unknown as Control<FieldValues>}
-                                format='YYYY-MM-DD'
                                 helperText={capitalize(t('enter the invoice date'))}
                             />
                         </FormControl>
@@ -368,7 +367,9 @@ const InvoiceForm: FC<IProps> = ({
 
                         <Button
                             variant='contained'
-                            onClick={() => appendInvoiceItem(getInoiceItemsInitial(userId))}
+                            onClick={() =>
+                                appendInvoiceItem(getInoiceItemsInitial(userId, settings?.salesTax ?? 0))
+                            }
                         >
                             {invoiceItems.length > 0
                                 ? capitalize(t('add another invoice item'))
@@ -383,7 +384,6 @@ const InvoiceForm: FC<IProps> = ({
                                 name='payBy'
                                 required
                                 control={control as unknown as Control<FieldValues>}
-                                format='YYYY-MM-DD'
                                 helperText={capitalize(
                                     t('enter the date the invoice must be paid by')
                                 )}
@@ -696,7 +696,6 @@ const InvoiceForm: FC<IProps> = ({
                                 label={capitalize(t('paid on date'))}
                                 name='paidOn'
                                 control={control as unknown as Control<FieldValues>}
-                                format='YYYY-MM-DD'
                                 helperText={capitalize(
                                     t('enter the date the invoice have been paid on')
                                 )}

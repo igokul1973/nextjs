@@ -22,19 +22,19 @@ const Account: FC<IProps> = () => {
         <StyledAccountWrapper component='article'>
             <StyledProfile>
                 <StyledAccountAttribute>
-                    <Typography variant='h6'>
+                    <Typography variant='subtitle2'>
                         {`${capitalize(t('account'))} ${t('id').toLocaleUpperCase()}`}:
                     </Typography>
-                    <Typography variant='body1'>{account?.id}</Typography>
+                    <Typography variant='subtitle1'>{account?.id}</Typography>
                 </StyledAccountAttribute>
                 <UpdateProviderButton />
-                <Typography variant='h5' color='secondary.main'>
+                <Typography variant='h6' color='secondary.main'>
                     {capitalize(t('provider'))}:
                 </Typography>
                 {!!provider && !!providerType ? (
                     <Provider provider={provider} providerType={providerType} />
                 ) : (
-                    <Warning variant='body1'>No provider found. Please create one.</Warning>
+                    <Warning variant='subtitle2'>No provider found. Please create one.</Warning>
                 )}
             </StyledProfile>
         </StyledAccountWrapper>

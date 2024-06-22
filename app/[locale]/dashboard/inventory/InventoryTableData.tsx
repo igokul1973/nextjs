@@ -1,12 +1,10 @@
 import InventoryTable from '@/app/components/inventory/inventory-table/InventoryTable';
 import Warning from '@/app/components/warning/Warning';
-import {
-    getFilteredInventoryByAccountIdRaw,
-    getFilteredInventoryCount
-} from '@/app/lib/data/inventory';
+import { getFilteredInventoryCount } from '@/app/lib/data/inventory';
 import { formatCurrencyAsCents, getUser } from '@/app/lib/utils';
 import { FC } from 'react';
 import { TInventoryDataProps } from './types';
+import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory/actions';
 
 const InventoryTableData: FC<TInventoryDataProps> = async ({ searchParams }) => {
     const { query } = searchParams;

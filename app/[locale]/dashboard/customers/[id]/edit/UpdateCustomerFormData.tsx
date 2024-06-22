@@ -57,7 +57,7 @@ const UpdateCustomerFormData: FC<IProps> = async ({ params: { id, locale } }) =>
     }
 
     const { code, individual, organization } = rawCustomer;
-    const entity = individual || organization;
+    const entity = individual ?? organization;
 
     if (!entity) {
         return notFound();

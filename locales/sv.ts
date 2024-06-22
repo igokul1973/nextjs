@@ -32,6 +32,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'log in': 'logga in',
     yes: 'ja',
     no: 'nej',
+    'not provided': 'ej angiven',
     type: 'typ',
     close: 'stäng',
     actions: 'åtgärder',
@@ -104,6 +105,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'enter postal/zip code': 'ange postnummer',
     country: 'land',
     'enter the country': 'ange landet',
+    'please enter the user ID': 'var god ange användar-ID',
     // Phones
     phones: 'telefonnummer',
     number: 'nummer',
@@ -121,7 +123,6 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'add another email address': 'lägg till en annan e-postadress',
     'please enter the email address': 'var god ange e-postadress',
     'please enter the email type': 'var god ange e-posttyp',
-    'please enter the user ID': 'var god ange användar-ID',
     // Attributes
     'additional attributes': 'ytterligare attribut',
     'add another attribute': 'lägg till ett annat attribut',
@@ -225,6 +226,24 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'select invoice status': 'välj faktureringsstatus',
     'enter inventory item name': 'ange inventeringsobjektnamn',
     'for billing inquiries': 'för faktureringsförslag',
+    // Account settings
+    'account settings description':
+        'kontoinställningar är standardvärden som visas på nya fakturor och/eller regulerar utseende av alla fakturor. Klicka på knappen Redigera Inställningar för att ändra dem',
+    'hover to learn more': 'håll muspekaren över fältnamnet eller frågetecken för att lära dig mer',
+    'date format': 'datumformat',
+    'display customer SSN or EIN': 'visa kundens person/organisationsnummer',
+    'obfuscate customer SSN or EIN': 'fördunkla kundens person/organisationsnummer',
+    'display provider SSN or EIN': 'visa leverantörens person/organisationsnummer',
+    'obfuscate provider SSN or EIN': 'fördunkla leverantörens  person/organisationsnummer',
+    'provider invoice phone type': 'leverantörens faktura telefon typ',
+    'provider invoice email type': 'leverantörens faktura e-post typ',
+    'display customer local identifier': 'visa kundens person/organisationsnummer',
+    'obfuscate customer local identifier':
+        'fördunkla kundens personnummer eller organisationsnummer',
+    'display your local identifier': 'visa ditt person/organisationsnummer',
+    'obfuscate your local identifier': 'fördunkla ditt personnummer eller organisationsnummer',
+    'preferred provider invoice phone type': 'föredragen leverantörs fakturatelefontyp',
+    'preferred provider invoice email type': 'föredragen leverantörs faktura e-posttyp',
     // Errors
     'no changes detected': 'ingen ändring hittades',
     'no provider was found, redirecting...': 'ingen leverantör hittades, omdirigerar...',
@@ -269,6 +288,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'please enter the invoice number': 'var god ange fakturanummer',
     'please enter at least one invoice item': 'var god ange minst ett faktureringsobjekt',
     'please enter tax': 'var god ange momsats/VAT',
+    'please enter the date format': 'var god ange datumformat',
     'the tax cannot be less than 0': 'momsatsen kan inte vara mindre än 0',
     'the tax cannot be more than 100': 'momsatsen kan inte vara mer än 100',
     'the discount cannot be less than 0': 'rabatten kan inte vara mindre än 0',
@@ -284,6 +304,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'enter the unit': 'ange enhet',
     'unit type is incorrect': 'enhettypen är felaktig',
     'enter additional terms': 'ange ytterligare villkor',
+    'please enter the account ID': 'var god ange konto-ID',
     // Buttons
     'create customer': 'skapa en kund',
     'update customer': 'redigera kunden',
@@ -303,6 +324,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'update provider': 'redigera leverantör',
     'update user profile': 'redigera användarprofil',
     'update account': 'redigera konto',
+    'update account settings': 'redigera kontoinställningar',
     'dense padding': 'tät stoppning',
     // Tooltips
     filter: 'filter',
@@ -311,10 +333,25 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'filter list': 'filterlista',
     'click to change avatar': 'klicka för att byta avatar',
     'click to delete avatar': 'klicka för att ta bort avatar',
+    'provide default phone type for new invoices': 'ange standardtelefontyp för nya fakturor',
+    'provide default email type for new invoices': 'ange standardposttyp för nya fakturor',
     'check the box if your company is not owned by government':
         'markera om din företag är ej utvecklad av staten',
     'check the box if your company is a charity':
         'markera om din företag är en välgörenhetsorganisation',
+    'check the box if to show your SSN or EIN':
+        'kryssa i rutan om du vill visa ditt personnummer eller organisationsnummer på fakturor',
+    'check the box if to show only last 4 characters of your SSN or EIN':
+        'kryssa i rutan om du endast vill visa de 4 sista tecken i ditt personnummer eller organisationsnummer på fakturor',
+    'check the box if to show customer SSN or EIN': `kryssa i rutan om du vill visa kundens personnummer eller organisationsnummer på fakturor`,
+    'check the box if to show only last 4 characters of customer SSN or EIN': `kryssa i rutan om du endast vill visa de 4 sista tecken i kundens personnummer eller organisationsnummer på fakturor`,
+    'display customer SSN or EIN tooltip':
+        'visa på dokument kundens personnummer eller organisationsnummer',
+    'obfuscate customer SSN or EIN tooltip':
+        'för säkerheten visa på dokument bara de 4 sista tecken i kundens personnummer eller organisationsnummer',
+    'display your SSN or EIN tooltip': 'visa på dokument er personnummer eller organisationsnummer',
+    'obfuscate your SSN or EIN tooltip':
+        'för säkerheten visa på dokument bara de 4 sista tecken i er personnummer eller organisationsnummer',
     // Reports
     collected: 'insamlad',
     'paid invoices': 'betalade fakturor',

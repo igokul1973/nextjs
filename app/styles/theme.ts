@@ -40,6 +40,9 @@ const theme: ThemeOptions = {
         },
         body1: {
             fontSize: '1.1rem'
+        },
+        subtitle2: {
+            fontSize: '1rem'
         }
     },
     components: {
@@ -84,6 +87,13 @@ const theme: ThemeOptions = {
                     backgroundColor: colors.info,
                     color: 'black',
                     maxWidth: '500px'
+                }
+            }
+        },
+        MuiTooltip: {
+            styleOverrides: {
+                tooltip: {
+                    fontSize: '0.9rem'
                 }
             }
         }

@@ -1,14 +1,81 @@
 'use server';
 
+import { DEFAULT_ITEMS_PER_PAGE } from '@/app/[locale]/dashboard/inventory/constants';
 import { TInventoryFormOutput } from '@/app/components/inventory/form/types';
 import prisma from '@/app/lib/prisma';
-import { TDirtyFields } from '@/app/lib/types';
+import { IBaseDataFilterArgs, TDirtyFields } from '@/app/lib/types';
 import { getDirtyValues, getUser } from '@/app/lib/utils';
 import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
+import { Prisma } from '@prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { revalidatePath } from 'next/cache';
+import { unstable_noStore as noStore, revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { TInventoryTransformed, getQueryFilterWhereClause } from './types';
+
+export async function getFilteredInventoryByAccountIdRaw({
+    accountId,
+    query,
+    page = 0,
+    itemsPerPage = DEFAULT_ITEMS_PER_PAGE,
+    orderBy = 'name',
+    order = 'asc'
+}: IBaseDataFilterArgs): Promise<TInventoryTransformed[]> {
+    noStore();
+
+    const session = await auth();
+    const sessionUser = session?.user;
+    if (!session || !sessionUser) {
+        return redirect('/');
+    }
+
+    const offset = page * itemsPerPage;
+
+    const numericQuery = Number(query);
+    const isQueryNumber = !isNaN(numericQuery);
+    const queryFilterWhereClause = getQueryFilterWhereClause(query);
+
+    if (isQueryNumber) {
+        queryFilterWhereClause.OR?.push({
+            manufacturerPrice: {
+                equals: numericQuery
+            }
+        });
+    }
+
+    const orderByClause:
+        | Prisma.inventoryOrderByWithRelationInput
+        | Prisma.inventoryOrderByWithRelationInput[] =
+        orderBy === 'type' ? { type: { type: order } } : { [orderBy]: order };
+
+    const res = await prisma.inventory.findMany({
+        relationLoadStrategy: 'join',
+        take: itemsPerPage,
+        skip: offset,
+        orderBy: orderByClause,
+        include: {
+            type: true
+        },
+        where: {
+            AND: [
+                {
+                    accountId: {
+                        equals: accountId
+                    }
+                },
+                queryFilterWhereClause
+            ]
+        }
+    });
+
+    return res.map(({ price, manufacturerPrice, ...inventoryItem }) => {
+        return {
+            ...inventoryItem,
+            price: Number(price),
+            manufacturerPrice: manufacturerPrice === null ? null : Number(manufacturerPrice)
+        };
+    });
+}
 
 export async function createInventoryItem(formData: TInventoryFormOutput) {
     const session = await auth();

@@ -15,7 +15,8 @@ import {
     getInvoiceItemSubtotalAfterTax,
     getInvoiceSubtotalTaxAndDiscount,
     getInvoiceTotal,
-    getUser
+    getUser,
+    obfuscate
 } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
 import Box from '@mui/material/Box';
@@ -143,21 +144,35 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
         return (
             <Warning variant='h4'>
                 Before viewing an invoice please register yourself as a Provider and make sure
-                you've set up the Account Settings.
+                you&apos;ve set up the Account Settings.
             </Warning>
         );
     }
 
-    const { isDisplayCustomerLocalIdentifier, isDisplayProviderLocalIdentifier } = settings;
+    const {
+        isDisplayCustomerLocalIdentifier,
+        isDisplayProviderLocalIdentifier,
+        isObfuscateCustomerLocalIdentifier,
+        isObfuscateProviderLocalIdentifier
+    } = settings;
 
     const rawInvoice = await getInvoiceById(id, account.id);
 
     if (!rawInvoice) {
         notFound();
     }
+    const customerLocalIdentifierValue = isObfuscateCustomerLocalIdentifier
+        ? obfuscate(rawInvoice.customerLocalIdentifierValue)
+        : rawInvoice.customerLocalIdentifierValue;
+
+    const providerLocalIdentifierValue = isObfuscateProviderLocalIdentifier
+        ? obfuscate(rawInvoice.providerLocalIdentifierValue)
+        : rawInvoice.providerLocalIdentifierValue;
 
     const invoice = {
         ...rawInvoice,
+        customerLocalIdentifierValue,
+        providerLocalIdentifierValue,
         date: rawInvoice.date.toLocaleDateString(userAccountCountry.locale),
         payBy: rawInvoice.payBy.toLocaleDateString(userAccountCountry.locale),
         paidOn:
@@ -188,14 +203,14 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
             d = {
                 ...d,
                 customerLocalIdentifierTitle: `${capitalize(t('your'))} ${invoice.customerLocalIdentifierNameAbbrev}:`,
-                customerLocalIdentifierValue: invoice.customerLocalIdentifierValue
+                customerLocalIdentifierValue
             };
         }
         if (isDisplayProviderLocalIdentifier) {
             d = {
                 ...d,
                 providerLocalIdentifierTitle: `${capitalize(t('our'))} ${invoice.providerLocalIdentifierNameAbbrev}:`,
-                providerLocalIdentifierValue: invoice.providerLocalIdentifierValue
+                providerLocalIdentifierValue
             };
         }
 

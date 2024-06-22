@@ -3,7 +3,7 @@ import { TInvoiceForm } from '@/app/components/invoices/form/types';
 import { getDefaultFormValues } from '@/app/components/invoices/utils';
 import Warning from '@/app/components/warning/Warning';
 import { getCustomersByAccountId } from '@/app/lib/data/customer';
-import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory';
+import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory/actions';
 import { getInvoiceById } from '@/app/lib/data/invoice';
 import { getFilteredMeasurementUnitsByAccount } from '@/app/lib/data/measurement-unit';
 import { getUser, populateForm } from '@/app/lib/utils';
@@ -16,11 +16,11 @@ import { IProps } from './types';
 const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => {
     setStaticParamsLocale(locale);
 
-    const { user, provider, account } = await getUser();
+    const { user, provider, account, settings } = await getUser();
     const userAccountCountry = provider && provider.address?.country;
     let error: string | null = null;
 
-    if (!userAccountCountry) {
+    if (!userAccountCountry || !settings) {
         return (
             <Warning variant='h4'>
                 Before creating invoices please register yourself as a Provider.
@@ -65,7 +65,7 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
         };
     });
 
-    let {
+    const {
         date,
         invoiceItems,
         customerId,
@@ -79,10 +79,10 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
         customerCountry,
         customerPhone,
         customerEmail,
-        customerLocalIdentifierNameAbbrev,
-        customerLocalIdentifierValue,
         ...rawForm
     } = invoice;
+
+    let { customerLocalIdentifierNameAbbrev, customerLocalIdentifierValue } = rawForm;
 
     const preparedInvoiceItems = invoiceItems.map((invoiceItem) => {
         const {
@@ -122,7 +122,7 @@ const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => 
         customerLocalIdentifierValue
     };
 
-    const defaultFormValues = getDefaultFormValues(user.id, provider);
+    const defaultFormValues = getDefaultFormValues(user.id, provider, settings);
 
     // If the invoice is a draft, we need to set the customer and provider
     // fields' values anew because we do not know if those fields have changed

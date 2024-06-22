@@ -16,7 +16,7 @@ const Provider: FC<IProps> = ({ provider, providerType }) => {
     return (
         <Box component='article' sx={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
             <StyledProviderAttributeLogo>
-                <Typography variant='h6'>{capitalize(t('logo'))}:</Typography>
+                <Typography variant='subtitle2'>{capitalize(t('logo'))}:</Typography>
                 {logoUrl ? (
                     <Box
                         sx={{
@@ -39,38 +39,38 @@ const Provider: FC<IProps> = ({ provider, providerType }) => {
                 )}
             </StyledProviderAttributeLogo>
             <StyledProviderAttribute>
-                <Typography variant='h6'>{capitalize(t('provider type'))}:</Typography>
-                <Typography variant='body1'>{capitalize(t(providerType))}</Typography>
+                <Typography variant='subtitle2'>{capitalize(t('provider type'))}:</Typography>
+                <Typography variant='subtitle1'>{capitalize(t(providerType))}</Typography>
             </StyledProviderAttribute>
             <StyledProviderAttribute>
-                <Typography variant='h6'>
+                <Typography variant='subtitle2'>
                     {`${capitalize(t('provider'))} ${t('id').toLocaleUpperCase()}`}:
                 </Typography>
-                <Typography variant='body1'>{provider?.id}</Typography>
+                <Typography variant='subtitle1'>{provider?.id}</Typography>
             </StyledProviderAttribute>
             {providerType === EntitiesEnum.organization && 'name' in provider && (
                 <>
                     <StyledProviderAttribute>
-                        <Typography variant='h6'>{capitalize(t('name'))}:</Typography>
-                        <Typography variant='body1'>{provider.name}</Typography>
+                        <Typography variant='subtitle2'>{capitalize(t('name'))}:</Typography>
+                        <Typography variant='subtitle1'>{provider.name}</Typography>
                     </StyledProviderAttribute>
                     {provider.type && (
                         <StyledProviderAttribute>
-                            <Typography variant='h6'>
+                            <Typography variant='subtitle2'>
                                 {capitalize(t('organization type'))}:
                             </Typography>
-                            <Typography variant='body1'>{provider.type.type}</Typography>
+                            <Typography variant='subtitle1'>{provider.type.type}</Typography>
                         </StyledProviderAttribute>
                     )}
                     <StyledProviderAttribute>
-                        <Typography variant='h6'>{capitalize(t('is private'))}:</Typography>
-                        <Typography variant='body1'>
+                        <Typography variant='subtitle2'>{capitalize(t('is private'))}:</Typography>
+                        <Typography variant='subtitle1'>
                             {provider.isPrivate ? capitalize(t('yes')) : capitalize(t('no'))}
                         </Typography>
                     </StyledProviderAttribute>
                     <StyledProviderAttribute>
-                        <Typography variant='h6'>{capitalize(t('is charity'))}:</Typography>
-                        <Typography variant='body1'>
+                        <Typography variant='subtitle2'>{capitalize(t('is charity'))}:</Typography>
+                        <Typography variant='subtitle1'>
                             {provider?.isCharity ? capitalize(t('yes')) : capitalize(t('no'))}
                         </Typography>
                     </StyledProviderAttribute>
@@ -79,85 +79,93 @@ const Provider: FC<IProps> = ({ provider, providerType }) => {
             {providerType === EntitiesEnum.individual && 'firstName' in provider && (
                 <>
                     <StyledProviderAttribute>
-                        <Typography variant='h6'>{capitalize(t('first name'))}:</Typography>
-                        <Typography variant='body1'>{provider.firstName}</Typography>
+                        <Typography variant='subtitle2'>{capitalize(t('first name'))}:</Typography>
+                        <Typography variant='subtitle1'>{provider.firstName}</Typography>
                     </StyledProviderAttribute>
                     <StyledProviderAttribute>
-                        <Typography variant='h6'>{capitalize(t('last name'))}:</Typography>
-                        <Typography variant='body1'>{provider.lastName}</Typography>
+                        <Typography variant='subtitle2'>{capitalize(t('last name'))}:</Typography>
+                        <Typography variant='subtitle1'>{provider.lastName}</Typography>
                     </StyledProviderAttribute>
                     {provider.middleName && (
                         <StyledProviderAttribute>
-                            <Typography variant='h6'>{capitalize(t('middle name'))}:</Typography>
-                            <Typography variant='body1'>{provider.middleName}</Typography>
+                            <Typography variant='subtitle2'>
+                                {capitalize(t('middle name'))}:
+                            </Typography>
+                            <Typography variant='subtitle1'>{provider.middleName}</Typography>
                         </StyledProviderAttribute>
                     )}
                 </>
             )}
             {provider.localIdentifierName && (
                 <StyledProviderAttribute>
-                    <Typography variant='h6'>{provider.localIdentifierName.name}:</Typography>
-                    <Typography variant='body1'>{provider.localIdentifierValue}</Typography>
+                    <Typography variant='subtitle2'>
+                        {provider.localIdentifierName.name}:
+                    </Typography>
+                    <Typography variant='subtitle1'>{provider.localIdentifierValue}</Typography>
                 </StyledProviderAttribute>
             )}
             {/* Address */}
-            <Typography variant='h6' color='secondary.main'>
+            <Typography variant='subtitle1' color='secondary.main'>
                 {capitalize(t('address'))}
             </Typography>
             <StyledProviderAttribute>
-                <Typography variant='h6'>{capitalize(t('street address'))}:</Typography>
-                <Typography variant='body1'>{provider.address.addressLine1}</Typography>
+                <Typography variant='subtitle2'>{capitalize(t('street address'))}:</Typography>
+                <Typography variant='subtitle1'>{provider.address.addressLine1}</Typography>
             </StyledProviderAttribute>
             {provider.address.addressLine2 && (
                 <StyledProviderAttribute>
-                    <Typography variant='h6'>{capitalize(t('address (line 2)'))}:</Typography>
-                    <Typography variant='body1'>{provider.address.addressLine2}</Typography>
+                    <Typography variant='subtitle2'>
+                        {capitalize(t('address (line 2)'))}:
+                    </Typography>
+                    <Typography variant='subtitle1'>{provider.address.addressLine2}</Typography>
                 </StyledProviderAttribute>
             )}
             {provider.address.addressLine3 && (
                 <StyledProviderAttribute>
-                    <Typography variant='h6'>{capitalize(t('address (line 3)'))}:</Typography>
-                    <Typography variant='body1'>{provider.address.addressLine3}</Typography>
+                    <Typography variant='subtitle2'>
+                        {capitalize(t('address (line 3)'))}:
+                    </Typography>
+                    <Typography variant='subtitle1'>{provider.address.addressLine3}</Typography>
                 </StyledProviderAttribute>
             )}
             <StyledProviderAttribute>
-                <Typography variant='h6'>{capitalize(t('locality'))}:</Typography>
-                <Typography variant='body1'>{provider.address.locality}</Typography>
+                <Typography variant='subtitle2'>{capitalize(t('locality'))}:</Typography>
+                <Typography variant='subtitle1'>{provider.address.locality}</Typography>
             </StyledProviderAttribute>
             {provider.address.region && (
                 <StyledProviderAttribute>
-                    <Typography variant='h6'>{capitalize(t('region'))}:</Typography>
-                    <Typography variant='body1'>{provider.address.region}</Typography>
+                    <Typography variant='subtitle2'>{capitalize(t('region'))}:</Typography>
+                    <Typography variant='subtitle1'>{provider.address.region}</Typography>
                 </StyledProviderAttribute>
             )}
             <StyledProviderAttribute>
-                <Typography variant='h6'>{capitalize(t('postal code'))}:</Typography>
-                <Typography variant='body1'>{provider.address.postcode}</Typography>
+                <Typography variant='subtitle2'>{capitalize(t('postal code'))}:</Typography>
+                <Typography variant='subtitle1'>{provider.address.postcode}</Typography>
             </StyledProviderAttribute>
             <StyledProviderAttribute>
-                <Typography variant='h6'>{capitalize(t('country'))}:</Typography>
-                <Typography variant='body1'>{provider.address.country.name}</Typography>
+                <Typography variant='subtitle2'>{capitalize(t('country'))}:</Typography>
+                <Typography variant='subtitle1'>{provider.address.country.name}</Typography>
             </StyledProviderAttribute>
             {/* Phones */}
-            <Typography variant='h6' color='secondary.main'>
+            <Typography variant='subtitle1' color='secondary.main'>
                 {capitalize(t('phones'))}
             </Typography>
             {provider.phones.map((phone) => (
                 <StyledProviderAttribute key={phone.id}>
-                    <Typography variant='h6'>{phone.type}:</Typography>
-                    <Typography variant='body1'>
+                    <Typography variant='subtitle2'>{phone.type}:</Typography>
+                    <Typography variant='subtitle1'>
                         +{phone.countryCode}-{phone.number}
                     </Typography>
                 </StyledProviderAttribute>
             ))}
             {/* Emails */}
-            <Typography variant='h6' color='secondary.main'>
+            <Typography variant='subtitle1' color='secondary.main'>
                 {capitalize(t('email addresses'))}
             </Typography>
             {provider.emails.map((email) => (
                 <StyledProviderAttribute key={email.id}>
-                    <Typography variant='h6'>{email.type}:</Typography>
-                    <Typography variant='body1'>{email.email}</Typography>
+                    <Typography variant='subtitle2'>{email.type}:</Typography>
+                    <Typography variant='subtitle1'>{email.email}</Typography>
                 </StyledProviderAttribute>
             ))}
         </Box>

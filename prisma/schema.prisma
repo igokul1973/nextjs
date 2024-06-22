@@ -91,23 +91,25 @@ model file {
 }
 
 model settings {
-  id                               String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  isDisplayCustomerLocalIdentifier Boolean       @default(false) @map("is_display_customer_local_identifier")
-  isDisplayProviderLocalIdentifier Boolean       @default(false) @map("is_display_provider_local_identifier")
-  dateFormat                       String        @default("YYYY/MM/DD") @map("date_format") @db.VarChar(12)
-  providerInvoicePhoneType         PhoneTypeEnum @default(invoicing) @map("provider_invoice_phone_type")
-  providerInvoiceEmailType         EmailTypeEnum @default(invoicing) @map("provider_invoice_email_type")
-  paymentInformation               String        @default("") @map("payment_information") @db.VarChar(255)
-  paymentTerms                     String        @default("") @map("payment_terms") @db.VarChar(255)
-  deliveryTerms                    String        @default("") @map("delivery_terms") @db.VarChar(255)
-  terms                            String        @default("") @db.VarChar(255)
-  salesTax                         Int           @default(0) @map("sales_tax") @db.Integer
-  accountId                        String        @unique @map("account_id") @db.Uuid
-  account                          account       @relation(fields: [accountId], references: [id])
-  createdAt                        DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt                        DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy                        String?       @map("created_by") @db.Uuid
-  updatedBy                        String?       @map("updated_by") @db.Uuid
+  id                                 String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  isDisplayCustomerLocalIdentifier   Boolean       @default(false) @map("is_display_customer_local_identifier")
+  isObfuscateCustomerLocalIdentifier Boolean       @default(true) @map("is_obfuscate_customer_local_identifier")
+  isDisplayProviderLocalIdentifier   Boolean       @default(false) @map("is_display_provider_local_identifier")
+  isObfuscateProviderLocalIdentifier Boolean       @default(true) @map("is_obfuscate_provider_local_identifier")
+  dateFormat                         String        @default("YYYY/MM/DD") @map("date_format") @db.VarChar(12)
+  providerInvoicePhoneType           PhoneTypeEnum @default(invoicing) @map("provider_invoice_phone_type")
+  providerInvoiceEmailType           EmailTypeEnum @default(invoicing) @map("provider_invoice_email_type")
+  paymentInformation                 String        @default("") @map("payment_information") @db.VarChar(255)
+  paymentTerms                       String        @default("") @map("payment_terms") @db.VarChar(255)
+  deliveryTerms                      String        @default("") @map("delivery_terms") @db.VarChar(255)
+  terms                              String        @default("") @db.VarChar(255)
+  salesTax                           Int           @default(0) @map("sales_tax") @db.Integer
+  accountId                          String        @unique @map("account_id") @db.Uuid
+  account                            account       @relation(fields: [accountId], references: [id])
+  createdAt                          DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt                          DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy                          String?       @map("created_by") @db.Uuid
+  updatedBy                          String?       @map("updated_by") @db.Uuid
 }
 
 model user {

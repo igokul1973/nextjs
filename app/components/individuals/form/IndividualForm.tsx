@@ -185,7 +185,6 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                         label={capitalize(t('date of birth'))}
                         name='dob'
                         control={control as unknown as Control}
-                        format='YYYY-MM-DD'
                         helperText={capitalize(t('enter the date of birth'))}
                     />
                 </FormControl>

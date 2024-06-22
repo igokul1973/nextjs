@@ -2,6 +2,7 @@
 
 import CloseRightDrawerButton from '@/app/components/buttons/close/CloseButton';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
+import { useI18n } from '@/locales/client';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -13,6 +14,7 @@ import { StyledRightDrawer } from './styled';
 const drawerWidth = 600;
 
 const RightDrawer: FC = () => {
+    const t = useI18n();
     const {
         state: { isOpen, childComponentName },
         dispatch
@@ -47,7 +49,7 @@ const RightDrawer: FC = () => {
                         {Icon && <Icon color='primary' fontSize='large' />}
                         {title && (
                             <Typography variant='h2' className='drawer-title'>
-                                {capitalize(title)}
+                                {capitalize(t(title))}
                             </Typography>
                         )}
                     </Box>

@@ -1,50 +1,43 @@
 'use server';
 
-import {
-    getProfileUpdateSchema,
-    getProfileUpdateSchemaEmptyAvatar
-} from '@/app/components/profile/form/formSchema';
-import {
-    TProfileFormOutput,
-    TProfileFormOutputEmptyAvatar
-} from '@/app/components/profile/form/types';
+import { TProfileFormOutput } from '@/app/components/profile/form/types';
+import { getSettingsUpdateSchema } from '@/app/components/settings/form/formSchema';
+import { TSettingsFormOutput } from '@/app/components/settings/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields } from '@/app/lib/types';
-import { deleteFileInStorage, getDirtyValues, getUser, uploadFileAndGetUrl } from '@/app/lib/utils';
+import { getDirtyValues, getUser } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
 import { Prisma } from '@prisma/client';
 
-export async function createSettings(formData: TProfileFormOutput) {
+export async function createSettings(formData: TSettingsFormOutput) {
+    const t = await getI18n();
     try {
-        console.log(formData);
-        // const newProfile = await prisma.profile.create({
-        //     data: formData
-        // });
-        // console.log('Successfully created new inventory item: ', newProfile);
+        const { account, profile } = await getUser();
+        const newProfile = await prisma.settings.create({
+            data: formData
+        });
+        console.log(
+            `Successfully created account ${account.id} settings: `,
+            newProfile,
+            ' by the user ',
+            profile?.firstName + ' ' + profile?.lastName
+        );
     } catch (error) {
-        console.error('Database Error:', error);
-        throw new Error('could not create user profile');
+        console.error('Error:', error);
+        throw new Error(t('could not create account settings'));
     }
 }
 
 export async function updateSettings(
-    formDataWithoutAvatar: Omit<TProfileFormOutput, 'avatar'>,
-    dirtyFields: TDirtyFields<TProfileFormOutput>,
-    rawAvatarFormData?: FormData
+    formData: TSettingsFormOutput,
+    dirtyFields: TDirtyFields<TProfileFormOutput>
 ) {
     const t = await getI18n();
     try {
-        const { user, account, profile } = await getUser();
+        const { user } = await getUser();
         const userId = user.id;
 
-        const avatarFormData = rawAvatarFormData
-            ? Object.fromEntries(rawAvatarFormData.entries())
-            : null;
-        const formData = { ...formDataWithoutAvatar, avatar: avatarFormData };
-
-        const validationSchema = formData.avatar?.id
-            ? getProfileUpdateSchema(t)
-            : getProfileUpdateSchemaEmptyAvatar(t);
+        const validationSchema = getSettingsUpdateSchema(t);
 
         const validatedFormData = validationSchema.safeParse(formData);
 
@@ -54,97 +47,29 @@ export async function updateSettings(
 
         const validatedData = validatedFormData.data;
 
-        const changedFields = getDirtyValues<TProfileFormOutput | TProfileFormOutputEmptyAvatar>(
-            dirtyFields,
-            validatedData
-        );
+        const changedFields = getDirtyValues<TSettingsFormOutput>(dirtyFields, validatedData);
 
         if (!changedFields) {
             throw Error('No changes detected');
         }
 
-        let avatarCreateOrUpdate: Prisma.fileUpdateOneWithoutProfileNestedInput | undefined =
-            undefined;
-
-        if (changedFields.avatar?.name && changedFields.avatar?.data) {
-            const { data, ...avatar } = changedFields.avatar;
-            // Deleting old file upload first
-            if (profile?.avatar?.name) {
-                await deleteFileInStorage(
-                    profile?.avatar?.name,
-                    'images',
-                    account.id,
-                    formDataWithoutAvatar.id
-                );
-            }
-            // Uploading new file and getting its URL
-            const { url } = await uploadFileAndGetUrl(
-                data,
-                'images',
-                account.id,
-                formDataWithoutAvatar.id
-            );
-
-            if (url) {
-                if ('id' in avatar && avatar.id) {
-                    avatarCreateOrUpdate = {
-                        update: {
-                            data: {
-                                ...avatar,
-                                url,
-                                updatedBy: userId
-                            }
-                        }
-                    };
-                } else {
-                    avatarCreateOrUpdate = {
-                        create: {
-                            ...avatar,
-                            url,
-                            createdBy: userId,
-                            updatedBy: userId
-                        }
-                    };
-                }
-            } else {
-                throw new Error(t('could not upload avatar'));
-            }
-        } else if (changedFields.avatar === null) {
-            // Deleting old file upload first
-            if (profile?.avatar?.name) {
-                await deleteFileInStorage(
-                    profile?.avatar?.name,
-                    'images',
-                    account.id,
-                    formDataWithoutAvatar.id
-                );
-            }
-            avatarCreateOrUpdate = {
-                delete: true
-            };
-        }
-
         const data: Prisma.profileUpdateInput = {
             ...changedFields,
-            updatedBy: userId,
-            avatar: avatarCreateOrUpdate
+            updatedBy: userId
         };
 
-        const updatedProfile = await prisma.profile.update({
-            include: {
-                avatar: true
-            },
+        const updatedSettings = await prisma.settings.update({
             where: {
                 id: validatedData.id
             },
             data
         });
 
-        console.log('Successfully updated user profile item with ID:', validatedData.id);
+        console.log('Successfully updated account settings with ID:', validatedData.id);
 
-        return updatedProfile;
+        return updatedSettings;
     } catch (error) {
         console.error('Error: ', error);
-        throw new Error(t('could not update user profile'));
+        throw new Error(t('could not update account settings'));
     }
 }

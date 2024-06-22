@@ -213,6 +213,8 @@ async function seedSettings() {
                 accountId: admin.account.id,
                 isDisplayCustomerLocalIdentifier: index === 0,
                 isDisplayProviderLocalIdentifier: index === 0,
+                isObfuscateCustomerLocalIdentifier: index === 0,
+                isObfuscateProviderLocalIdentifier: index === 0,
                 dateFormat: index === 0 ? 'DD/MM/YYYY' : 'YYYY/MM/DD',
                 salesTax: index === 0 ? 0 : 25,
                 paymentTerms: index === 0 ? '30 days from the invoice date' : '',
@@ -322,7 +324,7 @@ async function seedAccountOrgsOrIndividualProviders() {
     }
 
     const indLocalIdentifier = localIdentifiers.find(
-        (li) => li.countryId === orgCountry.id && li.type === EntitiesEnum.individual
+        (li) => li.countryId === individualCountry.id && li.type === EntitiesEnum.individual
     );
 
     if (!indLocalIdentifier) {

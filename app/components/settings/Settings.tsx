@@ -3,7 +3,9 @@
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useUser } from '@/app/context/user/provider';
 import { useI18n } from '@/locales/client';
-import { Button, capitalize } from '@mui/material';
+import { capitalize } from '@mui/material';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { FC } from 'react';
 import Warning from '../warning/Warning';
@@ -11,7 +13,7 @@ import { StyledSettings, StyledSettingsAttribute, StyledSettingsWrapper } from '
 
 const Settings: FC = () => {
     const {
-        state: { settings }
+        state: { settings: rawSettings }
     } = useUser();
     const t = useI18n();
     const { dispatch } = useRightDrawerState();
@@ -24,32 +26,120 @@ const Settings: FC = () => {
             }
         });
     };
+
+    const settings = rawSettings && { ...rawSettings, salesTax: rawSettings.salesTax / 1000 };
+
     return !settings ? (
         <Warning variant='h4'>Settings are not provided</Warning>
     ) : (
-        <StyledSettingsWrapper component='article'>
-            <Button type='button' variant='outlined' onClick={onUpdateSettings}>
-                {capitalize(t('update settings'))}
-            </Button>
-            <StyledSettings>
-                <StyledSettingsAttribute>
-                    <Typography variant='h6'>{capitalize(t('date format'))}:</Typography>
-                    <Typography variant='body1'>{settings.dateFormat}</Typography>
-                </StyledSettingsAttribute>
-                <StyledSettingsAttribute>
-                    <Typography variant='h6'>{capitalize(t('delivery terms'))}:</Typography>
-                    <Typography variant='body1'>{settings.deliveryTerms ? 'Yes' : 'No'}</Typography>
-                </StyledSettingsAttribute>
-                <StyledSettingsAttribute>
-                    <Typography variant='h6'>
-                        {capitalize(t('display customer local identifier'))}? :
-                    </Typography>
-                    <Typography variant='body1'>
-                        {settings.isDisplayCustomerLocalIdentifier}
-                    </Typography>
-                </StyledSettingsAttribute>
-            </StyledSettings>
-        </StyledSettingsWrapper>
+        <>
+            <Typography variant='subtitle1'>
+                {capitalize(t('account settings description'))}.
+            </Typography>
+            <Typography variant='subtitle1'>{capitalize(t('hover to learn more'))}.</Typography>
+            <StyledSettingsWrapper component='article'>
+                <Button type='button' variant='outlined' onClick={onUpdateSettings}>
+                    {capitalize(t('update settings'))}
+                </Button>
+                <StyledSettings>
+                    <StyledSettingsAttribute>
+                        <Typography variant='subtitle2'>{capitalize(t('date format'))}:</Typography>
+                        <Typography variant='subtitle1'>{settings.dateFormat}</Typography>
+                    </StyledSettingsAttribute>
+                    <StyledSettingsAttribute>
+                        <Typography variant='subtitle2'>
+                            {capitalize(t('preferred provider invoice phone type'))}:
+                        </Typography>
+                        <Typography variant='subtitle1'>
+                            {settings.providerInvoicePhoneType || t('not provided')}
+                        </Typography>
+                    </StyledSettingsAttribute>
+                    <StyledSettingsAttribute>
+                        <Typography variant='subtitle2'>
+                            {capitalize(t('preferred provider invoice email type'))}:
+                        </Typography>
+                        <Typography variant='subtitle1'>
+                            {settings.providerInvoiceEmailType || t('not provided')}
+                        </Typography>
+                    </StyledSettingsAttribute>
+                    <StyledSettingsAttribute>
+                        <Typography variant='subtitle2'>
+                            {capitalize(t('delivery terms'))}:
+                        </Typography>
+                        <Typography variant='subtitle1'>
+                            {settings.deliveryTerms || t('not provided')}
+                        </Typography>
+                    </StyledSettingsAttribute>
+                    <StyledSettingsAttribute>
+                        <Typography variant='subtitle2'>
+                            {capitalize(t('payment terms'))}:
+                        </Typography>
+                        <Typography variant='subtitle1'>
+                            {settings.paymentTerms || t('not provided')}
+                        </Typography>
+                    </StyledSettingsAttribute>
+                    <StyledSettingsAttribute>
+                        <Typography variant='subtitle2'>{capitalize(t('terms'))}:</Typography>
+                        <Typography variant='subtitle1'>
+                            {settings.terms || t('not provided')}
+                        </Typography>
+                    </StyledSettingsAttribute>
+                    <StyledSettingsAttribute>
+                        <Typography variant='subtitle2'>
+                            {capitalize(t('payment information'))}:
+                        </Typography>
+                        <Typography variant='subtitle1'>
+                            {settings.paymentInformation || t('not provided')}
+                        </Typography>
+                    </StyledSettingsAttribute>
+                    <StyledSettingsAttribute>
+                        <Typography variant='subtitle2'>{capitalize(t('sales tax'))}:</Typography>
+                        <Typography variant='subtitle1'>{settings.salesTax}%</Typography>
+                    </StyledSettingsAttribute>
+                    <Tooltip title={capitalize(t('display customer SSN or EIN tooltip'))}>
+                        <StyledSettingsAttribute>
+                            <Typography variant='subtitle2'>
+                                {capitalize(t('display customer SSN or EIN'))}? :
+                            </Typography>
+                            <Typography variant='subtitle1'>
+                                {settings.isDisplayCustomerLocalIdentifier ? t('yes') : t('no')}
+                            </Typography>
+                        </StyledSettingsAttribute>
+                    </Tooltip>
+                    <Tooltip title={capitalize(t('obfuscate customer SSN or EIN tooltip'))}>
+                        <StyledSettingsAttribute>
+                            <Typography variant='subtitle2'>
+                                {capitalize(t('obfuscate customer SSN or EIN'))}? :
+                            </Typography>
+                            <Typography variant='subtitle1'>
+                                {settings.isObfuscateCustomerLocalIdentifier ? t('yes') : t('no')}
+                            </Typography>
+                        </StyledSettingsAttribute>
+                    </Tooltip>
+
+                    <Tooltip title={capitalize(t('display your SSN or EIN tooltip'))}>
+                        <StyledSettingsAttribute>
+                            <Typography variant='subtitle2'>
+                                {capitalize(t('display provider SSN or EIN'))}? :
+                            </Typography>
+                            <Typography variant='subtitle1'>
+                                {settings.isDisplayProviderLocalIdentifier ? t('yes') : t('no')}
+                            </Typography>
+                        </StyledSettingsAttribute>
+                    </Tooltip>
+                    <Tooltip title={capitalize(t('obfuscate your SSN or EIN tooltip'))}>
+                        <StyledSettingsAttribute>
+                            <Typography variant='subtitle2'>
+                                {capitalize(t('obfuscate provider SSN or EIN'))}? :
+                            </Typography>
+                            <Typography variant='subtitle1'>
+                                {settings.isObfuscateProviderLocalIdentifier ? t('yes') : t('no')}
+                            </Typography>
+                        </StyledSettingsAttribute>
+                    </Tooltip>
+                </StyledSettings>
+            </StyledSettingsWrapper>
+        </>
     );
 };
 

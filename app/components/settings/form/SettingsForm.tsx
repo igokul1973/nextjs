@@ -1,41 +1,52 @@
 'use client';
 
-import FileInput from '@/app/components/file/FileInput';
-import Warning from '@/app/components/warning/Warning';
+import FormSelect from '@/app/components/form-select/FormSelect';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { useUser } from '@/app/context/user/provider';
-import { updateSettings } from '@/app/lib/data/settings/actions';
+import { createSettings, updateSettings } from '@/app/lib/data/settings/actions';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { TDirtyFields } from '@/app/lib/types';
-import { populateForm } from '@/app/lib/utils';
+import { mask3DecimalPlaces, maskPercentage, populateForm } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import PercentIcon from '@mui/icons-material/Percent';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import { FC, useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import Tooltip from '@mui/material/Tooltip';
+import { ChangeEvent, FC, useState } from 'react';
+import { Control, Controller, FieldValues, FormProvider, useForm } from 'react-hook-form';
+import { dateFormats } from './constants';
 import { getSettingsCreateSchema, getSettingsUpdateSchema } from './formSchema';
 import { StyledForm } from './styled';
 import { TSettingsForm, TSettingsFormOutput } from './types';
 import { getDefaultValues } from './utils';
 
-const SettingsForm: FC<IProps> = () => {
+const SettingsForm: FC = () => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const {
-        state: { user, profile },
+        state: { account, user, settings: rawSettings, provider },
         dispatch: userDispatch
     } = useUser();
     const { dispatch: rightDrawerDispatch } = useRightDrawerState();
+    const phoneTypes = provider?.phones.map((p) => p.type) ?? [];
+    const emailTypes = provider?.emails.map((e) => e.type) ?? [];
+    const settings = rawSettings && { ...rawSettings, salesTax: rawSettings.salesTax / 1000 };
 
     // FIXME: isEdit === true for now...
     const isEdit = true;
 
-    const defaultValues = populateForm<TSettingsForm>(getDefaultValues(user.id), profile || {});
+    const defaultValues = populateForm<TSettingsForm>(
+        getDefaultValues(account.id, user.id),
+        settings || {}
+    );
 
     const {
         watch,
@@ -65,10 +76,6 @@ const SettingsForm: FC<IProps> = () => {
 
     useScrollToFormError(errors, canFocus, setCanFocus);
 
-    if (!profile) {
-        return <Warning>{capitalize(t('please create account settings first'))}</Warning>;
-    }
-
     const onError = () => {
         setCanFocus(true);
     };
@@ -82,13 +89,10 @@ const SettingsForm: FC<IProps> = () => {
 
     const onSubmit = async (formData: TSettingsFormOutput) => {
         try {
-            let avatarFormData: FormData | undefined;
-
             if (isEdit) {
                 const updatedSettings = await updateSettings(
                     formData,
-                    dirtyFields as TDirtyFields<TSettingsFormOutput>,
-                    avatarFormData
+                    dirtyFields as TDirtyFields<TSettingsFormOutput>
                 );
 
                 if (!updatedSettings) {
@@ -100,7 +104,7 @@ const SettingsForm: FC<IProps> = () => {
 
                 goBack();
             } else {
-                // await createSettings(formData);
+                await createSettings(formData);
                 openSnackbar(capitalize(t('successfully created account settings')));
             }
         } catch (error) {
@@ -111,6 +115,19 @@ const SettingsForm: FC<IProps> = () => {
     };
 
     const isSubmittable = isDirty;
+
+    //   dateFormat                         String        @default("YYYY/MM/DD") @map("date_format") @db.VarChar(12)
+    //   providerInvoicePhoneType           PhoneTypeEnum @default(invoicing) @map("provider_invoice_phone_type")
+    //   providerInvoiceEmailType           EmailTypeEnum @default(invoicing) @map("provider_invoice_email_type")
+    //   paymentInformation                 String        @default("") @map("payment_information") @db.VarChar(255)
+    //   paymentTerms                       String        @default("") @map("payment_terms") @db.VarChar(255)
+    //   deliveryTerms                      String        @default("") @map("delivery_terms") @db.VarChar(255)
+    //   terms                              String        @default("") @db.VarChar(255)
+    //   salesTax                           Int           @default(0) @map("sales_tax") @db.Integer
+    //   isDisplayCustomerLocalIdentifier   Boolean       @default(false) @map("is_display_customer_local_identifier")
+    //   isObfuscateCustomerLocalIdentifier Boolean       @default(true) @map("is_obfuscate_customer_local_identifier")
+    //   isDisplayProviderLocalIdentifier   Boolean       @default(false) @map("is_display_provider_local_identifier")
+    //   isObfuscateProviderLocalIdentifier Boolean       @default(true) @map("is_obfuscate_provider_local_identifier")
 
     return (
         <FormProvider
@@ -123,41 +140,254 @@ const SettingsForm: FC<IProps> = () => {
             {...methods}
         >
             <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
+                <FormSelect
+                    name='dateFormat'
+                    label={capitalize(t('date format'))}
+                    control={control as unknown as Control<FieldValues>}
+                    required
+                    error={!!errors.dateFormat}
+                    helperText={
+                        !!errors.dateFormat?.message && capitalize(errors.dateFormat.message)
+                    }
+                >
+                    {dateFormats.map((dateFormat) => {
+                        return (
+                            <MenuItem key={dateFormat} value={dateFormat}>
+                                <Box>{dateFormat}</Box>
+                            </MenuItem>
+                        );
+                    })}
+                </FormSelect>
+                <FormSelect
+                    name='providerInvoicePhoneType'
+                    label={capitalize(t('provider invoice phone type'))}
+                    control={control as unknown as Control<FieldValues>}
+                    required
+                    error={!!errors.providerInvoicePhoneType}
+                    helperText={
+                        errors.providerInvoicePhoneType?.message
+                            ? capitalize(errors.providerInvoicePhoneType.message)
+                            : capitalize(t('provide default phone type for new invoices'))
+                    }
+                >
+                    {phoneTypes.map((phoneType) => {
+                        return (
+                            <MenuItem key={phoneType} value={phoneType}>
+                                <Box>{phoneType}</Box>
+                            </MenuItem>
+                        );
+                    })}
+                </FormSelect>
+                <FormSelect
+                    name='providerInvoiceEmailType'
+                    label={capitalize(t('provider invoice email type'))}
+                    control={control as unknown as Control<FieldValues>}
+                    required
+                    error={!!errors.providerInvoiceEmailType}
+                    helperText={
+                        errors.providerInvoiceEmailType?.message
+                            ? capitalize(errors.providerInvoiceEmailType.message)
+                            : capitalize(t('provide default email type for new invoices'))
+                    }
+                >
+                    {emailTypes.map((emailType) => {
+                        return (
+                            <MenuItem key={emailType} value={emailType}>
+                                <Box>{emailType}</Box>
+                            </MenuItem>
+                        );
+                    })}
+                </FormSelect>
+                <FormControl fullWidth>
+                    <TextField
+                        title={capitalize(t('sales tax'))}
+                        label={capitalize(t('sales tax'))}
+                        inputProps={{
+                            type: 'text'
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <PercentIcon
+                                    sx={{
+                                        color: 'action.active',
+                                        fontSize: '1.2rem',
+                                        marginRight: 1
+                                    }}
+                                />
+                            )
+                        }}
+                        variant='outlined'
+                        required
+                        error={!!errors.salesTax}
+                        helperText={
+                            !!errors.salesTax?.message && capitalize(errors.salesTax.message)
+                        }
+                        {...register('salesTax', {
+                            onChange: (e) => {
+                                maskPercentage(e);
+                                mask3DecimalPlaces(e);
+                            },
+                            setValueAs: (value) => {
+                                if (typeof value === 'undefined' || value === null) return value;
+                                const e = {
+                                    target: { value: value.toString() }
+                                } as unknown as ChangeEvent<HTMLInputElement>;
+                                maskPercentage(e);
+                                mask3DecimalPlaces(e);
+                                const floatValue = parseFloat(e.target.value);
+                                return Math.floor(floatValue * 1000);
+                            }
+                        })}
+                    />
+                </FormControl>
                 <FormControl>
                     <TextField
-                        label={capitalize(t('first name'))}
-                        placeholder={capitalize(t('first name'))}
+                        multiline
+                        minRows={2}
+                        maxRows={5}
+                        label={capitalize(t('payment information'))}
+                        placeholder={capitalize(t('payment information'))}
                         variant='outlined'
-                        error={!!errors.firstName}
+                        error={!!errors.paymentInformation}
                         required
                         helperText={
-                            !!errors.firstName?.message && capitalize(errors.firstName.message)
+                            !!errors.paymentInformation?.message &&
+                            capitalize(errors.paymentInformation.message)
                         }
-                        {...register('firstName')}
+                        {...register('paymentInformation')}
                     />
                 </FormControl>
                 <FormControl>
                     <TextField
-                        label={capitalize(t('last name'))}
+                        label={capitalize(t('payment terms'))}
                         variant='outlined'
-                        placeholder={capitalize(t('last name'))}
+                        placeholder={capitalize(t('payment terms'))}
                         required
-                        error={!!errors.lastName}
+                        error={!!errors.paymentTerms}
                         helperText={
-                            !!errors.lastName?.message && capitalize(errors.lastName.message)
+                            !!errors.paymentTerms?.message &&
+                            capitalize(errors.paymentTerms.message)
                         }
-                        {...register('lastName')}
+                        {...register('paymentTerms')}
                     />
                 </FormControl>
                 <FormControl>
                     <TextField
-                        label={capitalize(t('middle name'))}
-                        placeholder={capitalize(t('middle name'))}
+                        label={capitalize(t('delivery terms'))}
+                        placeholder={capitalize(t('delivery terms'))}
                         variant='outlined'
-                        {...register('middleName')}
+                        {...register('deliveryTerms')}
                     />
                 </FormControl>
-                <FileInput inputName='avatar' label={capitalize(t('avatar'))} user={user} />
+                <FormControl>
+                    <TextField
+                        multiline
+                        minRows={2}
+                        maxRows={5}
+                        label={capitalize(t('terms'))}
+                        placeholder={capitalize(t('terms'))}
+                        variant='outlined'
+                        {...register('terms')}
+                    />
+                </FormControl>
+                <FormControl fullWidth={false}>
+                    <Tooltip title={capitalize(t('check the box if to show customer SSN or EIN'))}>
+                        <FormControlLabel
+                            sx={{ alignSelf: 'flex-start' }}
+                            label={capitalize(t('display customer local identifier'))}
+                            control={
+                                <Controller
+                                    name='isDisplayCustomerLocalIdentifier'
+                                    control={control}
+                                    defaultValue={false}
+                                    render={({ field: props }) => (
+                                        <Checkbox
+                                            {...props}
+                                            checked={!!props.value}
+                                            onChange={(e) => props.onChange(e.target.checked)}
+                                        />
+                                    )}
+                                />
+                            }
+                        />
+                    </Tooltip>
+                </FormControl>
+                <FormControl fullWidth={false}>
+                    <Tooltip
+                        title={capitalize(
+                            t(
+                                'check the box if to show only last 4 characters of customer SSN or EIN'
+                            )
+                        )}
+                    >
+                        <FormControlLabel
+                            sx={{ alignSelf: 'flex-start' }}
+                            label={capitalize(t('obfuscate customer local identifier'))}
+                            control={
+                                <Controller
+                                    name='isObfuscateCustomerLocalIdentifier'
+                                    control={control}
+                                    defaultValue={false}
+                                    render={({ field: props }) => (
+                                        <Checkbox
+                                            {...props}
+                                            checked={!!props.value}
+                                            onChange={(e) => props.onChange(e.target.checked)}
+                                        />
+                                    )}
+                                />
+                            }
+                        />
+                    </Tooltip>
+                </FormControl>
+                <FormControl fullWidth={false}>
+                    <Tooltip title={capitalize(t('check the box if to show your SSN or EIN'))}>
+                        <FormControlLabel
+                            sx={{ alignSelf: 'flex-start' }}
+                            label={capitalize(t('display your local identifier'))}
+                            control={
+                                <Controller
+                                    name='isDisplayProviderLocalIdentifier'
+                                    control={control}
+                                    defaultValue={false}
+                                    render={({ field: props }) => (
+                                        <Checkbox
+                                            {...props}
+                                            checked={!!props.value}
+                                            onChange={(e) => props.onChange(e.target.checked)}
+                                        />
+                                    )}
+                                />
+                            }
+                        />
+                    </Tooltip>
+                </FormControl>
+                <FormControl fullWidth={false}>
+                    <Tooltip
+                        title={capitalize(
+                            t('check the box if to show only last 4 characters of your SSN or EIN')
+                        )}
+                    >
+                        <FormControlLabel
+                            sx={{ alignSelf: 'flex-start' }}
+                            label={capitalize(t('obfuscate your local identifier'))}
+                            control={
+                                <Controller
+                                    name='isObfuscateProviderLocalIdentifier'
+                                    control={control}
+                                    defaultValue={false}
+                                    render={({ field: props }) => (
+                                        <Checkbox
+                                            {...props}
+                                            checked={!!props.value}
+                                            onChange={(e) => props.onChange(e.target.checked)}
+                                        />
+                                    )}
+                                />
+                            }
+                        />
+                    </Tooltip>
+                </FormControl>
                 <Box className='action-buttons'>
                     <Button type='button' onClick={goBack} variant='outlined' color='warning'>
                         {capitalize(t('cancel'))}

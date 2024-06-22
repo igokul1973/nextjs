@@ -72,6 +72,7 @@ import type {
     organizationPhone as TOrganizationPhone,
     organizationType as TOrganizationType,
     profile as TProfile,
+    settings as TSettings,
     user as TUser
 } from '@prisma/client';
 import { TCustomerPayload } from './data/customer/types';
@@ -96,6 +97,7 @@ export {
     TOrganizationPhone,
     TOrganizationType,
     TProfile,
+    TSettings,
     TUser
 };
 

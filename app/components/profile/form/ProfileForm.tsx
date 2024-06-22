@@ -17,7 +17,7 @@ import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import { FC, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import Warning from '../../warning/Warning';
+
 import {
     getProfileCreateSchema,
     getProfileUpdateSchema,
@@ -74,10 +74,6 @@ const ProfileForm: FC = () => {
     const [canFocus, setCanFocus] = useState(true);
 
     useScrollToFormError(errors, canFocus, setCanFocus);
-
-    if (!profile) {
-        return <Warning>{capitalize(t('please create user profile first'))}</Warning>;
-    }
 
     const onError = () => {
         setCanFocus(true);

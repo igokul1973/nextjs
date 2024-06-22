@@ -183,7 +183,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                         label={capitalize(t('is private'))}
                         control={
                             <Controller
-                                name={'isPrivate'}
+                                name='isPrivate'
                                 control={control}
                                 defaultValue={false}
                                 render={({ field: props }) => (
@@ -205,7 +205,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                         label={capitalize(t('is charity'))}
                         control={
                             <Controller
-                                name={'isCharity'}
+                                name='isCharity'
                                 defaultValue={false}
                                 control={control}
                                 render={({ field: props }) => (

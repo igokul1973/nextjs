@@ -1,3 +1,4 @@
+import { useUser } from '@/app/context/user/provider';
 import { BaseTextFieldProps, capitalize } from '@mui/material';
 import { DatePicker, DatePickerProps } from '@mui/x-date-pickers/DatePicker';
 import { BaseNonStaticPickerProps } from '@mui/x-date-pickers/internals';
@@ -11,6 +12,10 @@ const DateInput: FC<
         UseControllerProps &
         DatePickerProps<Dayjs, boolean>
 > = ({ name, label, required, control, helperText, format, slotProps }) => {
+    const {
+        state: { settings }
+    } = useUser();
+
     return (
         <Controller
             name={name}
@@ -19,7 +24,7 @@ const DateInput: FC<
                 return (
                     <DatePicker
                         label={label}
-                        format={format}
+                        format={format ?? settings?.dateFormat ?? 'MM/DD/YYYY'}
                         value={dayjs(value)}
                         inputRef={ref}
                         slotProps={{

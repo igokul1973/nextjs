@@ -1,9 +1,20 @@
-import { TEntity } from '@/app/lib/types';
+import { TEntity, TSettings } from '@/app/lib/types';
 import { getProviderName } from '@/app/lib/utils';
 import { InvoiceStatusEnum } from '@prisma/client';
 import { TInvoiceForm, TInvoiceItem } from './form/types';
 
-export const getDefaultFormValues = (userId: string, provider: TEntity): TInvoiceForm => {
+export const getDefaultFormValues = (
+    userId: string,
+    provider: TEntity,
+    settings: TSettings
+): TInvoiceForm => {
+    const defaultPhone =
+        provider.phones.find((phone) => phone.type === settings.providerInvoicePhoneType) ||
+        provider.phones[0];
+    const defaultEmail =
+        provider.emails.find((email) => email.type === settings.providerInvoiceEmailType) ||
+        provider.emails[0];
+
     return {
         id: '',
         number: '',
@@ -18,8 +29,8 @@ export const getDefaultFormValues = (userId: string, provider: TEntity): TInvoic
         providerRegion: provider.address.region,
         providerPostCode: provider.address.postcode,
         providerCountry: provider.address.country.name,
-        providerPhone: `+${provider.phones[0].countryCode}-${provider.phones[0].number}`,
-        providerEmail: provider.emails[0].email,
+        providerPhone: `+${defaultPhone.countryCode}-${defaultPhone.number}`,
+        providerEmail: defaultEmail.email,
         providerLogoId: null,
         providerLocalIdentifierNameAbbrev: provider.localIdentifierName?.abbreviation ?? '',
         providerLocalIdentifierValue: provider.localIdentifierValue ?? '',
@@ -28,22 +39,22 @@ export const getDefaultFormValues = (userId: string, provider: TEntity): TInvoic
         additionalInformation: '',
         payBy: null,
         paidOn: null,
-        paymentInfo: '',
-        paymentTerms: '',
-        deliveryTerms: '',
-        terms: '',
+        paymentInfo: settings.paymentInformation ?? '',
+        paymentTerms: settings.paymentTerms ?? '',
+        deliveryTerms: settings.deliveryTerms ?? '',
+        terms: settings.terms ?? '',
         customerLocalIdentifierNameAbbrev: '',
         customerLocalIdentifierValue: '',
         customerRef: '',
         providerRef: '',
         notes: '',
-        invoiceItems: getInoiceItemsInitial(userId),
+        invoiceItems: getInoiceItemsInitial(userId, settings.salesTax),
         createdBy: userId,
         updatedBy: userId
     };
 };
 
-export const getInoiceItemsInitial = (userId: string): TInvoiceItem[] => {
+export const getInoiceItemsInitial = (userId: string, salesTax: number = 0): TInvoiceItem[] => {
     return [
         {
             id: '',
@@ -51,7 +62,7 @@ export const getInoiceItemsInitial = (userId: string): TInvoiceItem[] => {
             inventoryItem: null,
             price: null,
             quantity: 1,
-            salesTax: 0,
+            salesTax: salesTax / 1000,
             discount: 0,
             inventoryId: '',
             measurementUnit: null,

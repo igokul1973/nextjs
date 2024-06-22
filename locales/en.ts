@@ -29,6 +29,7 @@ export const enSingle = {
     'log in': 'log in',
     yes: 'yes',
     no: 'no',
+    'not provided': 'not provided',
     type: 'type',
     close: 'close',
     actions: 'actions',
@@ -101,6 +102,7 @@ export const enSingle = {
     'enter postal/zip code': 'enter postal/zip code',
     country: 'country',
     'enter the country': 'enter the country',
+    'please enter the user ID': 'please enter the user ID',
     // Phones
     phones: 'phones',
     number: 'number',
@@ -118,7 +120,6 @@ export const enSingle = {
     'add another email address': 'add another email address',
     'please enter the email address': 'please enter the email address',
     'please enter the email type': 'please enter the email type',
-    'please enter the user ID': 'please enter the user ID',
     // Attributes
     'additional attributes': 'additional attributes',
     'add another attribute': 'add another attribute',
@@ -222,6 +223,23 @@ export const enSingle = {
     'select invoice status': 'select invoice status',
     'enter inventory item name': 'enter inventory item name',
     'for billing inquiries': 'for billing inquiries',
+    // Account settings
+    'account settings description':
+        'the account settings are default values that will show up on new invoices and/or regulate the appearance of all invoices. Click the Update Settings button to change them',
+    'hover to learn more': 'hover over the field name(s) or question mark to learn more',
+    'date format': 'date format',
+    'display customer SSN or EIN': `display customer's SSN or EIN`,
+    'obfuscate customer SSN or EIN': `obfuscate customer's SSN or EIN`,
+    'display provider SSN or EIN': `display provider's SSN or EIN`,
+    'obfuscate provider SSN or EIN': `obfuscate provider's SSN or EIN`,
+    'provider invoice phone type': 'provider invoice phone type',
+    'provider invoice email type': 'provider invoice email type',
+    'display customer local identifier': `display customer's SSN or EIN`,
+    'obfuscate customer local identifier': `obfuscate customer's SSN or EIN`,
+    'display your local identifier': 'display your local SSN or EIN',
+    'obfuscate your local identifier': 'obfuscate your SSN or EIN',
+    'preferred provider invoice phone type': 'preferred provider invoice phone type',
+    'preferred provider invoice email type': 'preferred provider invoice email type',
     // Errors
     'no changes detected': 'no changes detected',
     'no provider was found, redirecting...': 'no provider was found, redirecting...',
@@ -265,6 +283,7 @@ export const enSingle = {
     'please enter the invoice number': 'please enter the invoice number',
     'please enter at least one invoice item': 'please enter at least one invoice item',
     'please enter tax': 'please enter tax',
+    'please enter the date format': 'please enter the date format',
     'the tax cannot be less than 0': 'the tax cannot be less than 0',
     'the tax cannot be more than 100': 'the tax cannot be more than 100',
     'the discount cannot be less than 0': 'the discount cannot be less than 0',
@@ -279,6 +298,7 @@ export const enSingle = {
     'enter the unit': 'enter the unit',
     'unit type is incorrect': 'unit type is incorrect',
     'enter additional terms': 'enter additional terms',
+    'please enter the account ID': 'please enter the account ID',
     // Buttons
     'create customer': 'create customer',
     'update customer': 'update customer',
@@ -298,6 +318,7 @@ export const enSingle = {
     'update provider': 'update provider',
     'update user profile': 'update user profile',
     'update account': 'update account',
+    'update account settings': 'update account settings',
     'dense padding': 'dense padding',
     // Tooltips
     filter: 'filter',
@@ -306,9 +327,22 @@ export const enSingle = {
     'filter list': 'filter list',
     'click to change avatar': 'click to change avatar',
     'click to delete avatar': 'click to delete avatar',
+    'provide default phone type for new invoices': 'provide default phone type for new invoices',
+    'provide default email type for new invoices': 'provide default email type for new invoices',
     'check the box if your company is not owned by government':
         'check the box if your company is not owned by government',
     'check the box if your company is a charity': 'check the box if your company is a charity',
+    'check the box if to show your SSN or EIN':
+        'check the box if you want to show your SSN or EIN on all documents',
+    'check the box if to show only last 4 characters of your SSN or EIN':
+        'check the box if you want to show only last 4 characters of your SSN or EIN on all documents',
+    'check the box if to show customer SSN or EIN': `check the box if you want to show customer's SSN or EIN on invoices`,
+    'check the box if to show only last 4 characters of customer SSN or EIN': `check the box if you want to show only last 4 characters of customer's SSN or EIN on invoices`,
+    'display your SSN or EIN tooltip': 'display on documents your SSN or EIN',
+    'obfuscate your SSN or EIN tooltip':
+        'show on documents only last 4 characters of your SSN or EIN for security purposes',
+    'display customer SSN or EIN tooltip': `display on documents your customer's SSN or EIN`,
+    'obfuscate customer SSN or EIN tooltip': `show on documents only last 4 characters of your customer's SSN or EIN for security purposes`,
     // Reports
     collected: 'collected',
     'paid invoices': 'paid invoices',

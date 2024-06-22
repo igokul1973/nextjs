@@ -1,5 +1,4 @@
 import { TInvoiceForm } from '@/app/components/invoices/form/types';
-import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory';
 import { TInventoryTransformed } from '@/app/lib/data/inventory/types';
 import { getFilteredMeasurementUnitsByAccount } from '@/app/lib/data/measurement-unit';
 import { TMeasurementUnit } from '@/app/lib/types';
@@ -26,6 +25,7 @@ import { ChangeEvent, FC, useEffect, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { StyledBox } from './styled';
 import { IProps } from './types';
+import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory/actions';
 
 const PartialInvoiceItemForm: FC<IProps> = ({
     index,
@@ -408,8 +408,6 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                                 maskPercentage(e);
                                 mask3DecimalPlaces(e);
                             },
-                            // FIXME: Continue here. This method may set the wrong value
-                            // because the masking has not happened yet.
                             setValueAs: (value) => {
                                 if (typeof value === 'undefined' || value === null) return value;
                                 const e = {

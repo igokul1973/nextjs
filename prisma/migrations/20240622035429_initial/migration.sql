@@ -47,7 +47,9 @@ CREATE TABLE "files" (
 CREATE TABLE "settings" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "is_display_customer_local_identifier" BOOLEAN NOT NULL DEFAULT false,
+    "is_obfuscate_customer_local_identifier" BOOLEAN NOT NULL DEFAULT true,
     "is_display_provider_local_identifier" BOOLEAN NOT NULL DEFAULT false,
+    "is_obfuscate_provider_local_identifier" BOOLEAN NOT NULL DEFAULT true,
     "date_format" VARCHAR(12) NOT NULL DEFAULT 'YYYY/MM/DD',
     "provider_invoice_phone_type" "PhoneTypeEnum" NOT NULL DEFAULT 'invoicing',
     "provider_invoice_email_type" "EmailTypeEnum" NOT NULL DEFAULT 'invoicing',

@@ -2,7 +2,7 @@ import InvoiceForm from '@/app/components/invoices/form/InvoiceForm';
 import { getDefaultFormValues } from '@/app/components/invoices/utils';
 import Warning from '@/app/components/warning/Warning';
 import { getCustomersByAccountId } from '@/app/lib/data/customer';
-import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory';
+import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory/actions';
 import { getFilteredMeasurementUnitsByAccount } from '@/app/lib/data/measurement-unit';
 import { getUser } from '@/app/lib/utils';
 import { setStaticParamsLocale } from 'next-international/server';
@@ -11,11 +11,11 @@ import { IProps } from './types';
 
 const CreateInvoiceFormData: FC<IProps> = async ({ params: { locale } }) => {
     setStaticParamsLocale(locale);
-    const { user, provider, account } = await getUser();
+    const { user, provider, account, settings } = await getUser();
 
     const userAccountCountry = provider && provider.address?.country;
 
-    if (!userAccountCountry) {
+    if (!userAccountCountry || !settings) {
         return (
             <Warning variant='h4'>
                 Before creating invoices please register yourself as a Provider.
@@ -55,7 +55,7 @@ const CreateInvoiceFormData: FC<IProps> = async ({ params: { locale } }) => {
         };
     });
 
-    const defaultValues = getDefaultFormValues(user.id, provider);
+    const defaultValues = getDefaultFormValues(user.id, provider, settings);
 
     return (
         <InvoiceForm

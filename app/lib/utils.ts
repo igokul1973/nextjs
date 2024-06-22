@@ -493,7 +493,8 @@ export const populateForm = <R extends Record<string, unknown>>(
                 typeof defaultValuesArray[index] === 'object' &&
                 defaultValuesArray[index] !== null &&
                 !Array.isArray(item) &&
-                !Array.isArray(defaultValuesArray[index])
+                !Array.isArray(defaultValuesArray[index]) &&
+                !(item instanceof Date)
             ) {
                 return populateForm<Record<string, unknown>>(
                     defaultValuesArray[index] as Record<string, unknown>,
@@ -521,7 +522,8 @@ export const populateForm = <R extends Record<string, unknown>>(
                 typeof defaultValues[key] === 'object' &&
                 defaultValues[key] !== null &&
                 !Array.isArray(values[key]) &&
-                !Array.isArray(defaultValues[key])
+                !Array.isArray(defaultValues[key]) &&
+                !(values[key] instanceof Date)
             ) {
                 if (Object.keys(values[key] as Record<string, unknown>).length > 0) {
                     acc[key] = populateForm<Record<string, unknown>>(
@@ -1203,4 +1205,34 @@ export const getFileSchema = (
             }
             return file;
         });
+};
+
+/**
+ * Obfuscate string by replacing it with '*' but for the last 4 chars.
+ */
+export const obfuscate = (value: string | null): string | null => {
+    if (!value || value.length < 5) {
+        return value;
+    }
+    // get last 5 chars
+    const firstBut5LastChars = value?.slice(0, -5);
+    const last5chars = value?.slice(-5);
+    let obfuscatedValue = '';
+    let counter = 0;
+    while (counter < firstBut5LastChars.length) {
+        obfuscatedValue +=
+            firstBut5LastChars[counter] !== '-' && firstBut5LastChars[counter] !== '/'
+                ? 'x'
+                : firstBut5LastChars[counter];
+        counter = counter + 1;
+    }
+    const firstCharOfLast5Chars = last5chars.slice(0, 1);
+    if (firstCharOfLast5Chars === '-' || firstCharOfLast5Chars === '/') {
+        obfuscatedValue += firstCharOfLast5Chars;
+    } else {
+        obfuscatedValue += 'x';
+    }
+    obfuscatedValue += last5chars.slice(1);
+
+    return obfuscatedValue;
 };
