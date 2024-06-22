@@ -84,14 +84,18 @@ const Settings: FC = () => {
                             {settings.terms || t('not provided')}
                         </Typography>
                     </StyledSettingsAttribute>
-                    <StyledSettingsAttribute>
-                        <Typography variant='subtitle2'>
-                            {capitalize(t('payment information'))}:
-                        </Typography>
-                        <Typography variant='subtitle1'>
-                            {settings.paymentInformation || t('not provided')}
-                        </Typography>
-                    </StyledSettingsAttribute>
+                    <Tooltip
+                        title={capitalize(t('bank account/routing number/other means of payment'))}
+                    >
+                        <StyledSettingsAttribute>
+                            <Typography variant='subtitle2'>
+                                {capitalize(t('payment information'))}:
+                            </Typography>
+                            <Typography variant='subtitle1'>
+                                {settings.paymentInformation || t('not provided')}
+                            </Typography>
+                        </StyledSettingsAttribute>
+                    </Tooltip>
                     <StyledSettingsAttribute>
                         <Typography variant='subtitle2'>{capitalize(t('sales tax'))}:</Typography>
                         <Typography variant='subtitle1'>{settings.salesTax}%</Typography>

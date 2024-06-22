@@ -222,6 +222,8 @@ export const enSingle = {
     amount: 'amount',
     'select invoice status': 'select invoice status',
     'enter inventory item name': 'enter inventory item name',
+    'enter inventory name, code, or description': 'enter inventory name, code, or description',
+    'select unit': 'select unit',
     'for billing inquiries': 'for billing inquiries',
     // Account settings
     'account settings description':
@@ -343,6 +345,8 @@ export const enSingle = {
         'show on documents only last 4 characters of your SSN or EIN for security purposes',
     'display customer SSN or EIN tooltip': `display on documents your customer's SSN or EIN`,
     'obfuscate customer SSN or EIN tooltip': `show on documents only last 4 characters of your customer's SSN or EIN for security purposes`,
+    'bank account/routing number/other means of payment':
+        'bank account number/routing number/other means of payment which will show on invoice',
     // Reports
     collected: 'collected',
     'paid invoices': 'paid invoices',

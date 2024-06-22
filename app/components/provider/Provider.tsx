@@ -35,7 +35,7 @@ const Provider: FC<IProps> = ({ provider, providerType }) => {
                         />
                     </Box>
                 ) : (
-                    <Box>{capitalize(t('no logo provided'))}</Box>
+                    <Typography variant='subtitle1'>{capitalize(t('no logo provided'))}</Typography>
                 )}
             </StyledProviderAttributeLogo>
             <StyledProviderAttribute>

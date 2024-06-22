@@ -28,6 +28,14 @@ export const StyledProfileAttribute = styled(Box, {
     display: flex;
     gap: 1rem;
     align-items: center;
+
+    & > :first-child {
+        flex: 1 0 50px;
+    }
+
+    & > :last-child {
+        flex: 1 0 250px;
+    }
 `;
 
 export const StyledProfileAttributeAlignTop = styled(Box, {
@@ -37,4 +45,12 @@ export const StyledProfileAttributeAlignTop = styled(Box, {
     display: flex;
     gap: 1rem;
     align-items: top;
+
+    & > :first-child {
+        flex: 1 0 50px;
+    }
+
+    & > :last-child {
+        flex: 1 0 250px;
+    }
 `;

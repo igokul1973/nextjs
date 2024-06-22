@@ -29,4 +29,12 @@ export const StyledAccountAttribute = styled(Box, {
     flex-direction: row;
     gap: 1rem;
     align-items: center;
+
+    & > :first-child {
+        flex: 1 0 70px;
+    }
+
+    & > :last-child {
+        flex: 1 0 200px;
+    }
 `;

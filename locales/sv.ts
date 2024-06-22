@@ -225,6 +225,9 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     amount: 'mängd',
     'select invoice status': 'välj faktureringsstatus',
     'enter inventory item name': 'ange inventeringsobjektnamn',
+    'enter inventory name, code, or description':
+        'ange inventeringsobjektnamn, kod eller beskrivning',
+    'select unit': 'välj enhet',
     'for billing inquiries': 'för faktureringsförslag',
     // Account settings
     'account settings description':
@@ -352,6 +355,8 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'display your SSN or EIN tooltip': 'visa på dokument er personnummer eller organisationsnummer',
     'obfuscate your SSN or EIN tooltip':
         'för säkerheten visa på dokument bara de 4 sista tecken i er personnummer eller organisationsnummer',
+    'bank account/routing number/other means of payment':
+        'bankgiro/kontonummer/andra betalningsmetoder som anges i fakturor',
     // Reports
     collected: 'insamlad',
     'paid invoices': 'betalade fakturor',

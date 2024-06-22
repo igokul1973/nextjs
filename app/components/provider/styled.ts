@@ -11,8 +11,13 @@ export const StyledProviderAttributeLogo = styled(Box, {
     flex-direction: row;
     gap: 1rem;
     align-items: center;
-    & div: {
-        border: 1px solid gray;
+
+    & > :first-child {
+        flex: 1 0 70px;
+    }
+
+    & > :last-child {
+        flex: 1 0 200px;
     }
 `;
 
@@ -21,7 +26,14 @@ export const StyledProviderAttribute = styled(Box, {
     slot: 'Root'
 })`
     display: flex;
-    flex-direction: row;
     gap: 1rem;
     align-items: center;
+
+    & > :first-child {
+        flex: 1 0 70px;
+    }
+
+    & > :last-child {
+        flex: 1 0 200px;
+    }
 `;

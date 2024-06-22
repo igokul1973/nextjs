@@ -28,6 +28,14 @@ export const StyledSettingsAttribute = styled(Box, {
     display: flex;
     gap: 1rem;
     align-items: center;
+
+    & > :first-child {
+        flex: 1 0 100px;
+    }
+
+    & > :last-child {
+        flex: 1 0 100px;
+    }
 `;
 
 export const StyledSettingsAttributeAlignTop = styled(Box, {

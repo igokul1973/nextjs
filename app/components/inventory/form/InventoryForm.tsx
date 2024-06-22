@@ -200,7 +200,6 @@ const InventoryForm: FC<IProps> = ({ types, defaultValues, isEdit }) => {
                             type: 'text'
                         }}
                         variant='outlined'
-                        required
                         error={!!errors.manufacturerPrice}
                         helperText={
                             !!errors.manufacturerPrice?.message

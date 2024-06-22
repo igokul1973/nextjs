@@ -45,11 +45,11 @@ const Profile: FC = () => {
             <StyledProfile>
                 {avatarUrl && (
                     <StyledProfileAttributeAlignTop>
-                        <Typography variant='h6'>{capitalize(t('avatar'))}:</Typography>
+                        <Typography variant='subtitle2'>{capitalize(t('avatar'))}:</Typography>
                         <Box
                             sx={{
                                 height: '80px',
-                                width: '80px'
+                                width: '100%'
                             }}
                         >
                             <Box
@@ -57,7 +57,7 @@ const Profile: FC = () => {
                                 src={avatarUrl}
                                 alt='User profile avatar'
                                 sx={{
-                                    width: '100%',
+                                    height: '100%',
                                     objectFit: 'contain'
                                 }}
                             />
@@ -65,17 +65,17 @@ const Profile: FC = () => {
                     </StyledProfileAttributeAlignTop>
                 )}
                 <StyledProfileAttribute>
-                    <Typography variant='h6'>{capitalize(t('first name'))}:</Typography>
-                    <Typography variant='body1'>{profile?.firstName}</Typography>
+                    <Typography variant='subtitle2'>{capitalize(t('first name'))}:</Typography>
+                    <Typography variant='subtitle1'>{profile?.firstName}</Typography>
                 </StyledProfileAttribute>
                 <StyledProfileAttribute>
-                    <Typography variant='h6'>{capitalize(t('last name'))}:</Typography>
-                    <Typography variant='body1'>{profile?.lastName}</Typography>
+                    <Typography variant='subtitle2'>{capitalize(t('last name'))}:</Typography>
+                    <Typography variant='subtitle1'>{profile?.lastName}</Typography>
                 </StyledProfileAttribute>
                 {profile?.middleName && (
                     <StyledProfileAttribute>
-                        <Typography variant='h6'>{capitalize(t('middle name'))}:</Typography>
-                        <Typography variant='body1'>{profile?.middleName}</Typography>
+                        <Typography variant='subtitle2'>{capitalize(t('middle name'))}:</Typography>
+                        <Typography variant='subtitle1'>{profile?.middleName}</Typography>
                     </StyledProfileAttribute>
                 )}
             </StyledProfile>

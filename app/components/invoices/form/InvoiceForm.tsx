@@ -368,7 +368,9 @@ const InvoiceForm: FC<IProps> = ({
                         <Button
                             variant='contained'
                             onClick={() =>
-                                appendInvoiceItem(getInoiceItemsInitial(userId, settings?.salesTax ?? 0))
+                                appendInvoiceItem(
+                                    getInoiceItemsInitial(userId, settings?.salesTax ?? 0)
+                                )
                             }
                         >
                             {invoiceItems.length > 0

@@ -13,7 +13,7 @@ export const Totals = styled(Box, {
     font-weight: 700;
     position: sticky;
     top: 65px;
-    background-color: white;
+    background-color: ${(props) => props.theme.palette.background.paper};
     padding-block: 1rem;
     z-index: 100;
 `;

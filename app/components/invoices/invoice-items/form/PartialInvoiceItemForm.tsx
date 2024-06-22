@@ -1,4 +1,5 @@
 import { TInvoiceForm } from '@/app/components/invoices/form/types';
+import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory/actions';
 import { TInventoryTransformed } from '@/app/lib/data/inventory/types';
 import { getFilteredMeasurementUnitsByAccount } from '@/app/lib/data/measurement-unit';
 import { TMeasurementUnit } from '@/app/lib/types';
@@ -25,7 +26,6 @@ import { ChangeEvent, FC, useEffect, useState } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { StyledBox } from './styled';
 import { IProps } from './types';
-import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory/actions';
 
 const PartialInvoiceItemForm: FC<IProps> = ({
     index,
@@ -201,7 +201,9 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                                                 getInventoryItemErrorMessage(inventoryItemError)
                                             }
                                             label={capitalize(t('inventory item name'))}
-                                            placeholder={capitalize(t('enter inventory item name'))}
+                                            placeholder={capitalize(
+                                                t('enter inventory name, code, or description')
+                                            )}
                                             inputRef={field.ref}
                                         />
                                     )}
@@ -327,7 +329,7 @@ const PartialInvoiceItemForm: FC<IProps> = ({
                                             required
                                             title={capitalize(t('unit'))}
                                             label={capitalize(t('unit'))}
-                                            placeholder={capitalize(t('enter inventory item name'))}
+                                            placeholder={capitalize(t('select unit'))}
                                             inputRef={field.ref}
                                         />
                                     )}
