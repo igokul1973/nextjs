@@ -85,7 +85,7 @@ const UserRegistrationForm: FC = () => {
                 <FormControl>
                     <TextField
                         label={capitalize(t('email'))}
-                        placeholder={capitalize(t('first name'))}
+                        placeholder={capitalize(t('email'))}
                         variant='outlined'
                         error={!!errors.email}
                         required
@@ -97,9 +97,9 @@ const UserRegistrationForm: FC = () => {
                     <TextField
                         label={capitalize(t('phone'))}
                         variant='outlined'
-                        placeholder={capitalize(t('last name'))}
+                        placeholder={capitalize(t('phone'))}
                         required
-                        error={!!errors.lastName}
+                        error={!!errors.phone}
                         helperText={!!errors.phone?.message && capitalize(errors.phone.message)}
                         {...register('phone')}
                     />

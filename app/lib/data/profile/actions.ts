@@ -5,8 +5,9 @@ import {
     getProfileUpdateSchemaEmptyAvatar
 } from '@/app/components/profile/form/formSchema';
 import {
-    TProfileFormOutput,
-    TProfileFormOutputEmptyAvatar
+    TProfileCreateFormOutput,
+    TProfileFormOutputEmptyAvatar,
+    TProfileUpdateFormOutput
 } from '@/app/components/profile/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields } from '@/app/lib/types';
@@ -14,22 +15,28 @@ import { deleteFileInStorage, getDirtyValues, getUser, uploadFileAndGetUrl } fro
 import { getI18n } from '@/locales/server';
 import { Prisma } from '@prisma/client';
 
-export async function createProfile(formData: TProfileFormOutput) {
+export async function createProfile(
+    formDataWithoutAvatar: Omit<TProfileCreateFormOutput, 'avatar'>,
+    rawAvatarFormData?: FormData
+) {
     try {
-        console.log(formData);
-        // const newProfile = await prisma.profile.create({
-        //     data: formData
-        // });
-        // console.log('Successfully created new inventory item: ', newProfile);
+        console.log(formDataWithoutAvatar, rawAvatarFormData);
+
+        const createdProfile = await prisma.profile.create({
+            data: formDataWithoutAvatar
+        });
+        // TODO: Upload and then save an avatar here
+
+        return createdProfile;
     } catch (error) {
-        console.error('Database Error:', error);
+        console.error('Error:', error);
         throw new Error('could not create user profile');
     }
 }
 
 export async function updateProfile(
-    formDataWithoutAvatar: Omit<TProfileFormOutput, 'avatar'>,
-    dirtyFields: TDirtyFields<TProfileFormOutput>,
+    formDataWithoutAvatar: Omit<TProfileUpdateFormOutput, 'avatar'>,
+    dirtyFields: TDirtyFields<TProfileUpdateFormOutput>,
     rawAvatarFormData?: FormData
 ) {
     const t = await getI18n();
@@ -54,10 +61,9 @@ export async function updateProfile(
 
         const validatedData = validatedFormData.data;
 
-        const changedFields = getDirtyValues<TProfileFormOutput | TProfileFormOutputEmptyAvatar>(
-            dirtyFields,
-            validatedData
-        );
+        const changedFields = getDirtyValues<
+            TProfileUpdateFormOutput | TProfileFormOutputEmptyAvatar
+        >(dirtyFields, validatedData);
 
         if (!changedFields) {
             throw Error('No changes detected');

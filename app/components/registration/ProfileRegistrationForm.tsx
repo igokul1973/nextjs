@@ -1,21 +1,27 @@
 'use client';
 
+import FileInput from '@/app/components/file/FileInput';
+import { getProfileCreateSchema } from '@/app/components/profile/form/formSchema';
+import {
+    TProfileCreateForm,
+    TProfileCreateFormOutput,
+    TProfileUpdateForm
+} from '@/app/components/profile/form/types';
+import { getDefaultValues } from '@/app/components/profile/form/utils';
 import { useSnackbar } from '@/app/context/snackbar/provider';
+import { useUser } from '@/app/context/user/provider';
+import { createProfile } from '@/app/lib/data/profile/actions';
+import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
+import { populateForm } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { FC, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import FileInput from '../file/FileInput';
-import { getDefaultValues } from '../profile/form/utils';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { StyledForm } from './styled';
-import { populateForm } from '@/app/lib/utils';
 
 const ProfileRegistrationForm: FC = () => {
     const t = useI18n();
@@ -28,7 +34,10 @@ const ProfileRegistrationForm: FC = () => {
     // FIXME: isEdit === true for now...
     const isEdit = false;
 
-    const defaultValues = populateForm<TProfileForm>(getDefaultValues(user.id), profile || {});
+    const defaultValues = populateForm<TProfileUpdateForm>(
+        getDefaultValues(user.id),
+        profile || {}
+    );
 
     const {
         watch,
@@ -38,14 +47,8 @@ const ProfileRegistrationForm: FC = () => {
         control,
         setValue,
         ...methods
-    } = useForm<TProfileForm, unknown, TProfileFormOutput>({
-        resolver: zodResolver(
-            isEdit
-                ? defaultValues.avatar
-                    ? getProfileUpdateSchema(t)
-                    : getProfileUpdateSchemaEmptyAvatar(t)
-                : getProfileCreateSchema(t)
-        ),
+    } = useForm<TProfileCreateForm, unknown, TProfileCreateFormOutput>({
+        resolver: zodResolver(getProfileCreateSchema(t)),
         reValidateMode: 'onChange',
         defaultValues,
         shouldFocusError: false
@@ -68,7 +71,7 @@ const ProfileRegistrationForm: FC = () => {
         setCanFocus(true);
     };
 
-    const onSubmit = async (formData: TProfileFormOutput) => {
+    const onSubmit = async (formData: TProfileCreateFormOutput) => {
         try {
             const { avatar, ...formDataWithoutAvatar } = formData;
 
@@ -80,23 +83,12 @@ const ProfileRegistrationForm: FC = () => {
                     (avatarFormData as FormData).append(key, value as FormDataEntryValue);
                 });
             }
-            if (isEdit) {
-                const updatedProfile = await updateProfile(
-                    formDataWithoutAvatar,
-                    dirtyFields as TDirtyFields<TProfileFormOutput>,
-                    avatarFormData
-                );
-
-                if (!updatedProfile) {
-                    throw Error(t('could not update user profile'));
-                }
-
-                userDispatch({ type: 'setProfile', payload: { profile: updatedProfile } });
-                openSnackbar(capitalize(t('successfully updated user profile')));
-            } else {
-                // await createProfile(formData);
-                openSnackbar(capitalize(t('successfully created user profile')));
+            const createdProfile = await createProfile(formDataWithoutAvatar, avatarFormData);
+            if (!createdProfile) {
+                throw Error(t('could not create user profile'));
             }
+
+            openSnackbar(capitalize(t('successfully created user profile')));
         } catch (error) {
             if (error instanceof Error) {
                 openSnackbar(capitalize(error.message), 'error');
@@ -154,7 +146,7 @@ const ProfileRegistrationForm: FC = () => {
                         />
                     </FormControl>
                     <FileInput inputName='avatar' label={capitalize(t('avatar'))} user={user} />
-                    <Box className='action-buttons'>
+                    {/* <Box className='action-buttons'>
                         <Button type='button' onClick={goBack} variant='outlined' color='warning'>
                             {capitalize(t('cancel'))}
                         </Button>
@@ -166,7 +158,7 @@ const ProfileRegistrationForm: FC = () => {
                         >
                             {capitalize(t(isEdit ? 'update profile' : 'create profile'))}
                         </Button>
-                    </Box>
+                    </Box> */}
                 </StyledForm>
             </FormProvider>
         </>

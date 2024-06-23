@@ -24,7 +24,7 @@ import {
     getProfileUpdateSchemaEmptyAvatar
 } from './formSchema';
 import { StyledForm } from './styled';
-import { TProfileForm, TProfileFormOutput } from './types';
+import { TProfileUpdateForm, TProfileUpdateFormOutput } from './types';
 import { getDefaultValues } from './utils';
 
 const ProfileForm: FC = () => {
@@ -39,7 +39,10 @@ const ProfileForm: FC = () => {
     // FIXME: isEdit === true for now...
     const isEdit = true;
 
-    const defaultValues = populateForm<TProfileForm>(getDefaultValues(user.id), profile || {});
+    const defaultValues = populateForm<TProfileUpdateForm>(
+        getDefaultValues(user.id),
+        profile || {}
+    );
 
     const {
         watch,
@@ -49,7 +52,7 @@ const ProfileForm: FC = () => {
         control,
         setValue,
         ...methods
-    } = useForm<TProfileForm, unknown, TProfileFormOutput>({
+    } = useForm<TProfileUpdateForm, unknown, TProfileUpdateFormOutput>({
         resolver: zodResolver(
             isEdit
                 ? defaultValues.avatar
@@ -86,7 +89,7 @@ const ProfileForm: FC = () => {
         });
     };
 
-    const onSubmit = async (formData: TProfileFormOutput) => {
+    const onSubmit = async (formData: TProfileUpdateFormOutput) => {
         try {
             const { avatar, ...formDataWithoutAvatar } = formData;
 
@@ -101,7 +104,7 @@ const ProfileForm: FC = () => {
             if (isEdit) {
                 const updatedProfile = await updateProfile(
                     formDataWithoutAvatar,
-                    dirtyFields as TDirtyFields<TProfileFormOutput>,
+                    dirtyFields as TDirtyFields<TProfileUpdateFormOutput>,
                     avatarFormData
                 );
 

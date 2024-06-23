@@ -1,6 +1,6 @@
 'use server';
 
-import { TProfileFormOutput } from '@/app/components/profile/form/types';
+import { TProfileUpdateFormOutput } from '@/app/components/profile/form/types';
 import { getSettingsUpdateSchema } from '@/app/components/settings/form/formSchema';
 import { TSettingsFormOutput } from '@/app/components/settings/form/types';
 import prisma from '@/app/lib/prisma';
@@ -30,7 +30,7 @@ export async function createSettings(formData: TSettingsFormOutput) {
 
 export async function updateSettings(
     formData: TSettingsFormOutput,
-    dirtyFields: TDirtyFields<TProfileFormOutput>
+    dirtyFields: TDirtyFields<TProfileUpdateFormOutput>
 ) {
     const t = await getI18n();
     try {
