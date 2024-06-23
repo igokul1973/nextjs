@@ -23,7 +23,7 @@ const BaseLinkButton: FC<IBaseLinkButtonProps> = ({
         if (isLoading) {
             setTimeout(() => {
                 setIsLoading(false);
-            }, 3000);
+            }, 6000);
         }
     }, [isLoading, setIsLoading]);
 

@@ -140,6 +140,54 @@ export type TOrgWithNonNullableCustomer = Omit<
     customer: TCustomer;
 };
 
+export interface ICoords {
+    latitude: number;
+    longitude: number;
+}
+
+export interface IGeoData {
+    latitude: number;
+    lookupSource: string;
+    longitude: number;
+    localityLanguageRequested: string;
+    continent: string;
+    continentCode: string;
+    countryName: string;
+    countryCode: string;
+    principalSubdivision: string;
+    principalSubdivisionCode: string;
+    city: string;
+    locality: string;
+    postcode: string;
+    plusCode: string;
+    localityInfo: {
+        administrative: [
+            {
+                name: string;
+                description: string;
+                isoName: string;
+                order: number;
+                adminLevel: number;
+                isoCode: string;
+                wikidataId: string;
+                geonameId: number;
+            }
+        ];
+        informative: [
+            {
+                name: string;
+                description: string;
+                isoName: string;
+                order: number;
+                adminLevel: number;
+                isoCode: string;
+                wikidataId: string;
+                geonameId: number;
+            }
+        ];
+    };
+}
+
 export type TEntitiesWithNonNullableCustomer = {
     indCustomers: TIndWithNonNullableCustomer[];
     orgCustomers: TOrgWithNonNullableCustomer[];

@@ -19,6 +19,6 @@ export const StyledLogoIcon = styled(Receipt, {
     name: 'Styled Logo Icon',
     slot: 'Root'
 })`
-    height: 4ch;
-    width: 4ch;
+    height: 3ch;
+    width: 3ch;
 `;

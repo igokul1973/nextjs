@@ -3,9 +3,16 @@ import { TGetUserPayload } from './app/lib/data/user/types';
 
 export type TSessionUser = Omit<TGetUserPayload, 'password'>;
 
+export interface IGoogleUser extends Record<string, any> {
+    id: string;
+    email: string;
+    name: string;
+    image: string;
+}
+
 declare module 'next-auth' {
     interface Session {
-        user: TSessionUser;
+        user: TSessionUser & IGoogleUser;
     }
 }
 

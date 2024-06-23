@@ -30,6 +30,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     cancel: 'avbryt',
     'log out': 'logga ut',
     'log in': 'logga in',
+    'or log in using': 'eller logga in med',
     yes: 'ja',
     no: 'nej',
     'not provided': 'ej angiven',
@@ -104,6 +105,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'postal code': 'postnummer',
     'enter postal/zip code': 'ange postnummer',
     country: 'land',
+    'select country': 'välj land',
     'enter the country': 'ange landet',
     'please enter the user ID': 'var god ange användar-ID',
     // Phones

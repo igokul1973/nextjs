@@ -5,7 +5,7 @@ import { useUser } from '@/app/context/user/provider';
 import { logOut } from '@/app/lib/data/user/actions';
 import { useI18n } from '@/locales/client';
 import AccountIcon from '@mui/icons-material/AccountBalance';
-import Logout from '@mui/icons-material/Logout';
+import LogoutIcon from '@mui/icons-material/Logout';
 import ProfileIcon from '@mui/icons-material/PersonOutline';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { capitalize } from '@mui/material';
@@ -137,7 +137,7 @@ const AvatarMenu: FC = () => {
                 </MenuItem>
                 <MenuItem onClick={onLogout}>
                     <ListItemIcon>
-                        <Logout fontSize='small' />
+                        <LogoutIcon fontSize='small' />
                     </ListItemIcon>
                     {capitalize(t('log out'))}
                 </MenuItem>

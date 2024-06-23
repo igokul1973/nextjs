@@ -18,6 +18,14 @@ export async function authenticate(_: string | undefined, formData: FormData) {
     }
 }
 
+export const signInWithGoogle = async () => {
+    await signIn('google');
+};
+
 export async function logOut() {
     await signOut({ redirectTo: '/' });
 }
+
+export const submitRegistration = async (formData: FormData) => {
+    console.log('Form data: ', formData);
+};

@@ -10,7 +10,7 @@ export default function BaseFormActionButton({
     endIcon,
     color = 'primary',
     variant = 'contained'
-}: IBaseFormActionButtonProps) {
+}: Readonly<IBaseFormActionButtonProps>) {
     const actionWithArgs =
         typeof action === 'function' && actionArgs ? action.bind(null, actionArgs) : action;
 

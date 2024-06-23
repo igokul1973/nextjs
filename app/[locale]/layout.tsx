@@ -2,6 +2,7 @@ import ThemeRegistry from '@/app/components/theme-registry/ThemeRegistry';
 import { getCountries } from '@/app/lib/data/country';
 import { getOrganizationTypes } from '@/app/lib/data/organization-type';
 import '@/app/styles/global.css';
+import { I18nProviderClient } from '@/locales/client';
 import { setStaticParamsLocale } from 'next-international/server';
 import { FC, PropsWithChildren } from 'react';
 import { getStaticParams } from '../../locales/server';
@@ -17,7 +18,7 @@ const RootLayout: FC<IProps & PropsWithChildren> = async ({ params: { locale }, 
         <html lang='en'>
             <body>
                 <ThemeRegistry countries={countries} organizationTypes={organizationTypes}>
-                    {children}
+                    <I18nProviderClient locale={locale}>{children}</I18nProviderClient>
                 </ThemeRegistry>
             </body>
         </html>

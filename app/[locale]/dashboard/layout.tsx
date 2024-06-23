@@ -8,7 +8,6 @@ import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
 import { TEntity } from '@/app/lib/types';
 import { getUserProvider, getUserProviderType } from '@/app/lib/utils';
 import { auth } from '@/auth';
-import { I18nProviderClient } from '@/locales/client';
 import Box from '@mui/material/Box';
 import { redirect } from 'next/navigation';
 import { FC } from 'react';
@@ -22,8 +21,15 @@ const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
 
     const dbUser = await getUserWithRelationsByEmail(sessionUser.email);
 
+    // If the session user is present but the dbUser is not, redirect
+    // to the registration page.
+
     if (!dbUser) {
-        redirect('/');
+        if (sessionUser.id && sessionUser.email) {
+            redirect('/registration');
+        } else {
+            redirect('/');
+        }
     }
 
     const { account: rawAccount, profile, ...user } = dbUser;
@@ -39,31 +45,31 @@ const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
 
     return (
         <Box sx={{ display: 'flex' }}>
-            <I18nProviderClient locale={locale}>
-                <RightDrawerProvider>
-                    <UserProvider
-                        userState={{
-                            user,
-                            profile,
-                            account,
-                            settings,
-                            provider: concreteProvider as TEntity | undefined,
-                            providerType
-                        }}
-                    >
-                        <SnackbarProvider>
-                            <Navigation />
-                            <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
-                                {/* This header is for purposes of pushing the content down */}
-                                <DrawerHeader />
-                                {children}
-                                <RightDrawer />
-                            </Box>
-                            <GlobalSnackbar />
-                        </SnackbarProvider>
-                    </UserProvider>
-                </RightDrawerProvider>
-            </I18nProviderClient>
+            {/* <I18nProviderClient locale={locale}> */}
+            <RightDrawerProvider>
+                <UserProvider
+                    userState={{
+                        user,
+                        profile,
+                        account,
+                        settings,
+                        provider: concreteProvider as TEntity | undefined,
+                        providerType
+                    }}
+                >
+                    <SnackbarProvider>
+                        <Navigation />
+                        <Box component='main' sx={{ flexGrow: 1, p: 3 }}>
+                            {/* This header is for purposes of pushing the content down */}
+                            <DrawerHeader />
+                            {children}
+                            <RightDrawer />
+                        </Box>
+                        <GlobalSnackbar />
+                    </SnackbarProvider>
+                </UserProvider>
+            </RightDrawerProvider>
+            {/* </I18nProviderClient> */}
         </Box>
     );
 };

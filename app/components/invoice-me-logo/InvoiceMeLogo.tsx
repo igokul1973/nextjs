@@ -8,7 +8,7 @@ const InvoiceMeLogo: FC<IProps> = ({ color }) => {
     return (
         <StyledLogoWrapper component='span' sx={{ color }}>
             <StyledLogoIcon />
-            <Typography variant='h1' sx={{ fontFamily: lusitana.style.fontFamily }}>
+            <Typography variant='h3' sx={{ fontFamily: lusitana.style.fontFamily }}>
                 InvoiceMe
             </Typography>
         </StyledLogoWrapper>

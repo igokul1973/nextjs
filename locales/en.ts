@@ -27,6 +27,7 @@ export const enSingle = {
     cancel: 'cancel',
     'log out': 'log out',
     'log in': 'log in',
+    'or log in using': 'or log in using',
     yes: 'yes',
     no: 'no',
     'not provided': 'not provided',
@@ -101,6 +102,7 @@ export const enSingle = {
     'postal code': 'postal code',
     'enter postal/zip code': 'enter postal/zip code',
     country: 'country',
+    'select country': 'select country',
     'enter the country': 'enter the country',
     'please enter the user ID': 'please enter the user ID',
     // Phones

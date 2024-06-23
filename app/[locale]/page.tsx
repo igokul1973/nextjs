@@ -1,16 +1,27 @@
+import BaseLinkButton from '@/app/components/buttons/base/BaseLinkButton';
 import InvoiceMeLogo from '@/app/components/invoice-me-logo/InvoiceMeLogo';
+import LanguageSwitcher from '@/app/components/language-switcher/LanguageSwitcher';
 import { colors } from '@/app/styles/colors';
+import { auth } from '@/auth';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { setStaticParamsLocale } from 'next-international/server';
 import Link from 'next/link';
 import { FC, Suspense } from 'react';
-import LanguageSwitcher from '../components/language-switcher/LanguageSwitcher';
+import BaseFormActionIconButton from '../components/buttons/base/BaseFormActionIconButton';
+import BaseLinkIconButton from '../components/buttons/base/BaseLinkIconButton';
+import { logOut } from '../lib/data/user/actions';
 import { ContainerBox } from './styled';
 import { IProps } from './types';
 
-const Page: FC<IProps> = ({ params: { locale } }) => {
+const Page: FC<IProps> = async ({ params: { locale } }) => {
     setStaticParamsLocale(locale);
+
+    const session = await auth();
+
+    const isLoggedIn = !!session?.user;
 
     return (
         <ContainerBox className='container'>
@@ -28,12 +39,27 @@ const Page: FC<IProps> = ({ params: { locale } }) => {
                             <Typography component={Link} href='#pricing'>
                                 Prices
                             </Typography>
-                            <Typography component={Link} href='/login'>
-                                Log in
-                            </Typography>
+                            {isLoggedIn ? (
+                                <>
+                                    <BaseLinkIconButton
+                                        icon={DashboardIcon}
+                                        href='/dashboard'
+                                        ariaLabel='Link to dashboard'
+                                        title='Go to Dashboard'
+                                    />
+                                    <BaseFormActionIconButton
+                                        icon={LogoutIcon}
+                                        action={logOut}
+                                        ariaLabel='Log-out button'
+                                        title='Log out'
+                                    />
+                                </>
+                            ) : (
+                                <BaseLinkButton name='Log in' href='/login' variant='outlined' />
+                            )}
                         </Box>
                     </Box>
-                    <Box component='main' className='headline'>
+                    <Box component='section' className='headline'>
                         <Typography variant='h1' sx={{ fontWeight: 'bold' }}>
                             Invoice solution for your flourising business
                         </Typography>

@@ -1,25 +1,24 @@
-'use server';
-
 import { getUserByEmail } from '@/app/lib/data/user';
 import { compare } from 'bcryptjs';
 import NextAuth, { NextAuthResult } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
+import Google from 'next-auth/providers/google';
 import { z } from 'zod';
 import { authConfig } from './auth.config';
 
-const {
-    auth: serverAuth,
-    signIn: serverSignIn,
-    signOut: serverSignOut
-}: NextAuthResult = NextAuth({
+export const { auth, signIn, signOut, handlers }: NextAuthResult = NextAuth({
     ...authConfig,
     providers: [
+        Google,
         Credentials({
             async authorize(credentials) {
+                // TODO: think about the password
+                // authentication and whether I need it.
+                // The password should also be more complex.
                 const parsedCredentials = z
                     .object({
                         email: z.string().email(),
-                        password: z.string().min(6)
+                        password: z.string().min(8)
                     })
                     .safeParse(credentials);
 
@@ -42,17 +41,3 @@ const {
         })
     ]
 });
-
-// @ts-expect-error(there is something wrong with the types in the next-auth package : NextAuthResult['auth'])
-export const auth: NextAuthResult['auth'] = async (...args) => {
-    // @ts-expect-error(Read above)
-    return serverAuth(...args);
-};
-
-export const signIn: NextAuthResult['signIn'] = async (...args) => {
-    return serverSignIn(...args);
-};
-
-export const signOut: NextAuthResult['signOut'] = async (...args) => {
-    return serverSignOut(...args);
-};

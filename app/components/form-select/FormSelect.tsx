@@ -1,12 +1,17 @@
 import { BaseTextFieldProps, InputBaseProps, InputLabel } from '@mui/material';
 import FormControl, { FormControlProps } from '@mui/material/FormControl';
 import FormHelperText from '@mui/material/FormHelperText';
-import Select from '@mui/material/Select';
+import Select, { BaseSelectProps } from '@mui/material/Select';
 import { FC, PropsWithChildren } from 'react';
 import { Controller, UseControllerProps } from 'react-hook-form';
 
 const FormSelect: FC<
-    BaseTextFieldProps & InputBaseProps & FormControlProps & UseControllerProps & PropsWithChildren
+    BaseTextFieldProps &
+        InputBaseProps &
+        FormControlProps &
+        UseControllerProps &
+        PropsWithChildren &
+        BaseSelectProps
 > = ({
     onChange: onExternalChange,
     name,
