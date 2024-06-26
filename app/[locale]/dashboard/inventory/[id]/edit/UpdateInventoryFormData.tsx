@@ -4,7 +4,7 @@ import { getDefaultFormValues } from '@/app/components/inventory/utils';
 import Warning from '@/app/components/warning/Warning';
 import { getInventoryItemById } from '@/app/lib/data/inventory';
 import { getInventoryTypes } from '@/app/lib/data/inventory-type';
-import { capitalize, getUser, populateForm } from '@/app/lib/utils';
+import { capitalize, getApp, populateForm } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
 import { setStaticParamsLocale } from 'next-international/server';
 import { notFound } from 'next/navigation';
@@ -15,7 +15,7 @@ const UpdateInventoryFormData: FC<IProps> = async ({ params: { id, locale } }) =
     setStaticParamsLocale(locale);
 
     const t = await getI18n();
-    const { user, account } = await getUser();
+    const { user, account } = await getApp();
 
     const inventoryPromise = getInventoryItemById(id, account.id);
     const typesPromise = getInventoryTypes();

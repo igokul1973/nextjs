@@ -2,16 +2,16 @@ import { TGetUserWithRelationsPayload } from '@/app/lib/data/user/types';
 import { TEntity, TUser } from '@/app/lib/types';
 import { EntitiesEnum } from '@prisma/client';
 
-export interface IUserState {
+export interface IAppState {
     user: TUser;
     account: Omit<TGetUserWithRelationsPayload['account'], 'settings'>;
-    profile?: TGetUserWithRelationsPayload['profile'] | null;
-    settings?: TGetUserWithRelationsPayload['account']['settings'] | null;
-    provider?: TEntity | null;
-    providerType?: EntitiesEnum;
+    profile: NonNullable<TGetUserWithRelationsPayload['profile']>;
+    settings: NonNullable<TGetUserWithRelationsPayload['account']['settings']>;
+    provider: TEntity;
+    providerType: EntitiesEnum;
 }
 
-export interface IUserAction {
+export interface IAppStateAction {
     type: 'update' | 'setProfile' | 'setSettings';
-    payload: Partial<IUserState>;
+    payload: Partial<IAppState>;
 }

@@ -1,7 +1,5 @@
 'use client';
 
-import BaseFormActionButton from '@/app/components/buttons/base/BaseFormActionButton';
-import BaseLinkButton from '@/app/components/buttons/base/BaseLinkButton';
 import { colors } from '@/app/styles/colors';
 import { styled } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -47,30 +45,4 @@ export const FormWrapperBox = styled(Box, {
     flex-direction: column;
     justify-content: space-between;
     gap: 1.5rem;
-`;
-
-export const ButtonsBox = styled(Box, {
-    name: 'Buttons Box',
-    slot: 'Root'
-})`
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-
-    & > :last-child {
-        margin-left: auto;
-    }
-`;
-
-export const StyledLinkButton = styled(BaseLinkButton, {
-    name: 'Styled Link Button',
-    slot: 'Root'
-})`
-    min-width: 120px;
-`;
-
-export const StyledFormActionButton = styled(BaseFormActionButton, {
-    name: 'Styled Link Button',
-    slot: 'Root'
-})`
-    min-width: 120px;
 `;

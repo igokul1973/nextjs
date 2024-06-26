@@ -1,74 +1,75 @@
 'use client';
 
+import { useSnackbar } from '@/app/context/snackbar/provider';
+import { usePartialApp } from '@/app/context/user/provider';
+import { createUser } from '@/app/lib/data/user/actions';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
-import { TTranslateFn } from '@/app/lib/types';
-import { populateForm } from '@/app/lib/utils';
+import {
+    deleteFromLocalStorage,
+    getFromLocalStorage,
+    maskMax3Digits,
+    maskNumber,
+    populateForm,
+    setLocalStorage
+} from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
+import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { UserRoleEnum } from '@prisma/client';
-import { FC, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { ChangeEvent, FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { StyledForm } from './styled';
+import { TUserRegistrationForm } from './types';
+import { getDefaultValues, getUserRegistrationSchema } from './utils';
 
-const getDefaultValues = (email = '', accountId = '') => {
-    return {
-        email,
-        phone: '',
-        isActive: true,
-        role: UserRoleEnum.writer,
-        accountId
-    };
-};
+const localStorageKey = 'userData';
 
-export const userRoles = Object.values(UserRoleEnum) as [UserRoleEnum, ...UserRoleEnum[]];
-
-export const getUserRegistrationSchema = (t: TTranslateFn) => {
-    return z.object({
-        email: z
-            .string()
-            .min(1, { message: 'This field has to be filled.' })
-            .email(t('this is not a valid email.')),
-        phone: z
-            .string({
-                required_error: 'please enter the country',
-                invalid_type_error: 'please enter the country'
-            })
-            .min(10, { message: 'please enter the country' }),
-        isActive: z.boolean(),
-        role: z.enum(userRoles, {
-            invalid_type_error: t('please enter the user role')
-        }),
-        accountId: z.string({
-            required_error: t('please enter the account ID'),
-            invalid_type_error: t('please enter the account ID')
-        })
-    });
-};
-
-const UserRegistrationForm: FC = () => {
+const UserRegistrationForm: FC<{ userEmail: string }> = ({ userEmail }) => {
     const t = useI18n();
+    const { openSnackbar } = useSnackbar();
+    const { dispatch: appStateDispatch } = usePartialApp();
+    const { push } = useRouter();
 
-    const defaultValues = populateForm<TProfileForm>(getDefaultValues(), {});
+    const [isDeleteLocalStorageData, setIsDeleteLocalStorageData] = useState(false);
+
+    // Try to get user-related data from the local storage
+    const userData = getFromLocalStorage(localStorageKey) ?? {};
+
+    const defaultValues = populateForm<TUserRegistrationForm>(
+        getDefaultValues(userEmail),
+        userData
+    );
 
     const {
         watch,
         register,
         handleSubmit,
-        formState: { errors, dirtyFields, isDirty, ...formState },
-        control,
-        setValue,
-        ...methods
-    } = useForm<TProfileForm, unknown, TProfileFormOutput>({
+        formState: { errors, dirtyFields, isValid }
+    } = useForm<TUserRegistrationForm, unknown, TUserRegistrationForm>({
         resolver: zodResolver(getUserRegistrationSchema(t)),
         reValidateMode: 'onChange',
         defaultValues,
         shouldFocusError: false
     });
+
+    const w = watch();
+
+    useEffect(() => {
+        // console.log('Is Dirty:', isDirty);
+        // console.log('DirtyFields:', dirtyFields);
+        console.log('Watch:', w);
+        console.log('IsValid:', isValid);
+        if (isDeleteLocalStorageData) {
+            deleteFromLocalStorage(localStorageKey);
+        } else {
+            setLocalStorage(localStorageKey, JSON.stringify(w));
+        }
+        // console.error('Errors:', errors);
+    }, [errors, w, dirtyFields, isDeleteLocalStorageData]);
 
     const [canFocus, setCanFocus] = useState(true);
 
@@ -78,10 +79,38 @@ const UserRegistrationForm: FC = () => {
         setCanFocus(true);
     };
 
+    const onSubmit = async (formData: TUserRegistrationForm) => {
+        try {
+            const createdUser = await createUser(formData);
+
+            if (!createdUser) {
+                throw Error(t('could not create user'));
+            }
+            // Setting user and account into the partial app context
+            appStateDispatch({
+                type: 'update',
+                payload: {
+                    account: createdUser.account,
+                    user: createdUser
+                }
+            });
+            // Removing the user-related data from the local storage
+            setIsDeleteLocalStorageData(true);
+            openSnackbar(capitalize(t('successfully created user')));
+            // Moving to the next stage
+            debugger;
+            push('/registration');
+        } catch (error) {
+            if (error instanceof Error) {
+                openSnackbar(capitalize(error.message), 'error');
+            }
+        }
+    };
+
     return (
         <>
-            <Typography variant='h1'>User Registration Form</Typography>;
-            <StyledForm onSubmit={handleSubmit(() => {}, onError)} noValidate>
+            <Typography variant='h1'>User Registration Form</Typography>
+            <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
                 <FormControl>
                     <TextField
                         label={capitalize(t('email'))}
@@ -89,21 +118,64 @@ const UserRegistrationForm: FC = () => {
                         variant='outlined'
                         error={!!errors.email}
                         required
-                        helperText={!!errors.email?.message && capitalize(errors.email.message)}
+                        helperText={errors.email?.message && capitalize(errors.email.message)}
                         {...register('email')}
                     />
                 </FormControl>
-                <FormControl>
+                <FormControl fullWidth>
                     <TextField
-                        label={capitalize(t('phone'))}
+                        sx={{ overflowX: 'clip' }}
+                        title={capitalize(t('must be up to digits', { count: 3 }))}
+                        label={capitalize(t('phone country code'))}
+                        autoComplete='tel-country-code'
+                        inputProps={{
+                            type: 'number',
+                            inputMode: 'numeric',
+                            maxLength: 4
+                        }}
+                        InputProps={{
+                            startAdornment: '+'
+                        }}
                         variant='outlined'
-                        placeholder={capitalize(t('phone'))}
                         required
-                        error={!!errors.phone}
-                        helperText={!!errors.phone?.message && capitalize(errors.phone.message)}
-                        {...register('phone')}
+                        error={!!errors.countryCode}
+                        helperText={
+                            !!errors.countryCode?.message && capitalize(errors.countryCode.message)
+                        }
+                        {...register('countryCode', {
+                            onChange: maskMax3Digits
+                        })}
                     />
                 </FormControl>
+                <FormControl fullWidth>
+                    <TextField
+                        label={capitalize(t('phone number'))}
+                        autoComplete='tel-national'
+                        inputProps={{
+                            type: 'text'
+                        }}
+                        variant='outlined'
+                        required
+                        error={!!errors.number}
+                        helperText={errors.number?.message && capitalize(errors.number.message)}
+                        {...register('number', {
+                            onChange: (e) => {
+                                maskNumber(e);
+                            },
+                            setValueAs: (value) => {
+                                if (!value) return value;
+                                const e = {
+                                    target: { value: value.toString() }
+                                } as unknown as ChangeEvent<HTMLInputElement>;
+                                maskNumber(e);
+                                return e.target.value;
+                            }
+                        })}
+                    />
+                </FormControl>
+                <Button type='submit' variant='contained' color='primary' disabled={!isValid}>
+                    {capitalize(t('next'))}
+                </Button>
             </StyledForm>
         </>
     );

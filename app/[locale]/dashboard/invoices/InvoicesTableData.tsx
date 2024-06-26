@@ -4,13 +4,13 @@ import {
     getFilteredInvoicesByAccountId,
     getFilteredInvoicesByAccountIdCount
 } from '@/app/lib/data/invoice';
-import { formatCurrencyAsCents, getUser } from '@/app/lib/utils';
+import { formatCurrencyAsCents, getApp } from '@/app/lib/utils';
 import { FC } from 'react';
 import { TInvoicesDataProps } from './types';
 
 const InvoicesTableData: FC<TInvoicesDataProps> = async ({ searchParams, tableName }) => {
     const { query } = searchParams;
-    const { provider, account } = await getUser();
+    const { provider, account } = await getApp();
 
     const countPromise = await getFilteredInvoicesByAccountIdCount(account.id, query);
     const rawInvoicesPromise = await getFilteredInvoicesByAccountId({
@@ -20,15 +20,7 @@ const InvoicesTableData: FC<TInvoicesDataProps> = async ({ searchParams, tableNa
 
     const [count, rawInvoices] = await Promise.all([countPromise, rawInvoicesPromise]);
 
-    const userAccountCountry = provider?.address?.country;
-
-    if (!userAccountCountry) {
-        return (
-            <Warning variant='h4'>
-                Before listing invoices please register yourself as a Provider.
-            </Warning>
-        );
-    }
+    const userAccountCountry = provider.address.country;
 
     const invoices = rawInvoices.map((invoice) => {
         return {

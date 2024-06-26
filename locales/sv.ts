@@ -28,9 +28,12 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     delete: 'ta bort',
     save: 'spara',
     cancel: 'avbryt',
+    next: 'nästa',
+    previous: 'föregående',
     'log out': 'logga ut',
     'log in': 'logga in',
-    'or log in using': 'eller logga in med',
+    'click on the icons below to sign in with social apps':
+        'klicka på de ikonerna nedan för att logga in med sociala apper',
     yes: 'ja',
     no: 'nej',
     'not provided': 'ej angiven',
@@ -111,11 +114,12 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     // Phones
     phones: 'telefonnummer',
     number: 'nummer',
+    'phone number': 'telefonnummer',
     'add phone': 'lägg till telefon nummer',
     'add another phone': 'lägg till ett annat telefonnummer',
     'country code': 'landskod',
-    'phone country code': 'telefon landskod',
-    'please enter the country code': 'var god ange landskod',
+    'phone country code': 'telefonslandskod',
+    'please enter the country code': 'var god ange telfonslandskod',
     'please enter the phone number': 'var god ange telefonnummer',
     'please enter the phone type': 'var god ange telefontyp',
     // Emails
@@ -260,6 +264,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'invoice cannot be deleted because it was already paid':
         'fakturan kan inte raderas eftersom den redan har blivit betald',
     'could not load data': 'kunde inte ladda data',
+    'please enter the user role': 'var god ange användarrollen',
     'please enter at least one character': 'var god ange minst ett tecken',
     'please enter the name': 'var god ange namnet',
     'please enter the locale code': 'var god ange lokala kod',
@@ -391,6 +396,11 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'could not delete inventory item': 'kunde inte ta bort inventeringsobjektet',
     'cannot delete inventory item because it has associated invoices':
         'kunde inte ta bort inventeringsobjektet eftersom den har associerade fakturor',
+    'cannot create user - email already exists': 'kunde inte skapa användare - e-post finns redan',
+    'cannot create user - phone already exists': 'kunde inte skapa användare - telefon finns redan',
+    'successfully created user': 'användaren har skapats',
+    'successfully updated user': 'användaren har uppdaterats',
+    'could not create user': 'kunde inte skapa användaren',
     'successfully created user profile': 'användarprofilen har skapats',
     'successfully updated user profile': ' användarprofilen har uppdaterats',
     'could not create user profile': 'kunde inte skapa användarprofilen',

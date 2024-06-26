@@ -27,7 +27,7 @@ const Page: FC<TPageProps> = async (props) => {
     const propsData = propsSchema.safeParse(props);
 
     if (!propsData.success) {
-        return <Warning variant='h4'>Incorrect incoming data</Warning>;
+        return <Warning variant='h4'>Incorrect URL params</Warning>;
     }
 
     const {

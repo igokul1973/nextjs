@@ -9,7 +9,7 @@ import {
 import { TProviderIndForm, TProviderIndFormOutput } from '@/app/components/individuals/form/types';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { useUser } from '@/app/context/user/provider';
+import { useApp } from '@/app/context/user/provider';
 import { createIndividual, updateIndividual } from '@/app/lib/data/indiviidual/actions';
 import { TDirtyFields } from '@/app/lib/types';
 import { useI18n } from '@/locales/client';
@@ -28,7 +28,7 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
 }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
-    const { state: user, dispatch: dispatchUserState } = useUser();
+    const { state: user, dispatch: dispatchUserState } = useApp();
     const { dispatch: rightDrawerDispatch } = useRightDrawerState();
 
     const {

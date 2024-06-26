@@ -1,7 +1,7 @@
 'use client';
 
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
-import { useUser } from '@/app/context/user/provider';
+import { useApp } from '@/app/context/user/provider';
 import { logOut } from '@/app/lib/data/user/actions';
 import { useI18n } from '@/locales/client';
 import AccountIcon from '@mui/icons-material/AccountBalance';
@@ -24,7 +24,7 @@ const AvatarMenu: FC = () => {
     const t = useI18n();
     const {
         state: { profile: userProfile }
-    } = useUser();
+    } = useApp();
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const { dispatch } = useRightDrawerState();
     const open = Boolean(anchorEl);

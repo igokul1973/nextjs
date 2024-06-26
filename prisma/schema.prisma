@@ -72,6 +72,42 @@ model account {
   @@map("accounts")
 }
 
+model user {
+  id              String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email           String       @unique @db.VarChar(60)
+  phone           String       @unique @db.VarChar(20)
+  password        String       @db.VarChar(60)
+  isActive        Boolean      @default(true)
+  role            UserRoleEnum
+  accountId       String       @map("account_id") @db.Uuid
+  account         account      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  profile         profile?
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
+  updatedBy       String?      @map("updated_by") @db.Uuid
+  createdInvoices invoice[]    @relation("CreatedInvoices")
+  updatedInvoices invoice[]    @relation("UpdatedInvoices")
+
+  @@map("users")
+}
+
+model profile {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  avatarId   String?  @unique @map("avatar_id") @db.Uuid
+  avatar     file?    @relation(fields: [avatarId], references: [id], onDelete: SetNull)
+  firstName  String   @map("first_name") @db.VarChar(255)
+  lastName   String   @map("last_name") @db.VarChar(255)
+  middleName String?  @map("middle_name") @db.VarChar(255)
+  userId     String   @unique @map("user_id") @db.Uuid
+  user       user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
+  createdBy  String   @map("created_by") @db.Uuid
+  updatedBy  String   @map("updated_by") @db.Uuid
+
+  @@map("profiles")
+}
+
 model file {
   id           String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name         String        @db.VarChar(255)
@@ -110,42 +146,6 @@ model settings {
   updatedAt                          DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
   createdBy                          String?       @map("created_by") @db.Uuid
   updatedBy                          String?       @map("updated_by") @db.Uuid
-}
-
-model user {
-  id              String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  email           String       @unique
-  phone           String       @unique
-  password        String
-  isActive        Boolean      @default(true)
-  role            UserRoleEnum
-  accountId       String       @map("account_id") @db.Uuid
-  account         account      @relation(fields: [accountId], references: [id])
-  profile         profile?
-  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt       DateTime     @updatedAt @map("updated_at") @db.Timestamptz(3)
-  updatedBy       String?      @map("updated_by") @db.Uuid
-  createdInvoices invoice[]    @relation("CreatedInvoices")
-  updatedInvoices invoice[]    @relation("UpdatedInvoices")
-
-  @@map("users")
-}
-
-model profile {
-  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  avatarId   String?  @unique @map("avatar_id") @db.Uuid
-  avatar     file?    @relation(fields: [avatarId], references: [id])
-  firstName  String   @map("first_name") @db.VarChar(255)
-  lastName   String   @map("last_name") @db.VarChar(255)
-  middleName String?  @map("middle_name") @db.VarChar(255)
-  userId     String   @unique @map("user_id") @db.Uuid
-  user       user     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz(3)
-  createdBy  String   @map("created_by") @db.Uuid
-  updatedBy  String   @map("updated_by") @db.Uuid
-
-  @@map("profiles")
 }
 
 model address {

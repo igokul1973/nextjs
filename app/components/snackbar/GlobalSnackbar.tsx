@@ -5,9 +5,9 @@ import { SnackbarCloseReason } from '@mui/material/Snackbar';
 import { SyntheticEvent } from 'react';
 
 import { useSnackbar } from '@/app/context/snackbar/provider';
+import { useI18n } from '@/locales/client';
 import { Box, Button, capitalize } from '@mui/material';
 import { StyledAlert, StyledSnackbar, StyledSnackbarContent } from './styled';
-import { useI18n } from '@/locales/client';
 
 const GlobalSnackbar = () => {
     const t = useI18n();

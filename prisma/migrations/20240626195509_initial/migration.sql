@@ -29,6 +29,38 @@ CREATE TABLE "accounts" (
 );
 
 -- CreateTable
+CREATE TABLE "users" (
+    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "email" VARCHAR(60) NOT NULL,
+    "phone" VARCHAR(20) NOT NULL,
+    "password" VARCHAR(60) NOT NULL,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "role" "userRoleEnum" NOT NULL,
+    "account_id" UUID NOT NULL,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(3) NOT NULL,
+    "updated_by" UUID,
+
+    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "profiles" (
+    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "avatar_id" UUID,
+    "first_name" VARCHAR(255) NOT NULL,
+    "last_name" VARCHAR(255) NOT NULL,
+    "middle_name" VARCHAR(255),
+    "user_id" UUID NOT NULL,
+    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(3) NOT NULL,
+    "created_by" UUID NOT NULL,
+    "updated_by" UUID NOT NULL,
+
+    CONSTRAINT "profiles_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "files" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "name" VARCHAR(255) NOT NULL,
@@ -65,38 +97,6 @@ CREATE TABLE "settings" (
     "updated_by" UUID,
 
     CONSTRAINT "settings_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "users" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
-    "email" TEXT NOT NULL,
-    "phone" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "role" "userRoleEnum" NOT NULL,
-    "account_id" UUID NOT NULL,
-    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ(3) NOT NULL,
-    "updated_by" UUID,
-
-    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "profiles" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
-    "avatar_id" UUID,
-    "first_name" VARCHAR(255) NOT NULL,
-    "last_name" VARCHAR(255) NOT NULL,
-    "middle_name" VARCHAR(255),
-    "user_id" UUID NOT NULL,
-    "created_at" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMPTZ(3) NOT NULL,
-    "created_by" UUID NOT NULL,
-    "updated_by" UUID NOT NULL,
-
-    CONSTRAINT "profiles_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -388,9 +388,6 @@ CREATE TABLE "invoice_items" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "settings_account_id_key" ON "settings"("account_id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
@@ -401,6 +398,9 @@ CREATE UNIQUE INDEX "profiles_avatar_id_key" ON "profiles"("avatar_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "profiles_user_id_key" ON "profiles"("user_id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "settings_account_id_key" ON "settings"("account_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "measurement_units_name_account_id_key" ON "measurement_units"("name", "account_id");
@@ -430,16 +430,16 @@ CREATE UNIQUE INDEX "invoice_provider_logo_id_key" ON "invoice"("provider_logo_i
 CREATE UNIQUE INDEX "invoice_items_name_invoice_id_key" ON "invoice_items"("name", "invoice_id");
 
 -- AddForeignKey
-ALTER TABLE "settings" ADD CONSTRAINT "settings_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "users" ADD CONSTRAINT "users_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "users" ADD CONSTRAINT "users_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "profiles" ADD CONSTRAINT "profiles_avatar_id_fkey" FOREIGN KEY ("avatar_id") REFERENCES "files"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "profiles" ADD CONSTRAINT "profiles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "settings" ADD CONSTRAINT "settings_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "addresses" ADD CONSTRAINT "addresses_country_id_fkey" FOREIGN KEY ("country_id") REFERENCES "countries"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

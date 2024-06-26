@@ -9,9 +9,9 @@ import {
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields } from '@/app/lib/types';
 import {
+    getApp,
     getDirtyValues,
     getLogoCreateOrUpdate,
-    getUser,
     validateEntityFormData
 } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
@@ -24,7 +24,7 @@ export async function createIndividual(
     rawLogoFormData?: FormData
 ) {
     const t = await getI18n();
-    const { user, account } = await getUser();
+    const { user, account } = await getApp();
     const userId = user?.id;
 
     try {
@@ -133,7 +133,7 @@ export async function updateIndividual(
 ) {
     const t = await getI18n();
     try {
-        const { user, account } = await getUser();
+        const { user, account } = await getApp();
         const userId = user.id;
 
         const validatedFormData = validateEntityFormData<TProviderIndFormOutputWithoutLogo>(

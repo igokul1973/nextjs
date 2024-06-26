@@ -1,6 +1,7 @@
 'use server';
 
 import {
+    getProfileCreateSchema,
     getProfileUpdateSchema,
     getProfileUpdateSchemaEmptyAvatar
 } from '@/app/components/profile/form/formSchema';
@@ -11,7 +12,14 @@ import {
 } from '@/app/components/profile/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields } from '@/app/lib/types';
-import { deleteFileInStorage, getDirtyValues, getUser, uploadFileAndGetUrl } from '@/app/lib/utils';
+import {
+    deleteFileInStorage,
+    getApp,
+    getAvatarCreateOrUpdate,
+    getDirtyValues,
+    getPartialApp,
+    uploadFileAndGetUrl
+} from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
 import { Prisma } from '@prisma/client';
 
@@ -19,15 +27,64 @@ export async function createProfile(
     formDataWithoutAvatar: Omit<TProfileCreateFormOutput, 'avatar'>,
     rawAvatarFormData?: FormData
 ) {
+    const t = await getI18n();
     try {
         console.log(formDataWithoutAvatar, rawAvatarFormData);
 
-        const createdProfile = await prisma.profile.create({
-            data: formDataWithoutAvatar
-        });
-        // TODO: Upload and then save an avatar here
+        const { user, account } = await getPartialApp();
+        if (!user || !account) {
+            throw new Error('Could not find user or account');
+        }
+        const userId = user?.id;
 
-        return createdProfile;
+        const avatarFormData = rawAvatarFormData
+            ? Object.fromEntries(rawAvatarFormData.entries())
+            : null;
+        const formData = { ...formDataWithoutAvatar, avatar: avatarFormData };
+
+        const validationSchema = getProfileCreateSchema(t);
+        const validatedFormData = validationSchema.safeParse(formData);
+
+        if (!validatedFormData.success) {
+            throw Error('Profile registration form is invalid');
+        }
+
+        const validatedData = validatedFormData.data;
+        const { avatar, ...profileData } = validatedData;
+
+        const createdProfile = await prisma.profile.create({
+            include: {
+                avatar: true
+            },
+            data: profileData
+        });
+
+        // Upload and then save an avatar here
+        const avatarCreateOrUpdate = await getAvatarCreateOrUpdate(
+            validatedData.avatar,
+            userId,
+            account.id,
+            createdProfile.id,
+            false
+        );
+
+        let updatedProfile = null;
+
+        if (avatarCreateOrUpdate) {
+            updatedProfile = await prisma.profile.update({
+                include: {
+                    avatar: true
+                },
+                data: {
+                    avatar: avatarCreateOrUpdate
+                },
+                where: {
+                    id: createdProfile.id
+                }
+            });
+        }
+
+        return updatedProfile ?? createdProfile;
     } catch (error) {
         console.error('Error:', error);
         throw new Error('could not create user profile');
@@ -41,7 +98,7 @@ export async function updateProfile(
 ) {
     const t = await getI18n();
     try {
-        const { user, account, profile } = await getUser();
+        const { user, account, profile } = await getApp();
         const userId = user.id;
 
         const avatarFormData = rawAvatarFormData

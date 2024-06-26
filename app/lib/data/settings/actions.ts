@@ -2,26 +2,30 @@
 
 import { TProfileUpdateFormOutput } from '@/app/components/profile/form/types';
 import { getSettingsUpdateSchema } from '@/app/components/settings/form/formSchema';
-import { TSettingsFormOutput } from '@/app/components/settings/form/types';
+import {
+    TCreateSettingsFormOutput,
+    TUpdateSettingsFormOutput
+} from '@/app/components/settings/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields } from '@/app/lib/types';
-import { getDirtyValues, getUser } from '@/app/lib/utils';
+import { getApp, getDirtyValues } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
 import { Prisma } from '@prisma/client';
 
-export async function createSettings(formData: TSettingsFormOutput) {
+export async function createSettings(formData: TCreateSettingsFormOutput) {
     const t = await getI18n();
     try {
-        const { account, profile } = await getUser();
-        const newProfile = await prisma.settings.create({
+        const { account, profile } = await getApp();
+        const createdSettings = await prisma.settings.create({
             data: formData
         });
         console.log(
             `Successfully created account ${account.id} settings: `,
-            newProfile,
+            createdSettings,
             ' by the user ',
             profile?.firstName + ' ' + profile?.lastName
         );
+        return createdSettings;
     } catch (error) {
         console.error('Error:', error);
         throw new Error(t('could not create account settings'));
@@ -29,12 +33,12 @@ export async function createSettings(formData: TSettingsFormOutput) {
 }
 
 export async function updateSettings(
-    formData: TSettingsFormOutput,
+    formData: TUpdateSettingsFormOutput,
     dirtyFields: TDirtyFields<TProfileUpdateFormOutput>
 ) {
     const t = await getI18n();
     try {
-        const { user } = await getUser();
+        const { user } = await getApp();
         const userId = user.id;
 
         const validationSchema = getSettingsUpdateSchema(t);
@@ -47,7 +51,7 @@ export async function updateSettings(
 
         const validatedData = validatedFormData.data;
 
-        const changedFields = getDirtyValues<TSettingsFormOutput>(dirtyFields, validatedData);
+        const changedFields = getDirtyValues<TUpdateSettingsFormOutput>(dirtyFields, validatedData);
 
         if (!changedFields) {
             throw Error('No changes detected');

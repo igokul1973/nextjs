@@ -27,6 +27,13 @@ export const authConfig = {
         signIn: '/login'
     },
     callbacks: {
+        // signIn({ account, profile }) {
+        //     if (account?.provider === 'google') {
+        //         return profile?.email_verified && profile?.email.endsWith('@example.com');
+        //     }
+        //     // Do different verification for other providers that don't have `email_verified`
+        //     return true;
+        // },
         authorized({ auth, request: { nextUrl } }) {
             const isLoggedIn = !!auth?.user;
             const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');

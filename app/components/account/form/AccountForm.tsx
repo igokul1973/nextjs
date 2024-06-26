@@ -5,10 +5,9 @@ import { getProviderIndDefaultFormValues } from '@/app/components/individuals/ut
 import { TProviderOrgForm } from '@/app/components/organizations/form/types';
 import { getProviderOrgDefaultFormValues } from '@/app/components/organizations/utils';
 import Warning from '@/app/components/warning/Warning';
-import { useUser } from '@/app/context/user/provider';
+import { useApp } from '@/app/context/user/provider';
 import { populateForm } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
-import { capitalize } from '@mui/material';
 import { EntitiesEnum } from '@prisma/client';
 import { FC } from 'react';
 import ProviderIndFormData from './ProviderIndFormData';
@@ -18,14 +17,9 @@ const AccountForm: FC = () => {
     const t = useI18n();
     const {
         state: { user, account, provider }
-    } = useUser();
+    } = useApp();
 
-    if (!provider) {
-        return <Warning>{capitalize(t('please create provider first'))}</Warning>;
-    }
-
-    // const providerType = getUserProviderType(provider);
-    const isIndividual = !!!provider['name'];
+    const isIndividual = !!provider['firstName'] && !!provider['lastName'];
 
     const { address, attributes, ...entityFields } = provider;
     const { country, ...addressFields } = address;
@@ -43,18 +37,17 @@ const AccountForm: FC = () => {
         attributes: attributesFields ? Object.values(attributesFields) : []
     };
 
-    const userAccountCountry = provider.address?.country;
-    const localIdentifierNames = userAccountCountry?.localIdentifierNames;
+    const userAccountCountry = provider.address.country;
+    const localIdentifierNames = userAccountCountry.localIdentifierNames;
 
     const localIdentifierName = isIndividual
         ? localIdentifierNames.find((name) => name.type === EntitiesEnum.individual)
         : localIdentifierNames.find((name) => name.type === EntitiesEnum.organization);
 
-    if (!localIdentifierName || !userAccountCountry) {
+    if (!localIdentifierName) {
         return (
             <Warning variant='h4'>
-                Before creating customers please register yourself as a Provider, seed the Countries
-                and Local Identifier names.
+                Before updating provider please seed the Local Identifier names.
             </Warning>
         );
     }

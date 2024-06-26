@@ -1,4 +1,4 @@
-// This file contains placeholder data that you'll be replacing with real data in the Data Fetching chapter:
+// This file contains placeholder data for testing purpuses
 // https://nextjs.org/learn/dashboard-app/fetching-data
 
 import {
@@ -106,31 +106,31 @@ const inventoryTypes = [{ type: 'product' }, { type: 'service' }, { type: 'misce
 const users = [
     {
         email: 'admin1@admin.com',
-        phone: '+17127601933',
+        phone: '+1-7127601933',
         password: 'QuiteDifficult098$',
         role: UserRoleEnum.admin
     },
     {
         email: 'admin2@admin.com',
-        phone: '+460857601966',
+        phone: '+46-0857601966',
         password: 'QuiteDifficult098$',
         role: UserRoleEnum.admin
     },
     {
         email: 'writer1@writer.com',
-        phone: '+463338601919',
+        phone: '+46-3338601919',
         password: 'QuiteDifficult098$',
         role: UserRoleEnum.writer
     },
     {
         email: 'reader1@user.com',
-        phone: '+468128901329',
+        phone: '+46-8128901329',
         password: 'QuiteDifficult098$',
         role: UserRoleEnum.reader
     },
     {
         email: 'reader2@user.com',
-        phone: '+463128601919',
+        phone: '+46-3128601919',
         password: 'QuiteDifficult098$',
         role: UserRoleEnum.reader
     }

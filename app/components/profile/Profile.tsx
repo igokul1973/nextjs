@@ -2,7 +2,7 @@
 
 import Warning from '@/app/components/warning/Warning';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
-import { useUser } from '@/app/context/user/provider';
+import { useApp } from '@/app/context/user/provider';
 import { useI18n } from '@/locales/client';
 import { Box, capitalize } from '@mui/material';
 import Button from '@mui/material/Button';
@@ -18,7 +18,7 @@ import {
 const Profile: FC = () => {
     const {
         state: { profile }
-    } = useUser();
+    } = useApp();
 
     const t = useI18n();
     const { dispatch } = useRightDrawerState();

@@ -10,7 +10,7 @@ import DateInput from '@/app/components/date-input/DateInput';
 import PartialEmailForm from '@/app/components/emails/form/PartialEmailForm';
 import PartialAttributeForm from '@/app/components/entity-attributes/partial-form/EntityAttributeForm';
 import { useData } from '@/app/context/data/provider';
-import { useUser } from '@/app/context/user/provider';
+import { useApp } from '@/app/context/user/provider';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
@@ -48,7 +48,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
     const { countries } = useData();
     const {
         state: { user }
-    } = useUser();
+    } = useApp();
     const userId = user.id;
     const {
         control,

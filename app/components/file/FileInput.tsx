@@ -34,7 +34,7 @@ const FileInput: FC<IProps> = ({ inputName, label, user }) => {
         let file: TFile | null = null;
         if (event.target.files?.[0]) {
             const { name, size, type } = event.target.files[0];
-            const aa = {
+            const newFileInputValues = {
                 name,
                 size,
                 type,
@@ -42,8 +42,10 @@ const FileInput: FC<IProps> = ({ inputName, label, user }) => {
                 createdBy: user.id,
                 updatedBy: user.id
             };
-            const a = getValues(inputName);
-            file = a ? { ...a, ...aa } : { ...aa, id: '' };
+            const oldFileInputValues = getValues(inputName);
+            file = oldFileInputValues
+                ? { ...oldFileInputValues, ...newFileInputValues }
+                : { ...newFileInputValues, id: '' };
         }
 
         if (file) {

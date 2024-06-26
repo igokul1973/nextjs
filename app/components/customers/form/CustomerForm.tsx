@@ -6,7 +6,7 @@ import { getCustomerIndDefaultFormValues } from '@/app/components/individuals/ut
 import { TProviderOrgForm } from '@/app/components/organizations/form/types';
 import { getCustomerOrgDefaultFormValues } from '@/app/components/organizations/utils';
 import Warning from '@/app/components/warning/Warning';
-import { useUser } from '@/app/context/user/provider';
+import { useApp } from '@/app/context/user/provider';
 import { useI18n } from '@/locales/client';
 import Business from '@mui/icons-material/Business';
 import Face from '@mui/icons-material/Face';
@@ -26,7 +26,7 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
     const t = useI18n();
     const {
         state: { user, account }
-    } = useUser();
+    } = useApp();
     const [customerType, setCustomerType] = useState<EntitiesEnum | ''>('');
 
     const [defaultIndividualValues, setDefaultIndividualValues] = useState<TProviderIndForm | null>(

@@ -12,7 +12,7 @@ import {
 } from '@/app/components/organizations/form/types';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { useUser } from '@/app/context/user/provider';
+import { useApp } from '@/app/context/user/provider';
 import { createOrganization, updateOrganization } from '@/app/lib/data/organization/actions';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
@@ -30,7 +30,7 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps> = ({
 }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
-    const { state: user, dispatch: dispatchUserState } = useUser();
+    const { state: user, dispatch: dispatchUserState } = useApp();
     const { dispatch: rightDrawerDispatch } = useRightDrawerState();
 
     const {

@@ -14,10 +14,10 @@ import prisma from '@/app/lib/prisma';
 import { IBaseDataFilterArgs, TDirtyFields } from '@/app/lib/types';
 import {
     flattenCustomer,
+    getApp,
     getDirtyValues,
     getInvoiceTotal,
     getLogoCreateOrUpdate,
-    getUser,
     validateEntityFormData
 } from '@/app/lib/utils';
 import { auth } from '@/auth';
@@ -139,7 +139,7 @@ export async function createIndividualCustomer(
 ) {
     const t = await getI18n();
     try {
-        const { user, account } = await getUser();
+        const { user, account } = await getApp();
         const userId = user.id;
         const validatedFormData = validateEntityFormData<TCustomerIndFormOutputWithoutLogo>(
             t,
@@ -256,7 +256,7 @@ export async function createOrganizationCustomer(
 ) {
     const t = await getI18n();
     try {
-        const { user, account } = await getUser();
+        const { user, account } = await getApp();
         const userId = user.id;
         const validatedFormData = validateEntityFormData<TCustomerOrgFormOutputWithoutLogo>(
             t,
@@ -379,7 +379,7 @@ export async function updateIndividualCustomer(
 ) {
     const t = await getI18n();
     try {
-        const { user, account } = await getUser();
+        const { user, account } = await getApp();
         const userId = user.id;
         const validatedFormData = validateEntityFormData<TCustomerIndFormOutputWithoutLogo>(
             t,
@@ -529,7 +529,7 @@ export async function updateOrganizationCustomer(
 ) {
     const t = await getI18n();
     try {
-        const { user, account } = await getUser();
+        const { user, account } = await getApp();
         const userId = user.id;
         const validatedFormData = validateEntityFormData<TCustomerOrgFormOutputWithoutLogo>(
             t,

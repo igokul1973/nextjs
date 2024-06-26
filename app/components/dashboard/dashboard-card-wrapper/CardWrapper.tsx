@@ -1,12 +1,11 @@
 import DashboardCard from '@/app/components/dashboard/dashboard-card/DashboardCard';
-import Warning from '@/app/components/warning/Warning';
 import { getCardData } from '@/app/lib/data/card';
-import { formatCurrencyAsCents, getUser } from '@/app/lib/utils';
+import { formatCurrencyAsCents, getApp } from '@/app/lib/utils';
 import { FC } from 'react';
 import { StyledCardWrapper } from './styled';
 
 const DashboardCardWrapper: FC = async () => {
-    const userPromise = getUser();
+    const userPromise = getApp();
     const cardDataPromise = getCardData();
 
     const [
@@ -19,15 +18,7 @@ const DashboardCardWrapper: FC = async () => {
         }
     ] = await Promise.all([userPromise, cardDataPromise]);
 
-    const locale = provider?.address?.country.locale;
-
-    if (!locale) {
-        return (
-            <Warning variant='h4'>
-                Before listing invoice data please register yourself as a Provider.
-            </Warning>
-        );
-    }
+    const locale = provider.address.country.locale;
 
     const totalPaidInvoices = formatCurrencyAsCents(totalPaidInvoicesNum ?? '0', locale);
     const totalPendingInvoices = formatCurrencyAsCents(totalPendingInvoicesNum ?? '0', locale);

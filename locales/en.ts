@@ -25,9 +25,12 @@ export const enSingle = {
     delete: 'delete',
     save: 'save',
     cancel: 'cancel',
+    next: 'next',
+    previous: 'previous',
     'log out': 'log out',
     'log in': 'log in',
-    'or log in using': 'or log in using',
+    'click on the icons below to sign in with social apps':
+        'click on the icons below to sign in with social apps',
     yes: 'yes',
     no: 'no',
     'not provided': 'not provided',
@@ -108,6 +111,7 @@ export const enSingle = {
     // Phones
     phones: 'phones',
     number: 'number',
+    'phone number': 'phone number',
     'add phone': 'add phone',
     'add another phone': 'add another phone',
     'country code': 'country code',
@@ -255,6 +259,7 @@ export const enSingle = {
     'invoice cannot be deleted because it was already paid':
         'invoice cannot be deleted because it was already paid',
     'could not load data': 'could not load data',
+    'please enter the user role': 'please enter the user role',
     'please enter at least one character': 'please enter at least one character',
     'please enter the name': 'please enter the name',
     'please enter the locale code': 'please enter the locale code',
@@ -381,6 +386,11 @@ export const enSingle = {
     'could not delete inventory item': 'could not delete inventory item',
     'cannot delete inventory item because it has associated invoices':
         'cannot delete inventory item because it has associated invoices',
+    'cannot create user - email already exists': 'cannot create user - email already exists',
+    'cannot create user - phone already exists': 'cannot create user - phone already exists',
+    'successfully created user': 'successfully created user',
+    'successfully updated user': 'successfully updated user',
+    'could not create user': 'could not create user',
     'successfully created user profile': 'successfully created user profile',
     'successfully updated user profile': 'successfully updated user profile',
     'could not create user profile': 'could not create user profile',

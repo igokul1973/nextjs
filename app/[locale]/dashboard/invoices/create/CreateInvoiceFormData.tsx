@@ -1,27 +1,18 @@
 import InvoiceForm from '@/app/components/invoices/form/InvoiceForm';
 import { getDefaultFormValues } from '@/app/components/invoices/utils';
-import Warning from '@/app/components/warning/Warning';
 import { getCustomersByAccountId } from '@/app/lib/data/customer';
 import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory/actions';
 import { getFilteredMeasurementUnitsByAccount } from '@/app/lib/data/measurement-unit';
-import { getUser } from '@/app/lib/utils';
+import { getApp } from '@/app/lib/utils';
 import { setStaticParamsLocale } from 'next-international/server';
 import { FC } from 'react';
 import { IProps } from './types';
 
 const CreateInvoiceFormData: FC<IProps> = async ({ params: { locale } }) => {
     setStaticParamsLocale(locale);
-    const { user, provider, account, settings } = await getUser();
+    const { user, provider, account, settings } = await getApp();
 
-    const userAccountCountry = provider && provider.address?.country;
-
-    if (!userAccountCountry || !settings) {
-        return (
-            <Warning variant='h4'>
-                Before creating invoices please register yourself as a Provider.
-            </Warning>
-        );
-    }
+    const userAccountCountry = provider.address.country;
 
     const measurementUnitsPromise = getFilteredMeasurementUnitsByAccount({
         accountId: account.id,

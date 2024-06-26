@@ -6,7 +6,7 @@ import { getCustomersByAccountId } from '@/app/lib/data/customer';
 import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory/actions';
 import { getInvoiceById } from '@/app/lib/data/invoice';
 import { getFilteredMeasurementUnitsByAccount } from '@/app/lib/data/measurement-unit';
-import { getUser, populateForm } from '@/app/lib/utils';
+import { getApp, populateForm } from '@/app/lib/utils';
 import { InvoiceStatusEnum } from '@prisma/client';
 import { setStaticParamsLocale } from 'next-international/server';
 import { notFound } from 'next/navigation';
@@ -16,17 +16,9 @@ import { IProps } from './types';
 const UpdateInvoiceFormData: FC<IProps> = async ({ params: { id, locale } }) => {
     setStaticParamsLocale(locale);
 
-    const { user, provider, account, settings } = await getUser();
-    const userAccountCountry = provider && provider.address?.country;
+    const { user, provider, account, settings } = await getApp();
+    const userAccountCountry = provider.address.country;
     let error: string | null = null;
-
-    if (!userAccountCountry || !settings) {
-        return (
-            <Warning variant='h4'>
-                Before creating invoices please register yourself as a Provider.
-            </Warning>
-        );
-    }
 
     const measurementUnitsPromise = getFilteredMeasurementUnitsByAccount({
         accountId: account.id,

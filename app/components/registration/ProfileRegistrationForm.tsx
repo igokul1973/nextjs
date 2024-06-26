@@ -2,48 +2,57 @@
 
 import FileInput from '@/app/components/file/FileInput';
 import { getProfileCreateSchema } from '@/app/components/profile/form/formSchema';
-import {
-    TProfileCreateForm,
-    TProfileCreateFormOutput,
-    TProfileUpdateForm
-} from '@/app/components/profile/form/types';
+import { TProfileCreateForm, TProfileCreateFormOutput } from '@/app/components/profile/form/types';
 import { getDefaultValues } from '@/app/components/profile/form/utils';
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { useUser } from '@/app/context/user/provider';
+import { usePartialApp } from '@/app/context/user/provider';
 import { createProfile } from '@/app/lib/data/profile/actions';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
-import { populateForm } from '@/app/lib/utils';
+import {
+    deleteFromLocalStorage,
+    getFromLocalStorage,
+    populateForm,
+    setLocalStorage
+} from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
+import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { FC, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { FC, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import Warning from '../warning/Warning';
 import { StyledForm } from './styled';
+
+const localStorageKey = 'profileData';
 
 const ProfileRegistrationForm: FC = () => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const {
-        state: { user, profile },
-        dispatch: userDispatch
-    } = useUser();
+        state: { user },
+        dispatch: appStateDispatch
+    } = usePartialApp();
+    const { push } = useRouter();
 
-    // FIXME: isEdit === true for now...
-    const isEdit = false;
+    const [isDeleteLocalStorageData, setIsDeleteLocalStorageData] = useState(false);
 
-    const defaultValues = populateForm<TProfileUpdateForm>(
-        getDefaultValues(user.id),
-        profile || {}
+    // Try to get profile-related data from the local storage
+    const profileData = getFromLocalStorage(localStorageKey) ?? {};
+
+    const defaultValues = populateForm<TProfileCreateForm>(
+        getDefaultValues(user?.id ?? ''),
+        profileData
     );
 
     const {
         watch,
         register,
         handleSubmit,
-        formState: { errors, dirtyFields, isDirty, ...formState },
+        formState: { errors, dirtyFields, isDirty, isValid, ...formState },
         control,
         setValue,
         ...methods
@@ -54,14 +63,18 @@ const ProfileRegistrationForm: FC = () => {
         shouldFocusError: false
     });
 
-    // const w = watch();
+    const w = watch();
 
-    // useEffect(() => {
-    //     console.log('Is Dirty:', isDirty);
-    //     console.log('DirtyFields:', dirtyFields);
-    //     console.log('Watch:', w);
-    //     console.error('Errors:', errors);
-    // }, [errors, w, dirtyFields]);
+    useEffect(() => {
+        console.log('Watch:', w);
+        // console.log('IsValid:', isValid);
+        if (isDeleteLocalStorageData) {
+            deleteFromLocalStorage(localStorageKey);
+        } else {
+            setLocalStorage(localStorageKey, JSON.stringify({ ...w, avatar: undefined }));
+        }
+        // console.error('Errors:', errors);
+    }, [errors, w, dirtyFields, isDeleteLocalStorageData]);
 
     const [canFocus, setCanFocus] = useState(true);
 
@@ -88,7 +101,17 @@ const ProfileRegistrationForm: FC = () => {
                 throw Error(t('could not create user profile'));
             }
 
+            appStateDispatch({
+                type: 'update',
+                payload: {
+                    profile: createdProfile
+                }
+            });
+            // Removing the user-related data from the local storage
+            setIsDeleteLocalStorageData(true);
             openSnackbar(capitalize(t('successfully created user profile')));
+            // Moving to the next stage
+            push('/registration');
         } catch (error) {
             if (error instanceof Error) {
                 openSnackbar(capitalize(error.message), 'error');
@@ -96,18 +119,18 @@ const ProfileRegistrationForm: FC = () => {
         }
     };
 
-    const isSubmittable = isDirty;
-
-    return (
+    return !user ? (
+        <Warning variant='h4'>The user object is not provided. Redirecting...</Warning>
+    ) : (
         <>
-            <Typography variant='h1'>Profile Registration Form</Typography>;
+            <Typography variant='h1'>Profile Registration Form</Typography>
             <FormProvider
                 control={control}
                 watch={watch}
                 register={register}
                 handleSubmit={handleSubmit}
                 setValue={setValue}
-                formState={{ errors, dirtyFields, isDirty, ...formState }}
+                formState={{ errors, dirtyFields, isDirty, isValid, ...formState }}
                 {...methods}
             >
                 <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
@@ -146,19 +169,9 @@ const ProfileRegistrationForm: FC = () => {
                         />
                     </FormControl>
                     <FileInput inputName='avatar' label={capitalize(t('avatar'))} user={user} />
-                    {/* <Box className='action-buttons'>
-                        <Button type='button' onClick={goBack} variant='outlined' color='warning'>
-                            {capitalize(t('cancel'))}
-                        </Button>
-                        <Button
-                            type='submit'
-                            variant='contained'
-                            color='primary'
-                            disabled={!isSubmittable}
-                        >
-                            {capitalize(t(isEdit ? 'update profile' : 'create profile'))}
-                        </Button>
-                    </Box> */}
+                    <Button type='submit' variant='contained' color='primary' disabled={!isValid}>
+                        {capitalize(t('next'))}
+                    </Button>
                 </StyledForm>
             </FormProvider>
         </>

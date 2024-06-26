@@ -1,7 +1,7 @@
 'use client';
 
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { useUser } from '@/app/context/user/provider';
+import { useApp } from '@/app/context/user/provider';
 import { getFilteredCustomersByAccountId } from '@/app/lib/data/customer/actions';
 import { createInvoice, updateInvoice } from '@/app/lib/data/invoice/actions';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
@@ -69,7 +69,7 @@ const InvoiceForm: FC<IProps> = ({
     const { openSnackbar } = useSnackbar();
     const {
         state: { user, account, settings }
-    } = useUser();
+    } = useApp();
     const userId = user.id;
     const { push } = useRouter();
 

@@ -8,9 +8,9 @@ const { hash } = bcrypt;
 export async function seedSuperuser() {
     console.log('Seeding superuser...');
     const superuser = {
-        email: process.env.SUPERUSER_EMAIL || '',
-        phone: process.env.SUPERUSER_PHONE || '',
-        password: process.env.SUPERUSER_PASSWORD || '',
+        email: process.env.SUPERUSER_EMAIL ?? '',
+        phone: process.env.SUPERUSER_PHONE ?? '',
+        password: process.env.SUPERUSER_PASSWORD ?? '',
         role: UserRoleEnum.superuser
     };
 
@@ -21,8 +21,8 @@ export async function seedSuperuser() {
     }
 
     const superuserProfile = {
-        firstName: process.env.SUPERUSER_PROFILE_FIRST_NAME || 'Steven',
-        lastName: process.env.SUPERUSER_PROFILE_LAST_NAME || 'Ku'
+        firstName: process.env.SUPERUSER_PROFILE_FIRST_NAME ?? 'Steven',
+        lastName: process.env.SUPERUSER_PROFILE_LAST_NAME ?? 'Ku'
     } satisfies Pick<TProfile, 'firstName' | 'lastName'>;
 
     const hashedPassword = await hash(superuser.password, 10);

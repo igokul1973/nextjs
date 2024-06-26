@@ -1,3 +1,31 @@
+import {
+    getCustomerIndUpdateSchema,
+    getCustomerIndUpdateSchemaEmptyLogo,
+    getIndividualCreateSchema,
+    getProviderIndUpdateSchema,
+    getProviderIndUpdateSchemaEmptyLogo
+} from '@/app/components/individuals/form/formSchema.ts';
+import {
+    TProviderIndFormOutput,
+    TProviderIndFormOutputWithoutLogo
+} from '@/app/components/individuals/form/types.ts';
+import { TCustomerOutput } from '@/app/components/invoices/form/types';
+import {
+    getCustomerOrgUpdateSchema,
+    getCustomerOrgUpdateSchemaEmptyLogo,
+    getOrganizationCreateSchema,
+    getProviderOrgUpdateSchema,
+    getProviderOrgUpdateSchemaEmptyLogo
+} from '@/app/components/organizations/form/formSchema.ts';
+import {
+    TProviderOrgFormOutput,
+    TProviderOrgFormOutputWithoutLogo
+} from '@/app/components/organizations/form/types.ts';
+import {
+    TProfileFormOutputEmptyAvatar,
+    TProfileUpdateFormOutput
+} from '@/app/components/profile/form/types.ts';
+import { IAppState } from '@/app/context/user/types';
 import { baseUrl, localeToCurrencyCode, localeToNumeroSign } from '@/app/lib/constants';
 import { getUserWithRelationsByEmail } from '@/app/lib/data/user';
 import { auth } from '@/auth';
@@ -7,35 +35,11 @@ import dayjs, { Dayjs } from 'dayjs';
 import { redirect } from 'next/navigation';
 import { ChangeEvent } from 'react';
 import { SafeParseReturnType, z } from 'zod';
-import {
-    getCustomerIndUpdateSchema,
-    getCustomerIndUpdateSchemaEmptyLogo,
-    getIndividualCreateSchema,
-    getProviderIndUpdateSchema,
-    getProviderIndUpdateSchemaEmptyLogo
-} from '../components/individuals/form/formSchema.ts';
-import {
-    TProviderIndFormOutput,
-    TProviderIndFormOutputWithoutLogo
-} from '../components/individuals/form/types.ts';
-import { TCustomerOutput } from '../components/invoices/form/types';
-import {
-    getCustomerOrgUpdateSchema,
-    getCustomerOrgUpdateSchemaEmptyLogo,
-    getOrganizationCreateSchema,
-    getProviderOrgUpdateSchema,
-    getProviderOrgUpdateSchemaEmptyLogo
-} from '../components/organizations/form/formSchema.ts';
-import {
-    TProviderOrgFormOutput,
-    TProviderOrgFormOutputWithoutLogo
-} from '../components/organizations/form/types.ts';
-import { IUserState } from '../context/user/types';
 import { getIndividualFullNameString, getUserProvider } from './commonUtils.ts';
 import { TCustomerPayload } from './data/customer/types';
 import { TTransformedInvoice } from './data/invoice/types.ts';
 import { TGetUserWithRelationsPayload } from './data/user/types';
-import { TDirtyFields, TEntities, TIndividual, TTranslateFn } from './types';
+import { TDirtyFields, TEntities, TEntity, TIndividual, TTranslateFn } from './types';
 
 export {
     getEntityFirstEmailString,
@@ -483,8 +487,11 @@ export const anyTrue = (
  */
 export const populateForm = <R extends Record<string, unknown>>(
     defaultValues: R,
-    values: Record<string, unknown>
+    values?: Record<string, unknown> | null
 ): R => {
+    if (!values) {
+        return defaultValues;
+    }
     const populateArray = (defaultValuesArray: unknown[], valuesArray: unknown[]): unknown[] => {
         return valuesArray.map((item, index) => {
             if (
@@ -560,7 +567,7 @@ export const populateForm = <R extends Record<string, unknown>>(
     }, {}) as R;
 };
 
-export const getUser = async () => {
+export const getApp = async (): Promise<IAppState> => {
     const session = await auth();
     const sessionUser = session?.user;
     if (!session || !sessionUser) {
@@ -570,27 +577,123 @@ export const getUser = async () => {
     const dbUser = await getUserWithRelationsByEmail(sessionUser.email);
 
     if (!dbUser) {
+        if (sessionUser.email) {
+            return redirect('/registration');
+        }
         return redirect('/');
     }
 
-    const provider = getUserProvider(dbUser);
-    const providerType = getUserProviderType(provider);
+    const providerIndOrOrg = getUserProvider(dbUser);
+    const providerType = getUserProviderType(providerIndOrOrg);
 
-    const userAccountProvider = provider && providerType && provider[providerType];
+    if (!providerIndOrOrg || !providerType) {
+        redirect('/registration');
+    }
 
     const { account: rawAccount, profile, ...user } = dbUser;
     const { settings, ...account } = rawAccount;
 
-    const userState: IUserState = {
+    const provider = providerIndOrOrg[providerType];
+
+    if (!profile || !settings || !provider) {
+        redirect('/registration');
+    }
+
+    const userState: IAppState = {
         user,
-        account: account,
-        profile: profile,
-        settings,
-        provider: userAccountProvider,
-        providerType
+        account,
+        profile,
+        provider,
+        providerType,
+        settings
     };
 
     return userState;
+};
+
+export const getPartialApp = async (): Promise<Partial<IAppState>> => {
+    let account;
+    let user;
+    let profile;
+    let settings;
+    let provider: TEntity | undefined;
+    let providerType: EntitiesEnum | undefined;
+
+    const session = await auth();
+    const sessionUser = session?.user;
+
+    // Only if the user is logged in can we get the app data
+    if (session && sessionUser) {
+        const dbUser = await getUserWithRelationsByEmail(sessionUser.email);
+        if (dbUser) {
+            const { account: rawAccount, profile: rawProfile, ...rawUser } = dbUser;
+            user = rawUser;
+            profile = rawProfile ?? undefined;
+            const { settings: rawSettings, ...accountWithoutSettings } = rawAccount;
+            account = accountWithoutSettings;
+            settings = rawSettings ?? undefined;
+            const providerIndOrOrg = getUserProvider(dbUser);
+            provider = providerIndOrOrg && providerType && providerIndOrOrg[providerType];
+            providerType = getUserProviderType(providerIndOrOrg);
+        }
+    }
+
+    return { account, user, profile, provider, providerType, settings };
+};
+
+export const getAvatarCreateOrUpdate = async (
+    avatarWithData:
+        | TProfileUpdateFormOutput['avatar']
+        | TProfileFormOutputEmptyAvatar['avatar']
+        | undefined,
+    userId: string,
+    accountId: string,
+    entityId: string,
+    isUpdate = true,
+    oldAvatarName?: string
+) => {
+    let avatarCreateOrUpdate: Prisma.fileUpdateOneWithoutProfileNestedInput | undefined = undefined;
+
+    if (avatarWithData) {
+        const { data, ...avatar } = avatarWithData;
+        // Deleting old file upload first, if it does not exist on old invoices
+        if (oldAvatarName) {
+            await deleteFileInStorage(oldAvatarName, 'images', accountId, entityId);
+        }
+        // Uploading new file and getting its URL
+        const { url } = await uploadFileAndGetUrl(data, 'images', accountId, entityId);
+
+        if ('id' in avatar && typeof avatar.id === 'string' && avatar.id) {
+            avatarCreateOrUpdate = {
+                update: {
+                    data: {
+                        ...avatar,
+                        url,
+                        updatedBy: userId
+                    }
+                }
+            };
+        } else {
+            avatarCreateOrUpdate = {
+                create: {
+                    ...avatar,
+                    url,
+                    createdBy: userId,
+                    updatedBy: userId
+                }
+            };
+        }
+    } else if (avatarWithData === null && isUpdate) {
+        // Deleting old file upload first
+        if (oldAvatarName) {
+            await deleteFileInStorage(oldAvatarName, 'images', accountId, entityId);
+        }
+        avatarCreateOrUpdate = {
+            delete: true
+        };
+    }
+
+    return avatarCreateOrUpdate;
 };
 
 export const getLogoCreateOrUpdate = async (
@@ -1235,4 +1338,24 @@ export const obfuscate = (value: string | null): string | null => {
     obfuscatedValue += last5chars.slice(1);
 
     return obfuscatedValue;
+};
+
+export const getFromLocalStorage = (key: string) => {
+    const item = typeof window !== 'undefined' && localStorage.getItem(key);
+    if (item) {
+        return JSON.parse(item);
+    }
+    return null;
+};
+
+export const setLocalStorage = (key: string, value: string) => {
+    if (typeof window !== 'undefined') {
+        localStorage.setItem(key, value);
+    }
+};
+
+export const deleteFromLocalStorage = (key: string) => {
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem(key);
+    }
 };

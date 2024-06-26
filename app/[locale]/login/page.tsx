@@ -1,6 +1,10 @@
 import InvoiceMeLogo from '@/app/components/invoice-me-logo/InvoiceMeLogo';
 import LoginForm from '@/app/components/login-form/LoginForm';
-import { signInWithGoogle } from '@/app/lib/data/user/actions';
+import {
+    signInWithFacebook,
+    signInWithGoogle,
+    signInWithTwitter
+} from '@/app/lib/data/user/actions';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { setStaticParamsLocale } from 'next-international/server';
@@ -11,9 +15,11 @@ import BaseFormActionIconButton from '@/app/components/buttons/base/BaseFormActi
 import { capitalize } from '@/app/lib/utils';
 import { colors } from '@/app/styles/colors';
 import { getI18n } from '@/locales/server';
+import FacebookIcon from '@mui/icons-material/facebook';
 import GoogleIcon from '@mui/icons-material/google';
 import TwitterIcon from '@mui/icons-material/twitter';
 import { IconButtonOwnProps } from '@mui/material';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import { ContainerBox, FormWrapperBox } from './styled';
 
@@ -36,9 +42,21 @@ export function TwitterSignInButton({ color }: Readonly<{ color?: IconButtonOwnP
         <BaseFormActionIconButton
             color={color || 'primary'}
             icon={TwitterIcon}
-            action={signInWithGoogle}
+            action={signInWithTwitter}
             ariaLabel='Twitter log-in button'
             title='Log in with Twitter'
+        />
+    );
+}
+
+export function FacebookSignInButton({ color }: Readonly<{ color?: IconButtonOwnProps['color'] }>) {
+    return (
+        <BaseFormActionIconButton
+            color={color || 'primary'}
+            icon={FacebookIcon}
+            action={signInWithFacebook}
+            ariaLabel='Facebook log-in button'
+            title='Log in with Facebook'
         />
     );
 }
@@ -47,6 +65,7 @@ const LoginPage: FC<IProps> = async ({ params: { locale } }) => {
     setStaticParamsLocale(locale);
 
     const t = await getI18n();
+    const host = headers().get('x-forwarded-host')?.split(':')[0];
 
     return (
         <ContainerBox component='main'>
@@ -57,13 +76,14 @@ const LoginPage: FC<IProps> = async ({ params: { locale } }) => {
                     </Box>
                 </Box>
                 <FormWrapperBox component='article' className='form-wrapper'>
-                    <LoginForm />
+                    {host === 'localhost' && <LoginForm />}
                     <Typography variant='subtitle1'>
-                        {capitalize(t('or log in using'))}...
+                        {capitalize(t('click on the icons below to sign in with social apps'))}...
                     </Typography>
                     <Box sx={{ display: 'flex', gap: '0.5rem' }}>
                         <GoogleSignInButton color='warning' />
                         <TwitterSignInButton color='warning' />
+                        <FacebookSignInButton color='warning' />
                     </Box>
                 </FormWrapperBox>
             </Box>

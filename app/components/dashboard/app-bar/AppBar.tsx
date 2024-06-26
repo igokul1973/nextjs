@@ -1,7 +1,7 @@
 'use client';
 
 import ColorModeContext from '@/app/context/color-mode/provider';
-import { useUser } from '@/app/context/user/provider';
+import { useApp } from '@/app/context/user/provider';
 import { getProviderName } from '@/app/lib/utils';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -23,7 +23,7 @@ export const AppBar: FC<IProps> = ({ isOpen, handleDrawerToggle }) => {
 
     const {
         state: { provider }
-    } = useUser();
+    } = useApp();
 
     const providerName = getProviderName(provider);
 

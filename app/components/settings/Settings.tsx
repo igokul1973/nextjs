@@ -1,20 +1,19 @@
 'use client';
 
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
-import { useUser } from '@/app/context/user/provider';
+import { useApp } from '@/app/context/user/provider';
 import { useI18n } from '@/locales/client';
 import { capitalize } from '@mui/material';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { FC } from 'react';
-import Warning from '../warning/Warning';
 import { StyledSettings, StyledSettingsAttribute, StyledSettingsWrapper } from './styled';
 
 const Settings: FC = () => {
     const {
         state: { settings: rawSettings }
-    } = useUser();
+    } = useApp();
     const t = useI18n();
     const { dispatch } = useRightDrawerState();
 
@@ -27,11 +26,9 @@ const Settings: FC = () => {
         });
     };
 
-    const settings = rawSettings && { ...rawSettings, salesTax: rawSettings.salesTax / 1000 };
+    const settings = { ...rawSettings, salesTax: rawSettings.salesTax / 1000 };
 
-    return !settings ? (
-        <Warning variant='h4'>Settings are not provided</Warning>
-    ) : (
+    return (
         <>
             <Typography variant='subtitle1'>
                 {capitalize(t('account settings description'))}.

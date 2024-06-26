@@ -1,8 +1,8 @@
 import {
-    addressFormSchema,
-    attributesFormSchema,
     emailsFormSchema,
-    phonesFormSchema
+    getAddressFormSchema,
+    getAttributesFormSchema,
+    getPhonesFormSchema
 } from '@/app/lib/data/common-form-schemas';
 import { TTranslateFn } from '@/app/lib/types';
 import { getFileSchema } from '@/app/lib/utils';
@@ -61,28 +61,28 @@ export const getOrganizationCreateSchema = (t: TTranslateFn) =>
         .omit({ id: true })
         .extend({
             logo: getLogoCreateSchema(t).nullish(),
-            address: addressFormSchema.omit({ id: true }),
-            phones: phonesFormSchema.element.omit({ id: true }).array(),
-            emails: emailsFormSchema.element.omit({ id: true }).array(),
-            attributes: attributesFormSchema
+            address: getAddressFormSchema(t).omit({ id: true }),
+            phones: getPhonesFormSchema(t).element.omit({ id: true }).array(),
+            emails: emailsFormSchema(t).element.omit({ id: true }).array(),
+            attributes: getAttributesFormSchema(t)
         });
 
 export const getProviderOrgUpdateSchema = (t: TTranslateFn) =>
     getBaseOrganizationFormSchema(t).extend({
         logo: getLogoUpdateSchema(t).nullish(),
-        address: addressFormSchema,
-        phones: phonesFormSchema,
-        emails: emailsFormSchema,
-        attributes: attributesFormSchema
+        address: getAddressFormSchema(t),
+        phones: getPhonesFormSchema(t),
+        emails: emailsFormSchema(t),
+        attributes: getAttributesFormSchema(t)
     });
 
 export const getProviderOrgUpdateSchemaEmptyLogo = (t: TTranslateFn) =>
     getBaseOrganizationFormSchema(t).extend({
         logo: getLogoCreateSchema(t).nullish(),
-        address: addressFormSchema,
-        phones: phonesFormSchema,
-        emails: emailsFormSchema,
-        attributes: attributesFormSchema
+        address: getAddressFormSchema(t),
+        phones: getPhonesFormSchema(t),
+        emails: emailsFormSchema(t),
+        attributes: getAttributesFormSchema(t)
     });
 
 export const getCustomerOrgUpdateSchema = (t: TTranslateFn) =>

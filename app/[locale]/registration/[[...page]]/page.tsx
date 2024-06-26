@@ -5,7 +5,7 @@ import ProfileRegistrationForm from '@/app/components/registration/ProfileRegist
 import ProviderRegistrationForm from '@/app/components/registration/ProviderRegistrationForm';
 import SettingsRegistrationForm from '@/app/components/registration/SettingsRegistrationForm';
 import UserRegistrationForm from '@/app/components/registration/UserRegistrationForm';
-import { submitRegistration } from '@/app/lib/data/user/actions';
+import { getPartialApp } from '@/app/lib/utils';
 import { colors } from '@/app/styles/colors';
 import { auth } from '@/auth';
 import Box from '@mui/material/Box';
@@ -15,51 +15,69 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { FC, Suspense } from 'react';
 import { IProps } from '../../types';
-import {
-    ButtonsBox,
-    ContainerBox,
-    FormWrapperBox,
-    StyledFormActionButton,
-    StyledLinkButton
-} from './styled';
+import { ContainerBox, FormWrapperBox } from './styled';
 
 export const fetchCache = 'force-no-store';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+const pageMap = [
+    {
+        name: 'user',
+        component: (props: { userEmail: string }) => <UserRegistrationForm {...props} />
+    },
+    {
+        name: 'profile',
+        component: () => <ProfileRegistrationForm />
+    },
+    {
+        name: 'country',
+        component: () => <CountryRegistrationFormData />
+    },
+    {
+        name: 'provider',
+        component: () => <ProviderRegistrationForm />
+    },
+    {
+        name: 'settings',
+        component: () => <SettingsRegistrationForm />
+    }
+] as const;
+
+const validateAppState = async (page: string) => {
+    const { account, profile, provider, settings, user } = await getPartialApp();
+    if (account && user && profile && provider && settings) {
+        return redirect('/dashboard');
+    } else if (account && user && profile && provider) {
+        if (page !== 'settings') {
+            return redirect('/registration/settings');
+        }
+    } else if (account && user && profile) {
+        if (page !== 'provider') {
+            return redirect('/registration/provider');
+        }
+    } else if (account && user) {
+        if (page !== 'profile') {
+            return redirect('/registration/profile');
+        }
+    } else {
+        if (page !== 'user') {
+            return redirect('/registration/user');
+        }
+    }
+};
+
 const RegistrationPage: FC<IProps> = async ({ params: { locale, page } }) => {
     setStaticParamsLocale(locale);
-
-    const pageMap = [
-        {
-            name: 'user',
-            component: UserRegistrationForm
-        },
-        {
-            name: 'profile',
-            component: ProfileRegistrationForm
-        },
-        {
-            name: 'country',
-            component: CountryRegistrationFormData
-        },
-        {
-            name: 'provider',
-            component: ProviderRegistrationForm
-        },
-        {
-            name: 'settings',
-            component: SettingsRegistrationForm
-        }
-    ] as const;
-
     if (!page || (page[0] && !pageMap.find((p) => p.name === page[0]))) {
-        redirect('/registration/user');
+        return redirect('/registration/user');
     }
+
+    await validateAppState(page[0]);
 
     const session = await auth();
     if (!session?.user?.email) {
-        redirect('/');
+        return redirect('/');
     }
 
     const userEmail = session.user.email;
@@ -71,9 +89,9 @@ const RegistrationPage: FC<IProps> = async ({ params: { locale, page } }) => {
         currentPageIndex = 0;
     }
 
-    const CurrentFormComponent = pageMap[currentPageIndex].component;
-    const previousPageName = pageMap[currentPageIndex - 1]?.name ?? pageMap.at(0)?.name;
-    const nextPageName = pageMap[currentPageIndex + 1]?.name ?? pageMap.at(-1)?.name;
+    const props = { userEmail };
+
+    const CurrentFormComponent = pageMap[currentPageIndex].component(props);
 
     return (
         <ContainerBox component='main'>
@@ -85,29 +103,7 @@ const RegistrationPage: FC<IProps> = async ({ params: { locale, page } }) => {
                 </Box>
                 <FormWrapperBox component='article' className='form-wrapper'>
                     <Typography variant='h4'>Welcome {userFullName}!</Typography>
-                    <Suspense fallback={<Loading />}>
-                        <CurrentFormComponent />
-                    </Suspense>
-                    <ButtonsBox>
-                        <Box>
-                            {currentPageIndex > 0 && (
-                                <StyledLinkButton
-                                    href={`/registration/${previousPageName}`}
-                                    name='Previous'
-                                />
-                            )}
-                        </Box>
-                        <Box>
-                            {currentPageIndex < pageMap.length - 1 ? (
-                                <StyledLinkButton
-                                    href={`/registration/${nextPageName}`}
-                                    name='Next'
-                                />
-                            ) : (
-                                <StyledFormActionButton action={submitRegistration} name='Submit' />
-                            )}
-                        </Box>
-                    </ButtonsBox>
+                    <Suspense fallback={<Loading />}>{CurrentFormComponent}</Suspense>
                 </FormWrapperBox>
             </Box>
         </ContainerBox>

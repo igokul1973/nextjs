@@ -5,7 +5,7 @@ import { TGetUserPayload, TGetUserWithRelationsPayload, getUserWithRelations } f
 
 export async function getUsersByEmail(email: string): Promise<TUser[]> {
     try {
-        return prisma.user.findMany({
+        return await prisma.user.findMany({
             where: {
                 email
             }

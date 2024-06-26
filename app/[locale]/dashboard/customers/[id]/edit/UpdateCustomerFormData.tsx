@@ -7,7 +7,7 @@ import { getCustomerOrgDefaultFormValues } from '@/app/components/organizations/
 import Warning from '@/app/components/warning/Warning';
 import { getCustomerById } from '@/app/lib/data/customer';
 import { getLocalIdentifierNamesByCountryId } from '@/app/lib/data/local-identifier-name';
-import { getUser, populateForm } from '@/app/lib/utils';
+import { getApp, populateForm } from '@/app/lib/utils';
 import { EntitiesEnum } from '@prisma/client';
 import { setStaticParamsLocale } from 'next-international/server';
 import { notFound } from 'next/navigation';
@@ -17,18 +17,15 @@ import { IProps } from './types';
 const UpdateCustomerFormData: FC<IProps> = async ({ params: { id, locale } }) => {
     setStaticParamsLocale(locale);
 
-    const { user, provider, account } = await getUser();
+    const { user, provider, account } = await getApp();
 
-    const userAccountCountry = provider?.address?.country;
-    const localIdentifierNames =
-        userAccountCountry && (await getLocalIdentifierNamesByCountryId(userAccountCountry?.id));
-    const isDataLoaded = !!userAccountCountry && !!localIdentifierNames;
+    const userAccountCountry = provider.address.country;
+    const localIdentifierNames = await getLocalIdentifierNamesByCountryId(userAccountCountry.id);
 
-    if (!isDataLoaded) {
+    if (!localIdentifierNames.length) {
         return (
             <Warning variant='h4'>
-                Before creating customers please register yourself as a Provider, seed the Countries
-                and Local Identifier names.
+                Before updating customers please seed the Local Identifier names.
             </Warning>
         );
     }

@@ -1,7 +1,7 @@
 'use client';
 
 import FormSelect from '@/app/components/form-select/FormSelect';
-import { maskMax3Digits } from '@/app/lib/utils';
+import { maskMax3Digits, maskNumber } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { capitalize } from '@mui/material';
@@ -10,6 +10,7 @@ import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import { ChangeEvent } from 'react';
 import { FieldError } from 'react-hook-form';
 import { StyledBox, StyledMenuItemBox, StyledPhoneNumberBox } from './styled';
 import { IProps } from './types';
@@ -84,16 +85,25 @@ const PartialPhoneForm = <T,>({
                         label={capitalize(t('phones'))}
                         autoComplete='tel-national'
                         inputProps={{
-                            type: 'number',
-                            inputMode: 'numeric',
-                            maxLength: 14,
-                            minLength: 7
+                            type: 'text'
                         }}
                         variant='outlined'
                         required
                         error={!!numberError}
                         helperText={!!numberError?.message && capitalize(numberError.message)}
-                        {...register(`phones.${index}.number`)}
+                        {...register(`phones.${index}.number`, {
+                            onChange: (e) => {
+                                maskNumber(e);
+                            },
+                            setValueAs: (value) => {
+                                if (!value) return value;
+                                const e = {
+                                    target: { value: value.toString() }
+                                } as unknown as ChangeEvent<HTMLInputElement>;
+                                maskNumber(e);
+                                return e.target.value;
+                            }
+                        })}
                     />
                 </FormControl>
                 {count > 1 && (

@@ -1,24 +1,15 @@
 import InventoryTable from '@/app/components/inventory/inventory-table/InventoryTable';
-import Warning from '@/app/components/warning/Warning';
 import { getFilteredInventoryCount } from '@/app/lib/data/inventory';
-import { formatCurrencyAsCents, getUser } from '@/app/lib/utils';
+import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory/actions';
+import { formatCurrencyAsCents, getApp } from '@/app/lib/utils';
 import { FC } from 'react';
 import { TInventoryDataProps } from './types';
-import { getFilteredInventoryByAccountIdRaw } from '@/app/lib/data/inventory/actions';
 
 const InventoryTableData: FC<TInventoryDataProps> = async ({ searchParams }) => {
     const { query } = searchParams;
-    const { provider, account } = await getUser();
+    const { provider, account } = await getApp();
 
-    const locale = provider?.address?.country.locale;
-
-    if (!locale) {
-        return (
-            <Warning variant='h4'>
-                Before viewing inventory please register yourself as a Provider.
-            </Warning>
-        );
-    }
+    const locale = provider.address.country.locale;
 
     const count = await getFilteredInventoryCount(account.id, query);
     const rawInventory = await getFilteredInventoryByAccountIdRaw({

@@ -11,7 +11,7 @@ import { IProps } from './types';
 
 const Provider: FC<IProps> = ({ provider, providerType }) => {
     const t = useI18n();
-    const logoUrl = provider?.logo?.url;
+    const logoUrl = provider.logo?.url;
 
     return (
         <Box component='article' sx={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
@@ -46,7 +46,7 @@ const Provider: FC<IProps> = ({ provider, providerType }) => {
                 <Typography variant='subtitle2'>
                     {`${capitalize(t('provider'))} ${t('id').toLocaleUpperCase()}`}:
                 </Typography>
-                <Typography variant='subtitle1'>{provider?.id}</Typography>
+                <Typography variant='subtitle1'>{provider.id}</Typography>
             </StyledProviderAttribute>
             {providerType === EntitiesEnum.organization && 'name' in provider && (
                 <>
@@ -71,7 +71,7 @@ const Provider: FC<IProps> = ({ provider, providerType }) => {
                     <StyledProviderAttribute>
                         <Typography variant='subtitle2'>{capitalize(t('is charity'))}:</Typography>
                         <Typography variant='subtitle1'>
-                            {provider?.isCharity ? capitalize(t('yes')) : capitalize(t('no'))}
+                            {provider.isCharity ? capitalize(t('yes')) : capitalize(t('no'))}
                         </Typography>
                     </StyledProviderAttribute>
                 </>

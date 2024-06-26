@@ -4,7 +4,7 @@ import { DEFAULT_ITEMS_PER_PAGE } from '@/app/[locale]/dashboard/inventory/const
 import { TInventoryFormOutput } from '@/app/components/inventory/form/types';
 import prisma from '@/app/lib/prisma';
 import { IBaseDataFilterArgs, TDirtyFields } from '@/app/lib/types';
-import { getDirtyValues, getUser } from '@/app/lib/utils';
+import { getApp, getDirtyValues } from '@/app/lib/utils';
 import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
 import { Prisma } from '@prisma/client';
@@ -99,7 +99,7 @@ export async function updateInventoryItem(
     dirtyFields: TDirtyFields<TInventoryFormOutput>
 ) {
     const t = await getI18n();
-    const { user } = await getUser();
+    const { user } = await getApp();
 
     // TODO: Validate fields
     const changedFields = getDirtyValues<TInventoryFormOutput>(dirtyFields, formData);

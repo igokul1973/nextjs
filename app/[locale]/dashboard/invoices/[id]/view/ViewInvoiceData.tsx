@@ -12,10 +12,10 @@ import {
     formatNumeroSign,
     formatQuantity,
     formatSalesTax,
+    getApp,
     getInvoiceItemSubtotalAfterTax,
     getInvoiceSubtotalTaxAndDiscount,
     getInvoiceTotal,
-    getUser,
     obfuscate
 } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
@@ -137,17 +137,8 @@ const ViewInvoiceData: FC<IProps> = async ({ params: { id, locale }, searchParam
     const t = await getI18n();
     setStaticParamsLocale(locale);
 
-    const { provider, account, settings } = await getUser();
-    const userAccountCountry = provider?.address?.country;
-
-    if (!userAccountCountry || !settings) {
-        return (
-            <Warning variant='h4'>
-                Before viewing an invoice please register yourself as a Provider and make sure
-                you&apos;ve set up the Account Settings.
-            </Warning>
-        );
-    }
+    const { provider, account, settings } = await getApp();
+    const userAccountCountry = provider.address.country;
 
     const {
         isDisplayCustomerLocalIdentifier,

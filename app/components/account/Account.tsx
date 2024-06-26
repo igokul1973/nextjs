@@ -1,8 +1,7 @@
 'use client';
 
 import Provider from '@/app/components/provider/Provider';
-import Warning from '@/app/components/warning/Warning';
-import { useUser } from '@/app/context/user/provider';
+import { useApp } from '@/app/context/user/provider';
 import { capitalize } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import Typography from '@mui/material/Typography';
@@ -16,7 +15,7 @@ const Account: FC<IProps> = () => {
     const t = useI18n();
     const {
         state: { account, provider, providerType }
-    } = useUser();
+    } = useApp();
 
     return (
         <StyledAccountWrapper component='article'>
@@ -31,11 +30,7 @@ const Account: FC<IProps> = () => {
                 <Typography variant='h6' color='secondary.main'>
                     {capitalize(t('provider'))}:
                 </Typography>
-                {!!provider && !!providerType ? (
-                    <Provider provider={provider} providerType={providerType} />
-                ) : (
-                    <Warning variant='subtitle2'>No provider found. Please create one.</Warning>
-                )}
+                <Provider provider={provider} providerType={providerType} />
             </StyledProfile>
         </StyledAccountWrapper>
     );

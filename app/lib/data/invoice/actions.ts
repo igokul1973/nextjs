@@ -8,7 +8,7 @@ import { TInvoiceFormOutput } from '@/app/components/invoices/form/types';
 import { baseUrl } from '@/app/lib/constants';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields, TFile } from '@/app/lib/types';
-import { copyFileInStorage, deleteFileInStorage, getDirtyValues, getUser } from '@/app/lib/utils';
+import { copyFileInStorage, deleteFileInStorage, getApp, getDirtyValues } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
 import { InvoiceStatusEnum, Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
@@ -16,11 +16,7 @@ import { revalidatePath } from 'next/cache';
 export async function createInvoice(formData: TInvoiceFormOutput) {
     const t = await getI18n();
     try {
-        const { account, provider } = await getUser();
-
-        if (!provider) {
-            throw new Error(t('no provider was found, redirecting...'), { cause: 'NO_PROVIDER' });
-        }
+        const { account, provider } = await getApp();
 
         const validationSchema = getInvoiceCreateSchema(t);
 
@@ -71,7 +67,7 @@ export async function createInvoice(formData: TInvoiceFormOutput) {
         // Saving the provider logo, if any, to storage and DB
         let providerLogo: Omit<TFile, 'id' | 'createdAt' | 'updatedAt'> | undefined = undefined;
 
-        if (provider?.logo) {
+        if (provider.logo) {
             const {
                 id,
                 createdBy: createdByLogo,
@@ -92,7 +88,7 @@ export async function createInvoice(formData: TInvoiceFormOutput) {
         // in order to save it in DB as the invoice provider logo
         // In other words, the logo files for the provider and the invoice
         // are 2 separate files having 2 different URLs.
-        const sourcePath = provider?.logo?.url.split('/').slice(-2).join('/');
+        const sourcePath = provider.logo?.url.split('/').slice(-2).join('/');
 
         if (sourcePath && provider.logo) {
             const url = await copyFileInStorage(
@@ -142,7 +138,7 @@ export async function updateInvoice(
 ) {
     const t = await getI18n();
     try {
-        const { user, account, provider } = await getUser();
+        const { user, account, provider } = await getApp();
         const userId = user.id;
 
         const validationSchema = getInvoiceUpdateSchema(t);
@@ -380,7 +376,7 @@ export async function updateInvoice(
 
 export async function deleteInvoiceById(id: string): Promise<void> {
     const t = await getI18n();
-    const { account } = await getUser();
+    const { account } = await getApp();
 
     try {
         if (!id) {

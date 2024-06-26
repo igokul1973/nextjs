@@ -2,24 +2,16 @@ import CustomersTable from '@/app/components/customers/customers-table/Customers
 import Warning from '@/app/components/warning/Warning';
 import { getFilteredCustomersCountByAccountId } from '@/app/lib/data/customer';
 import { getFilteredCustomersByAccountId } from '@/app/lib/data/customer/actions';
-import { formatCurrencyAsCents, getUser } from '@/app/lib/utils';
+import { formatCurrencyAsCents, getApp } from '@/app/lib/utils';
 import { EntitiesEnum } from '@prisma/client';
 import { FC } from 'react';
 import { TCustomersDataProps } from './types';
 
 const CustomersTableData: FC<TCustomersDataProps> = async ({ searchParams }) => {
     const { query, showOrg, showInd } = searchParams;
-    const { provider, account } = await getUser();
-    const userAccountCountry = provider?.address?.country;
+    const { provider, account } = await getApp();
+    const userAccountCountry = provider.address.country;
 
-    if (!userAccountCountry) {
-        return (
-            <Warning variant='h4'>
-                Before viewing or creating customers please register yourself as a service provider
-                with valid address.
-            </Warning>
-        );
-    }
     const countPromise = getFilteredCustomersCountByAccountId(account.id, query, showOrg, showInd);
     const rawCustomersPromise = getFilteredCustomersByAccountId({
         accountId: account.id,

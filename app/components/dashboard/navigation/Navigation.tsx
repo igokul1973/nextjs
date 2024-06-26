@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser } from '@/app/context/user/provider';
+import { useApp } from '@/app/context/user/provider';
 import { useI18n } from '@/locales/client';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -33,7 +33,7 @@ const Navigation: FC = () => {
     const [isOpen, setIsOpen] = useState(false);
     const {
         state: { provider }
-    } = useUser();
+    } = useApp();
     const isProvider = !!provider;
 
     const handleDrawerToggle = (isOpen: boolean) => {

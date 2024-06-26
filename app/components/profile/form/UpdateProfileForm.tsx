@@ -3,7 +3,7 @@
 import FileInput from '@/app/components/file/FileInput';
 import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { useUser } from '@/app/context/user/provider';
+import { useApp } from '@/app/context/user/provider';
 import { updateProfile } from '@/app/lib/data/profile/actions';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { TDirtyFields } from '@/app/lib/types';
@@ -18,31 +18,21 @@ import TextField from '@mui/material/TextField';
 import { FC, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import {
-    getProfileCreateSchema,
-    getProfileUpdateSchema,
-    getProfileUpdateSchemaEmptyAvatar
-} from './formSchema';
+import { getProfileUpdateSchema, getProfileUpdateSchemaEmptyAvatar } from './formSchema';
 import { StyledForm } from './styled';
 import { TProfileUpdateForm, TProfileUpdateFormOutput } from './types';
 import { getDefaultValues } from './utils';
 
-const ProfileForm: FC = () => {
+const UpdateProfileForm: FC = () => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const {
         state: { user, profile },
         dispatch: userDispatch
-    } = useUser();
+    } = useApp();
     const { dispatch: rightDrawerDispatch } = useRightDrawerState();
 
-    // FIXME: isEdit === true for now...
-    const isEdit = true;
-
-    const defaultValues = populateForm<TProfileUpdateForm>(
-        getDefaultValues(user.id),
-        profile || {}
-    );
+    const defaultValues = populateForm<TProfileUpdateForm>(getDefaultValues(user.id), profile);
 
     const {
         watch,
@@ -54,11 +44,7 @@ const ProfileForm: FC = () => {
         ...methods
     } = useForm<TProfileUpdateForm, unknown, TProfileUpdateFormOutput>({
         resolver: zodResolver(
-            isEdit
-                ? defaultValues.avatar
-                    ? getProfileUpdateSchema(t)
-                    : getProfileUpdateSchemaEmptyAvatar(t)
-                : getProfileCreateSchema(t)
+            defaultValues.avatar ? getProfileUpdateSchema(t) : getProfileUpdateSchemaEmptyAvatar(t)
         ),
         reValidateMode: 'onChange',
         defaultValues,
@@ -101,25 +87,21 @@ const ProfileForm: FC = () => {
                     (avatarFormData as FormData).append(key, value as FormDataEntryValue);
                 });
             }
-            if (isEdit) {
-                const updatedProfile = await updateProfile(
-                    formDataWithoutAvatar,
-                    dirtyFields as TDirtyFields<TProfileUpdateFormOutput>,
-                    avatarFormData
-                );
 
-                if (!updatedProfile) {
-                    throw Error(t('could not update user profile'));
-                }
+            const updatedProfile = await updateProfile(
+                formDataWithoutAvatar,
+                dirtyFields as TDirtyFields<TProfileUpdateFormOutput>,
+                avatarFormData
+            );
 
-                userDispatch({ type: 'setProfile', payload: { profile: updatedProfile } });
-                openSnackbar(capitalize(t('successfully updated user profile')));
-
-                goBack();
-            } else {
-                // await createProfile(formData);
-                openSnackbar(capitalize(t('successfully created user profile')));
+            if (!updatedProfile) {
+                throw Error(t('could not update user profile'));
             }
+
+            userDispatch({ type: 'setProfile', payload: { profile: updatedProfile } });
+            openSnackbar(capitalize(t('successfully updated user profile')));
+
+            goBack();
         } catch (error) {
             if (error instanceof Error) {
                 openSnackbar(capitalize(error.message), 'error');
@@ -185,7 +167,7 @@ const ProfileForm: FC = () => {
                         color='primary'
                         disabled={!isSubmittable}
                     >
-                        {capitalize(t(isEdit ? 'update profile' : 'create profile'))}
+                        {capitalize(t('update profile'))}
                     </Button>
                 </Box>
             </StyledForm>
@@ -193,4 +175,4 @@ const ProfileForm: FC = () => {
     );
 };
 
-export default ProfileForm;
+export default UpdateProfileForm;

@@ -1,9 +1,9 @@
 import Account from '@/app/components/account/Account';
 import ProviderForm from '@/app/components/account/form/AccountForm';
 import Profile from '@/app/components/profile/Profile';
-import ProfileForm from '@/app/components/profile/form/ProfileForm';
+import UpdateProfileForm from '@/app/components/profile/form/UpdateProfileForm';
 import Settings from '@/app/components/settings/Settings';
-import SettingsForm from '@/app/components/settings/form/SettingsForm';
+import UpdateSettingsForm from '@/app/components/settings/form/UpdateSettingsForm';
 import AccountIcon from '@mui/icons-material/AccountCircleOutlined';
 import ProfileIcon from '@mui/icons-material/PersonOutlineOutlined';
 import SettingsIconOutlined from '@mui/icons-material/SettingsOutlined';
@@ -28,7 +28,7 @@ export const components: TComponents = {
     },
     profileForm: {
         title: 'update user profile',
-        component: ProfileForm,
+        component: UpdateProfileForm,
         icon: ProfileIcon
     },
     settings: {
@@ -38,7 +38,7 @@ export const components: TComponents = {
     },
     settingsForm: {
         title: 'update account settings',
-        component: SettingsForm,
+        component: UpdateSettingsForm,
         icon: SettingsIconOutlined
     }
 };

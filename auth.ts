@@ -3,13 +3,18 @@ import { compare } from 'bcryptjs';
 import NextAuth, { NextAuthResult } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
+import Twitter from 'next-auth/providers/twitter';
+import Facebook from 'next-auth/providers/facebook';
 import { z } from 'zod';
 import { authConfig } from './auth.config';
 
+// We'll have Google, Twitter and Facebook auth providers.
 export const { auth, signIn, signOut, handlers }: NextAuthResult = NextAuth({
     ...authConfig,
     providers: [
         Google,
+        Twitter,
+        Facebook,
         Credentials({
             async authorize(credentials) {
                 // TODO: think about the password

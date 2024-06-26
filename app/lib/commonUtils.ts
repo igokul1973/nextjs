@@ -90,19 +90,19 @@ export function getUserCustomersPerEntity(
 }
 
 /**
- * Generates the user provider based on the input user payload.
- *
- * NOTE: Returning undefined if no provider is found.
- * Should work fornew users who cannot
- * have a provider until they add one.
+ * Finds user provider based on the input user.
+ * Returning undefined if no user or provider exist.
  *
  * @param {TGetUserWithRelationsPayload | TUserWithRelations} user - The user payload or user with relations object.
- * @return {TEntities<I, O> | undefined} The individual or organization provider entity, or undefined if no provider is found.
+ * @return {TEntities<I, O> | undefined} The individual or organization provider entity, or undefined if no user or provider exist.
  */
 export function getUserProvider<
     I = TGetUserWithRelationsPayload['account']['individuals'][number],
     O = TGetUserWithRelationsPayload['account']['organizations'][number]
 >(user: TGetUserWithRelationsPayload): TEntities<I, O> | undefined {
+    if (!user) {
+        return undefined;
+    }
     const individualProvider = user.account.individuals?.find(
         (ind) => ind.accountRelation === AccountRelationEnum.provider
     );

@@ -8,9 +8,9 @@ import {
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields } from '@/app/lib/types';
 import {
+    getApp,
     getDirtyValues,
     getLogoCreateOrUpdate,
-    getUser,
     validateEntityFormData
 } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
@@ -25,7 +25,7 @@ export async function createOrganization(
     const t = await getI18n();
 
     try {
-        const { user, account } = await getUser();
+        const { user, account } = await getApp();
         const userId = user.id;
 
         const validatedFormData = validateEntityFormData<TProviderOrgFormOutputWithoutLogo>(
@@ -130,7 +130,7 @@ export async function updateOrganization(
 ) {
     const t = await getI18n();
     try {
-        const { user, account } = await getUser();
+        const { user, account } = await getApp();
         const userId = user.id;
 
         const validatedFormData = validateEntityFormData<TProviderOrgFormOutputWithoutLogo>(

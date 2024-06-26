@@ -161,6 +161,7 @@ async function seedUsers() {
             return { ...user, password: hashedPassword, accountId: accounts[index].id };
         })
     );
+
     return prisma.user.createMany({
         data: sanitizedUsers
     });
