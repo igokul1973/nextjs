@@ -21,6 +21,7 @@ import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { ICustomerIndFormDataProps } from './types';
+import { useApp } from '@/app/context/user/provider';
 
 const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
     localIdentifierName,
@@ -30,6 +31,9 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const { push } = useRouter();
+    const {
+        state: { user }
+    } = useApp();
 
     const logoFile = !rawDefaultValues?.logo
         ? null
@@ -114,6 +118,7 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
             {...methods}
         >
             <IndividualForm
+                user={user}
                 localIdentifierName={localIdentifierName}
                 isEdit={isEdit}
                 isCustomer

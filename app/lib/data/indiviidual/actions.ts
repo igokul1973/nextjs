@@ -37,7 +37,7 @@ export async function createIndividual(
         );
 
         if (!validatedFormData.success) {
-            return null;
+            throw Error('Form is invalid');
         }
 
         const validatedData = validatedFormData.data;
@@ -102,24 +102,25 @@ export async function createIndividual(
             false
         );
 
+        let updatedIndividual = null;
+
         if (logoCreateOrUpdate) {
-            await prisma.individual.update({
+            updatedIndividual = await prisma.individual.update({
                 data: {
                     logo: logoCreateOrUpdate
                 },
                 where: {
                     id: createdIndividual.id
                 },
-                select: {
-                    id: true
-                }
+                include: includeIndividualRelations
             });
         }
 
         console.log('Successfully created new individual: ', createdIndividual);
 
         revalidatePath('/', 'layout');
-        return createdIndividual;
+
+        return updatedIndividual ?? createdIndividual;
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('could not create provider');

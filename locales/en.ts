@@ -67,6 +67,7 @@ export const enSingle = {
     id: 'id',
     // Organization
     'select customer type': 'select customer type',
+    'select provider type': 'select provider type',
     'select type': 'select type',
     organization: 'organization',
     organizations: 'organizations',
@@ -308,6 +309,7 @@ export const enSingle = {
     'unit type is incorrect': 'unit type is incorrect',
     'enter additional terms': 'enter additional terms',
     'please enter the account ID': 'please enter the account ID',
+    'could not get provider form data': 'could not get provider form data',
     // Buttons
     'create customer': 'create customer',
     'update customer': 'update customer',

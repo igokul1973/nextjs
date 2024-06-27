@@ -1,4 +1,4 @@
-import { useApp } from '@/app/context/user/provider';
+import { usePartialApp } from '@/app/context/user/provider';
 import { BaseTextFieldProps, capitalize } from '@mui/material';
 import { DatePicker, DatePickerProps } from '@mui/x-date-pickers/DatePicker';
 import { BaseNonStaticPickerProps } from '@mui/x-date-pickers/internals';
@@ -14,7 +14,7 @@ const DateInput: FC<
 > = ({ name, label, required, control, helperText, format, slotProps }) => {
     const {
         state: { settings }
-    } = useApp();
+    } = usePartialApp();
 
     return (
         <Controller

@@ -8,7 +8,8 @@ import { setStaticParamsLocale } from 'next-international/server';
 import NextLink from 'next/link';
 import { FC, Suspense } from 'react';
 import { IProps } from './types';
-import CreateCustomerFormData from './CreateCustomerFormData';
+// import CreateCustomerFormData from './CreateCustomerFormData';
+import CreateCustomerForm from '@/app/components/customers/form/CustomerForm';
 import { StyledBox } from './styled';
 
 const Page: FC<IProps> = async ({ params: { locale } }) => {
@@ -31,7 +32,8 @@ const Page: FC<IProps> = async ({ params: { locale } }) => {
                 <Typography color='text.primary'> {capitalize(t('create customer'))}</Typography>
             </Breadcrumbs>
             <Suspense fallback={<Loading />}>
-                <CreateCustomerFormData params={{ locale }} />
+                {/* <CreateCustomerFormData params={{ locale }} /> */}
+                <CreateCustomerForm />
             </Suspense>
         </StyledBox>
     );

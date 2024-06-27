@@ -11,6 +11,7 @@ import {
     TCustomerOrgFormOutput
 } from '@/app/components/organizations/form/types';
 import { useSnackbar } from '@/app/context/snackbar/provider';
+import { useApp } from '@/app/context/user/provider';
 import {
     createOrganizationCustomer,
     updateOrganizationCustomer
@@ -32,6 +33,9 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const { push } = useRouter();
+    const {
+        state: { user }
+    } = useApp();
 
     const logoFile = !rawDefaultValues.logo
         ? null
@@ -115,6 +119,7 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
             {...methods}
         >
             <OrganizationForm
+                user={user}
                 localIdentifierName={localIdentifierName}
                 isEdit={isEdit}
                 isCustomer

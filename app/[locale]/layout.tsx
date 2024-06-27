@@ -15,10 +15,19 @@ import { IProps } from './types';
 const RootLayout: FC<IProps & PropsWithChildren> = async ({ params: { locale }, children }) => {
     setStaticParamsLocale(locale);
 
-    const { account, user, profile, provider, providerType, settings } = await getPartialApp();
+    const partialAppPromise = getPartialApp();
+    const partialCountriesPromise = getCountries();
+    const partialOrganizationTypesPromise = getOrganizationTypes();
 
-    const countries = await getCountries();
-    const organizationTypes = await getOrganizationTypes();
+    const [
+        { account, user, profile, provider, providerType, settings },
+        countries,
+        organizationTypes
+    ] = await Promise.all([
+        partialAppPromise,
+        partialCountriesPromise,
+        partialOrganizationTypesPromise
+    ]);
 
     return (
         <html lang='en'>
@@ -32,7 +41,9 @@ const RootLayout: FC<IProps & PropsWithChildren> = async ({ params: { locale }, 
                                 account,
                                 settings,
                                 provider,
-                                providerType
+                                providerType,
+                                countries,
+                                organizationTypes
                             }}
                         >
                             <SnackbarProvider>

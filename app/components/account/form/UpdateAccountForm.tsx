@@ -5,19 +5,34 @@ import { getProviderIndDefaultFormValues } from '@/app/components/individuals/ut
 import { TProviderOrgForm } from '@/app/components/organizations/form/types';
 import { getProviderOrgDefaultFormValues } from '@/app/components/organizations/utils';
 import Warning from '@/app/components/warning/Warning';
+import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useApp } from '@/app/context/user/provider';
+import { updateIndividual } from '@/app/lib/data/indiviidual/actions';
+import { updateOrganization } from '@/app/lib/data/organization/actions';
 import { populateForm } from '@/app/lib/utils';
-import { useI18n } from '@/locales/client';
 import { EntitiesEnum } from '@prisma/client';
-import { FC } from 'react';
+import { FC, useCallback } from 'react';
 import ProviderIndFormData from './ProviderIndFormData';
 import ProviderOrgFormData from './ProviderOrgFormData';
 
-const AccountForm: FC = () => {
-    const t = useI18n();
+const UpdateAccountForm: FC = () => {
     const {
-        state: { user, account, provider }
+        state: { user, account, provider },
+        dispatch: dispatchAppState
     } = useApp();
+
+    const updateProviderState = useCallback(
+        (provider: Awaited<ReturnType<typeof updateIndividual | typeof updateOrganization>>) =>
+            dispatchAppState({
+                type: 'update',
+                payload: {
+                    provider
+                }
+            }),
+        [dispatchAppState]
+    );
+
+    const { dispatch: rightDrawerDispatch } = useRightDrawerState();
 
     const isIndividual = !!provider['firstName'] && !!provider['lastName'];
 
@@ -68,22 +83,32 @@ const AccountForm: FC = () => {
 
     const defaultValues = populateForm<TProviderIndForm | TProviderOrgForm>(defaultForm, form);
 
-    // FIXME: isEdit === true for now...
-    const isEdit = true;
+    const goBack = () => {
+        rightDrawerDispatch({
+            payload: { childComponentName: 'account' },
+            type: 'open'
+        });
+    };
 
     return isIndividual ? (
         <ProviderIndFormData
+            user={user}
             localIdentifierName={localIdentifierName}
             defaultValues={defaultValues as TProviderIndForm}
-            isEdit={isEdit}
+            isEdit={true}
+            updateProviderState={updateProviderState}
+            goBack={goBack}
         />
     ) : (
         <ProviderOrgFormData
+            user={user}
             localIdentifierName={localIdentifierName}
             defaultValues={defaultValues as TProviderOrgForm}
-            isEdit={isEdit}
+            isEdit={true}
+            updateProviderState={updateProviderState}
+            goBack={goBack}
         />
     );
 };
 
-export default AccountForm;
+export default UpdateAccountForm;

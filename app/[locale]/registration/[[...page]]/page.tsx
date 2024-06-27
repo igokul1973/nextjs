@@ -1,6 +1,5 @@
 import InvoiceMeLogo from '@/app/components/invoice-me-logo/InvoiceMeLogo';
 import Loading from '@/app/components/loading/Loading';
-import CountryRegistrationFormData from '@/app/components/registration/CountryRegistrationFormData';
 import ProfileRegistrationForm from '@/app/components/registration/ProfileRegistrationForm';
 import ProviderRegistrationForm from '@/app/components/registration/ProviderRegistrationForm';
 import SettingsRegistrationForm from '@/app/components/registration/SettingsRegistrationForm';
@@ -30,10 +29,10 @@ const pageMap = [
         name: 'profile',
         component: () => <ProfileRegistrationForm />
     },
-    {
-        name: 'country',
-        component: () => <CountryRegistrationFormData />
-    },
+    // {
+    //     name: 'country',
+    //     component: () => <CountryRegistrationFormData />
+    // },
     {
         name: 'provider',
         component: () => <ProviderRegistrationForm />
@@ -90,7 +89,6 @@ const RegistrationPage: FC<IProps> = async ({ params: { locale, page } }) => {
     }
 
     const props = { userEmail };
-
     const CurrentFormComponent = pageMap[currentPageIndex].component(props);
 
     return (

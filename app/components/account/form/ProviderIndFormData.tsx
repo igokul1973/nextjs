@@ -7,9 +7,7 @@ import {
     getProviderIndUpdateSchemaEmptyLogo
 } from '@/app/components/individuals/form/formSchema';
 import { TProviderIndForm, TProviderIndFormOutput } from '@/app/components/individuals/form/types';
-import { useRightDrawerState } from '@/app/context/right-drawer/provider';
 import { useSnackbar } from '@/app/context/snackbar/provider';
-import { useApp } from '@/app/context/user/provider';
 import { createIndividual, updateIndividual } from '@/app/lib/data/indiviidual/actions';
 import { TDirtyFields } from '@/app/lib/types';
 import { useI18n } from '@/locales/client';
@@ -22,14 +20,17 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { IProviderIndFormDataProps } from './types';
 
 const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
+    user,
     localIdentifierName,
     defaultValues,
-    isEdit
+    isEdit,
+    updateProviderState,
+    goBack
 }) => {
+    // TODO: Put goBack into props and run it only if it exists
+    // Put dispathAppState into props as well
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
-    const { state: user, dispatch: dispatchUserState } = useApp();
-    const { dispatch: rightDrawerDispatch } = useRightDrawerState();
 
     const {
         watch,
@@ -77,13 +78,7 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
                 if (!updatedProvider) {
                     throw new Error('could not update provider');
                 }
-                dispatchUserState({
-                    type: 'update',
-                    payload: {
-                        ...user,
-                        provider: updatedProvider
-                    }
-                });
+                updateProviderState(updatedProvider);
 
                 openSnackbar(capitalize(t('successfully updated provider')));
             } else {
@@ -91,28 +86,15 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
                 if (!createdProvider) {
                     throw new Error(capitalize(t('could not create provider')));
                 }
-                dispatchUserState({
-                    type: 'update',
-                    payload: {
-                        ...user,
-                        provider: createdProvider
-                    }
-                });
+                updateProviderState(createdProvider);
                 openSnackbar(capitalize(t('successfully created provider')));
             }
-            goBack();
+            goBack && goBack();
         } catch (error) {
             if (error instanceof Error) {
                 openSnackbar(capitalize(t(error.message as TSingleTranslationKey)), 'error');
             }
         }
-    };
-
-    const goBack = () => {
-        rightDrawerDispatch({
-            payload: { childComponentName: 'account' },
-            type: 'open'
-        });
     };
 
     return (
@@ -124,6 +106,7 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
             {...methods}
         >
             <IndividualForm
+                user={user}
                 localIdentifierName={localIdentifierName}
                 isEdit={isEdit}
                 isCustomer={false}

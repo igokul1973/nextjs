@@ -1,6 +1,7 @@
 'use client';
 
 import { styled } from '@mui/material';
+import Box from '@mui/material/Box';
 
 export const StyledForm = styled('form', {
     name: 'Styled Form',
@@ -8,10 +9,12 @@ export const StyledForm = styled('form', {
 })`
     display: grid;
     gap: 1rem;
+`;
 
-    // .action-buttons {
-    //     display: flex;
-    //     justify-content: end;
-    //     gap: 1rem;
-    // }
+export const StyledProviderContainer = styled(Box, {
+    name: 'Styled Provider Container',
+    slot: 'Root'
+})`
+    display: grid;
+    gap: 2rem;
 `;

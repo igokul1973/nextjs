@@ -37,7 +37,7 @@ export async function createOrganization(
         );
 
         if (!validatedFormData.success) {
-            return null;
+            throw Error('Form is invalid');
         }
 
         const validatedData = validatedFormData.data;
@@ -86,7 +86,7 @@ export async function createOrganization(
             }
         };
 
-        const newOrg = await prisma.organization.create({
+        const createdOrganization = await prisma.organization.create({
             data,
             include: includeOrganizationRelations
         });
@@ -95,7 +95,7 @@ export async function createOrganization(
             logo,
             userId,
             account.id,
-            newOrg.id,
+            createdOrganization.id,
             false
         );
 
@@ -105,7 +105,7 @@ export async function createOrganization(
                     logo: logoCreateOrUpdate
                 },
                 where: {
-                    id: newOrg.id
+                    id: createdOrganization.id
                 },
                 select: {
                     id: true
@@ -113,10 +113,10 @@ export async function createOrganization(
             });
         }
 
-        console.log('Successfully created new organization: ', newOrg);
+        console.log('Successfully created new organization: ', createdOrganization);
 
         revalidatePath('/', 'layout');
-        return newOrg;
+        return createdOrganization;
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('could not create provider');
@@ -142,7 +142,7 @@ export async function updateOrganization(
         );
 
         if (!validatedFormData.success) {
-            return null;
+            throw Error('Form is invalid');
         }
 
         const validatedData = validatedFormData.data;

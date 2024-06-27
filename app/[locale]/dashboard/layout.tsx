@@ -1,16 +1,24 @@
 import { DrawerHeader } from '@/app/components/dashboard/navigation/styled';
 import RightDrawer from '@/app/components/right-drawer/RightDrawer';
 import RightDrawerProvider from '@/app/context/right-drawer/provider';
-import { SnackbarProvider } from '@/app/context/snackbar/provider';
 import AppProvider from '@/app/context/user/provider';
+import { getCountries } from '@/app/lib/data/country';
+import { getOrganizationTypes } from '@/app/lib/data/organization-type';
 import { getApp } from '@/app/lib/utils';
 import Box from '@mui/material/Box';
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 import Navigation from '../../components/dashboard/navigation/Navigation';
-import { TProps } from './types';
 
-const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
-    const { account, user, profile, provider, providerType, settings } = await getApp();
+const Layout: FC<PropsWithChildren> = async ({ children }) => {
+    const appPromise = getApp();
+    const partialCountriesPromise = getCountries();
+    const partialOrganizationTypesPromise = getOrganizationTypes();
+
+    const [
+        { account, user, profile, provider, providerType, settings },
+        countries,
+        organizationTypes
+    ] = await Promise.all([appPromise, partialCountriesPromise, partialOrganizationTypesPromise]);
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -22,7 +30,9 @@ const Layout: FC<TProps> = async ({ params: { locale }, children }) => {
                         account,
                         settings,
                         provider,
-                        providerType
+                        providerType,
+                        countries,
+                        organizationTypes
                     }}
                 >
                     <Navigation />

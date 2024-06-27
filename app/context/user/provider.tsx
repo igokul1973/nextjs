@@ -9,12 +9,12 @@ import {
     useMemo,
     useReducer
 } from 'react';
-import { IAppState, IAppStateAction } from './types';
+import { IAppState, IAppStateAction, IDictionary } from './types';
 
 const PartialAppStateReducer = (
-    state: Partial<IAppState>,
+    state: Partial<IAppState> & IDictionary,
     action: IAppStateAction
-): Partial<IAppState> => {
+): Partial<IAppState> & IDictionary => {
     switch (action.type) {
         case 'update':
             return {
@@ -36,7 +36,10 @@ const PartialAppStateReducer = (
     }
 };
 
-const appStateReducer = (state: IAppState, action: IAppStateAction): IAppState => {
+const appStateReducer = (
+    state: IAppState & IDictionary,
+    action: IAppStateAction
+): IAppState & IDictionary => {
     switch (action.type) {
         case 'update':
             return {
@@ -46,12 +49,12 @@ const appStateReducer = (state: IAppState, action: IAppStateAction): IAppState =
         case 'setProfile':
             return {
                 ...state,
-                profile: action.payload.profile || state.profile
+                profile: action.payload.profile ?? state.profile
             };
         case 'setSettings':
             return {
                 ...state,
-                settings: action.payload.settings || state.settings
+                settings: action.payload.settings ?? state.settings
             };
         default:
             throw new Error(`Unhandled action type: ${action.type}`);
@@ -60,7 +63,7 @@ const appStateReducer = (state: IAppState, action: IAppStateAction): IAppState =
 
 export const PartialAppContext = createContext<
     | {
-          state: Partial<IAppState>;
+          state: Partial<IAppState> & IDictionary;
           dispatch: Dispatch<IAppStateAction>;
       }
     | undefined
@@ -68,7 +71,7 @@ export const PartialAppContext = createContext<
 
 export const AppContext = createContext<
     | {
-          state: IAppState;
+          state: IAppState & IDictionary;
           dispatch: Dispatch<IAppStateAction>;
       }
     | undefined
@@ -77,7 +80,7 @@ export const AppContext = createContext<
 export const usePartialApp = () => {
     const context = useContext(PartialAppContext);
     if (context === undefined) {
-        throw new Error('useUser must be used within a PartialUserProvider');
+        throw new Error('usePartialApp must be used within a PartialUserProvider');
     }
     return context;
 };
@@ -85,12 +88,12 @@ export const usePartialApp = () => {
 export const useApp = () => {
     const context = useContext(AppContext);
     if (context === undefined) {
-        throw new Error('useUser must be used within a UserProvider');
+        throw new Error('useApp must be used within a UserProvider');
     }
     return context;
 };
 
-export const AppProvider: FC<{ appState: IAppState } & PropsWithChildren> = ({
+export const AppProvider: FC<{ appState: IAppState & IDictionary } & PropsWithChildren> = ({
     appState,
     children
 }) => {
@@ -102,10 +105,9 @@ export const AppProvider: FC<{ appState: IAppState } & PropsWithChildren> = ({
 /**
  * Partial - because it may not have all the fields
  */
-export const PartialAppProvider: FC<{ userState: Partial<IAppState> } & PropsWithChildren> = ({
-    userState,
-    children
-}) => {
+export const PartialAppProvider: FC<
+    { userState: Partial<IAppState> & IDictionary } & PropsWithChildren
+> = ({ userState, children }) => {
     const [state, dispatch] = useReducer(PartialAppStateReducer, userState);
     const value = useMemo(() => ({ state, dispatch }), [state, dispatch]);
     return <PartialAppContext.Provider value={value}>{children}</PartialAppContext.Provider>;

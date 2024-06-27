@@ -1,37 +1,20 @@
 import prisma from '@/app/lib/prisma';
 import { unstable_noStore as noStore } from 'next/cache';
-import { TCountry } from '../../types';
 import { FormSchema } from './formSchema';
 import { getQueryFilterWhereClause } from './types';
 
 export const CreateCountry = FormSchema.omit({ id: true });
 export const UpdateCountry = FormSchema.omit({ id: true });
 
-export async function getCountryById(id: string): Promise<TCountry | null> {
+export async function getCountries() {
     noStore();
     try {
-        const country = await prisma.country.findFirst({
+        return await prisma.country.findMany({
             relationLoadStrategy: 'query',
-            where: {
-                id
+            include: {
+                localIdentifierNames: true
             }
         });
-
-        return country;
-    } catch (error) {
-        console.error('Database Error:', error);
-        throw new Error('could not get country.');
-    }
-}
-
-export async function getCountries(): Promise<TCountry[]> {
-    noStore();
-    try {
-        const countries = await prisma.country.findMany({
-            relationLoadStrategy: 'query'
-        });
-
-        return countries;
     } catch (error) {
         console.error('Database Error:', error);
         throw new Error('could not get countries.');
@@ -44,6 +27,9 @@ export async function getFilteredCountries(query: string) {
     try {
         const countries = await prisma.country.findMany({
             relationLoadStrategy: 'join',
+            include: {
+                localIdentifierNames: true
+            },
             orderBy: {
                 name: 'asc'
             },

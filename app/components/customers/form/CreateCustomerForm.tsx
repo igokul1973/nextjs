@@ -8,8 +8,8 @@ import { getCustomerOrgDefaultFormValues } from '@/app/components/organizations/
 import Warning from '@/app/components/warning/Warning';
 import { useApp } from '@/app/context/user/provider';
 import { useI18n } from '@/locales/client';
-import Business from '@mui/icons-material/Business';
-import Face from '@mui/icons-material/Face';
+import BusinessIcon from '@mui/icons-material/Business';
+import FaceIcon from '@mui/icons-material/Face';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
@@ -20,13 +20,17 @@ import { EntitiesEnum } from '@prisma/client';
 import { FC, useEffect, useState } from 'react';
 import CustomerIndFormData from './CustomerIndFormData';
 import CustomerOrgFormData from './CustomerOrgFormData';
-import { ICustomerFormProps } from './types';
 
-const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentifierNames }) => {
+const CreateCustomerForm: FC = () => {
     const t = useI18n();
+
     const {
-        state: { user, account }
+        state: { user, account, provider }
     } = useApp();
+
+    const userAccountCountry = provider.address.country;
+    const localIdentifierNames = userAccountCountry.localIdentifierNames;
+
     const [customerType, setCustomerType] = useState<EntitiesEnum | ''>('');
 
     const [defaultIndividualValues, setDefaultIndividualValues] = useState<TProviderIndForm | null>(
@@ -38,7 +42,7 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
     const entities = Object.values(EntitiesEnum).map((entity) => {
         return {
             name: entity,
-            icon: entity === EntitiesEnum.individual ? Face : Business
+            icon: entity === EntitiesEnum.individual ? FaceIcon : BusinessIcon
         };
     });
 
@@ -85,14 +89,14 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
         return (
             <Warning variant='h4'>
                 No local identifier names provided. Please create one(s) for organization and/or
-                individual customers for the current user&apos;s country.
+                individual customers for the current provider&apos;s country.
             </Warning>
         );
     }
 
     return (
         <StyledBox component='section'>
-            {/* Customer Name */}
+            {/* Customer Type */}
             <FormControl fullWidth>
                 <InputLabel id='customer-type-label'>
                     {capitalize(t('select customer type'))}
@@ -107,10 +111,10 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
                         setCustomerType(event.target.value as EntitiesEnum)
                     }
                 >
-                    {entities.map((entity, index) => {
+                    {entities.map((entity) => {
                         const Icon = entity.icon;
                         return (
-                            <MenuItem key={index} value={entity.name}>
+                            <MenuItem key={entity.name} value={entity.name}>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                     <Icon />
                                     <span>{capitalize(t(entity.name))}</span>
@@ -137,4 +141,4 @@ const CustomerForm: FC<ICustomerFormProps> = ({ userAccountCountry, localIdentif
     );
 };
 
-export default CustomerForm;
+export default CreateCustomerForm;

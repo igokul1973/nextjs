@@ -70,6 +70,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     id: 'id',
     // Organization
     'select customer type': 'välj kundtyp',
+    'select provider type': 'välj leverantörstyp',
     'select type': 'välj typ',
     organization: 'företag',
     organizations: 'företag',
@@ -315,6 +316,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'unit type is incorrect': 'enhettypen är felaktig',
     'enter additional terms': 'ange ytterligare villkor',
     'please enter the account ID': 'var god ange konto-ID',
+    'could not get provider form data': 'kunde inte få leverantörsdata',
     // Buttons
     'create customer': 'skapa en kund',
     'update customer': 'redigera kunden',

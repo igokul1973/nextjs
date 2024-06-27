@@ -18,7 +18,6 @@ import {
 } from '@/app/components/organizations/form/types';
 import PartialPhoneForm from '@/app/components/phones/form/PartialPhoneForm';
 import { useData } from '@/app/context/data/provider';
-import { useApp } from '@/app/context/user/provider';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
@@ -40,6 +39,7 @@ import { StyledForm } from './styled';
 import { TProviderOrgForm } from './types';
 
 const OrganizationForm: FC<IProps & PropsWithChildren> = ({
+    user,
     localIdentifierName,
     isEdit,
     isCustomer,
@@ -48,9 +48,6 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
 }) => {
     const t = useI18n();
     const { countries, organizationTypes } = useData();
-    const {
-        state: { user }
-    } = useApp();
     const userId = user.id;
     const {
         control,
