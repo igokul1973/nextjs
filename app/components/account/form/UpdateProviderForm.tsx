@@ -15,7 +15,7 @@ import { FC, useCallback } from 'react';
 import ProviderIndFormData from './ProviderIndFormData';
 import ProviderOrgFormData from './ProviderOrgFormData';
 
-const UpdateAccountForm: FC = () => {
+const UpdateProviderForm: FC = () => {
     const {
         state: { user, account, provider },
         dispatch: dispatchAppState
@@ -111,4 +111,4 @@ const UpdateAccountForm: FC = () => {
     );
 };
 
-export default UpdateAccountForm;
+export default UpdateProviderForm;

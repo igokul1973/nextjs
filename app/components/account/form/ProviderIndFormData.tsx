@@ -15,22 +15,23 @@ import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
 import Button from '@mui/material/Button';
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { ActionButtonsContainer } from './styled';
 import { IProviderIndFormDataProps } from './types';
 
-const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
+const ProviderIndFormData: FC<IProviderIndFormDataProps & PropsWithChildren> = ({
     user,
     localIdentifierName,
     defaultValues,
     isEdit,
     updateProviderState,
-    goBack
+    goBack,
+    children
 }) => {
-    // TODO: Put goBack into props and run it only if it exists
-    // Put dispathAppState into props as well
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
+    const isDisplayActionButtons = isEdit;
 
     const {
         watch,
@@ -112,9 +113,22 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
                 isCustomer={false}
                 onSubmit={onSubmit}
             >
-                <Button type='button' onClick={goBack} variant='outlined' color='warning'>
-                    {capitalize(t('cancel'))}
-                </Button>
+                {children}
+                {isDisplayActionButtons && (
+                    <ActionButtonsContainer>
+                        <Button type='button' onClick={goBack} variant='outlined' color='warning'>
+                            {capitalize(t('cancel'))}
+                        </Button>
+                        <Button
+                            type='submit'
+                            variant='contained'
+                            color='primary'
+                            disabled={!isDirty}
+                        >
+                            {capitalize(t(isEdit ? 'update provider' : 'create provider'))}
+                        </Button>
+                    </ActionButtonsContainer>
+                )}
             </IndividualForm>
         </FormProvider>
     );

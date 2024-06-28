@@ -20,7 +20,6 @@ import PartialPhoneForm from '@/app/components/phones/form/PartialPhoneForm';
 import { useData } from '@/app/context/data/provider';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
 import { useI18n } from '@/locales/client';
-import { TSingleTranslationKey } from '@/locales/types';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -52,9 +51,13 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
     const {
         control,
         register,
-        formState: { errors, isDirty },
+        formState: { errors },
         handleSubmit
     } = useFormContext<TCustomerOrgForm, null, TCustomerOrgFormOutput>();
+
+    // TODO: For now it is not clear when and how to use the attributes,
+    //  so I am turning them off until I figure it out
+    const isShowAttributes = false;
 
     const phoneTypes = Object.values(PhoneTypeEnum);
     const emailTypes = Object.values(EmailTypeEnum);
@@ -94,31 +97,23 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
 
     useScrollToFormError(errors, canFocus, setCanFocus);
 
-    const isSubmittable = isDirty;
-
-    const submitBtnText: TSingleTranslationKey = isEdit
-        ? isCustomer
-            ? 'update customer'
-            : 'update provider'
-        : isCustomer
-          ? 'create customer'
-          : 'create provider';
-
     return (
         <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
             {!isCustomer && (
                 <FileInput inputName='logo' label={capitalize(t('logo'))} user={user} />
             )}
-            <FormControl>
-                <TextField
-                    label={capitalize(t('customer number'))}
-                    placeholder={capitalize(t('enter customer number'))}
-                    variant='outlined'
-                    error={!!errors.code}
-                    helperText={!!errors.code?.message && capitalize(errors.code.message)}
-                    {...register('code')}
-                />
-            </FormControl>
+            {isCustomer && (
+                <FormControl>
+                    <TextField
+                        label={capitalize(t('customer number'))}
+                        placeholder={capitalize(t('enter customer number'))}
+                        variant='outlined'
+                        error={!!errors.code}
+                        helperText={!!errors.code?.message && capitalize(errors.code.message)}
+                        {...register('code')}
+                    />
+                </FormControl>
+            )}
             <FormControl>
                 <TextField
                     label={capitalize(t('organization name'))}
@@ -134,7 +129,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                 <FormControl>
                     <TextField
                         label={capitalize(
-                            localIdentifierName.abbreviation || localIdentifierName.name
+                            localIdentifierName.abbreviation ?? localIdentifierName.name
                         )}
                         placeholder={`${capitalize(t('add'))} ${localIdentifierName.name}`}
                         variant='outlined'
@@ -269,48 +264,41 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                     ? capitalize(t('add another email address'))
                     : capitalize(t('add email address'))}
             </Button>
-            <Divider />
-            <Box component={'h5'} sx={{ margin: 0 }}>
-                {capitalize(t('additional attributes'))}:
-            </Box>
-            {attributes.length ? (
-                attributes.map((attribute, index) => (
-                    <PartialAttributeForm<TProviderOrgForm>
-                        key={attribute.id}
-                        index={index}
-                        register={register as TEntityFormRegister}
-                        control={control as TOrganizationFormControl}
-                        errors={errors}
-                        remove={removeAttribute}
-                    />
-                ))
-            ) : (
-                <Box>
-                    {capitalize(t('you have no attributes. Add one by clicking button below.'))}
-                </Box>
+
+            {isShowAttributes && (
+                <>
+                    <Divider />
+                    <Box component={'h5'} sx={{ margin: 0 }}>
+                        {capitalize(t('additional attributes'))}:
+                    </Box>
+                </>
             )}
-            <Button
-                onClick={() => {
-                    return appendAttribute(getEmptyAttribute(userId));
-                }}
-            >
-                {attributes.length > 0
-                    ? capitalize(t('add another attribute'))
-                    : capitalize(t('add attribute'))}
-            </Button>
-            <Box className='action-buttons'>
-                <Box className='action-buttons'>
-                    {children}
-                    <Button
-                        type='submit'
-                        variant='contained'
-                        color='primary'
-                        disabled={!isSubmittable}
-                    >
-                        {capitalize(t(submitBtnText))}
-                    </Button>
-                </Box>
-            </Box>
+            {isShowAttributes &&
+                (attributes.length ? (
+                    attributes.map((attribute, index) => (
+                        <PartialAttributeForm<TProviderOrgForm>
+                            key={attribute.id}
+                            index={index}
+                            register={register as TEntityFormRegister}
+                            control={control as TOrganizationFormControl}
+                            errors={errors}
+                            remove={removeAttribute}
+                        />
+                    ))
+                ) : (
+                    <Box>
+                        {capitalize(t('you have no attributes. Add one by clicking button below.'))}
+                    </Box>
+                ))}
+            {isShowAttributes && (
+                <Button onClick={() => appendAttribute(getEmptyAttribute(userId))}>
+                    {attributes.length > 0
+                        ? capitalize(t('add another attribute'))
+                        : capitalize(t('add attribute'))}
+                </Button>
+            )}
+            {/* The chilren should contain action buttons */}
+            {children}
         </StyledForm>
     );
 };

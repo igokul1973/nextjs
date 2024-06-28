@@ -9,6 +9,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import FaceIcon from '@mui/icons-material/Face';
 import { capitalize } from '@mui/material';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -181,7 +182,12 @@ const ProviderRegistrationForm: FC = () => {
                     defaultValues={defaultIndividualValues}
                     isEdit={false}
                     updateProviderState={updateProviderState}
-                />
+                >
+                    {/* <Button type='submit' variant='contained' color='primary' disabled={!isValid}> */}
+                    <Button type='submit' variant='contained' color='primary'>
+                        {capitalize(t('next'))}
+                    </Button>
+                </ProviderIndFormData>
             ) : isRenderOrgForm ? (
                 <ProviderOrgFormData
                     user={user}
@@ -189,9 +195,21 @@ const ProviderRegistrationForm: FC = () => {
                     defaultValues={defaultOrganizationValues}
                     isEdit={false}
                     updateProviderState={updateProviderState}
-                />
+                >
+                    {/* <Button type='submit' variant='contained' color='primary' disabled={!isValid}> */}
+                    <Button type='submit' variant='contained' color='primary'>
+                        {capitalize(t('next'))}
+                    </Button>
+                </ProviderOrgFormData>
             ) : (
-                <Warning variant='h4'>{t('could not get provider form data')}</Warning>
+                <Warning variant='h6'>
+                    {capitalize(
+                        t(
+                            'select provider type and country above in order to see provider registration form'
+                        )
+                    )}
+                    .
+                </Warning>
             )}
         </StyledProviderContainer>
     );

@@ -10,8 +10,8 @@ export const ContainerBox = styled(Box, {
 })`
     background-image: url(/images/background.jpg);
     width: 100%;
-    height: 100vh;
-    background-repeat: no-repeat;
+    min-height: 100vh;
+    background-repeat: repeat;
     background-size: cover;
     position: relative;
     display: flex;
@@ -20,7 +20,7 @@ export const ContainerBox = styled(Box, {
 
     .headline-wrapper {
         background-color: rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(7px);
+        backdrop-filter: blur(15px);
         width: 70%;
         height: 100%;
         .header {

@@ -8,10 +8,4 @@ export const StyledForm = styled('form', {
 })`
     display: grid;
     gap: 1rem;
-
-    .action-buttons {
-        display: flex;
-        justify-content: end;
-        gap: 1rem;
-    }
 `;

@@ -424,7 +424,9 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'click icon to the right to upload logo': 'klicka på ikonen för att ladda upp logo',
     'no logo provided': 'ingen logo har angivits',
     'before creating customers please register yourself as a Service Provider':
-        'för att skapa kunder du skall registreras som leverantör'
+        'för att skapa kunder du skall registreras som leverantör',
+    'select provider type and country above in order to see provider registration form':
+        'valj leverantörstyp och land i ordning för att se leverantörsregistreringformulär'
 };
 
 const sv = {

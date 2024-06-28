@@ -1,3 +1,4 @@
+import CreateCustomerForm from '@/app/components/customers/form/CreateCustomerForm';
 import Loading from '@/app/components/loading/Loading';
 import { capitalize } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
@@ -7,10 +8,8 @@ import Typography from '@mui/material/Typography';
 import { setStaticParamsLocale } from 'next-international/server';
 import NextLink from 'next/link';
 import { FC, Suspense } from 'react';
-import { IProps } from './types';
-// import CreateCustomerFormData from './CreateCustomerFormData';
-import CreateCustomerForm from '@/app/components/customers/form/CustomerForm';
 import { StyledBox } from './styled';
+import { IProps } from './types';
 
 const Page: FC<IProps> = async ({ params: { locale } }) => {
     setStaticParamsLocale(locale);

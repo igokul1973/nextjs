@@ -1,5 +1,5 @@
 import Account from '@/app/components/account/Account';
-import ProviderForm from '@/app/components/account/form/AccountForm';
+import UpdateProviderForm from '@/app/components/account/form/UpdateProviderForm';
 import Profile from '@/app/components/profile/Profile';
 import UpdateProfileForm from '@/app/components/profile/form/UpdateProfileForm';
 import Settings from '@/app/components/settings/Settings';
@@ -18,7 +18,7 @@ export const components: TComponents = {
     },
     providerForm: {
         title: 'update provider',
-        component: ProviderForm,
+        component: UpdateProviderForm,
         icon: AccountIcon
     },
     profile: {

@@ -25,7 +25,7 @@ export const ContainerBox = styled(Box, {
 
     .headline-wrapper {
         background-color: rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(7px);
+        backdrop-filter: blur(8px);
         width: 100%;
         .header {
             display: flex;

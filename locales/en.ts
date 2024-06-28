@@ -414,7 +414,9 @@ export const enSingle = {
     'click icon to the right to upload logo': 'click icon to the right to upload logo',
     'no logo provided': 'no logo provided',
     'before creating customers please register yourself as a Service Provider':
-        'before creating customers please register yourself as a Service Provider'
+        'before creating customers please register yourself as a Service Provider',
+    'select provider type and country above in order to see provider registration form':
+        'select provider type and country above in order to see provider registration form'
 };
 
 const en = {

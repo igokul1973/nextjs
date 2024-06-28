@@ -16,5 +16,8 @@ export const StyledProviderContainer = styled(Box, {
     slot: 'Root'
 })`
     display: grid;
+    grid-auto-rows: min-content;
     gap: 2rem;
+    min-height: 100vh;
+    padding-bottom: 2rem;
 `;
