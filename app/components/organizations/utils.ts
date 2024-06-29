@@ -19,7 +19,7 @@ export const getProviderOrgDefaultFormValues = (
         accountId: accountId,
         logo: null,
         name: '',
-        localIdentifierNameId: localIdentifierNameId,
+        localIdentifierNameId,
         localIdentifierValue: '',
         typeId: '',
         description: '',

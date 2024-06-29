@@ -24,6 +24,7 @@ import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { ICustomerOrgFormDataProps } from './types';
+import { ActionButtonsContainer } from './styled';
 
 const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
     localIdentifierName,
@@ -120,19 +121,23 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
         >
             <OrganizationForm
                 user={user}
-                localIdentifierName={localIdentifierName}
-                isEdit={isEdit}
+                providerLocalIdentifierName={localIdentifierName}
                 isCustomer
                 onSubmit={onSubmit}
             >
-                <Button
-                    component={NextLink}
-                    href='/dashboard/customers'
-                    variant='outlined'
-                    color='warning'
-                >
-                    {capitalize(t('cancel'))}
-                </Button>
+                <ActionButtonsContainer>
+                    <Button
+                        component={NextLink}
+                        href='/dashboard/customers'
+                        variant='outlined'
+                        color='warning'
+                    >
+                        {capitalize(t('cancel'))}
+                    </Button>
+                    <Button type='submit' variant='contained' color='primary' disabled={!isDirty}>
+                        {capitalize(t(isEdit ? 'update provider' : 'create provider'))}
+                    </Button>
+                </ActionButtonsContainer>
             </OrganizationForm>
         </FormProvider>
     );

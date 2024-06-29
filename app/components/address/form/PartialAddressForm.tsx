@@ -9,13 +9,13 @@ import { capitalize } from '@mui/material/utils';
 import FormSelect from '../../form-select/FormSelect';
 import { IProps } from './types';
 
-const PartialAddressForm = <T,>({ register, countries, control, errors }: IProps<T>) => {
+const PartialAddressForm = <T,>({ register /* , countries, control */, errors }: IProps<T>) => {
     const t = useI18n();
 
     const addressLine1Error = errors.address?.addressLine1;
     const localityError = errors.address?.locality;
     const postCodeError = errors.address?.postcode;
-    const countryIdError = errors.address?.countryId;
+    // const countryIdError = errors.address?.countryId;
 
     return (
         <>
@@ -84,25 +84,6 @@ const PartialAddressForm = <T,>({ register, countries, control, errors }: IProps
                     {...register('address.postcode')}
                 />
             </FormControl>
-            <FormSelect
-                name='address.countryId'
-                label={capitalize(t('country'))}
-                autoComplete='country'
-                control={control}
-                required
-                error={!!countryIdError}
-                helperText={!!countryIdError?.message && capitalize(countryIdError.message)}
-            >
-                {countries.map((country) => {
-                    return (
-                        <MenuItem key={country.id} value={country.id}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                {capitalize(country.name)}
-                            </Box>
-                        </MenuItem>
-                    );
-                })}
-            </FormSelect>
         </>
     );
 };

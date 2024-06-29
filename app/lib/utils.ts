@@ -39,7 +39,14 @@ import { getIndividualFullNameString, getUserProvider } from './commonUtils.ts';
 import { TCustomerPayload } from './data/customer/types';
 import { TTransformedInvoice } from './data/invoice/types.ts';
 import { TGetUserWithRelationsPayload } from './data/user/types';
-import { TDirtyFields, TEntities, TEntity, TIndividual, TTranslateFn } from './types';
+import {
+    TAppLocalIdentifierName,
+    TDirtyFields,
+    TEntities,
+    TEntity,
+    TIndividual,
+    TTranslateFn
+} from './types';
 
 export {
     getEntityFirstEmailString,
@@ -1358,4 +1365,26 @@ export const deleteFromLocalStorage = (key: string) => {
     if (typeof window !== 'undefined') {
         localStorage.removeItem(key);
     }
+};
+
+export const getLocalIdentifierNameText = (
+    selectedCountryLocalIdentifierName: TAppLocalIdentifierName | null,
+    providerLocalIdentifierName: TAppLocalIdentifierName
+) => {
+    if (!selectedCountryLocalIdentifierName) {
+        return (
+            providerLocalIdentifierName.name +
+            (providerLocalIdentifierName.abbreviation
+                ? ` (${providerLocalIdentifierName.abbreviation})`
+                : '')
+        );
+    }
+
+    return (
+        selectedCountryLocalIdentifierName.name +
+        (selectedCountryLocalIdentifierName.abbreviation
+            ? ` (${selectedCountryLocalIdentifierName?.abbreviation})`
+            : '')
+    );
+    // return selectedCountryLocalIdentifierName.name;
 };

@@ -30,9 +30,6 @@ const UpdateSettingsForm: FC = () => {
     const { dispatch: rightDrawerDispatch } = useRightDrawerState();
     const settings = rawSettings && { ...rawSettings, salesTax: rawSettings.salesTax / 1000 };
 
-    // FIXME: isEdit === true for now...
-    const isEdit = true;
-
     const defaultValues = populateForm<TUpdateSettingsForm>(
         getDefaultValues(account.id, user.id),
         settings || {}
@@ -119,7 +116,7 @@ const UpdateSettingsForm: FC = () => {
                     {capitalize(t('cancel'))}
                 </Button>
                 <Button type='submit' variant='contained' color='primary' disabled={!isSubmittable}>
-                    {capitalize(t(isEdit ? 'update settings' : 'create settings'))}
+                    {capitalize(t('update settings'))}
                 </Button>
             </Box>
         </FormProvider>

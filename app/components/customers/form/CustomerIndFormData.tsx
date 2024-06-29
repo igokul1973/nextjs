@@ -8,6 +8,7 @@ import {
 } from '@/app/components/individuals/form/formSchema';
 import { TCustomerIndForm, TCustomerIndFormOutput } from '@/app/components/individuals/form/types';
 import { useSnackbar } from '@/app/context/snackbar/provider';
+import { useApp } from '@/app/context/user/provider';
 import {
     createIndividualCustomer,
     updateIndividualCustomer
@@ -20,8 +21,8 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { ActionButtonsContainer } from './styled';
 import { ICustomerIndFormDataProps } from './types';
-import { useApp } from '@/app/context/user/provider';
 
 const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
     localIdentifierName,
@@ -119,19 +120,23 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
         >
             <IndividualForm
                 user={user}
-                localIdentifierName={localIdentifierName}
-                isEdit={isEdit}
+                providerLocalIdentifierName={localIdentifierName}
                 isCustomer
                 onSubmit={onSubmit}
             >
-                <Button
-                    component={NextLink}
-                    href='/dashboard/customers'
-                    variant='outlined'
-                    color='warning'
-                >
-                    {capitalize(t('cancel'))}
-                </Button>
+                <ActionButtonsContainer>
+                    <Button
+                        component={NextLink}
+                        href='/dashboard/customers'
+                        variant='outlined'
+                        color='warning'
+                    >
+                        {capitalize(t('cancel'))}
+                    </Button>
+                    <Button type='submit' variant='contained' color='primary' disabled={!isDirty}>
+                        {capitalize(t(isEdit ? 'update provider' : 'create provider'))}
+                    </Button>
+                </ActionButtonsContainer>
             </IndividualForm>
         </FormProvider>
     );

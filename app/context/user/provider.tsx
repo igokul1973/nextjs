@@ -9,12 +9,12 @@ import {
     useMemo,
     useReducer
 } from 'react';
-import { IAppState, IAppStateAction, IDictionary } from './types';
+import { IAppState, IAppStateAction } from './types';
 
 const PartialAppStateReducer = (
-    state: Partial<IAppState> & IDictionary,
+    state: Partial<IAppState>,
     action: IAppStateAction
-): Partial<IAppState> & IDictionary => {
+): Partial<IAppState> => {
     switch (action.type) {
         case 'update':
             return {
@@ -36,10 +36,7 @@ const PartialAppStateReducer = (
     }
 };
 
-const appStateReducer = (
-    state: IAppState & IDictionary,
-    action: IAppStateAction
-): IAppState & IDictionary => {
+const appStateReducer = (state: IAppState, action: IAppStateAction): IAppState => {
     switch (action.type) {
         case 'update':
             return {
@@ -63,7 +60,7 @@ const appStateReducer = (
 
 export const PartialAppContext = createContext<
     | {
-          state: Partial<IAppState> & IDictionary;
+          state: Partial<IAppState>;
           dispatch: Dispatch<IAppStateAction>;
       }
     | undefined
@@ -71,7 +68,7 @@ export const PartialAppContext = createContext<
 
 export const AppContext = createContext<
     | {
-          state: IAppState & IDictionary;
+          state: IAppState;
           dispatch: Dispatch<IAppStateAction>;
       }
     | undefined
@@ -93,7 +90,7 @@ export const useApp = () => {
     return context;
 };
 
-export const AppProvider: FC<{ appState: IAppState & IDictionary } & PropsWithChildren> = ({
+export const AppProvider: FC<{ appState: IAppState } & PropsWithChildren> = ({
     appState,
     children
 }) => {
@@ -105,9 +102,10 @@ export const AppProvider: FC<{ appState: IAppState & IDictionary } & PropsWithCh
 /**
  * Partial - because it may not have all the fields
  */
-export const PartialAppProvider: FC<
-    { userState: Partial<IAppState> & IDictionary } & PropsWithChildren
-> = ({ userState, children }) => {
+export const PartialAppProvider: FC<{ userState: Partial<IAppState> } & PropsWithChildren> = ({
+    userState,
+    children
+}) => {
     const [state, dispatch] = useReducer(PartialAppStateReducer, userState);
     const value = useMemo(() => ({ state, dispatch }), [state, dispatch]);
     return <PartialAppContext.Provider value={value}>{children}</PartialAppContext.Provider>;

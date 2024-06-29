@@ -6,7 +6,6 @@ import { TProviderOrgForm } from '@/app/components/organizations/form/types';
 import { getCustomerOrgDefaultFormValues } from '@/app/components/organizations/utils';
 import Warning from '@/app/components/warning/Warning';
 import { getCustomerById } from '@/app/lib/data/customer';
-import { getLocalIdentifierNamesByCountryId } from '@/app/lib/data/local-identifier-name';
 import { getApp, populateForm } from '@/app/lib/utils';
 import { EntitiesEnum } from '@prisma/client';
 import { setStaticParamsLocale } from 'next-international/server';
@@ -20,7 +19,7 @@ const UpdateCustomerFormData: FC<IProps> = async ({ params: { id, locale } }) =>
     const { user, provider, account } = await getApp();
 
     const userAccountCountry = provider.address.country;
-    const localIdentifierNames = await getLocalIdentifierNamesByCountryId(userAccountCountry.id);
+    const localIdentifierNames = userAccountCountry.localIdentifierNames;
 
     if (!localIdentifierNames.length) {
         return (

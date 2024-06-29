@@ -113,10 +113,10 @@ const InvoiceForm: FC<IProps> = ({
     const recalculateTotals = useCallback(() => {
         const data = form.invoiceItems.map((ii) => {
             return {
-                price: Number(ii.price || 0),
-                quantity: Number(ii.quantity || 0),
-                salesTax: Number(ii.salesTax || 0),
-                discount: Number(ii.discount || 0)
+                price: Number(ii.price ?? 0),
+                quantity: Number(ii.quantity ?? 0),
+                salesTax: Number(ii.salesTax ?? 0),
+                discount: Number(ii.discount ?? 0)
             };
         });
         const invoiceTotal = getInvoiceTotal(data);

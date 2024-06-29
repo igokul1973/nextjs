@@ -41,9 +41,7 @@ const RootLayout: FC<IProps & PropsWithChildren> = async ({ params: { locale }, 
                                 account,
                                 settings,
                                 provider,
-                                providerType,
-                                countries,
-                                organizationTypes
+                                providerType
                             }}
                         >
                             <SnackbarProvider>

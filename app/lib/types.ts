@@ -75,6 +75,7 @@ import type {
     settings as TSettings,
     user as TUser
 } from '@prisma/client';
+import { getCountries } from './data/country';
 import { TCustomerPayload } from './data/customer/types';
 
 export {
@@ -221,3 +222,7 @@ export interface IBaseDataFilterArgs {
 }
 
 export type TTranslateFn = ReturnType<typeof useI18n>;
+
+export type TAppCountries = Awaited<ReturnType<typeof getCountries>>;
+export type TAppCountry = TAppCountries[number];
+export type TAppLocalIdentifierName = TAppCountry['localIdentifierNames'][number];

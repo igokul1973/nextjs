@@ -21,7 +21,7 @@ export const getProviderIndDefaultFormValues = (
         firstName: '',
         lastName: '',
         middleName: '',
-        localIdentifierNameId: localIdentifierNameId,
+        localIdentifierNameId,
         localIdentifierValue: '',
         dob: null,
         description: '',

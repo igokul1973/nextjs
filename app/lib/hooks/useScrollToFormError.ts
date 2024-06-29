@@ -41,7 +41,6 @@ export const useScrollToFormError = (
                 const offset = 150;
                 const topOfErrorElement =
                     errorElement.getBoundingClientRect().top + window.scrollY - offset;
-                console.log('topOfErrorElement: ', topOfErrorElement);
                 window.scrollTo({ top: topOfErrorElement, behavior: 'smooth' });
                 errorElement?.focus({ preventScroll: false });
                 // scrollIntoView options are not supported in Safari

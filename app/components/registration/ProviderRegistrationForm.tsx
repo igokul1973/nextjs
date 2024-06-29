@@ -1,9 +1,10 @@
 'use client';
 
+import { useData } from '@/app/context/data/provider';
 import { usePartialApp } from '@/app/context/user/provider';
-import { getCountries } from '@/app/lib/data/country';
 import { createIndividual } from '@/app/lib/data/indiviidual/actions';
 import { createOrganization } from '@/app/lib/data/organization/actions';
+import { TAppCountry } from '@/app/lib/types';
 import { useI18n } from '@/locales/client';
 import BusinessIcon from '@mui/icons-material/Business';
 import FaceIcon from '@mui/icons-material/Face';
@@ -28,12 +29,13 @@ import { StyledProviderContainer } from './styled';
 const ProviderRegistrationForm: FC = () => {
     const t = useI18n();
     const {
-        state: { account, user, countries },
+        state: { account, user },
         dispatch: dispatchAppState
     } = usePartialApp();
+    const { countries } = useData();
     const [providerType, setProviderType] = useState<EntitiesEnum | ''>('');
     const [countryId, setCountryId] = useState<string>('');
-    const [country, setCountry] = useState<Awaited<ReturnType<typeof getCountries>>[number]>();
+    const [country, setCountry] = useState<TAppCountry>();
     const [defaultIndividualValues, setDefaultIndividualValues] = useState<TProviderIndForm | null>(
         null
     );

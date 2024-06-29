@@ -1,13 +1,12 @@
-import { TGetLocalIdentifierNamePayload } from '@/app/lib/data/local-identifier-name/types';
+import { TGetUserWithRelationsPayload } from '@/app/lib/data/user/types';
+import { TAppLocalIdentifierName } from '@/app/lib/types';
 import { Control, FieldValues } from 'react-hook-form';
 import { z } from 'zod';
 import { getCustomerIndUpdateSchema, getProviderIndUpdateSchema } from './formSchema';
-import { TGetUserWithRelationsPayload } from '@/app/lib/data/user/types';
 
 export interface IProps {
     user: TGetUserWithRelationsPayload;
-    localIdentifierName: TGetLocalIdentifierNamePayload;
-    isEdit: boolean;
+    providerLocalIdentifierName: TAppLocalIdentifierName;
     isCustomer: boolean;
     onSubmit: (formData: TCustomerIndFormOutput) => Promise<void>;
 }

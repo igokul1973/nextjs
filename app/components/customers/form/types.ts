@@ -1,9 +1,9 @@
 import { TProviderIndForm } from '@/app/components/individuals/form/types';
 import { TProviderOrgForm } from '@/app/components/organizations/form/types';
-import { TGetLocalIdentifierNamePayload } from '@/app/lib/data/local-identifier-name/types';
+import { TAppLocalIdentifierName } from '@/app/lib/types';
 
 export interface ICustomerEntityFormDataProps {
-    localIdentifierName: TGetLocalIdentifierNamePayload;
+    localIdentifierName: TAppLocalIdentifierName;
     isEdit: boolean;
 }
 

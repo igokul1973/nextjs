@@ -108,8 +108,7 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps & PropsWithChildren> = (
         >
             <IndividualForm
                 user={user}
-                localIdentifierName={localIdentifierName}
-                isEdit={isEdit}
+                providerLocalIdentifierName={localIdentifierName}
                 isCustomer={false}
                 onSubmit={onSubmit}
             >

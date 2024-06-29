@@ -109,8 +109,7 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps & PropsWithChildren> = (
         >
             <OrganizationForm
                 user={user}
-                localIdentifierName={localIdentifierName}
-                isEdit={isEdit}
+                providerLocalIdentifierName={localIdentifierName}
                 isCustomer={false}
                 onSubmit={onSubmit}
             >
