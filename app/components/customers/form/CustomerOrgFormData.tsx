@@ -2,9 +2,9 @@
 
 import OrganizationForm from '@/app/components/organizations/form/OrganizationForm';
 import {
+    getCustomerOrgCreateSchema,
     getCustomerOrgUpdateSchema,
-    getCustomerOrgUpdateSchemaEmptyLogo,
-    getOrganizationCreateSchema
+    getCustomerOrgUpdateSchemaEmptyLogo
 } from '@/app/components/organizations/form/formSchema';
 import {
     TCustomerOrgForm,
@@ -23,8 +23,8 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FC } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { ICustomerOrgFormDataProps } from './types';
 import { ActionButtonsContainer } from './styled';
+import { ICustomerOrgFormDataProps } from './types';
 
 const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
     localIdentifierName,
@@ -62,7 +62,7 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
                 ? defaultValues.logo
                     ? getCustomerOrgUpdateSchema(t)
                     : getCustomerOrgUpdateSchemaEmptyLogo(t)
-                : getOrganizationCreateSchema(t)
+                : getCustomerOrgCreateSchema(t)
         ),
         reValidateMode: 'onChange',
         defaultValues
@@ -135,7 +135,7 @@ const CustomerOrgFormData: FC<ICustomerOrgFormDataProps> = ({
                         {capitalize(t('cancel'))}
                     </Button>
                     <Button type='submit' variant='contained' color='primary' disabled={!isDirty}>
-                        {capitalize(t(isEdit ? 'update provider' : 'create provider'))}
+                        {capitalize(t(isEdit ? 'update customer' : 'create customer'))}
                     </Button>
                 </ActionButtonsContainer>
             </OrganizationForm>

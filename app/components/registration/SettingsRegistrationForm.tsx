@@ -12,28 +12,42 @@ import { useSnackbar } from '@/app/context/snackbar/provider';
 import { usePartialApp } from '@/app/context/user/provider';
 import { createSettings } from '@/app/lib/data/settings/actions';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
-import { getFromLocalStorage, populateForm } from '@/app/lib/utils';
+import {
+    deleteFromLocalStorage,
+    getFromLocalStorage,
+    populateForm,
+    setLocalStorage
+} from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { FC, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { FC, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { StyledForm } from './styled';
+import { StyledForm, StyledProviderContainer } from './styled';
+
+const localStorageKey = 'settingsData';
 
 const SettingsRegistrationForm: FC = () => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
+
     const {
         state: { account, user },
-        dispatch: userDispatch
+        dispatch: appStateDispatch
     } = usePartialApp();
 
-    // TODO: Else - try to get settings-related data from the local storage
-    const settingsData = getFromLocalStorage('settingsData') ?? {};
+    const { push } = useRouter();
 
-    const settings = settingsData && { ...settingsData, salesTax: settingsData.salesTax / 1000 };
+    const [isDeleteLocalStorageData, setIsDeleteLocalStorageData] = useState(false);
+
+    const settingsData = getFromLocalStorage(localStorageKey) ?? {};
+    const settings = 'salesTax' in settingsData && {
+        ...settingsData,
+        salesTax: settingsData.salesTax / 1000
+    };
 
     const defaultValues = populateForm<TUpdateSettingsForm>(
         getDefaultValues(account!.id, user!.id),
@@ -55,14 +69,15 @@ const SettingsRegistrationForm: FC = () => {
         shouldFocusError: false
     });
 
-    // const w = watch();
+    const w = watch();
 
-    // useEffect(() => {
-    //     console.log('Is Dirty:', isDirty);
-    //     console.log('DirtyFields:', dirtyFields);
-    //     console.log('Watch:', w);
-    //     console.error('Errors:', errors);
-    // }, [errors, w, dirtyFields]);
+    useEffect(() => {
+        if (isDeleteLocalStorageData) {
+            deleteFromLocalStorage(localStorageKey);
+        } else {
+            setLocalStorage(localStorageKey, JSON.stringify({ ...w, avatar: null }));
+        }
+    }, [w, isDeleteLocalStorageData]);
 
     const [canFocus, setCanFocus] = useState(true);
 
@@ -80,8 +95,17 @@ const SettingsRegistrationForm: FC = () => {
                 throw Error(t('could not create account settings'));
             }
 
-            userDispatch({ type: 'setSettings', payload: { settings: createdSettings } });
             openSnackbar(capitalize(t('successfully updated account settings')));
+
+            appStateDispatch({
+                type: 'update',
+                payload: {
+                    settings: createdSettings
+                }
+            });
+            // Removing the settings-related data from the local storage
+            setIsDeleteLocalStorageData(true);
+            push('/registration');
         } catch (error) {
             if (error instanceof Error) {
                 openSnackbar(capitalize(error.message), 'error');
@@ -89,26 +113,31 @@ const SettingsRegistrationForm: FC = () => {
         }
     };
 
-    const isSubmittable = isDirty;
-
     return (
-        <FormProvider
-            control={control}
-            watch={watch}
-            register={register}
-            handleSubmit={handleSubmit}
-            setValue={setValue}
-            formState={{ errors, dirtyFields, isDirty, ...formState }}
-            {...methods}
-        >
-            return <Typography variant='h1'>Settings Registration Form</Typography>;
-            <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
-                <PartialSettingsForm />
-                <Button type='submit' variant='contained' color='primary' disabled={!isValid}>
-                    {capitalize(t('next'))}
-                </Button>
-            </StyledForm>
-        </FormProvider>
+        <StyledProviderContainer component='section'>
+            <FormProvider
+                control={control}
+                watch={watch}
+                register={register}
+                handleSubmit={handleSubmit}
+                setValue={setValue}
+                formState={{ errors, dirtyFields, isValid, isDirty, ...formState }}
+                {...methods}
+            >
+                <Typography variant='h1'>Settings Registration Form</Typography>
+                <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
+                    <PartialSettingsForm />
+                    <Button
+                        type='submit'
+                        variant='contained'
+                        color='primary'
+                        disabled={!isDirty && !isValid}
+                    >
+                        {capitalize(t('next'))}
+                    </Button>
+                </StyledForm>
+            </FormProvider>
+        </StyledProviderContainer>
     );
 };
 

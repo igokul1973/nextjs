@@ -2,7 +2,7 @@
 
 import OrganizationForm from '@/app/components/organizations/form/OrganizationForm';
 import {
-    getOrganizationCreateSchema,
+    getProviderOrgCreateSchema,
     getProviderOrgUpdateSchema,
     getProviderOrgUpdateSchemaEmptyLogo
 } from '@/app/components/organizations/form/formSchema';
@@ -12,34 +12,38 @@ import {
 } from '@/app/components/organizations/form/types';
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { createOrganization, updateOrganization } from '@/app/lib/data/organization/actions';
+import { deleteFromLocalStorage, setLocalStorage } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
 import Button from '@mui/material/Button';
-import { FC, PropsWithChildren } from 'react';
+import { EntitiesEnum } from '@prisma/client';
+import { FC, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { ActionButtonsContainer } from './styled';
 import { IProviderOrgFormDataProps } from './types';
 
-const ProviderOrgFormData: FC<IProviderOrgFormDataProps & PropsWithChildren> = ({
+const localStorageKey = 'providerData';
+
+const ProviderOrgFormData: FC<IProviderOrgFormDataProps> = ({
     user,
     localIdentifierName,
     defaultValues,
     isEdit,
     updateProviderState,
-    goBack,
-    children
+    goBack
 }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
-    const isDisplayActionButtons = isEdit;
+
+    const [isDeleteLocalStorageData, setIsDeleteLocalStorageData] = useState(false);
 
     const {
         watch,
         register,
         handleSubmit,
-        formState: { errors, isDirty, dirtyFields, ...formState },
+        formState: { errors, isDirty, isValid, dirtyFields, ...formState },
         ...methods
     } = useForm<TProviderOrgForm, unknown, TProviderOrgFormOutput>({
         resolver: zodResolver(
@@ -47,18 +51,28 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps & PropsWithChildren> = (
                 ? defaultValues.logo
                     ? getProviderOrgUpdateSchema(t)
                     : getProviderOrgUpdateSchemaEmptyLogo(t)
-                : getOrganizationCreateSchema(t)
+                : getProviderOrgCreateSchema(t)
         ),
         reValidateMode: 'onChange',
         defaultValues
     });
 
-    // const w = watch();
+    const w = watch();
 
-    // useEffect(() => {
-    //     console.log('Watch:', w);
-    //     console.error('Errors:', errors);
-    // }, [errors, w]);
+    useEffect(() => {
+        console.log('Watch:', w);
+        console.log('Errors:', errors);
+        if (!isEdit) {
+            if (isDeleteLocalStorageData) {
+                deleteFromLocalStorage(localStorageKey);
+            } else {
+                setLocalStorage(
+                    localStorageKey,
+                    JSON.stringify({ ...w, providerType: EntitiesEnum.organization })
+                );
+            }
+        }
+    }, [w, isDeleteLocalStorageData, isEdit, errors]);
 
     const onSubmit = async (formData: TProviderOrgFormOutput) => {
         try {
@@ -79,17 +93,18 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps & PropsWithChildren> = (
                 );
 
                 if (!updatedProvider) {
-                    throw new Error('could not update provider');
+                    throw new Error('Gould not update provider');
                 }
                 updateProviderState(updatedProvider);
                 openSnackbar(capitalize(t('successfully updated provider')));
             } else {
-                const createdProvider = await createOrganization(formData, logoFormData);
+                const createdProvider = await createOrganization(formDataWithoutLogo, logoFormData);
                 if (!createdProvider) {
                     throw new Error(capitalize(t('could not create provider')));
                 }
                 updateProviderState(createdProvider);
                 openSnackbar(capitalize(t('successfully created provider')));
+                setIsDeleteLocalStorageData(true);
             }
             goBack && goBack();
         } catch (error) {
@@ -104,7 +119,7 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps & PropsWithChildren> = (
             watch={watch}
             register={register}
             handleSubmit={handleSubmit}
-            formState={{ errors, dirtyFields, isDirty, ...formState }}
+            formState={{ errors, dirtyFields, isDirty, isValid, ...formState }}
             {...methods}
         >
             <OrganizationForm
@@ -113,8 +128,7 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps & PropsWithChildren> = (
                 isCustomer={false}
                 onSubmit={onSubmit}
             >
-                {children}
-                {isDisplayActionButtons && (
+                {isEdit ? (
                     <ActionButtonsContainer>
                         <Button type='button' onClick={goBack} variant='outlined' color='warning'>
                             {capitalize(t('cancel'))}
@@ -123,11 +137,20 @@ const ProviderOrgFormData: FC<IProviderOrgFormDataProps & PropsWithChildren> = (
                             type='submit'
                             variant='contained'
                             color='primary'
-                            disabled={!isDirty}
+                            disabled={!isDirty && !isValid}
                         >
                             {capitalize(t(isEdit ? 'update provider' : 'create provider'))}
                         </Button>
                     </ActionButtonsContainer>
+                ) : (
+                    <Button
+                        type='submit'
+                        variant='contained'
+                        color='primary'
+                        disabled={!isDirty && !isValid}
+                    >
+                        {capitalize(t('next'))}
+                    </Button>
                 )}
             </OrganizationForm>
         </FormProvider>

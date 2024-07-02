@@ -85,3 +85,14 @@
 // }
 
 // const denullifiedEntity = setValuesToUndefined(entity);
+
+// const gett = (): { bla: { mua: string }; hua?: string } | null => {
+//     return null;
+// };
+
+// const t = gett() ?? ({} as NonNullable<ReturnType<typeof gett>>);
+// const {
+//     bla: { mua },
+//     ...z
+// } = t;
+// console.log(mua, z);

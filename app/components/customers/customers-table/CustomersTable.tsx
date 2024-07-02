@@ -402,6 +402,7 @@ const CustomersTable: FC<IProps> = ({ customers, count, searchParams: sanitizedS
                                         >
                                             <UpdateIconButton
                                                 href={`/dashboard/customers/${row.customerId}/edit`}
+                                                title='Update customer'
                                             />
                                             <IconButton
                                                 color='warning'

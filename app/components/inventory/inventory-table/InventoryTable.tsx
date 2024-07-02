@@ -338,6 +338,7 @@ const InventoryTable: FC<IProps> = ({ inventory, count, sanitizedSearchParams })
                                         >
                                             <UpdateIconButton
                                                 href={`/dashboard/inventory/${row.id}/edit`}
+                                                title='Update inventory'
                                             />
                                             <IconButton
                                                 color='warning'

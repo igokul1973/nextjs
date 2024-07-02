@@ -245,7 +245,7 @@ export const enSingle = {
     'provider invoice email type': 'provider invoice email type',
     'display customer local identifier': `display customer's SSN or EIN`,
     'obfuscate customer local identifier': `obfuscate customer's SSN or EIN`,
-    'display your local identifier': 'display your local SSN or EIN',
+    'display your local identifier': 'display your SSN or EIN',
     'obfuscate your local identifier': 'obfuscate your SSN or EIN',
     'preferred provider invoice phone type': 'preferred provider invoice phone type',
     'preferred provider invoice email type': 'preferred provider invoice email type',

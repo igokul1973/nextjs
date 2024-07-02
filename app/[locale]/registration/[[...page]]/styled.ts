@@ -17,24 +17,27 @@ export const ContainerBox = styled(Box, {
     display: flex;
     justify-content: center;
     color: ${colors.blue};
+`;
 
-    .headline-wrapper {
-        background-color: rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(15px);
-        width: 70%;
-        height: 100%;
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 2rem;
-            position: relative;
-        }
+export const RegistrationHeadline = styled(Box, {
+    name: 'Registration Headline',
+    slot: 'Root'
+})`
+    background-color: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(15px);
+    width: 70%;
+    min-height: 100vh;
+`;
 
-        .form-wrapper {
-            padding: 0 2rem;
-        }
-    }
+export const RegistrationHeader = styled(Box, {
+    name: 'Registration Header',
+    slot: 'Root'
+})`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem;
+    position: relative;
 `;
 
 export const FormWrapperBox = styled(Box, {
@@ -45,4 +48,5 @@ export const FormWrapperBox = styled(Box, {
     flex-direction: column;
     justify-content: space-between;
     gap: 1.5rem;
+    padding: 0 2rem 1.5rem;
 `;

@@ -1,7 +1,8 @@
 import {
+    getCustomerIndCreateSchema,
     getCustomerIndUpdateSchema,
     getCustomerIndUpdateSchemaEmptyLogo,
-    getIndividualCreateSchema,
+    getProviderIndCreateSchema,
     getProviderIndUpdateSchema,
     getProviderIndUpdateSchemaEmptyLogo
 } from '@/app/components/individuals/form/formSchema.ts';
@@ -11,9 +12,10 @@ import {
 } from '@/app/components/individuals/form/types.ts';
 import { TCustomerOutput } from '@/app/components/invoices/form/types';
 import {
+    getCustomerOrgCreateSchema,
     getCustomerOrgUpdateSchema,
     getCustomerOrgUpdateSchemaEmptyLogo,
-    getOrganizationCreateSchema,
+    getProviderOrgCreateSchema,
     getProviderOrgUpdateSchema,
     getProviderOrgUpdateSchemaEmptyLogo
 } from '@/app/components/organizations/form/formSchema.ts';
@@ -487,9 +489,9 @@ export const anyTrue = (
 // }
 
 /**
- * If the values argument contains null, undefined or an empty string,
- * it will recursively populate it with the default value from
- * `defaultValues` argument.
+ * If the `values` argument object properties contain null, undefined or empty string,
+ * the function will recursively populate the properties with default values from
+ * the `defaultValues` argument.
  * Both argument must be objects of the same shape.
  */
 export const populateForm = <R extends Record<string, unknown>>(
@@ -640,6 +642,7 @@ export const getPartialApp = async (): Promise<Partial<IAppState>> => {
             account = accountWithoutSettings;
             settings = rawSettings ?? undefined;
             const providerIndOrOrg = getUserProvider(dbUser);
+            providerType = getUserProviderType(providerIndOrOrg);
             provider = providerIndOrOrg && providerType && providerIndOrOrg[providerType];
             providerType = getUserProviderType(providerIndOrOrg);
         }
@@ -780,7 +783,9 @@ const getEntityValidationSchema = <
                 : isCustomer
                   ? getCustomerIndUpdateSchemaEmptyLogo
                   : getProviderIndUpdateSchemaEmptyLogo
-            : getIndividualCreateSchema
+            : isCustomer
+              ? getCustomerIndCreateSchema
+              : getProviderIndCreateSchema
         : isEdit
           ? isLogo
               ? isCustomer
@@ -789,7 +794,9 @@ const getEntityValidationSchema = <
               : isCustomer
                 ? getCustomerOrgUpdateSchemaEmptyLogo
                 : getProviderOrgUpdateSchemaEmptyLogo
-          : getOrganizationCreateSchema;
+          : isCustomer
+            ? getCustomerOrgCreateSchema
+            : getProviderOrgCreateSchema;
 };
 
 export const validateEntityFormData = <
@@ -1369,15 +1376,15 @@ export const deleteFromLocalStorage = (key: string) => {
 
 export const getLocalIdentifierNameText = (
     selectedCountryLocalIdentifierName: TAppLocalIdentifierName | null,
-    providerLocalIdentifierName: TAppLocalIdentifierName
+    providerLocalIdentifierName?: TAppLocalIdentifierName | null
 ) => {
     if (!selectedCountryLocalIdentifierName) {
-        return (
-            providerLocalIdentifierName.name +
-            (providerLocalIdentifierName.abbreviation
-                ? ` (${providerLocalIdentifierName.abbreviation})`
-                : '')
-        );
+        return providerLocalIdentifierName
+            ? providerLocalIdentifierName.name +
+                  (providerLocalIdentifierName.abbreviation
+                      ? ` (${providerLocalIdentifierName.abbreviation})`
+                      : '')
+            : '';
     }
 
     return (

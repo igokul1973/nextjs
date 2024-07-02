@@ -138,8 +138,8 @@ export async function createIndividualCustomer(
     rawLogoFormData?: FormData
 ) {
     const t = await getI18n();
+    const { user, account } = await getApp();
     try {
-        const { user, account } = await getApp();
         const userId = user.id;
         const validatedFormData = validateEntityFormData<TCustomerIndFormOutputWithoutLogo>(
             t,
@@ -255,8 +255,8 @@ export async function createOrganizationCustomer(
     rawLogoFormData?: FormData
 ) {
     const t = await getI18n();
+    const { user, account } = await getApp();
     try {
-        const { user, account } = await getApp();
         const userId = user.id;
         const validatedFormData = validateEntityFormData<TCustomerOrgFormOutputWithoutLogo>(
             t,
@@ -378,8 +378,8 @@ export async function updateIndividualCustomer(
     rawLogoFormData?: FormData
 ) {
     const t = await getI18n();
+    const { user, account } = await getApp();
     try {
-        const { user, account } = await getApp();
         const userId = user.id;
         const validatedFormData = validateEntityFormData<TCustomerIndFormOutputWithoutLogo>(
             t,
@@ -528,8 +528,8 @@ export async function updateOrganizationCustomer(
     rawLogoFormData?: FormData
 ) {
     const t = await getI18n();
+    const { user, account } = await getApp();
     try {
-        const { user, account } = await getApp();
         const userId = user.id;
         const validatedFormData = validateEntityFormData<TCustomerOrgFormOutputWithoutLogo>(
             t,

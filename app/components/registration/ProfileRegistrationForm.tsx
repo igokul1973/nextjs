@@ -25,7 +25,7 @@ import { useRouter } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Warning from '../warning/Warning';
-import { StyledForm } from './styled';
+import { StyledForm, StyledProviderContainer } from './styled';
 
 const localStorageKey = 'profileData';
 
@@ -66,15 +66,12 @@ const ProfileRegistrationForm: FC = () => {
     const w = watch();
 
     useEffect(() => {
-        console.log('Watch:', w);
-        // console.log('IsValid:', isValid);
         if (isDeleteLocalStorageData) {
             deleteFromLocalStorage(localStorageKey);
         } else {
-            setLocalStorage(localStorageKey, JSON.stringify({ ...w, avatar: undefined }));
+            setLocalStorage(localStorageKey, JSON.stringify({ ...w, avatar: null }));
         }
-        // console.error('Errors:', errors);
-    }, [errors, w, dirtyFields, isDeleteLocalStorageData]);
+    }, [w, isDeleteLocalStorageData]);
 
     const [canFocus, setCanFocus] = useState(true);
 
@@ -83,7 +80,6 @@ const ProfileRegistrationForm: FC = () => {
     const onError = () => {
         setCanFocus(true);
     };
-
     const onSubmit = async (formData: TProfileCreateFormOutput) => {
         try {
             const { avatar, ...formDataWithoutAvatar } = formData;
@@ -107,7 +103,7 @@ const ProfileRegistrationForm: FC = () => {
                     profile: createdProfile
                 }
             });
-            // Removing the user-related data from the local storage
+            // Removing the profile-related data from the local storage
             setIsDeleteLocalStorageData(true);
             openSnackbar(capitalize(t('successfully created user profile')));
             // Moving to the next stage
@@ -122,7 +118,7 @@ const ProfileRegistrationForm: FC = () => {
     return !user ? (
         <Warning variant='h4'>The user object is not provided. Redirecting...</Warning>
     ) : (
-        <>
+        <StyledProviderContainer>
             <Typography variant='h1'>Profile Registration Form</Typography>
             <FormProvider
                 control={control}
@@ -169,12 +165,17 @@ const ProfileRegistrationForm: FC = () => {
                         />
                     </FormControl>
                     <FileInput inputName='avatar' label={capitalize(t('avatar'))} user={user} />
-                    <Button type='submit' variant='contained' color='primary' disabled={!isValid}>
+                    <Button
+                        type='submit'
+                        variant='contained'
+                        color='primary'
+                        disabled={!isDirty && !isValid}
+                    >
                         {capitalize(t('next'))}
                     </Button>
                 </StyledForm>
             </FormProvider>
-        </>
+        </StyledProviderContainer>
     );
 };
 

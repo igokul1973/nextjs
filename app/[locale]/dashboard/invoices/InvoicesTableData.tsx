@@ -1,5 +1,4 @@
 import InvoicesTable from '@/app/components/invoices/invoices-table/InvoicesTable';
-import Warning from '@/app/components/warning/Warning';
 import {
     getFilteredInvoicesByAccountId,
     getFilteredInvoicesByAccountIdCount

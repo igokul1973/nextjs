@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { FC, Suspense } from 'react';
 import { IProps } from '../../types';
-import { ContainerBox, FormWrapperBox } from './styled';
+import { ContainerBox, FormWrapperBox, RegistrationHeader, RegistrationHeadline } from './styled';
 
 export const fetchCache = 'force-no-store';
 export const dynamic = 'force-dynamic';
@@ -45,6 +45,7 @@ const pageMap = [
 
 const validateAppState = async (page: string) => {
     const { account, profile, provider, settings, user } = await getPartialApp();
+
     if (account && user && profile && provider && settings) {
         return redirect('/dashboard');
     } else if (account && user && profile && provider) {
@@ -93,17 +94,17 @@ const RegistrationPage: FC<IProps> = async ({ params: { locale, page } }) => {
 
     return (
         <ContainerBox component='main'>
-            <Box className='headline-wrapper'>
-                <Box component='header' className='header'>
+            <RegistrationHeadline>
+                <RegistrationHeader component='header'>
                     <Box component={Link} href='/' sx={{ textDecoration: 'none' }}>
                         <InvoiceMeLogo color={colors.orange} />
                     </Box>
-                </Box>
-                <FormWrapperBox component='article' className='form-wrapper'>
+                </RegistrationHeader>
+                <FormWrapperBox component='article'>
                     <Typography variant='h4'>Welcome {userFullName}!</Typography>
                     <Suspense fallback={<Loading />}>{CurrentFormComponent}</Suspense>
                 </FormWrapperBox>
-            </Box>
+            </RegistrationHeadline>
         </ContainerBox>
     );
 };

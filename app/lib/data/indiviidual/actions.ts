@@ -12,6 +12,7 @@ import {
     getApp,
     getDirtyValues,
     getLogoCreateOrUpdate,
+    getPartialApp,
     validateEntityFormData
 } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
@@ -24,8 +25,12 @@ export async function createIndividual(
     rawLogoFormData?: FormData
 ) {
     const t = await getI18n();
-    const { user, account } = await getApp();
+    const { user, account } = await getPartialApp();
     const userId = user?.id;
+
+    if (!account || !userId) {
+        throw new Error('Could not find user or account');
+    }
 
     try {
         const validatedFormData = validateEntityFormData<TProviderIndFormOutputWithoutLogo>(
@@ -117,9 +122,7 @@ export async function createIndividual(
         }
 
         console.log('Successfully created new individual: ', createdIndividual);
-
         revalidatePath('/', 'layout');
-
         return updatedIndividual ?? createdIndividual;
     } catch (error) {
         console.error('Database Error:', error);
@@ -133,8 +136,8 @@ export async function updateIndividual(
     rawLogoFormData?: FormData
 ) {
     const t = await getI18n();
+    const { user, account } = await getApp();
     try {
-        const { user, account } = await getApp();
         const userId = user.id;
 
         const validatedFormData = validateEntityFormData<TProviderIndFormOutputWithoutLogo>(

@@ -24,7 +24,7 @@ const UpdateSettingsForm: FC = () => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
     const {
-        state: { account, user, settings: rawSettings, provider },
+        state: { account, user, settings: rawSettings },
         dispatch: userDispatch
     } = useApp();
     const { dispatch: rightDrawerDispatch } = useRightDrawerState();

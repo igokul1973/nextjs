@@ -318,11 +318,13 @@ const InvoicesTable: FC<IProps> = ({
                                         >
                                             <ViewIconButton
                                                 href={`/dashboard/invoices/${row.id}/view?number=${row.number}`}
+                                                title='View invoice'
                                             />
                                             {row.status === InvoiceStatusEnum.draft && (
                                                 <>
                                                     <UpdateIconButton
                                                         href={`/dashboard/invoices/${row.id}/edit?number=${row.number}`}
+                                                        title='Update invoice'
                                                     />
                                                     <IconButton
                                                         color='warning'

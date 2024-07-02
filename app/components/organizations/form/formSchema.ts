@@ -56,7 +56,7 @@ const getBaseOrganizationFormSchema = (t: TTranslateFn) =>
         updatedBy: z.string()
     });
 
-export const getOrganizationCreateSchema = (t: TTranslateFn) =>
+export const getCustomerOrgCreateSchema = (t: TTranslateFn) =>
     getBaseOrganizationFormSchema(t)
         .omit({ id: true })
         .extend({
@@ -66,6 +66,9 @@ export const getOrganizationCreateSchema = (t: TTranslateFn) =>
             emails: emailsFormSchema(t).element.omit({ id: true }).array(),
             attributes: getAttributesFormSchema(t)
         });
+
+export const getProviderOrgCreateSchema = (t: TTranslateFn) =>
+    getCustomerOrgCreateSchema(t).omit({ code: true });
 
 export const getProviderOrgUpdateSchema = (t: TTranslateFn) =>
     getBaseOrganizationFormSchema(t).extend({

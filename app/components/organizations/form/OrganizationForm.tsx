@@ -19,7 +19,7 @@ import {
 import PartialPhoneForm from '@/app/components/phones/form/PartialPhoneForm';
 import { useData } from '@/app/context/data/provider';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
-import { TAppCountry, TAppLocalIdentifierName } from '@/app/lib/types';
+import { TAppLocalIdentifierName } from '@/app/lib/types';
 import { getLocalIdentifierNameText } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { Autocomplete, capitalize } from '@mui/material';
@@ -33,7 +33,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import { EmailTypeEnum, EntitiesEnum, PhoneTypeEnum } from '@prisma/client';
-import { FC, PropsWithChildren, useCallback, useState } from 'react';
+import { FC, PropsWithChildren, useEffect, useState } from 'react';
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import { StyledForm } from './styled';
@@ -50,6 +50,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
     const { countries, organizationTypes } = useData();
     const userId = user.id;
     const {
+        watch,
         control,
         register,
         formState: { errors },
@@ -105,16 +106,20 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
 
     useScrollToFormError(errors, canFocus, setCanFocus);
 
-    const onCountryChange = useCallback((country: TAppCountry | null) => {
-        const selectedCountryLocalIdentifierName =
-            country?.localIdentifierNames.find((lin) => lin.type === EntitiesEnum.organization) ??
+    const currentCountryId = watch('address.countryId');
+
+    useEffect(() => {
+        const currentCountryLocalIdentifierName =
+            countries
+                .find((country) => country.id === currentCountryId)
+                ?.localIdentifierNames.find((lin) => lin.type === EntitiesEnum.organization) ??
             null;
-        setSelectedCountryLocalIdentifierName(selectedCountryLocalIdentifierName);
+        setSelectedCountryLocalIdentifierName(currentCountryLocalIdentifierName);
         setValue(
             'localIdentifierNameId',
-            selectedCountryLocalIdentifierName?.id ?? providerLocalIdentifierName.id
+            currentCountryLocalIdentifierName?.id ?? providerLocalIdentifierName?.id ?? ''
         );
-    }, []);
+    }, [currentCountryId, countries, providerLocalIdentifierName?.id, setValue]);
 
     return (
         <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
@@ -131,8 +136,7 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                                 options={countries}
                                 getOptionLabel={(option) => option.name}
                                 onChange={(_, country) => {
-                                    onCountryChange(country);
-                                    onChange(country?.id);
+                                    onChange(country?.id ?? '');
                                 }}
                                 renderInput={(params) => (
                                     <TextField
@@ -179,22 +183,25 @@ const OrganizationForm: FC<IProps & PropsWithChildren> = ({
                     {...register('name')}
                 />
             </FormControl>
-            <FormControl>
-                <TextField
-                    label={capitalize(
-                        getLocalIdentifierNameText(
+            {(selectedCountryLocalIdentifierName || providerLocalIdentifierName) && (
+                <FormControl>
+                    <TextField
+                        label={capitalize(
+                            getLocalIdentifierNameText(
+                                selectedCountryLocalIdentifierName,
+                                providerLocalIdentifierName
+                            )
+                        )}
+                        placeholder={`${capitalize(t('add'))} ${getLocalIdentifierNameText(
                             selectedCountryLocalIdentifierName,
                             providerLocalIdentifierName
-                        )
-                    )}
-                    placeholder={`${capitalize(t('add'))} ${getLocalIdentifierNameText(
-                        selectedCountryLocalIdentifierName,
-                        providerLocalIdentifierName
-                    )}`}
-                    variant='outlined'
-                    {...register('localIdentifierValue')}
-                />
-            </FormControl>
+                        )}`}
+                        variant='outlined'
+                        {...register('localIdentifierValue')}
+                    />
+                </FormControl>
+            )}
+
             <FormControl>
                 <TextField
                     multiline

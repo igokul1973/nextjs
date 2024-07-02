@@ -1,7 +1,6 @@
 import { TCountry } from '@/app/lib/types';
-import { getUserRegistrationSchema } from './utils';
 import { z } from 'zod';
-import { EntitiesEnum } from '@prisma/client';
+import { getUserRegistrationSchema } from './utils';
 
 export interface ICountryFormProps {
     countries: TCountry[];

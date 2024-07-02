@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { CreateCountry } from '.';
+import { ICoords, IGeoData } from '../../types';
 import { ICreateCountryState } from './types';
 
 export async function createCountry(formData: FormData): Promise<ICreateCountryState> {
@@ -84,4 +85,14 @@ export async function deleteCountryItemById(id: string) {
             id
         }
     });
+}
+
+export async function fetchGeoData({ latitude, longitude }: ICoords): Promise<IGeoData> {
+    // Free to use GEO Data API.
+    // https://www.bigdatacloud.com/free-api/free-reverse-geocode-to-city-api
+    // It being free, I may need to change it in the future.
+    const res = await fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude==${latitude}&longitude=${longitude}&localityLanguage=en`
+    );
+    return res.json();
 }

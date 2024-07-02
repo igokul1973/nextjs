@@ -1,5 +1,4 @@
 import CustomersTable from '@/app/components/customers/customers-table/CustomersTable';
-import Warning from '@/app/components/warning/Warning';
 import { getFilteredCustomersCountByAccountId } from '@/app/lib/data/customer';
 import { getFilteredCustomersByAccountId } from '@/app/lib/data/customer/actions';
 import { formatCurrencyAsCents, getApp } from '@/app/lib/utils';

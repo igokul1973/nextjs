@@ -2,7 +2,7 @@ import { ButtonOwnProps } from '@mui/material/Button';
 import { IconButtonOwnProps } from '@mui/material/IconButton';
 import { OverridableComponent } from '@mui/material/OverridableComponent';
 import { SvgIconTypeMap } from '@mui/material/SvgIcon';
-import { FormHTMLAttributes, HTMLAttributes } from 'react';
+import { FormHTMLAttributes } from 'react';
 
 // Regular buttons
 export interface IBaseButtonProps extends ButtonOwnProps {

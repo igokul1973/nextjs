@@ -1,7 +1,7 @@
 'use client';
 
 import FormSelect from '@/app/components/form-select/FormSelect';
-import { useApp, usePartialApp } from '@/app/context/user/provider';
+import { usePartialApp } from '@/app/context/user/provider';
 import { mask3DecimalPlaces, maskPercentage } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import PercentIcon from '@mui/icons-material/Percent';
@@ -13,8 +13,8 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
-import { ChangeEvent, FC } from 'react';
-import { Control, Controller, FieldValues, useFormContext } from 'react-hook-form';
+import { ChangeEvent, FC, useEffect } from 'react';
+import { Control, Controller, FieldValues, useFormContext, useWatch } from 'react-hook-form';
 import { dateFormats } from './constants';
 import { TUpdateSettingsForm, TUpdateSettingsFormOutput } from './types';
 
@@ -26,11 +26,27 @@ const PartialSettingsForm: FC = () => {
     const phoneTypes = provider?.phones.map((p) => p.type) ?? [];
     const emailTypes = provider?.emails.map((e) => e.type) ?? [];
 
+    const isDisplayCustomerLocalIdentifier = useWatch({ name: 'isDisplayCustomerLocalIdentifier' });
+    const isDisplayProviderLocalIdentifier = useWatch({ name: 'isDisplayProviderLocalIdentifier' });
+
     const {
         control,
         register,
+        setValue,
         formState: { errors }
     } = useFormContext<TUpdateSettingsForm, unknown, TUpdateSettingsFormOutput>();
+
+    useEffect(() => {
+        if (!isDisplayCustomerLocalIdentifier) {
+            setValue('isObfuscateCustomerLocalIdentifier', false);
+        }
+    }, [setValue, isDisplayCustomerLocalIdentifier]);
+
+    useEffect(() => {
+        if (!isDisplayProviderLocalIdentifier) {
+            setValue('isObfuscateProviderLocalIdentifier', false);
+        }
+    }, [setValue, , isDisplayProviderLocalIdentifier]);
 
     return (
         <>
@@ -201,32 +217,36 @@ const PartialSettingsForm: FC = () => {
                     />
                 </Tooltip>
             </FormControl>
-            <FormControl fullWidth={false}>
-                <Tooltip
-                    title={capitalize(
-                        t('check the box if to show only last 4 characters of customer SSN or EIN')
-                    )}
-                >
-                    <FormControlLabel
-                        sx={{ alignSelf: 'flex-start' }}
-                        label={capitalize(t('obfuscate customer local identifier'))}
-                        control={
-                            <Controller
-                                name='isObfuscateCustomerLocalIdentifier'
-                                control={control}
-                                defaultValue={false}
-                                render={({ field: props }) => (
-                                    <Checkbox
-                                        {...props}
-                                        checked={!!props.value}
-                                        onChange={(e) => props.onChange(e.target.checked)}
-                                    />
-                                )}
-                            />
-                        }
-                    />
-                </Tooltip>
-            </FormControl>
+            {isDisplayCustomerLocalIdentifier && (
+                <FormControl fullWidth={false}>
+                    <Tooltip
+                        title={capitalize(
+                            t(
+                                'check the box if to show only last 4 characters of customer SSN or EIN'
+                            )
+                        )}
+                    >
+                        <FormControlLabel
+                            sx={{ alignSelf: 'flex-start' }}
+                            label={capitalize(t('obfuscate customer local identifier'))}
+                            control={
+                                <Controller
+                                    name='isObfuscateCustomerLocalIdentifier'
+                                    control={control}
+                                    defaultValue={false}
+                                    render={({ field: props }) => (
+                                        <Checkbox
+                                            {...props}
+                                            checked={!!props.value}
+                                            onChange={(e) => props.onChange(e.target.checked)}
+                                        />
+                                    )}
+                                />
+                            }
+                        />
+                    </Tooltip>
+                </FormControl>
+            )}
             <FormControl fullWidth={false}>
                 <Tooltip title={capitalize(t('check the box if to show your SSN or EIN'))}>
                     <FormControlLabel
@@ -249,32 +269,35 @@ const PartialSettingsForm: FC = () => {
                     />
                 </Tooltip>
             </FormControl>
-            <FormControl fullWidth={false}>
-                <Tooltip
-                    title={capitalize(
-                        t('check the box if to show only last 4 characters of your SSN or EIN')
-                    )}
-                >
-                    <FormControlLabel
-                        sx={{ alignSelf: 'flex-start' }}
-                        label={capitalize(t('obfuscate your local identifier'))}
-                        control={
-                            <Controller
-                                name='isObfuscateProviderLocalIdentifier'
-                                control={control}
-                                defaultValue={false}
-                                render={({ field: props }) => (
-                                    <Checkbox
-                                        {...props}
-                                        checked={!!props.value}
-                                        onChange={(e) => props.onChange(e.target.checked)}
-                                    />
-                                )}
-                            />
-                        }
-                    />
-                </Tooltip>
-            </FormControl>
+
+            {isDisplayProviderLocalIdentifier && (
+                <FormControl fullWidth={false}>
+                    <Tooltip
+                        title={capitalize(
+                            t('check the box if to show only last 4 characters of your SSN or EIN')
+                        )}
+                    >
+                        <FormControlLabel
+                            sx={{ alignSelf: 'flex-start' }}
+                            label={capitalize(t('obfuscate your local identifier'))}
+                            control={
+                                <Controller
+                                    name='isObfuscateProviderLocalIdentifier'
+                                    control={control}
+                                    defaultValue={false}
+                                    render={({ field: props }) => (
+                                        <Checkbox
+                                            {...props}
+                                            checked={!!props.value}
+                                            onChange={(e) => props.onChange(e.target.checked)}
+                                        />
+                                    )}
+                                />
+                            }
+                        />
+                    </Tooltip>
+                </FormControl>
+            )}
         </>
     );
 };

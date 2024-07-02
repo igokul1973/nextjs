@@ -5,10 +5,10 @@ import { z } from 'zod';
 import { getCustomerOrgUpdateSchema, getProviderOrgUpdateSchema } from './formSchema';
 
 export interface IProps {
-    user: TGetUserWithRelationsPayload;
-    providerLocalIdentifierName: TAppLocalIdentifierName;
+    user: Omit<TGetUserWithRelationsPayload, 'account' | 'profile'>;
     isCustomer: boolean;
     onSubmit: (formData: TCustomerOrgFormOutput) => Promise<void>;
+    providerLocalIdentifierName?: TAppLocalIdentifierName;
 }
 
 export type TProviderOrgForm = z.input<ReturnType<typeof getProviderOrgUpdateSchema>>;

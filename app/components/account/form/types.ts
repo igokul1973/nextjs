@@ -9,12 +9,12 @@ export interface IProps {
     profile?: TProfile;
 }
 export interface IProviderEntityFormDataProps {
-    user: TGetUserWithRelationsPayload;
-    localIdentifierName: TAppLocalIdentifierName;
+    user: Omit<TGetUserWithRelationsPayload, 'account' | 'profile'>;
     isEdit: boolean;
     updateProviderState: (
         provider: Awaited<ReturnType<typeof updateIndividual | typeof updateOrganization>>
     ) => void;
+    localIdentifierName?: TAppLocalIdentifierName;
     goBack?: () => void;
 }
 export interface IProviderIndFormDataProps extends IProviderEntityFormDataProps {

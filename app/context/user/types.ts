@@ -3,7 +3,7 @@ import { TEntity } from '@/app/lib/types';
 import { EntitiesEnum } from '@prisma/client';
 
 export interface IAppState {
-    user: TGetUserWithRelationsPayload;
+    user: Omit<TGetUserWithRelationsPayload, 'account' | 'profile'>;
     account: Omit<TGetUserWithRelationsPayload['account'], 'settings'>;
     profile: NonNullable<TGetUserWithRelationsPayload['profile']>;
     settings: NonNullable<TGetUserWithRelationsPayload['account']['settings']>;

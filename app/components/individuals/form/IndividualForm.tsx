@@ -11,7 +11,7 @@ import PartialEmailForm from '@/app/components/emails/form/PartialEmailForm';
 import PartialAttributeForm from '@/app/components/entity-attributes/partial-form/EntityAttributeForm';
 import { useData } from '@/app/context/data/provider';
 import { useScrollToFormError } from '@/app/lib/hooks/useScrollToFormError';
-import { TAppCountry, TAppLocalIdentifierName } from '@/app/lib/types';
+import { TAppLocalIdentifierName } from '@/app/lib/types';
 import { getLocalIdentifierNameText } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { Autocomplete, capitalize } from '@mui/material';
@@ -23,7 +23,7 @@ import TextField from '@mui/material/TextField';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { EmailTypeEnum, EntitiesEnum, PhoneTypeEnum } from '@prisma/client';
-import { FC, PropsWithChildren, useCallback, useState } from 'react';
+import { FC, PropsWithChildren, useEffect, useState } from 'react';
 import { Control, Controller, useFieldArray, useFormContext } from 'react-hook-form';
 import { TEntityFormRegister } from '../../customers/types';
 import FileInput from '../../file/FileInput';
@@ -48,6 +48,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
     const { countries } = useData();
     const userId = user.id;
     const {
+        watch,
         control,
         register,
         formState: { errors },
@@ -103,16 +104,19 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
 
     useScrollToFormError(errors, canFocus, setCanFocus);
 
-    const onCountryChange = useCallback((country: TAppCountry | null) => {
-        const selectedCountryLocalIdentifierName =
-            country?.localIdentifierNames.find((lin) => lin.type === EntitiesEnum.individual) ??
-            null;
-        setSelectedCountryLocalIdentifierName(selectedCountryLocalIdentifierName);
+    const currentCountryId = watch('address.countryId');
+
+    useEffect(() => {
+        const currentCountryLocalIdentifierName =
+            countries
+                .find((country) => country.id === currentCountryId)
+                ?.localIdentifierNames.find((lin) => lin.type === EntitiesEnum.individual) ?? null;
+        setSelectedCountryLocalIdentifierName(currentCountryLocalIdentifierName);
         setValue(
             'localIdentifierNameId',
-            selectedCountryLocalIdentifierName?.id ?? providerLocalIdentifierName.id
+            currentCountryLocalIdentifierName?.id ?? providerLocalIdentifierName?.id ?? ''
         );
-    }, []);
+    }, [currentCountryId, countries, providerLocalIdentifierName?.id, setValue]);
 
     return (
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -121,7 +125,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                     <Controller
                         name='address.countryId'
                         control={control}
-                        render={({ field: { onChange, ref, value, ...field } }) => {
+                        render={({ field: { onChange, onBlur, ref, value, ...field } }) => {
                             return (
                                 <Autocomplete
                                     value={
@@ -132,8 +136,7 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                                     options={countries}
                                     getOptionLabel={(option) => option.name}
                                     onChange={(_, country) => {
-                                        onCountryChange(country);
-                                        onChange(country?.id);
+                                        onChange(country?.id ?? '');
                                     }}
                                     renderInput={(params) => (
                                         <TextField
@@ -203,22 +206,25 @@ const IndividualForm: FC<IProps & PropsWithChildren> = ({
                         {...register('middleName')}
                     />
                 </FormControl>
-                <FormControl>
-                    <TextField
-                        label={capitalize(
-                            getLocalIdentifierNameText(
+
+                {(selectedCountryLocalIdentifierName || providerLocalIdentifierName) && (
+                    <FormControl>
+                        <TextField
+                            label={capitalize(
+                                getLocalIdentifierNameText(
+                                    selectedCountryLocalIdentifierName,
+                                    providerLocalIdentifierName
+                                )
+                            )}
+                            placeholder={`${capitalize(t('add'))} ${getLocalIdentifierNameText(
                                 selectedCountryLocalIdentifierName,
                                 providerLocalIdentifierName
-                            )
-                        )}
-                        placeholder={`${capitalize(t('add'))} ${getLocalIdentifierNameText(
-                            selectedCountryLocalIdentifierName,
-                            providerLocalIdentifierName
-                        )}`}
-                        variant='outlined'
-                        {...register('localIdentifierValue')}
-                    />
-                </FormControl>
+                            )}`}
+                            variant='outlined'
+                            {...register('localIdentifierValue')}
+                        />
+                    </FormControl>
+                )}
                 <FormControl>
                     <TextField
                         multiline

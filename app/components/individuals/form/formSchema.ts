@@ -69,7 +69,7 @@ const getBaseIndividualFormSchema = (t: TTranslateFn) =>
         updatedBy: z.string()
     });
 
-export const getIndividualCreateSchema = (t: TTranslateFn) =>
+export const getCustomerIndCreateSchema = (t: TTranslateFn) =>
     getBaseIndividualFormSchema(t)
         .omit({ id: true })
         .extend({
@@ -79,6 +79,9 @@ export const getIndividualCreateSchema = (t: TTranslateFn) =>
             emails: emailsFormSchema(t).element.omit({ id: true }).array(),
             attributes: getAttributesFormSchema(t)
         });
+
+export const getProviderIndCreateSchema = (t: TTranslateFn) =>
+    getCustomerIndCreateSchema(t).omit({ code: true });
 
 export const getProviderIndUpdateSchema = (t: TTranslateFn) =>
     getBaseIndividualFormSchema(t).extend({

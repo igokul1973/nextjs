@@ -57,11 +57,11 @@ const Navigation: FC = () => {
                         </DrawerHeader>
                         <Divider />
                         <List component='nav'>
-                            {links.map((link, index) => (
+                            {links.map((link) => (
                                 <ListItem key={link.name} disablePadding sx={{ display: 'block' }}>
                                     <ListItemButton
                                         LinkComponent={Link}
-                                        key={index}
+                                        key={link.href}
                                         href={link.href}
                                         sx={{
                                             minHeight: 48,

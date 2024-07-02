@@ -1,12 +1,9 @@
 'use client';
 
 import { useI18n } from '@/locales/client';
-import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
-import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import { capitalize } from '@mui/material/utils';
-import FormSelect from '../../form-select/FormSelect';
 import { IProps } from './types';
 
 const PartialAddressForm = <T,>({ register /* , countries, control */, errors }: IProps<T>) => {

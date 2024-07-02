@@ -2,7 +2,7 @@
 
 import IndividualForm from '@/app/components/individuals/form/IndividualForm';
 import {
-    getIndividualCreateSchema,
+    getProviderIndCreateSchema,
     getProviderIndUpdateSchema,
     getProviderIndUpdateSchemaEmptyLogo
 } from '@/app/components/individuals/form/formSchema';
@@ -10,34 +10,38 @@ import { TProviderIndForm, TProviderIndFormOutput } from '@/app/components/indiv
 import { useSnackbar } from '@/app/context/snackbar/provider';
 import { createIndividual, updateIndividual } from '@/app/lib/data/indiviidual/actions';
 import { TDirtyFields } from '@/app/lib/types';
+import { deleteFromLocalStorage, setLocalStorage } from '@/app/lib/utils';
 import { useI18n } from '@/locales/client';
 import { TSingleTranslationKey } from '@/locales/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { capitalize } from '@mui/material';
 import Button from '@mui/material/Button';
-import { FC, PropsWithChildren } from 'react';
+import { EntitiesEnum } from '@prisma/client';
+import { FC, useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { ActionButtonsContainer } from './styled';
 import { IProviderIndFormDataProps } from './types';
 
-const ProviderIndFormData: FC<IProviderIndFormDataProps & PropsWithChildren> = ({
+const localStorageKey = 'providerData';
+
+const ProviderIndFormData: FC<IProviderIndFormDataProps> = ({
     user,
     localIdentifierName,
     defaultValues,
     isEdit,
     updateProviderState,
-    goBack,
-    children
+    goBack
 }) => {
     const t = useI18n();
     const { openSnackbar } = useSnackbar();
-    const isDisplayActionButtons = isEdit;
+
+    const [isDeleteLocalStorageData, setIsDeleteLocalStorageData] = useState(false);
 
     const {
         watch,
         register,
         handleSubmit,
-        formState: { errors, isDirty, dirtyFields, ...formState },
+        formState: { errors, isDirty, isValid, dirtyFields, ...formState },
         ...methods
     } = useForm<TProviderIndForm, unknown, TProviderIndFormOutput>({
         resolver: zodResolver(
@@ -45,18 +49,28 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps & PropsWithChildren> = (
                 ? defaultValues.logo
                     ? getProviderIndUpdateSchema(t)
                     : getProviderIndUpdateSchemaEmptyLogo(t)
-                : getIndividualCreateSchema(t)
+                : getProviderIndCreateSchema(t)
         ),
         reValidateMode: 'onChange',
         defaultValues
     });
 
-    // const w = watch();
+    const w = watch();
 
-    // useEffect(() => {
-    //     console.log('Watch:', w);
-    //     console.error('Errors:', errors);
-    // }, [errors, w]);
+    useEffect(() => {
+        // console.log('Watch:', w);
+        // console.log('errors:', errors);
+        if (!isEdit) {
+            if (isDeleteLocalStorageData) {
+                deleteFromLocalStorage(localStorageKey);
+            } else {
+                setLocalStorage(
+                    localStorageKey,
+                    JSON.stringify({ ...w, providerType: EntitiesEnum.individual })
+                );
+            }
+        }
+    }, [w, isDeleteLocalStorageData, isEdit]);
 
     const onSubmit = async (formData: TProviderIndFormOutput) => {
         try {
@@ -83,12 +97,13 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps & PropsWithChildren> = (
 
                 openSnackbar(capitalize(t('successfully updated provider')));
             } else {
-                const createdProvider = await createIndividual(formData, logoFormData);
+                const createdProvider = await createIndividual(formDataWithoutLogo, logoFormData);
                 if (!createdProvider) {
                     throw new Error(capitalize(t('could not create provider')));
                 }
                 updateProviderState(createdProvider);
                 openSnackbar(capitalize(t('successfully created provider')));
+                setIsDeleteLocalStorageData(true);
             }
             goBack && goBack();
         } catch (error) {
@@ -103,7 +118,7 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps & PropsWithChildren> = (
             watch={watch}
             register={register}
             handleSubmit={handleSubmit}
-            formState={{ errors, dirtyFields, isDirty, ...formState }}
+            formState={{ errors, dirtyFields, isValid, isDirty, ...formState }}
             {...methods}
         >
             <IndividualForm
@@ -112,8 +127,7 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps & PropsWithChildren> = (
                 isCustomer={false}
                 onSubmit={onSubmit}
             >
-                {children}
-                {isDisplayActionButtons && (
+                {isEdit ? (
                     <ActionButtonsContainer>
                         <Button type='button' onClick={goBack} variant='outlined' color='warning'>
                             {capitalize(t('cancel'))}
@@ -122,11 +136,20 @@ const ProviderIndFormData: FC<IProviderIndFormDataProps & PropsWithChildren> = (
                             type='submit'
                             variant='contained'
                             color='primary'
-                            disabled={!isDirty}
+                            disabled={!isDirty && !isValid}
                         >
                             {capitalize(t(isEdit ? 'update provider' : 'create provider'))}
                         </Button>
                     </ActionButtonsContainer>
+                ) : (
+                    <Button
+                        type='submit'
+                        variant='contained'
+                        color='primary'
+                        disabled={!isDirty && !isValid}
+                    >
+                        {capitalize(t('next'))}
+                    </Button>
                 )}
             </IndividualForm>
         </FormProvider>

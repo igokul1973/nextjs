@@ -101,16 +101,16 @@ export async function updateInventoryItem(
     const t = await getI18n();
     const { user } = await getApp();
 
-    // TODO: Validate fields
-    const changedFields = getDirtyValues<TInventoryFormOutput>(dirtyFields, formData);
-
-    if (!changedFields) {
-        throw Error('No changes detected');
-    }
-
-    const data = { ...changedFields, updatedBy: user.id };
-
     try {
+        // TODO: Validate fields
+        const changedFields = getDirtyValues<TInventoryFormOutput>(dirtyFields, formData);
+
+        if (!changedFields) {
+            throw Error('No changes detected');
+        }
+
+        const data = { ...changedFields, updatedBy: user.id };
+
         const updatedInventoryItem = await prisma.inventory.update({
             where: {
                 id: formData.id

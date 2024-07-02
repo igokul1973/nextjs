@@ -5,8 +5,8 @@ import { z } from 'zod';
 import { getCustomerIndUpdateSchema, getProviderIndUpdateSchema } from './formSchema';
 
 export interface IProps {
-    user: TGetUserWithRelationsPayload;
-    providerLocalIdentifierName: TAppLocalIdentifierName;
+    user: Omit<TGetUserWithRelationsPayload, 'account' | 'profile'>;
+    providerLocalIdentifierName?: TAppLocalIdentifierName;
     isCustomer: boolean;
     onSubmit: (formData: TCustomerIndFormOutput) => Promise<void>;
 }

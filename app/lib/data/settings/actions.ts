@@ -8,19 +8,28 @@ import {
 } from '@/app/components/settings/form/types';
 import prisma from '@/app/lib/prisma';
 import { TDirtyFields } from '@/app/lib/types';
-import { getApp, getDirtyValues } from '@/app/lib/utils';
+import { getApp, getDirtyValues, getPartialApp } from '@/app/lib/utils';
+import { auth } from '@/auth';
 import { getI18n } from '@/locales/server';
 import { Prisma } from '@prisma/client';
+import { redirect } from 'next/navigation';
 
 export async function createSettings(formData: TCreateSettingsFormOutput) {
     const t = await getI18n();
+    const session = await auth();
+    const sessionUser = session?.user;
+    // Settings can only be created by the logged-in user
+    if (!session || !sessionUser) {
+        return redirect('/');
+    }
+
     try {
-        const { account, profile } = await getApp();
+        const { account, profile } = await getPartialApp();
         const createdSettings = await prisma.settings.create({
             data: formData
         });
         console.log(
-            `Successfully created account ${account.id} settings: `,
+            `Successfully created account ${account?.id} settings: `,
             createdSettings,
             ' by the user ',
             profile?.firstName + ' ' + profile?.lastName
@@ -37,8 +46,8 @@ export async function updateSettings(
     dirtyFields: TDirtyFields<TProfileUpdateFormOutput>
 ) {
     const t = await getI18n();
+    const { user } = await getApp();
     try {
-        const { user } = await getApp();
         const userId = user.id;
 
         const validationSchema = getSettingsUpdateSchema(t);

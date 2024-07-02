@@ -2,9 +2,9 @@
 
 import IndividualForm from '@/app/components/individuals/form/IndividualForm';
 import {
+    getCustomerIndCreateSchema,
     getCustomerIndUpdateSchema,
-    getCustomerIndUpdateSchemaEmptyLogo,
-    getIndividualCreateSchema
+    getCustomerIndUpdateSchemaEmptyLogo
 } from '@/app/components/individuals/form/formSchema';
 import { TCustomerIndForm, TCustomerIndFormOutput } from '@/app/components/individuals/form/types';
 import { useSnackbar } from '@/app/context/snackbar/provider';
@@ -60,7 +60,7 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
                 ? defaultValues.logo
                     ? getCustomerIndUpdateSchema(t)
                     : getCustomerIndUpdateSchemaEmptyLogo(t)
-                : getIndividualCreateSchema(t)
+                : getCustomerIndCreateSchema(t)
         ),
         reValidateMode: 'onChange',
         defaultValues
@@ -134,7 +134,7 @@ const CustomerIndFormData: FC<ICustomerIndFormDataProps> = ({
                         {capitalize(t('cancel'))}
                     </Button>
                     <Button type='submit' variant='contained' color='primary' disabled={!isDirty}>
-                        {capitalize(t(isEdit ? 'update provider' : 'create provider'))}
+                        {capitalize(t(isEdit ? 'update customer' : 'create customer'))}
                     </Button>
                 </ActionButtonsContainer>
             </IndividualForm>

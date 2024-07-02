@@ -15,9 +15,9 @@ import { revalidatePath } from 'next/cache';
 
 export async function createInvoice(formData: TInvoiceFormOutput) {
     const t = await getI18n();
-    try {
-        const { account, provider } = await getApp();
+    const { account, provider } = await getApp();
 
+    try {
         const validationSchema = getInvoiceCreateSchema(t);
 
         const validatedFormData = validationSchema.safeParse(formData);
@@ -137,8 +137,9 @@ export async function updateInvoice(
     dirtyFields: TDirtyFields<TInvoiceFormOutput>
 ) {
     const t = await getI18n();
+    const { user, account, provider } = await getApp();
+
     try {
-        const { user, account, provider } = await getApp();
         const userId = user.id;
 
         const validationSchema = getInvoiceUpdateSchema(t);

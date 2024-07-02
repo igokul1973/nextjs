@@ -5,7 +5,7 @@ import { FC } from 'react';
 import { StyledCardWrapper } from './styled';
 
 const DashboardCardWrapper: FC = async () => {
-    const userPromise = getApp();
+    const appPromise = getApp();
     const cardDataPromise = getCardData();
 
     const [
@@ -16,7 +16,7 @@ const DashboardCardWrapper: FC = async () => {
             totalPaidInvoices: totalPaidInvoicesNum,
             totalPendingInvoices: totalPendingInvoicesNum
         }
-    ] = await Promise.all([userPromise, cardDataPromise]);
+    ] = await Promise.all([appPromise, cardDataPromise]);
 
     const locale = provider.address.country.locale;
 

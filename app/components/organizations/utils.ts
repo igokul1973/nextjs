@@ -9,13 +9,12 @@ import { TCustomerOrgForm, TProviderOrgForm } from './form/types';
 export const getProviderOrgDefaultFormValues = (
     accountId: string,
     userId: string,
-    userAccountCountryId: string,
+    countryId: string,
     localIdentifierNameId: string
 ): TProviderOrgForm => {
     return {
         id: '',
-        code: '',
-        accountRelation: AccountRelationEnum.customer,
+        accountRelation: AccountRelationEnum.provider,
         accountId: accountId,
         logo: null,
         name: '',
@@ -32,7 +31,7 @@ export const getProviderOrgDefaultFormValues = (
             locality: '',
             region: '',
             postcode: '',
-            countryId: userAccountCountryId,
+            countryId,
             createdBy: userId,
             updatedBy: userId
         },
@@ -47,16 +46,13 @@ export const getProviderOrgDefaultFormValues = (
 export const getCustomerOrgDefaultFormValues = (
     accountId: string,
     userId: string,
-    userAccountCountryId: string,
+    countryId: string,
     localIdentifierNameId: string
 ): TCustomerOrgForm => {
     return {
-        ...getProviderOrgDefaultFormValues(
-            accountId,
-            userId,
-            userAccountCountryId,
-            localIdentifierNameId
-        ),
-        customerId: ''
+        ...getProviderOrgDefaultFormValues(accountId, userId, countryId, localIdentifierNameId),
+        customerId: '',
+        accountRelation: AccountRelationEnum.customer,
+        code: ''
     };
 };

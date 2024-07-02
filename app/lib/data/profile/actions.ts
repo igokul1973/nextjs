@@ -97,8 +97,8 @@ export async function updateProfile(
     rawAvatarFormData?: FormData
 ) {
     const t = await getI18n();
+    const { user, account, profile } = await getApp();
     try {
-        const { user, account, profile } = await getApp();
         const userId = user.id;
 
         const avatarFormData = rawAvatarFormData

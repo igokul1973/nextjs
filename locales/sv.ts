@@ -367,7 +367,7 @@ const svSingle: Record<TSingleTranslationKey, string> = {
     'bank account/routing number/other means of payment':
         'bankgiro/kontonummer/andra betalningsmetoder som anges i fakturor',
     // Reports
-    collected: 'insamlad',
+    collected: 'insamlade',
     'paid invoices': 'betalade fakturor',
     'pending invoices': 'avvaktande fakturor',
     'total invoices': 'totala fakturor',

@@ -11,6 +11,7 @@ import {
     getApp,
     getDirtyValues,
     getLogoCreateOrUpdate,
+    getPartialApp,
     validateEntityFormData
 } from '@/app/lib/utils';
 import { getI18n } from '@/locales/server';
@@ -23,11 +24,14 @@ export async function createOrganization(
     rawLogoFormData?: FormData
 ) {
     const t = await getI18n();
+    const { user, account } = await getPartialApp();
+    const userId = user?.id;
+
+    if (!account || !userId) {
+        throw new Error('Could not find user or account');
+    }
 
     try {
-        const { user, account } = await getApp();
-        const userId = user.id;
-
         const validatedFormData = validateEntityFormData<TProviderOrgFormOutputWithoutLogo>(
             t,
             rawFormData,
@@ -55,11 +59,13 @@ export async function createOrganization(
 
         const data: Prisma.organizationCreateInput = {
             ...entity,
-            type: {
-                connect: {
-                    id: typeId
-                }
-            },
+            type: typeId
+                ? {
+                      connect: {
+                          id: typeId
+                      }
+                  }
+                : undefined,
             accountRelation: accountRelation as AccountRelationEnum,
             account: {
                 connect: {
@@ -100,7 +106,7 @@ export async function createOrganization(
         );
 
         if (logoCreateOrUpdate) {
-            await prisma.individual.update({
+            await prisma.organization.update({
                 data: {
                     logo: logoCreateOrUpdate
                 },
@@ -129,8 +135,8 @@ export async function updateOrganization(
     rawLogoFormData?: FormData
 ) {
     const t = await getI18n();
+    const { user, account } = await getApp();
     try {
-        const { user, account } = await getApp();
         const userId = user.id;
 
         const validatedFormData = validateEntityFormData<TProviderOrgFormOutputWithoutLogo>(
@@ -204,7 +210,7 @@ export async function updateOrganization(
                           data: {
                               ...addressWithoutCountryId,
                               updatedBy: userId,
-                              country: !!countryId
+                              country: countryId
                                   ? {
                                         connect: {
                                             id: countryId

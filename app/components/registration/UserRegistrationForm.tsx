@@ -22,7 +22,7 @@ import Typography from '@mui/material/Typography';
 import { useRouter } from 'next/navigation';
 import { ChangeEvent, FC, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { StyledForm } from './styled';
+import { StyledForm, StyledProviderContainer } from './styled';
 import { TUserRegistrationForm } from './types';
 import { getDefaultValues, getUserRegistrationSchema } from './utils';
 
@@ -48,7 +48,7 @@ const UserRegistrationForm: FC<{ userEmail: string }> = ({ userEmail }) => {
         watch,
         register,
         handleSubmit,
-        formState: { errors, dirtyFields, isValid }
+        formState: { errors, isDirty, isValid }
     } = useForm<TUserRegistrationForm, unknown, TUserRegistrationForm>({
         resolver: zodResolver(getUserRegistrationSchema(t)),
         reValidateMode: 'onChange',
@@ -59,17 +59,12 @@ const UserRegistrationForm: FC<{ userEmail: string }> = ({ userEmail }) => {
     const w = watch();
 
     useEffect(() => {
-        // console.log('Is Dirty:', isDirty);
-        // console.log('DirtyFields:', dirtyFields);
-        console.log('Watch:', w);
-        console.log('IsValid:', isValid);
         if (isDeleteLocalStorageData) {
             deleteFromLocalStorage(localStorageKey);
         } else {
             setLocalStorage(localStorageKey, JSON.stringify(w));
         }
-        // console.error('Errors:', errors);
-    }, [errors, w, dirtyFields, isDeleteLocalStorageData]);
+    }, [w, isDeleteLocalStorageData]);
 
     const [canFocus, setCanFocus] = useState(true);
 
@@ -98,7 +93,6 @@ const UserRegistrationForm: FC<{ userEmail: string }> = ({ userEmail }) => {
             setIsDeleteLocalStorageData(true);
             openSnackbar(capitalize(t('successfully created user')));
             // Moving to the next stage
-            debugger;
             push('/registration');
         } catch (error) {
             if (error instanceof Error) {
@@ -108,7 +102,7 @@ const UserRegistrationForm: FC<{ userEmail: string }> = ({ userEmail }) => {
     };
 
     return (
-        <>
+        <StyledProviderContainer component='section'>
             <Typography variant='h1'>User Registration Form</Typography>
             <StyledForm onSubmit={handleSubmit(onSubmit, onError)} noValidate>
                 <FormControl>
@@ -173,11 +167,16 @@ const UserRegistrationForm: FC<{ userEmail: string }> = ({ userEmail }) => {
                         })}
                     />
                 </FormControl>
-                <Button type='submit' variant='contained' color='primary' disabled={!isValid}>
+                <Button
+                    type='submit'
+                    variant='contained'
+                    color='primary'
+                    disabled={!isDirty && !isValid}
+                >
                     {capitalize(t('next'))}
                 </Button>
             </StyledForm>
-        </>
+        </StyledProviderContainer>
     );
 };
 
