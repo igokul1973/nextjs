@@ -39,7 +39,7 @@ const ProviderRegistrationForm: FC = () => {
 
     // Try to get provider-related data from the local storage
     const lsProviderData = getFromLocalStorage(localStorageKey) ?? {};
-    const { providerType: rawProviderType, ...providerData } = lsProviderData;
+    const { providerType: rawProviderType } = lsProviderData;
 
     let lsProviderType: EntitiesEnum | '' = '';
     if (rawProviderType && rawProviderType in EntitiesEnum) {

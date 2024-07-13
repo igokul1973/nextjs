@@ -1,5 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 -- CreateEnum
 CREATE TYPE "userRoleEnum" AS ENUM ('superuser', 'admin', 'writer', 'reader');
 
